@@ -38,7 +38,7 @@ export default function CategorySection() {
               className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-[#fcf9f8] border border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] hover:shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all"
             >
               <div className="relative w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2">
-                <Image src={cat.icon_url || '/icons/default.svg'} alt={cat.name} fill className="object-contain" />
+                <Image src={(typeof cat.icon_url === 'object' ? cat.icon_url?.String : cat.icon_url) || '/icons/default.svg'} alt={cat.name} fill className="object-contain" />
               </div>
               <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight">
                 {cat.name}

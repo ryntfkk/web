@@ -9,6 +9,8 @@ export async function fetchAPI<T>(
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        'X-Platform': 'web',
+        'X-App-Version': '1.0.0',
         ...options.headers,
       },
     });
