@@ -36,33 +36,33 @@ export function ServiceCard({
         className
       )}
     >
-      {/* Image Section - 204px height per spec */}
-      <div className="relative w-full h-[204px] bg-[#e5e2e1]">
+      {/* Image Section - Responsive height: 140px mobile, 204px desktop */}
+      <div className="relative w-full h-[140px] sm:h-[180px] md:h-[204px] bg-[#e5e2e1]">
         <Image
           src={imageUrl}
           alt={vendorName}
           fill
           className="object-cover"
-          sizes="(max-width: 768px) 50vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {/* PRO Badge - positioned 8px from edges */}
         {isPro && (
           <div className="absolute top-2 left-2 bg-[#b51822] text-white px-2 py-0.5 rounded-[2px]">
-            <span className="text-[14px] font-semibold leading-none">PRO</span>
+            <span className="text-[12px] sm:text-[14px] font-semibold leading-none">PRO</span>
           </div>
         )}
       </div>
 
-      {/* Content Section - 8px padding, 4px internal gap */}
-      <div className="p-2 flex flex-col gap-1">
-        {/* Service Title - 16sp SemiBold, max 2 lines */}
-        <h3 className="text-[16px] font-semibold text-[#1c1b1b] leading-tight line-clamp-2">
+      {/* Content Section - Responsive padding */}
+      <div className="p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1">
+        {/* Service Title - Responsive font size */}
+        <h3 className="text-[13px] sm:text-[14px] md:text-[16px] font-semibold text-[#1c1b1b] leading-tight line-clamp-2">
           {vendorName}
         </h3>
 
         {/* Vendor Row - Avatar + Name */}
-        <div className="flex items-center gap-1 mt-1">
-          <div className="w-5 h-5 rounded-[12px] bg-[#e5e2e1] flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div className="flex items-center gap-1 mt-0.5 sm:mt-1">
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-[10px] sm:rounded-[12px] bg-[#e5e2e1] flex items-center justify-center overflow-hidden flex-shrink-0">
             {vendorAvatar ? (
               <Image
                 src={vendorAvatar}
@@ -72,36 +72,36 @@ export function ServiceCard({
                 className="object-cover"
               />
             ) : (
-              <span className="text-[10px] font-medium text-[#5b403e]">
+              <span className="text-[8px] sm:text-[10px] font-medium text-[#5b403e]">
                 {vendorName.charAt(0).toUpperCase()}
               </span>
             )}
           </div>
-          <span className="text-[12px] font-normal text-[#5b403e] truncate">
+          <span className="text-[11px] sm:text-[12px] font-normal text-[#5b403e] truncate">
             {category}
           </span>
         </div>
 
         {/* Rating + Location Row */}
-        <div className="flex items-center justify-between mt-1">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between mt-0.5 sm:mt-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             {/* Gold filled star */}
-            <Star className="w-[11.67px] h-[11.08px] fill-[#D69E2E] text-[#D69E2E]" />
-            <span className="text-[14px] font-medium text-[#1c1b1b]">{rating}</span>
-            <span className="text-[14px] font-normal text-[#5b403e]">({reviewCount})</span>
+            <Star className="w-3 h-3 sm:w-[11.67px] sm:h-[11.08px] fill-[#D69E2E] text-[#D69E2E]" />
+            <span className="text-[12px] sm:text-[14px] font-medium text-[#1c1b1b]">{rating}</span>
+            <span className="text-[11px] sm:text-[14px] font-normal text-[#5b403e] hidden sm:inline">({reviewCount})</span>
           </div>
-          <div className="flex items-center gap-1 text-[#5b403e]">
-            <MapPin className="w-3 h-3" />
-            <span className="text-[14px] font-normal">{location}</span>
+          <div className="flex items-center gap-0.5 text-[#5b403e]">
+            <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+            <span className="text-[11px] sm:text-[14px] font-normal">{location}</span>
           </div>
         </div>
 
-        {/* Price Row - 8px margin-top */}
-        <div className="flex items-end gap-1 mt-2">
-          <span className="text-[20px] font-semibold text-[#b51822] leading-none">
+        {/* Price Row */}
+        <div className="flex items-end gap-0.5 sm:gap-1 mt-1 sm:mt-2">
+          <span className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold text-[#b51822] leading-none">
             Rp {price.toLocaleString('id-ID')}
           </span>
-          <span className="text-[14px] font-normal text-[#5b403e] mb-0.5">
+          <span className="text-[11px] sm:text-[14px] font-normal text-[#5b403e] mb-0.5 sm:mb-1">
             /{unit}
           </span>
         </div>

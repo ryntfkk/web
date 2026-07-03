@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Search, Menu, ShoppingCart, Bell, User, X } from 'lucide-react';
@@ -32,10 +33,19 @@ export default function TopNavbar({
 
           {/* Left Section: Logo + Nav Links */}
           <div className="flex items-center gap-6">
-            {/* Logo - 24sp Bold #b51822 with -0.6px letter spacing */}
-            <Link href="/" className="flex items-center">
-              <span className="text-[24px] font-bold text-[#b51822] tracking-[-0.6px] whitespace-nowrap">
-                POSKO JASA
+            {/* Logo - Image + POSKO text in black */}
+            <Link href="/" className="flex items-center gap-2">
+              <div className="relative w-8 h-8">
+                <Image 
+                  src="/logo.svg" 
+                  alt="POSKO JASA Logo" 
+                  fill 
+                  className="object-contain" 
+                  priority
+                />
+              </div>
+              <span className="text-[24px] font-bold text-[#1c1b1b] tracking-[-0.6px] whitespace-nowrap">
+                POSKO
               </span>
             </Link>
 
@@ -143,7 +153,17 @@ export default function TopNavbar({
           {/* Drawer - slide from left */}
           <div className="fixed top-0 left-0 h-full w-[280px] bg-white z-50 shadow-lg lg:hidden">
             <div className="flex items-center justify-between p-4 border-b border-[#e5e2e1]">
-              <span className="text-[20px] font-bold text-[#b51822]">POSKO JASA</span>
+              <div className="flex items-center gap-2">
+                <div className="relative w-6 h-6">
+                  <Image 
+                    src="/logo.svg" 
+                    alt="POSKO JASA Logo" 
+                    fill 
+                    className="object-contain" 
+                  />
+                </div>
+                <span className="text-[20px] font-bold text-[#1c1b1b]">POSKO</span>
+              </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="text-[#5b403e] hover:text-[#b51822]"
