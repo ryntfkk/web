@@ -38,14 +38,14 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">
           {step === 1 ? 'Daftar Akun Baru' : 'Verifikasi OTP'}
         </h2>
         {step === 1 && (
           <p className="mt-2 text-center text-sm text-neutral-600">
             Sudah punya akun?{' '}
-            <Link href="/login" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link href="/login" className="font-medium text-[#b51822] hover:text-[#90121a]">
               Masuk di sini
             </Link>
           </p>
@@ -57,10 +57,10 @@ export default function RegisterPage() {
         )}
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-xl sm:px-10 border border-neutral-100">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
+        <div className="bg-white py-8 px-4 sm:px-10 border border-neutral-200 rounded-[2px] shadow-sm">
           {error && (
-            <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100">
+            <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-[2px] text-sm border border-red-100">
               {error}
             </div>
           )}
@@ -79,7 +79,7 @@ export default function RegisterPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                     placeholder="Budi Santoso"
                   />
                 </div>
@@ -97,7 +97,7 @@ export default function RegisterPage() {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                     placeholder="081234567890"
                   />
                 </div>
@@ -115,7 +115,7 @@ export default function RegisterPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm pr-10"
+                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
                     placeholder="Minimal 8 karakter"
                   />
                   <button
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70"
+                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Lanjut'}
                 </button>
@@ -157,7 +157,7 @@ export default function RegisterPage() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-300 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
                     placeholder="••••••"
                   />
                 </div>
@@ -167,7 +167,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading || otp.length < 6}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70"
+                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Verifikasi & Masuk'}
                 </button>
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-lg shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-[2px] shadow-sm text-sm font-bold text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Kembali

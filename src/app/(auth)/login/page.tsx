@@ -27,24 +27,24 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">
           Masuk ke akun Anda
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-600">
           Atau{' '}
-          <Link href="/register" className="font-medium text-primary-600 hover:text-primary-500">
+          <Link href="/register" className="font-medium text-[#b51822] hover:text-[#90121a]">
             daftar baru sekarang
           </Link>
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-xl sm:px-10 border border-neutral-100">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
+        <div className="bg-white py-8 px-4 sm:px-10 border border-neutral-200 rounded-[2px] shadow-sm">
           <form className="space-y-6" onSubmit={handleSubmit}>
             
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100">
+              <div className="p-3 bg-red-50 text-red-600 rounded-[2px] text-sm border border-red-100">
                 {error}
               </div>
             )}
@@ -62,7 +62,7 @@ export default function LoginPage() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                   placeholder="08123456789 atau email Anda"
                 />
               </div>
@@ -81,7 +81,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm pr-10"
+                  className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
                 />
                 <button
                   type="button"
@@ -105,7 +105,7 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+                  className="h-4 w-4 text-[#b51822] focus:ring-[#b51822] border-neutral-300 rounded-[2px]"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-900">
                   Ingat saya
@@ -113,7 +113,7 @@ export default function LoginPage() {
               </div>
 
               <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
+                <Link href="/forgot-password" className="font-medium text-[#b51822] hover:text-[#90121a]">
                   Lupa password?
                 </Link>
               </div>
@@ -123,7 +123,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70"
+                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
               >
                 {loading ? (
                   <Loader2 className="animate-spin h-5 w-5" />
