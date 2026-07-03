@@ -4,6 +4,7 @@ import "./globals.css";
 import TopNavbar from "@/components/layout/TopNavbar";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
+import QueryProvider from "@/components/providers/query-provider";
 
 // Load Inter font with proper weights
 const inter = Inter({
@@ -25,12 +26,14 @@ export default function RootLayout({
   return (
     <html lang="id" className={`h-full antialiased ${inter.variable}`}>
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground pb-16 md:pb-0">
-        <TopNavbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <BottomNav />
+        <QueryProvider>
+          <TopNavbar />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <BottomNav />
+        </QueryProvider>
       </body>
     </html>
   );
