@@ -1,0 +1,117 @@
+"use client";
+
+import Image from "next/image";
+import { useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+interface HeroSlide {
+  id: number;
+  imageUrl: string;
+}
+
+// Place images in: /public/images/hero-1.png, hero-2.png, hero-3.png, etc.
+const HERO_SLIDES: HeroSlide[] = [
+  {
+    id: 1,
+    imageUrl: "/images/hero-1.png",
+  },
+  {
+    id: 2,
+    imageUrl: "/images/hero-2.png",
+  },
+  {
+    id: 3,
+    imageUrl: "/images/hero-3.png",
+  },
+];
+
+export default function HeroCarousel() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const goToNext = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    setTimeout(() => setIsTransitioning(false), 1000);
+  }, [isTransitioning]);
+
+  const goToPrev = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentSlide((prev) =>
+      prev === 0 ? HERO_SLIDES.length - 1 : prev - 1
+    );
+    setTimeout(() => setIsTransitioning(false), 1000);
+  }, [isTransitioning]);
+
+  // Auto-slide every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(goToNext, 5000);
+    return () => clearInterval(timer);
+  }, [goToNext]);
+
+  const goToSlide = (index: number) => {
+    if (isTransitioning || index === currentSlide) return;
+    setIsTransitioning(true);
+    setCurrentSlide(index);
+    setTimeout(() => setIsTransitioning(false), 1000);
+  };
+
+  return (
+    <section className="relative w-full h-[200px] sm:h-[280px] md:h-[350px] lg:h-[400px] overflow-hidden bg-[#e5e2e1]">
+      {/* Slides Container */}
+      <div className="relative w-full h-full">
+        {HERO_SLIDES.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+              index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          >
+            <Image
+              src={slide.imageUrl}
+              alt={`Hero slide ${index + 1}`}
+              fill
+              className="object-cover"
+              priority={index === 0}
+              sizes="100vw"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Navigation Arrows - Higher z-index */}
+      <button
+        onClick={goToPrev}
+        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 hover:bg-white transition-all flex items-center justify-center text-[#1c1b1b] shadow-md"
+        aria-label="Previous slide"
+      >
+        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+      </button>
+      <button
+        onClick={goToNext}
+        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 hover:bg-white transition-all flex items-center justify-center text-[#1c1b1b] shadow-md"
+        aria-label="Next slide"
+      >
+        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+      </button>
+
+      {/* Dots Indicator */}
+      <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 sm:gap-2">
+        {HERO_SLIDES.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              index === currentSlide
+                ? "bg-[#b51822] w-4 sm:w-6"
+                : "bg-white/60 hover:bg-white w-1.5 sm:w-2"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}

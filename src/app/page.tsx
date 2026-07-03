@@ -1,14 +1,16 @@
-import { Search, PenTool, Zap, Droplets, SprayCan, Tv, Hammer } from 'lucide-react';
+import { PenTool, Zap, Droplets, SprayCan, Tv, Hammer } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ServiceCard } from '@/components/ui/service-card';
+import HeroCarousel from '@/components/ui/hero-carousel';
 
 const CATEGORIES = [
-  { name: 'AC', icon: <PenTool className="w-8 h-8 text-[#b51822]" />, count: 24 },
-  { name: 'Listrik', icon: <Zap className="w-8 h-8 text-[#b51822]" />, count: 18 },
-  { name: 'Air', icon: <Droplets className="w-8 h-8 text-[#b51822]" />, count: 15 },
-  { name: 'Bersih', icon: <SprayCan className="w-8 h-8 text-[#b51822]" />, count: 32 },
-  { name: 'Elektronik', icon: <Tv className="w-8 h-8 text-[#b51822]" />, count: 12 },
-  { name: 'Renovasi', icon: <Hammer className="w-8 h-8 text-[#b51822]" />, count: 8 },
+  { name: 'AC', icon: '/icons/ac.png', count: 24 },
+  { name: 'Listrik', icon: '/icons/listrik.png', count: 18 },
+  { name: 'Air', icon: '/icons/air.png', count: 15 },
+  { name: 'Bersih', icon: '/icons/bersih.png', count: 32 },
+  { name: 'Elektronik', icon: '/icons/elektronik.png', count: 12 },
+  { name: 'Renovasi', icon: '/icons/renovasi.png', count: 8 },
 ];
 
 const TOP_PARTNERS = [
@@ -108,33 +110,8 @@ const FEATURED_SERVICES = [
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section - Brand Red Background */}
-      <section className="bg-[#b51822] text-white py-8 sm:py-12 md:py-20 px-4 sm:px-6">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-          <div className="max-w-2xl">
-            {/* Display: Responsive font size */}
-            <h1 className="text-[20px] sm:text-[22px] md:text-[32px] font-bold leading-[1.25] mb-2 sm:mb-4">
-              Temukan Ahli Profesional untuk Segala Kebutuhan Rumah
-            </h1>
-            {/* Body Large: Responsive */}
-            <p className="text-[14px] sm:text-[16px] leading-[1.5] mb-4 sm:mb-6 text-[#f0eded]">
-              Pesan jasa reparasi AC, kebersihan, hingga saluran air dengan mudah.
-            </p>
-
-            {/* Mobile Search Bar in Hero - Better sizing */}
-            <div className="relative w-full max-w-md">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-[#8f6f6d]" />
-              </div>
-              <input
-                type="text"
-                className="block w-full rounded-full border-none bg-white py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-[14px] sm:text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:outline-none focus:ring-2 focus:ring-white shadow-md"
-                placeholder="Cari jasa..."
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section - Auto-sliding Carousel */}
+      <HeroCarousel />
 
       {/* Main Content Area - Better mobile padding */}
       <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-6 sm:py-8 md:py-12 flex-1">
@@ -157,7 +134,9 @@ export default function Home() {
                 key={idx}
                 className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-[#fcf9f8] border border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] hover:shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all"
               >
-                <span className="text-2xl sm:text-3xl mb-1 sm:mb-2">{cat.icon}</span>
+                <div className="relative w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2">
+                  <Image src={cat.icon} alt={cat.name} fill className="object-contain" />
+                </div>
                 <span className="text-[11px] sm:text-[13px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight">
                   {cat.name}
                 </span>
