@@ -37,11 +37,22 @@ export function usePartners(params: PartnersParams = {}) {
   return useQuery({
     queryKey: ['partners', params],
     queryFn: async () => {
-      const res = await fetchAPI<any[]>(endpoint); // Assuming it returns array of partners
+      const res = await fetchAPI<any[]>(endpoint); 
       if (!res.success) {
         throw new Error(res.message || 'Gagal memuat data mitra');
       }
-      return res.data;
+      
+      // Parse base64 categories (Go json.Marshal encodes []byte as base64)
+      return res.data?.map(partner => {
+        if (typeof partner.categories === 'string') {
+          try {
+            partner.categories = JSON.parse(atob(partner.categories));
+          } catch (e) {
+            console.error("Failed to parse categories:", e);
+          }
+        }
+        return partner;
+      });
     },
   });
 }

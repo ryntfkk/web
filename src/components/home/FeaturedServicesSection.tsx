@@ -37,8 +37,8 @@ export default function FeaturedServicesSection() {
               reviewCount={partner.total_reviews || 0}
               price={partner.starting_price || 0}
               unit="Jasa"
-              imageUrl={partner.avatar_url || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
-              location={`${partner.distance_km || 0} km`}
+              imageUrl={(typeof partner.avatar_url === 'object' ? partner.avatar_url?.String : partner.avatar_url) || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
+              location={`${((partner.distance_meters || 0) / 1000).toFixed(1)} km`}
             />
           ))}
         </div>
