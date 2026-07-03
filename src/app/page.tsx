@@ -145,14 +145,14 @@ export default function Home() {
             ))}
             
             {/* Tombol Lihat Semua Kategori */}
-            <div className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-white border border-dashed border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] transition-all">
+            <Link href="/categories" className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-white border border-dashed border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] transition-all">
               <div className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2 flex items-center justify-center bg-[#f0eded] rounded-full">
                 <span className="text-[#b51822] font-bold text-[20px]">+</span>
               </div>
               <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-[#b51822] text-center leading-tight">
                 Lainnya
               </span>
-            </div>
+            </Link>
           </div>
         </section>
 
