@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Search, Menu, ShoppingCart, Bell, User, X } from 'lucide-react';
 
@@ -19,6 +20,19 @@ export default function TopNavbar({
 }: TopNavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const query = e.currentTarget.value.trim();
+      if (query) {
+        router.push(`/search?q=${encodeURIComponent(query)}`);
+      } else {
+        router.push('/search');
+      }
+      setIsMobileSearchOpen(false); // Close mobile search if open
+    }
+  };
 
   const navLinks = [
     { label: 'Kategori', href: '/categories' },
@@ -42,6 +56,7 @@ export default function TopNavbar({
                   className="block w-full rounded-full border border-[#e5e2e1] bg-white py-2 pl-9 pr-4 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
                   placeholder="Cari jasa AC, ledeng, kebersihan..."
                   autoFocus
+                  onKeyDown={handleSearch}
                 />
               </div>
               <Button
@@ -98,6 +113,7 @@ export default function TopNavbar({
                 type="text"
                 className="block w-full rounded-[2px] border border-[#e5e2e1] bg-white py-2.5 pl-4 pr-10 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
                 placeholder="Cari jasa AC, ledeng, kebersihan..."
+                onKeyDown={handleSearch}
               />
             </div>
           </div>

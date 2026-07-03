@@ -5,15 +5,21 @@ import Pagination from '@/components/search/Pagination';
 import { ServiceCard } from '@/components/ui/service-card';
 import { TOP_PARTNERS, FEATURED_SERVICES } from '@/lib/data';
 
-export default function SearchPage() {
+interface SearchPageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function SearchPage({ searchParams }: SearchPageProps) {
   // Combine some mock data to simulate search results (12 items)
   const searchResults = [...TOP_PARTNERS, ...FEATURED_SERVICES, ...TOP_PARTNERS];
+  
+  const query = typeof searchParams.q === 'string' ? searchParams.q : undefined;
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Main Content Area */}
       <div className="container mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-6 pt-6 pb-12 flex-1">
-        <Breadcrumbs query="Cleaning Service" />
+        <Breadcrumbs query={query} />
         
         {/* Container (Filter + Results) */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
