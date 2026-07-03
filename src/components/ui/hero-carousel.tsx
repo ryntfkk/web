@@ -27,23 +27,15 @@ const HERO_SLIDES: HeroSlide[] = [
 
 export default function HeroCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
   const goToNext = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
     setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-    setTimeout(() => setIsTransitioning(false), 1000);
-  }, [isTransitioning]);
+  }, []);
 
   const goToPrev = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
     setCurrentSlide((prev) =>
       prev === 0 ? HERO_SLIDES.length - 1 : prev - 1
     );
-    setTimeout(() => setIsTransitioning(false), 1000);
-  }, [isTransitioning]);
+  }, []);
 
   // Auto-slide every 5 seconds
   useEffect(() => {
@@ -52,14 +44,12 @@ export default function HeroCarousel() {
   }, [goToNext]);
 
   const goToSlide = (index: number) => {
-    if (isTransitioning || index === currentSlide) return;
-    setIsTransitioning(true);
     setCurrentSlide(index);
-    setTimeout(() => setIsTransitioning(false), 1000);
   };
 
   return (
-    <section className="relative w-full h-[200px] sm:h-[280px] md:h-[350px] lg:h-[400px] overflow-hidden bg-[#e5e2e1]">
+    <div className="w-full bg-white flex justify-center">
+      <section className="relative w-full max-w-[1200px] h-[200px] sm:h-[280px] md:h-[350px] lg:h-[400px] overflow-hidden bg-[#e5e2e1] lg:mt-6 lg:rounded-xl">
       {/* Slides Container */}
       <div className="relative w-full h-full">
         {HERO_SLIDES.map((slide, index) => (
@@ -113,5 +103,6 @@ export default function HeroCarousel() {
         ))}
       </div>
     </section>
+    </div>
   );
 }
