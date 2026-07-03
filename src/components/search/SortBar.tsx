@@ -1,9 +1,16 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, SlidersHorizontal } from 'lucide-react';
 
 export default function SortBar() {
   return (
-    <div className="flex items-center gap-4 bg-[#f6f3f2] border border-[#e5e2e1] rounded-[4px] p-[9px] w-full overflow-x-auto">
-      <span className="text-[14px] font-medium text-[#5b403e] whitespace-nowrap">
+    <div className="flex items-center gap-3 md:gap-4 bg-[#f6f3f2] border border-[#e5e2e1] rounded-[4px] p-2 md:p-[9px] w-full overflow-x-auto scrollbar-hide">
+      
+      {/* Mobile Filter Button */}
+      <button className="md:hidden flex items-center gap-1.5 bg-white border border-[#e5e2e1] text-[#1c1b1b] text-[14px] font-medium py-[7px] px-3 rounded-[4px] whitespace-nowrap transition-all shadow-sm">
+        <SlidersHorizontal className="w-4 h-4" />
+        Filter
+      </button>
+
+      <span className="hidden md:inline text-[14px] font-medium text-[#5b403e] whitespace-nowrap">
         Sort by:
       </span>
       <div className="flex items-center gap-2">

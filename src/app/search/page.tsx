@@ -16,13 +16,13 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
   const query = typeof searchParams.q === 'string' ? searchParams.q : undefined;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col bg-white">
       {/* Main Content Area */}
-      <div className="container mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-6 pt-6 pb-12 flex-1">
+      <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6 py-4 md:py-6 flex-1">
         <Breadcrumbs query={query} />
         
         {/* Container (Filter + Results) */}
-        <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
           <FilterPanel />
           
           {/* Main Results Area */}
@@ -30,7 +30,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
             <SortBar />
             
             {/* Service Card Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
               {searchResults.map((service, idx) => (
                 <ServiceCard key={idx} {...service} />
               ))}
