@@ -5,12 +5,13 @@ import { ServiceCard } from '@/components/ui/service-card';
 import HeroCarousel from '@/components/ui/hero-carousel';
 
 const CATEGORIES = [
-  { name: 'AC', icon: '/icons/ac.png', count: 24 },
-  { name: 'Listrik', icon: '/icons/listrik.png', count: 18 },
-  { name: 'Air', icon: '/icons/air.png', count: 15 },
-  { name: 'Bersih', icon: '/icons/bersih.png', count: 32 },
-  { name: 'Elektronik', icon: '/icons/elektronik.png', count: 12 },
-  { name: 'Renovasi', icon: '/icons/renovasi.png', count: 8 },
+  { name: 'Service AC', icon: '/icons/air-conditioner.png', count: 124 },
+  { name: 'Kelistrikan', icon: '/icons/electrician.png', count: 85 },
+  { name: 'Kebersihan', icon: '/icons/janitor.png', count: 210 },
+  { name: 'Renovasi', icon: '/icons/handyman.png', count: 64 },
+  { name: 'Cuci Mobil', icon: '/icons/car-wash.png', count: 42 },
+  { name: 'Babysitter', icon: '/icons/babysitter.png', count: 38 },
+  { name: 'Service HP', icon: '/icons/phonerepair.png', count: 91 },
 ];
 
 const TOP_PARTNERS = [
@@ -127,8 +128,8 @@ export default function Home() {
               Lihat Semua
             </Button>
           </div>
-          {/* Grid: 2 columns on mobile, 3 on small tablet, 6 on desktop */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+          {/* Grid: 4 columns on mobile, 8 on desktop */}
+          <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
             {CATEGORIES.map((cat, idx) => (
               <div
                 key={idx}
@@ -137,14 +138,21 @@ export default function Home() {
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2">
                   <Image src={cat.icon} alt={cat.name} fill className="object-contain" />
                 </div>
-                <span className="text-[11px] sm:text-[13px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight">
+                <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight">
                   {cat.name}
-                </span>
-                <span className="text-[10px] sm:text-[11px] md:text-[12px] text-[#5b403e] mt-0.5 sm:mt-1 hidden sm:block">
-                  {cat.count} mitra
                 </span>
               </div>
             ))}
+            
+            {/* Tombol Lihat Semua Kategori */}
+            <div className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-white border border-dashed border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] transition-all">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2 flex items-center justify-center bg-[#f0eded] rounded-full">
+                <span className="text-[#b51822] font-bold text-[20px]">+</span>
+              </div>
+              <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-[#b51822] text-center leading-tight">
+                Lainnya
+              </span>
+            </div>
           </div>
         </section>
 
