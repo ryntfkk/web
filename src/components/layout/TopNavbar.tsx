@@ -37,7 +37,7 @@ export default function TopNavbar({
             <Link href="/" className="flex items-center gap-2">
               <div className="relative w-8 h-8">
                 <Image 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt="POSKO JASA Logo" 
                   fill 
                   className="object-contain" 
@@ -156,7 +156,7 @@ export default function TopNavbar({
               <div className="flex items-center gap-2">
                 <div className="relative w-6 h-6">
                   <Image 
-                    src="/logo.svg" 
+                    src="/logo.png" 
                     alt="POSKO JASA Logo" 
                     fill 
                     className="object-contain" 
