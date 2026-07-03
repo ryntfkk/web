@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
-import { api } from '@/lib/api';
+import { fetchAPI } from '@/lib/api';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -25,9 +25,13 @@ export default function ForgotPasswordPage() {
     setError('');
     
     try {
-      await api.post('/auth/forgot-password', {
-        identifier,
+      const res = await fetchAPI('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ identifier }),
       });
+      if (!res.success) {
+        throw new Error(res.message || res.error || 'Gagal mengirim permintaan pemulihan.');
+      }
       setSuccess('Kode pemulihan telah dikirim ke perangkat/email Anda');
       setStep(2);
     } catch (err: any) {
@@ -48,11 +52,13 @@ export default function ForgotPasswordPage() {
     setError('');
     
     try {
-      await api.post('/auth/reset-password', {
-        identifier,
-        token,
-        password,
+      const res = await fetchAPI('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ identifier, token, password }),
       });
+      if (!res.success) {
+        throw new Error(res.message || res.error || 'Gagal mengubah password.');
+      }
       setSuccess('Password berhasil diubah. Mengalihkan...');
       setTimeout(() => {
         router.push('/login');

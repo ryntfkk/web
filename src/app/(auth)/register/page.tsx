@@ -7,40 +7,50 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function RegisterPage() {
-  const { registerPhone, verifyOTP, loading, error, isAuthenticated } = useAuth();
+  const { sendOTP, verifyOTPAndRegister, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  const [step, setStep] = useState<1 | 2>(1);
-  const [name, setName] = useState('');
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
-  const [otp, setOtp] = useState('');
 
   if (isAuthenticated) {
     router.replace('/');
     return null;
   }
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await registerPhone(phone, name, password);
+    const res = await sendOTP(phone);
     if (res.success) {
       setStep(2);
     }
   };
 
-  const handleVerifyOTP = async (e: React.FormEvent) => {
+  const handleVerifyOTPLocal = (e: React.FormEvent) => {
     e.preventDefault();
-    await verifyOTP(phone, otp);
+    if (otp.length === 6) {
+      setStep(3);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await verifyOTPAndRegister(phone, otp, username, name, password);
   };
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">
-          {step === 1 ? 'Daftar Akun Baru' : 'Verifikasi OTP'}
+          {step === 1 && 'Daftar Akun Baru'}
+          {step === 2 && 'Verifikasi OTP'}
+          {step === 3 && 'Lengkapi Profil Anda'}
         </h2>
         {step === 1 && (
           <p className="mt-2 text-center text-sm text-neutral-600">
@@ -65,26 +75,8 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {step === 1 ? (
-            <form className="space-y-6" onSubmit={handleRegister}>
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-neutral-700">
-                  Nama Lengkap
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
-                    placeholder="Budi Santoso"
-                  />
-                </div>
-              </div>
-
+          {step === 1 && (
+            <form className="space-y-6" onSubmit={handleSendOTP}>
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-neutral-700">
                   Nomor Handphone
@@ -99,6 +91,98 @@ export default function RegisterPage() {
                     onChange={(e) => setPhone(e.target.value)}
                     className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                     placeholder="081234567890"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
+                >
+                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Kirim OTP'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {step === 2 && (
+            <form className="space-y-6" onSubmit={handleVerifyOTPLocal}>
+              <div>
+                <label htmlFor="otp" className="block text-sm font-medium text-neutral-700">
+                  Kode OTP
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="otp"
+                    name="otp"
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-300 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
+                    placeholder="••••••"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col space-y-4">
+                <button
+                  type="submit"
+                  disabled={otp.length < 6}
+                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
+                >
+                  Selanjutnya
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-[2px] shadow-sm text-sm font-bold text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Ganti Nomor HP
+                </button>
+              </div>
+            </form>
+          )}
+
+          {step === 3 && (
+            <form className="space-y-6" onSubmit={handleRegister}>
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-neutral-700">
+                  Username
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                    placeholder="username123"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-neutral-700">
+                  Nama Lengkap
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                    placeholder="Budi Santoso"
                   />
                 </div>
               </div>
@@ -132,49 +216,18 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div>
+              <div className="flex flex-col space-y-4">
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
                 >
-                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Lanjut'}
+                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Selesai & Daftar'}
                 </button>
-              </div>
-            </form>
-          ) : (
-            <form className="space-y-6" onSubmit={handleVerifyOTP}>
-              <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-neutral-700">
-                  Kode OTP
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="otp"
-                    name="otp"
-                    type="text"
-                    required
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-300 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
-                    placeholder="••••••"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col space-y-4">
-                <button
-                  type="submit"
-                  disabled={loading || otp.length < 6}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
-                >
-                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Verifikasi & Masuk'}
-                </button>
-
+                
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
+                  onClick={() => setStep(2)}
                   className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-[2px] shadow-sm text-sm font-bold text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />

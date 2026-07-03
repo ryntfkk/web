@@ -29,27 +29,27 @@ export function useAuth() {
     return res;
   };
 
-  const registerPhone = async (phone: string, name: string, password: string) => {
+  const sendOTP = async (phone: string) => {
     setLoading(true);
     setError(null);
-    const res = await fetchAPI('/auth/register/phone', {
+    const res = await fetchAPI('/auth/otp/send', {
       method: 'POST',
-      body: JSON.stringify({ phone, name, password }),
+      body: JSON.stringify({ phone }),
     });
 
     if (!res.success) {
-      setError(typeof res.error === 'object' ? res.error.message : (res.error || 'Registration failed'));
+      setError(typeof res.error === 'object' ? res.error.message : (res.error || 'Failed to send OTP'));
     }
     setLoading(false);
     return res;
   };
 
-  const verifyOTP = async (phone: string, otp: string) => {
+  const verifyOTPAndRegister = async (phone: string, otp: string, username: string, name: string, password: string) => {
     setLoading(true);
     setError(null);
-    const res = await fetchAPI<{ user: User; access_token: string }>('/auth/verify/otp', {
+    const res = await fetchAPI<{ user: User; access_token: string }>('/auth/register/phone', {
       method: 'POST',
-      body: JSON.stringify({ phone, otp }),
+      body: JSON.stringify({ phone, otp, username, name, password }),
       credentials: 'include',
     });
 
@@ -57,7 +57,7 @@ export function useAuth() {
       authStore.login(res.data.user, res.data.access_token);
       router.push('/');
     } else {
-      setError(typeof res.error === 'object' ? res.error.message : (res.error || 'OTP verification failed'));
+      setError(typeof res.error === 'object' ? res.error.message : (res.error || 'Registration failed'));
     }
     setLoading(false);
     return res;
@@ -77,8 +77,8 @@ export function useAuth() {
     loading,
     error,
     login,
-    registerPhone,
-    verifyOTP,
+    sendOTP,
+    verifyOTPAndRegister,
     logout,
   };
 }
