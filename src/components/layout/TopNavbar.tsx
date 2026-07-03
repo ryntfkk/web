@@ -7,17 +7,13 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Search, Menu, ShoppingCart, Bell, User, X } from 'lucide-react';
 
-interface TopNavbarProps {
-  isLoggedIn?: boolean;
-  userName?: string;
-  userAvatar?: string;
-}
+import { useAuthStore } from '@/lib/store/authStore';
 
-export default function TopNavbar({
-  isLoggedIn = false,
-  userName = "Pengguna",
-  userAvatar,
-}: TopNavbarProps) {
+export default function TopNavbar() {
+  const { isAuthenticated, user } = useAuthStore();
+  const userName = user?.name || "Pengguna";
+  const userAvatar = user?.avatar_url;
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const router = useRouter();
@@ -130,7 +126,7 @@ export default function TopNavbar({
               <Search className="h-5 w-5" />
             </Button>
 
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               /* Logged In State */
               <div className="hidden lg:flex items-center gap-4">
                 {/* Cart Icon - 19.98x20px */}
@@ -160,12 +156,18 @@ export default function TopNavbar({
             ) : (
               /* Logged Out State */
               <div className="hidden lg:flex items-center gap-2">
-                <Button variant="ghost" className="text-[#5b403e] hover:text-[#b51822]">
+                <Link 
+                  href="/login" 
+                  className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
+                >
                   Masuk
-                </Button>
-                <Button variant="primary" size="default">
+                </Link>
+                <Link 
+                  href="/register"
+                  className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
+                >
                   Daftar
-                </Button>
+                </Link>
               </div>
             )}
 
@@ -229,20 +231,28 @@ export default function TopNavbar({
 
               <hr className="border-[#e5e2e1] my-2" />
 
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
-                  <Link href="/orders" className="text-[16px] text-[#5b403e] py-2">Pesanan</Link>
-                  <Link href="/wallet" className="text-[16px] text-[#5b403e] py-2">Dompet</Link>
-                  <Link href="/profile" className="text-[16px] text-[#5b403e] py-2">Profil</Link>
+                  <Link href="/orders" className="text-[16px] text-[#5b403e] py-2" onClick={() => setIsMobileMenuOpen(false)}>Pesanan</Link>
+                  <Link href="/wallet" className="text-[16px] text-[#5b403e] py-2" onClick={() => setIsMobileMenuOpen(false)}>Dompet</Link>
+                  <Link href="/profile" className="text-[16px] text-[#5b403e] py-2" onClick={() => setIsMobileMenuOpen(false)}>Profil</Link>
                 </>
               ) : (
                 <>
-                  <Button variant="secondary" size="default" className="w-full">
+                  <Link 
+                    href="/login" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#b51822] border border-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
+                  >
                     Masuk
-                  </Button>
-                  <Button variant="primary" size="default" className="w-full">
+                  </Link>
+                  <Link 
+                    href="/register" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
+                  >
                     Daftar
-                  </Button>
+                  </Link>
                 </>
               )}
             </nav>
