@@ -8,29 +8,59 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { icon: Home, label: 'Beranda', href: '/' },
-    { icon: ClipboardList, label: 'Pesanan', href: '/orders' },
-    { icon: MessageSquare, label: 'Chat', href: '/chat' },
-    { icon: User, label: 'Profil', href: '/profile' },
+    {
+      icon: Home,
+      activeIcon: Home, // Use solid version in production
+      label: 'Beranda',
+      href: '/'
+    },
+    {
+      icon: ClipboardList,
+      activeIcon: ClipboardList,
+      label: 'Pesanan',
+      href: '/orders'
+    },
+    {
+      icon: MessageSquare,
+      activeIcon: MessageSquare,
+      label: 'Chat',
+      href: '/chat'
+    },
+    {
+      icon: User,
+      activeIcon: User,
+      label: 'Profil',
+      href: '/profile'
+    },
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 w-full bg-white border-t border-border pb-safe z-50">
+    /* Bottom Navigation - hidden on desktop (md:hidden) */
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] pb-safe z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
-          const Icon = item.icon;
-          
+          const Icon = isActive ? item.activeIcon : item.icon;
+
           return (
-            <Link 
-              key={item.href} 
+            <Link
+              key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
-                isActive ? 'text-brand-red' : 'text-brand-gray-400 hover:text-brand-gray-700'
-              }`}
+              className={`
+                flex flex-col items-center justify-center
+                flex-1 h-full space-y-1
+                transition-colors duration-200
+                ${isActive
+                  ? 'text-[#b51822]'
+                  : 'text-[#8f6f6d] hover:text-[#5b403e]'
+                }
+              `}
             >
-              <Icon className="h-5 w-5" />
-              <span className="text-[11px] font-medium leading-none">
+              <Icon
+                className="h-5 w-5"
+                strokeWidth={isActive ? 2.5 : 2}
+              />
+              <span className="text-[12px] font-medium leading-none">
                 {item.label}
               </span>
             </Link>

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -68,6 +69,38 @@
   --color-brand-info-light: #BEE3F8;
   --color-brand-orange: #DD6B20;
   --color-brand-orange-light: #FEEBC8;
+
+  /* Spacing Tokens (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Border Radius Tokens */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Shadow Tokens */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  --shadow-top: 0 -2px 8px rgba(0,0,0,0.08);
+
+  /* Surface Colors */
+  --surface-card: #fcf9f8;
+  --surface-input: #ffffff;
+  --surface-disabled: #f6f3f2;
+  --surface-sort-bar: #f6f3f2;
+  --surface-navbar: #fcf9f8;
+  --surface-footer: #e5e2e1;
 }
 
 :root {
