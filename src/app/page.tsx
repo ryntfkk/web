@@ -1,5 +1,6 @@
 import { PenTool, Zap, Droplets, SprayCan, Tv, Hammer } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ServiceCard } from '@/components/ui/service-card';
 import HeroCarousel from '@/components/ui/hero-carousel';
