@@ -27,7 +27,7 @@ export default function ReviewSection({ reviews, summary }: ReviewSectionProps) 
       
       <div className="flex flex-col md:flex-row gap-6 mb-8 border-b border-gray-100 pb-6">
         <div className="flex flex-col items-center justify-center min-w-[150px]">
-          <div className="text-4xl font-bold text-gray-900 mb-1">{summary.avg_rating.toFixed(1)}</div>
+          <div className="text-4xl font-bold text-gray-900 mb-1">{Number(summary.avg_rating).toFixed(1)}</div>
           <div className="flex gap-1 mb-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star

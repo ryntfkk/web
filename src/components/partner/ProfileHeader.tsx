@@ -41,7 +41,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               <div className="flex flex-col">
                 <div className="flex items-center gap-1 text-yellow-500 font-medium">
                   <Star className="w-4 h-4 fill-current" />
-                  <span>{profile.avg_rating.toFixed(1)}</span>
+                  <span>{Number(profile.avg_rating).toFixed(1)}</span>
                 </div>
                 <span className="text-gray-500 text-xs">{profile.total_reviews} Ulasan</span>
               </div>
