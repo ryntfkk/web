@@ -16,18 +16,23 @@ interface PartnersParams {
 export function usePartners(params: PartnersParams = {}) {
   const queryParams = new URLSearchParams();
   
-  if (params.latitude) queryParams.append('latitude', params.latitude.toString());
-  if (params.longitude) queryParams.append('longitude', params.longitude.toString());
+  // Use Jakarta coordinates as default for MVP
+  const lat = params.latitude || -6.200000;
+  const lon = params.longitude || 106.816666;
+  
+  queryParams.append('lat', lat.toString());
+  queryParams.append('lon', lon.toString());
+  
   if (params.radius) queryParams.append('radius', params.radius.toString());
   if (params.category_id) queryParams.append('category_id', params.category_id);
   if (params.min_rating) queryParams.append('min_rating', params.min_rating.toString());
-  if (params.q) queryParams.append('q', params.q); // Note: backend doesn't explicitly document 'q', but usually it does.
+  if (params.q) queryParams.append('q', params.q);
   if (params.sort_by) queryParams.append('sort_by', params.sort_by);
   if (params.page) queryParams.append('page', params.page.toString());
   if (params.per_page) queryParams.append('per_page', params.per_page.toString());
 
   const queryString = queryParams.toString();
-  const endpoint = queryString ? `/partners?${queryString}` : '/partners';
+  const endpoint = `/partners?${queryString}`;
 
   return useQuery({
     queryKey: ['partners', params],
