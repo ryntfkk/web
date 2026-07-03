@@ -1,14 +1,40 @@
-import { Filter, Star, Check } from 'lucide-react';
+import { Filter, Star, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function FilterPanel() {
+interface FilterPanelProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
   return (
-    <aside className="w-[256px] shrink-0 bg-white border border-[#e5e2e1] rounded-[4px] p-[17px] hidden md:flex md:flex-col gap-6 h-max">
-      {/* Filter Header */}
-      <div className="flex items-center gap-2 pb-[9px] border-b border-[#e5e2e1]">
-        <Filter className="w-4 h-4 text-[#1c1b1b]" />
-        <h3 className="text-[16px] font-semibold text-[#1c1b1b]">Filter</h3>
-      </div>
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Panel */}
+      <aside className={`
+        fixed md:static inset-y-0 right-0 z-50 w-[280px] md:w-[256px] shrink-0 bg-white border-l md:border border-[#e5e2e1] md:rounded-[4px] p-[17px] 
+        flex flex-col gap-6 h-full md:h-max overflow-y-auto md:overflow-visible transition-transform duration-300
+        ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+        ${!isOpen && 'hidden md:flex'}
+      `}>
+        {/* Filter Header */}
+        <div className="flex items-center justify-between pb-[9px] border-b border-[#e5e2e1]">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-[#1c1b1b]" />
+            <h3 className="text-[16px] font-semibold text-[#1c1b1b]">Filter</h3>
+          </div>
+          {/* Close button for mobile */}
+          <button onClick={onClose} className="md:hidden text-[#1c1b1b]">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
       {/* Radius Filter */}
       <div className="flex flex-col gap-2">
@@ -57,5 +83,6 @@ export default function FilterPanel() {
         Lihat Semua Wilayah
       </Button>
     </aside>
+    </>
   );
 }

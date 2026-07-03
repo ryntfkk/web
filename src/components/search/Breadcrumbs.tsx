@@ -5,10 +5,10 @@ interface BreadcrumbsProps {
   query?: string;
 }
 
-export default function Breadcrumbs({ query }: BreadcrumbsProps) {
+export default function Breadcrumbs({ query = "Semua Kategori" }: { query?: string }) {
   return (
-    <nav className="flex items-center gap-2 mb-6">
-      <Link href="/" className="text-[14px] text-[#5b403e] hover:text-[#b51822] transition-colors">
+    <nav className="hidden md:flex items-center gap-[11px] text-[14px] text-[#8f6f6d] mb-[15px]">
+      <Link href="/" className="hover:text-[#b51822] transition-colors">
         Home
       </Link>
       <ChevronRight className="w-3 h-3 text-[#5b403e]" />

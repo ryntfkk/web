@@ -1,8 +1,4 @@
-import Breadcrumbs from '@/components/search/Breadcrumbs';
-import FilterPanel from '@/components/search/FilterPanel';
-import SortBar from '@/components/search/SortBar';
-import Pagination from '@/components/search/Pagination';
-import { ServiceCard } from '@/components/ui/service-card';
+import SearchContent from '@/components/search/SearchContent';
 import { TOP_PARTNERS, FEATURED_SERVICES } from '@/lib/data';
 
 interface SearchPageProps {
@@ -19,26 +15,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
     <div className="flex flex-col bg-white">
       {/* Main Content Area */}
       <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6 py-4 md:py-6 flex-1">
-        <Breadcrumbs query={query} />
-        
-        {/* Container (Filter + Results) */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
-          <FilterPanel />
-          
-          {/* Main Results Area */}
-          <div className="flex-1 flex flex-col w-full min-w-0">
-            <SortBar />
-            
-            {/* Service Card Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
-              {searchResults.map((service, idx) => (
-                <ServiceCard key={idx} {...service} />
-              ))}
-            </div>
-
-            <Pagination />
-          </div>
-        </div>
+        <SearchContent searchResults={searchResults} query={query} />
       </div>
     </div>
   );
