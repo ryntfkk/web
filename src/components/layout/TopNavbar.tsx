@@ -18,6 +18,7 @@ export default function TopNavbar({
   userAvatar,
 }: TopNavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   const navLinks = [
     { label: 'Kategori', href: '/categories' },
@@ -29,10 +30,33 @@ export default function TopNavbar({
     <>
       <header className="sticky top-0 z-50 w-full border-b border-[#e5e2e1] bg-[#fcf9f8]">
         {/* Outer container: 40px horizontal padding, max-width 1200px */}
-        <div className="mx-auto h-16 max-w-[1200px] px-6 flex items-center justify-between lg:px-6">
-
-          {/* Left Section: Logo + Nav Links */}
-          <div className="flex items-center gap-6">
+        <div className="mx-auto h-16 max-w-[1200px] px-4 sm:px-6 flex items-center justify-between lg:px-6">
+          {isMobileSearchOpen ? (
+            <div className="flex-1 flex items-center gap-2 w-full lg:hidden animate-in fade-in duration-200">
+              <div className="relative w-full">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <Search className="h-4 w-4 text-[#8f6f6d]" />
+                </div>
+                <input
+                  type="text"
+                  className="block w-full rounded-full border border-[#e5e2e1] bg-white py-2 pl-9 pr-4 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
+                  placeholder="Cari jasa AC, ledeng, kebersihan..."
+                  autoFocus
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileSearchOpen(false)}
+                className="text-[#5b403e] hover:text-[#b51822] shrink-0"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Left Section: Logo + Nav Links */}
+              <div className="flex items-center gap-6">
             {/* Logo - Image + POSKO text in black */}
             <Link href="/" className="flex items-center gap-2">
               <div className="relative w-8 h-8">
@@ -85,6 +109,7 @@ export default function TopNavbar({
               variant="ghost"
               size="icon"
               className="lg:hidden text-[#5b403e] hover:text-[#b51822]"
+              onClick={() => setIsMobileSearchOpen(true)}
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -138,6 +163,8 @@ export default function TopNavbar({
               <Menu className="h-6 w-6" />
             </Button>
           </div>
+            </>
+          )}
         </div>
       </header>
 
