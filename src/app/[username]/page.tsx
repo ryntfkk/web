@@ -1,10 +1,14 @@
 import PartnerProfileClient from './PartnerProfileClient';
 
 export async function generateStaticParams() {
-  // For static export, we must define the paths to be generated.
-  // In a real production setup without a Node server, this would need to fetch all active usernames
-  // or use a different client-side routing approach.
-  return [{ username: 'budisantoso' }]; 
+  // For static export, we define the paths to be generated.
+  // Using actual partner usernames from the production database
+  return [
+    { username: 'budiac' },
+    { username: 'siticom' },
+    { username: 'jokoplumb' },
+    { username: 'antotech' }
+  ]; 
 }
 
 interface PageProps {
