@@ -1,14 +1,14 @@
-import { Search } from 'lucide-react';
+import { Search, PenTool, Zap, Droplets, SprayCan, Tv, Hammer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ServiceCard } from '@/components/ui/service-card';
 
 const CATEGORIES = [
-  { name: 'Reparasi AC', icon: '❄️', count: 24 },
-  { name: 'Kelistrikan', icon: '⚡', count: 18 },
-  { name: 'Saluran Air', icon: '🚰', count: 15 },
-  { name: 'Kebersihan', icon: '🧹', count: 32 },
-  { name: 'Peralatan Rumah', icon: '📺', count: 12 },
-  { name: 'Renovasi', icon: '🔨', count: 8 },
+  { name: 'Reparasi AC', icon: <PenTool className="w-8 h-8 text-[#b51822]" />, count: 24 },
+  { name: 'Kelistrikan', icon: <Zap className="w-8 h-8 text-[#b51822]" />, count: 18 },
+  { name: 'Saluran Air', icon: <Droplets className="w-8 h-8 text-[#b51822]" />, count: 15 },
+  { name: 'Kebersihan', icon: <SprayCan className="w-8 h-8 text-[#b51822]" />, count: 32 },
+  { name: 'Peralatan Rumah', icon: <Tv className="w-8 h-8 text-[#b51822]" />, count: 12 },
+  { name: 'Renovasi', icon: <Hammer className="w-8 h-8 text-[#b51822]" />, count: 8 },
 ];
 
 const TOP_PARTNERS = [
