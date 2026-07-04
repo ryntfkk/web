@@ -72,7 +72,9 @@ export default function OrdersPage() {
 
   const filteredOrders = activeFilter === 'all'
     ? orders
-    : orders.filter(order => order.status === activeFilter);
+    : activeFilter === 'processing'
+      ? orders.filter(order => ['processing', 'in_progress', 'on_the_way'].includes(order.status))
+      : orders.filter(order => order.status === activeFilter);
 
   const filterCounts = {
     all: orders.length,
@@ -104,11 +106,23 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-20 md:pb-8">
+      {/* CSS internal untuk menyembunyikan scrollbar di filter mobile tapi tetap bisa di-scroll */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+      `}} />
+
       {/* Header */}
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
-            <Link href="/profile" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
+            <Link href="/profile" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-[2px]">
               <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
             </Link>
             <h1 className="text-lg font-bold text-[#1c1b1b]">Riwayat Pesanan</h1>
@@ -117,16 +131,21 @@ export default function OrdersPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+      <div className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
+        <div className="flex flex-col lg:flex-row gap-6 max-w-full">
 
-          {/* Sidebar Filters */}
-          <div className="w-full lg:w-64 shrink-0">
-            <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
-              <div className="p-4 border-b border-[#e5e2e1]">
+          {/* Sidebar Filters - Ditambahkan min-w-0 agar tidak merusak layout flex pada mobile */}
+          <div className="w-full lg:w-64 shrink-0 min-w-0">
+            <div className="bg-white rounded-[2px] border border-[#e5e2e1] overflow-hidden">
+              <div className="hidden lg:block p-4 border-b border-[#e5e2e1]">
                 <h3 className="font-semibold text-[#32201f]">Filter</h3>
               </div>
-              <div className="divide-y divide-[#e5e2e1]">
+
+              {/* Pembungkus Filter dengan perbaikan scroll horizontal */}
+              <div
+                className="flex flex-row overflow-x-auto lg:flex-col divide-x lg:divide-x-0 lg:divide-y divide-[#e5e2e1] scrollbar-hide touch-pan-x w-full"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
                 {[
                   { key: 'all' as FilterStatus, label: 'Semua' },
                   { key: 'pending' as FilterStatus, label: 'Menunggu' },
@@ -137,20 +156,17 @@ export default function OrdersPage() {
                   <button
                     key={filter.key}
                     onClick={() => setActiveFilter(filter.key)}
-                    className={`w-full flex items-center justify-between p-4 hover:bg-[#f7f5f4] transition-colors text-left ${
-                      activeFilter === filter.key ? 'bg-[#fdf2f2]' : ''
-                    }`}
+                    className={`shrink-0 lg:w-full flex items-center justify-between p-4 hover:bg-[#f7f5f4] transition-colors text-left outline-none ${activeFilter === filter.key ? 'bg-[#fdf2f2]' : ''
+                      }`}
                   >
-                    <span className={`text-sm font-medium ${
-                      activeFilter === filter.key ? 'text-[#b51822]' : 'text-[#32201f]'
-                    }`}>
+                    <span className={`text-sm font-medium whitespace-nowrap mr-3 lg:mr-0 ${activeFilter === filter.key ? 'text-[#b51822]' : 'text-[#32201f]'
+                      }`}>
                       {filter.label}
                     </span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${
-                      activeFilter === filter.key
+                    <span className={`text-xs px-2 py-0.5 rounded-[2px] shrink-0 ${activeFilter === filter.key
                         ? 'bg-[#b51822] text-white'
                         : 'bg-[#e5e2e1] text-[#5b403e]'
-                    }`}>
+                      }`}>
                       {filterCounts[filter.key]}
                     </span>
                   </button>
@@ -160,29 +176,29 @@ export default function OrdersPage() {
           </div>
 
           {/* Orders List */}
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 min-w-0">
             {loading ? (
               // Loading skeletons
               <>
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 animate-pulse">
+                  <div key={i} className="bg-white rounded-[2px] border border-[#e5e2e1] p-4 animate-pulse">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <div className="h-4 w-32 bg-[#e5e2e1] rounded mb-2"></div>
-                        <div className="h-3 w-24 bg-[#e5e2e1] rounded"></div>
+                        <div className="h-4 w-32 bg-[#e5e2e1] rounded-[2px] mb-2"></div>
+                        <div className="h-3 w-24 bg-[#e5e2e1] rounded-[2px]"></div>
                       </div>
-                      <div className="h-6 w-20 bg-[#e5e2e1] rounded"></div>
+                      <div className="h-6 w-20 bg-[#e5e2e1] rounded-[2px]"></div>
                     </div>
                     <div className="space-y-2">
-                      <div className="h-3 w-full bg-[#e5e2e1] rounded"></div>
-                      <div className="h-3 w-3/4 bg-[#e5e2e1] rounded"></div>
+                      <div className="h-3 w-full bg-[#e5e2e1] rounded-[2px]"></div>
+                      <div className="h-3 w-3/4 bg-[#e5e2e1] rounded-[2px]"></div>
                     </div>
                   </div>
                 ))}
               </>
             ) : filteredOrders.length === 0 ? (
               // Empty state
-              <div className="bg-white rounded border border-[#e5e2e1] p-8 text-center">
+              <div className="bg-white rounded-[2px] border border-[#e5e2e1] p-8 text-center">
                 <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-[#32201f] mb-2">
                   {activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
@@ -193,7 +209,7 @@ export default function OrdersPage() {
                     : 'Tidak ada pesanan dengan status ini.'}
                 </p>
                 {activeFilter === 'all' && (
-                  <Button onClick={() => router.push('/')}>
+                  <Button onClick={() => router.push('/')} className="rounded-[2px]">
                     Cari Jasa
                   </Button>
                 )}
@@ -205,10 +221,10 @@ export default function OrdersPage() {
                 const StatusIcon = statusConfig.icon;
 
                 return (
-                  <div key={order.id} className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
+                  <div key={order.id} className="bg-white rounded-[2px] border border-[#e5e2e1] overflow-hidden">
                     {/* Order Header */}
                     <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
                           <p className="text-sm font-semibold text-[#32201f]">{order.order_number}</p>
                           <p className="text-xs text-[#8f6f6d] flex items-center gap-1 mt-1">
@@ -216,9 +232,9 @@ export default function OrdersPage() {
                             {formatDate(order.created_at)}
                           </p>
                         </div>
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border rounded ${statusConfig.color}`}>
-                          <StatusIcon className="w-3 h-3" />
-                          {statusConfig.label}
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border rounded-[2px] self-start sm:self-auto ${statusConfig.color}`}>
+                          <StatusIcon className="w-3 h-3 shrink-0" />
+                          <span className="whitespace-nowrap">{statusConfig.label}</span>
                         </span>
                       </div>
                     </div>
@@ -228,17 +244,17 @@ export default function OrdersPage() {
                       {/* Service Items */}
                       <div className="space-y-2 mb-4">
                         {order.items?.slice(0, 2).map(item => (
-                          <div key={item.id} className="flex items-center justify-between">
+                          <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-[#f7f5f4] rounded flex items-center justify-center">
+                              <div className="w-8 h-8 shrink-0 bg-[#f7f5f4] rounded-[2px] flex items-center justify-center">
                                 <Package className="w-4 h-4 text-[#8f6f6d]" />
                               </div>
-                              <div>
-                                <p className="text-sm font-medium text-[#32201f]">{item.service_name}</p>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-[#32201f] truncate">{item.service_name}</p>
                                 <p className="text-xs text-[#8f6f6d]">x{item.quantity}</p>
                               </div>
                             </div>
-                            <p className="text-sm font-semibold text-[#32201f]">
+                            <p className="text-sm font-semibold text-[#32201f] self-end sm:self-auto">
                               {formatPrice(item.price * item.quantity)}
                             </p>
                           </div>
@@ -252,12 +268,12 @@ export default function OrdersPage() {
 
                       {/* Partner Info */}
                       {order.partner_name && (
-                        <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded mb-4">
-                          <div className="w-10 h-10 bg-[#e5e2e1] rounded flex items-center justify-center text-sm font-bold text-[#5b403e]">
+                        <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded-[2px] mb-4">
+                          <div className="w-10 h-10 shrink-0 bg-[#e5e2e1] rounded-[2px] flex items-center justify-center text-sm font-bold text-[#5b403e]">
                             {order.partner_name.charAt(0).toUpperCase()}
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-[#32201f]">{order.partner_name}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-[#32201f] truncate">{order.partner_name}</p>
                             <p className="text-xs text-[#8f6f6d]">Mitra</p>
                           </div>
                         </div>
@@ -266,34 +282,34 @@ export default function OrdersPage() {
                       {/* Service Info */}
                       {order.service_date && (
                         <div className="flex items-center gap-2 text-xs text-[#8f6f6d] mb-4">
-                          <Calendar className="w-4 h-4" />
-                          <span>Jadwal: {formatDate(order.service_date)}</span>
+                          <Calendar className="w-4 h-4 shrink-0" />
+                          <span className="truncate">Jadwal: {formatDate(order.service_date)}</span>
                         </div>
                       )}
 
                       {order.service_address && (
                         <div className="flex items-center gap-2 text-xs text-[#8f6f6d] mb-4">
-                          <MapPin className="w-4 h-4" />
+                          <MapPin className="w-4 h-4 shrink-0" />
                           <span className="truncate">{order.service_address}</span>
                         </div>
                       )}
 
                       {/* Footer */}
-                      <div className="flex items-center justify-between pt-3 border-t border-[#e5e2e1]">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-[#e5e2e1] gap-4">
                         <div>
                           <p className="text-xs text-[#8f6f6d]">Total</p>
                           <p className="text-lg font-bold text-[#b51822]">{formatPrice(order.total_amount)}</p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
                           {order.status === 'completed' && (
-                            <Button size="sm" variant="secondary" className="border-[#e5e2e1] text-[#5b403e]">
+                            <Button size="sm" variant="secondary" className="flex-1 sm:flex-none border-[#e5e2e1] text-[#5b403e] rounded-[2px]">
                               <MessageSquare className="w-4 h-4 mr-1" />
                               Ulasan
                             </Button>
                           )}
-                          <Button size="sm" className="bg-[#b51822] hover:bg-[#90121a]">
+                          <Button size="sm" className="flex-1 sm:flex-none bg-[#b51822] hover:bg-[#90121a] rounded-[2px]">
                             Detail
-                            <ChevronRight className="w-4 h-4 ml-1" />
+                            <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
                           </Button>
                         </div>
                       </div>
