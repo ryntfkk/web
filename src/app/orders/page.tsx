@@ -122,7 +122,7 @@ export default function OrdersPage() {
 
           {/* Sidebar Filters */}
           <div className="w-full lg:w-64 shrink-0">
-            <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+            <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
               <div className="p-4 border-b border-[#e5e2e1]">
                 <h3 className="font-semibold text-[#32201f]">Filter</h3>
               </div>
@@ -165,7 +165,7 @@ export default function OrdersPage() {
               // Loading skeletons
               <>
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-white rounded-lg border border-[#e5e2e1] p-4 animate-pulse">
+                  <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 animate-pulse">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <div className="h-4 w-32 bg-[#e5e2e1] rounded mb-2"></div>
@@ -182,7 +182,7 @@ export default function OrdersPage() {
               </>
             ) : filteredOrders.length === 0 ? (
               // Empty state
-              <div className="bg-white rounded-lg border border-[#e5e2e1] p-8 text-center">
+              <div className="bg-white rounded border border-[#e5e2e1] p-8 text-center">
                 <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-[#32201f] mb-2">
                   {activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
@@ -205,7 +205,7 @@ export default function OrdersPage() {
                 const StatusIcon = statusConfig.icon;
 
                 return (
-                  <div key={order.id} className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+                  <div key={order.id} className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
                     {/* Order Header */}
                     <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
                       <div className="flex items-center justify-between">

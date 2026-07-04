@@ -9,16 +9,16 @@ interface ProfileHeaderProps {
 
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+    <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
       <div className="relative w-20 h-20 sm:w-32 sm:h-32 shrink-0">
         <Image
           src={profile.avatar_url || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60'}
           alt={profile.name}
           fill
-          className="object-cover rounded-full border-4 border-white shadow-md"
+          className="object-cover rounded border-4 border-white shadow-md"
         />
         {profile.is_online && (
-          <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
+          <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded border-2 border-white" />
         )}
       </div>
 
@@ -27,7 +27,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{profile.name}</h1>
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1">
                 <CheckCircle className="w-3 h-3" /> Terverifikasi
               </span>
             </div>

@@ -148,7 +148,7 @@ export default function ProfilePage() {
       <div className="bg-[#b51822] text-white px-4 py-6 md:py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4">
-            <div className="h-16 w-16 md:h-20 md:w-20 bg-white/20 rounded-lg flex items-center justify-center text-2xl md:text-3xl font-bold text-white border-2 border-white/50">
+            <div className="h-16 w-16 md:h-20 md:w-20 bg-white/20 rounded flex items-center justify-center text-2xl md:text-3xl font-bold text-white border-2 border-white/50">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -171,7 +171,7 @@ export default function ProfilePage() {
           <div className="w-full lg:w-72 shrink-0">
             {/* Partner Stats Card (if partner) */}
             {user.roles.includes('partner') && partnerStatus?.verification_status === 'approved' && (
-              <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden mb-4">
+              <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden mb-4">
                 <div className="p-4 border-b border-[#e5e2e1] bg-[#fdf2f2]">
                   <div className="flex items-center">
                     <div className="p-2 bg-[#b51822]/10 rounded mr-3">
@@ -216,7 +216,7 @@ export default function ProfilePage() {
 
             {/* Partner Registration Card (if not partner) */}
             {!user.roles.includes('partner') && !statusLoading && (
-              <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden mb-4">
+              <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden mb-4">
                 <div className="p-4 text-center">
                   <Briefcase className="w-12 h-12 text-[#8f6f6d]/50 mx-auto mb-3" />
                   <p className="font-semibold text-[#32201f] mb-1">Jadilah Mitra Kami</p>
@@ -240,7 +240,7 @@ export default function ProfilePage() {
             )}
 
             {/* Navigation Menu */}
-            <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+            <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
               <div className="p-4 border-b border-[#e5e2e1]">
                 <h3 className="font-semibold text-[#32201f]">Menu</h3>
               </div>
@@ -280,7 +280,7 @@ export default function ProfilePage() {
             {activeTab === 'profile' && (
               <div className="space-y-4">
                 {/* Account Settings */}
-                <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
                   <div className="p-4 border-b border-[#e5e2e1]">
                     <h3 className="font-semibold text-[#32201f]">Informasi Akun</h3>
                   </div>
@@ -337,53 +337,46 @@ export default function ProfilePage() {
 
             {/* Orders Tab */}
             {activeTab === 'orders' && (
-              <div className="flex flex-col lg:flex-row gap-4">
-                {/* Filter Sidebar */}
-                <div className="w-full lg:w-48 shrink-0">
-                  <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
-                    <div className="p-3 border-b border-[#e5e2e1]">
-                      <h3 className="font-semibold text-[#32201f] text-sm">Filter</h3>
-                    </div>
-                    <div className="divide-y divide-[#e5e2e1]">
-                      {[
-                        { key: 'all' as FilterStatus, label: 'Semua' },
-                        { key: 'pending' as FilterStatus, label: 'Menunggu' },
-                        { key: 'processing' as FilterStatus, label: 'Berlangsung' },
-                        { key: 'completed' as FilterStatus, label: 'Selesai' },
-                        { key: 'cancelled' as FilterStatus, label: 'Dibatalkan' },
-                      ].map(filter => (
-                        <button
-                          key={filter.key}
-                          onClick={() => setActiveFilter(filter.key)}
-                          className={`w-full flex items-center justify-between p-3 hover:bg-[#f7f5f4] transition-colors text-left ${
-                            activeFilter === filter.key ? 'bg-[#fdf2f2]' : ''
-                          }`}
-                        >
-                          <span className={`text-sm font-medium ${
-                            activeFilter === filter.key ? 'text-[#b51822]' : 'text-[#32201f]'
-                          }`}>
-                            {filter.label}
-                          </span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            activeFilter === filter.key
-                              ? 'bg-[#b51822] text-white'
-                              : 'bg-[#e5e2e1] text-[#5b403e]'
-                          }`}>
-                            {filterCounts[filter.key]}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+              <div className="space-y-4">
+                {/* Filter Chips - Horizontal */}
+                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden p-4">
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { key: 'all' as FilterStatus, label: 'Semua' },
+                      { key: 'pending' as FilterStatus, label: 'Menunggu' },
+                      { key: 'processing' as FilterStatus, label: 'Berlangsung' },
+                      { key: 'completed' as FilterStatus, label: 'Selesai' },
+                      { key: 'cancelled' as FilterStatus, label: 'Dibatalkan' },
+                    ].map(filter => (
+                      <button
+                        key={filter.key}
+                        onClick={() => setActiveFilter(filter.key)}
+                        className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded border transition-colors ${
+                          activeFilter === filter.key
+                            ? 'bg-[#b51822] text-white border-[#b51822]'
+                            : 'bg-white text-[#5b403e] border-[#e5e2e1] hover:border-[#b51822]'
+                        }`}
+                      >
+                        {filter.label}
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                          activeFilter === filter.key
+                            ? 'bg-white/20 text-white'
+                            : 'bg-[#e5e2e1] text-[#5b403e]'
+                        }`}>
+                          {filterCounts[filter.key]}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
                 {/* Orders List */}
-                <div className="flex-1 space-y-4">
+                <div className="space-y-4">
                   {ordersLoading ? (
                     // Loading skeletons
                     <>
                       {[1, 2].map(i => (
-                        <div key={i} className="bg-white rounded-lg border border-[#e5e2e1] p-4 animate-pulse">
+                        <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 animate-pulse">
                           <div className="flex justify-between items-start mb-4">
                             <div>
                               <div className="h-4 w-32 bg-[#e5e2e1] rounded mb-2"></div>
@@ -399,7 +392,7 @@ export default function ProfilePage() {
                     </>
                   ) : filteredOrders.length === 0 ? (
                     // Empty state
-                    <div className="bg-white rounded-lg border border-[#e5e2e1] p-8 text-center">
+                    <div className="bg-white rounded border border-[#e5e2e1] p-8 text-center">
                       <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-[#32201f] mb-2">
                         {activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
@@ -422,7 +415,7 @@ export default function ProfilePage() {
                       const StatusIcon = statusConfig.icon;
 
                       return (
-                        <div key={order.id} className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+                        <div key={order.id} className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
                           {/* Order Header */}
                           <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
                             <div className="flex items-center justify-between">
@@ -491,7 +484,7 @@ export default function ProfilePage() {
             {activeTab === 'settings' && (
               <div className="space-y-4">
                 {/* Account Settings */}
-                <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
                   <div className="p-4 border-b border-[#e5e2e1]">
                     <h3 className="font-semibold text-[#32201f]">Pengaturan Akun</h3>
                   </div>
@@ -524,7 +517,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Legal & Support */}
-                <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
                   <div className="p-4 border-b border-[#e5e2e1]">
                     <h3 className="font-semibold text-[#32201f]">Bantuan & Legal</h3>
                   </div>

@@ -8,7 +8,7 @@ interface PortfolioGridProps {
 export default function PortfolioGrid({ portfolios }: PortfolioGridProps) {
   if (!portfolios || portfolios.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
+      <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Portofolio & Hasil Kerja</h2>
         <div className="text-center py-8 text-gray-500">
           Belum ada foto portofolio.
@@ -18,11 +18,11 @@ export default function PortfolioGrid({ portfolios }: PortfolioGridProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
+    <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
       <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Portofolio & Hasil Kerja</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {portfolios.map((item) => (
-          <div key={item.id} className="relative group rounded-lg overflow-hidden aspect-square bg-gray-100 cursor-pointer">
+          <div key={item.id} className="relative group rounded overflow-hidden aspect-square bg-gray-100 cursor-pointer">
             <Image
               src={item.photo_url}
               alt={item.caption || 'Portofolio'}

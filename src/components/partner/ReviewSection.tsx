@@ -12,7 +12,7 @@ interface ReviewSectionProps {
 export default function ReviewSection({ reviews, summary }: ReviewSectionProps) {
   if (!summary || summary.total_reviews === 0) {
     return (
-      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
+      <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Ulasan Pelanggan</h2>
         <div className="text-center py-8 text-gray-500">
           Belum ada ulasan untuk mitra ini.
@@ -22,7 +22,7 @@ export default function ReviewSection({ reviews, summary }: ReviewSectionProps) 
   }
 
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
+    <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
       <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Ulasan Pelanggan</h2>
       
       <div className="flex flex-col md:flex-row gap-6 mb-8 border-b border-gray-100 pb-6">
@@ -52,9 +52,9 @@ export default function ReviewSection({ reviews, summary }: ReviewSectionProps) 
                 <span>{item.stars}</span>
                 <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               </div>
-              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-gray-100 rounded overflow-hidden">
                 <div 
-                  className="h-full bg-yellow-400 rounded-full" 
+                  className="h-full bg-yellow-400 rounded" 
                   style={{ width: `${(item.count / summary.total_reviews) * 100}%` }}
                 />
               </div>
@@ -67,7 +67,7 @@ export default function ReviewSection({ reviews, summary }: ReviewSectionProps) 
       <div className="space-y-6">
         {reviews?.map((review) => (
           <div key={review.id} className="flex gap-4">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-100">
+            <div className="relative w-10 h-10 rounded overflow-hidden shrink-0 bg-gray-100">
               <Image
                 src={review.customer_avatar || '/icons/default.svg'}
                 alt={review.customer_name}
