@@ -179,7 +179,7 @@ export default function TopNavbar() {
                       </div>
                     </div>
 
-                    {/* Mobile: Cart, Bell & User Avatar */}
+                    {/* Mobile: Cart & Bell */}
                     <div className="lg:hidden flex items-center gap-3">
                       {/* Cart Icon */}
                       <button className="text-[#5b403e] hover:text-[#b51822] transition-colors">
@@ -191,18 +191,6 @@ export default function TopNavbar() {
                         <Bell className="h-5 w-4" />
                         <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
                       </button>
-
-                      {/* User Avatar */}
-                      <Link href="/profile" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-[12px] border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
-                          {userAvatar ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
-                          ) : (
-                            <User className="h-4 w-4 text-[#5b403e]" />
-                          )}
-                        </div>
-                      </Link>
                     </div>
                   </>
                 ) : (
