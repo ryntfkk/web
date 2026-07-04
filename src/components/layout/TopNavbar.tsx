@@ -142,16 +142,47 @@ export default function TopNavbar() {
                 </button>
 
                 {/* User Avatar - 32x32px, border-radius 12px */}
-                <button className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-[12px] border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden">
-                    {userAvatar ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="h-4 w-4 text-[#5b403e]" />
-                    )}
+                <div className="relative">
+                  <button 
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      const dropdown = document.getElementById('user-dropdown');
+                      if (dropdown) dropdown.classList.toggle('hidden');
+                    }}
+                  >
+                    <div className="w-8 h-8 rounded-[12px] border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
+                      {userAvatar ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-4 w-4 text-[#5b403e]" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  <div id="user-dropdown" className="hidden absolute right-0 mt-2 w-48 bg-white border border-[#e5e2e1] rounded-lg shadow-lg py-2 z-50">
+                    <Link href="/profile" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]">
+                      Akun Saya
+                    </Link>
+                    <Link href="/orders" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]">
+                      Pesanan Saya
+                    </Link>
+                    <hr className="my-1 border-[#e5e2e1]" />
+                    <button 
+                      onClick={async () => {
+                        const { useAuth } = await import('@/hooks/useAuth');
+                        // We will need to use auth directly from store here if useAuth requires context
+                        // Since useAuth is a hook, let's just trigger authStore logout and redirect
+                        useAuthStore.getState().logout();
+                        window.location.href = '/login';
+                      }} 
+                      className="w-full text-left block px-4 py-2 text-[14px] text-[#b51822] hover:bg-[#fdf2f2] font-semibold"
+                    >
+                      Logout
+                    </button>
                   </div>
-                </button>
+                </div>
               </div>
             ) : (
               /* Logged Out State */
