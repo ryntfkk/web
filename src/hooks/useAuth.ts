@@ -63,6 +63,25 @@ export function useAuth() {
     return res;
   };
 
+  const switchRole = async (targetRole: 'customer' | 'partner') => {
+    setLoading(true);
+    setError(null);
+    const res = await fetchAPI<{ user: User; access_token: string }>('/auth/switch-role', {
+      method: 'POST',
+      body: JSON.stringify({ target_role: targetRole }),
+      credentials: 'include',
+    });
+
+    if (res.success && res.data) {
+      authStore.login(res.data.user, res.data.access_token);
+      router.push('/');
+    } else {
+      setError(typeof res.error === 'object' ? res.error.message : (res.error || 'Failed to switch role'));
+    }
+    setLoading(false);
+    return res;
+  };
+
   const logout = async () => {
     setLoading(true);
     await fetchAPI('/auth/logout', { method: 'POST', credentials: 'include' });
@@ -79,6 +98,7 @@ export function useAuth() {
     login,
     sendOTP,
     verifyOTPAndRegister,
+    switchRole,
     logout,
   };
 }
