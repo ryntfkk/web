@@ -61,7 +61,7 @@ export default function PartnerProfileClient({ username }: { username: string })
           )}
           <div className="flex gap-3 justify-center">
             <Button onClick={() => router.push('/')}>Kembali ke Beranda</Button>
-            <Button variant="outline" onClick={() => window.location.reload()}>
+            <Button variant="secondary" onClick={() => window.location.reload()}>
               <RefreshCw className="w-4 h-4 mr-2" /> Coba Lagi
             </Button>
           </div>
