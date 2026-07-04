@@ -21,7 +21,7 @@ export default function NewMitraServicePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (!isAuthenticated || user?.activeRole !== 'mitra') {
+  if (!isAuthenticated || user?.active_role !== 'mitra') {
     router.push('/login');
     return null;
   }

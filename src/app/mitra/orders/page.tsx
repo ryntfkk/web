@@ -28,9 +28,9 @@ export default function MitraOrdersPage() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.activeRole !== 'mitra') { router.push('/'); return; }
+    if (user?.active_role !== 'mitra') { router.push('/'); return; }
     fetchOrders();
-  }, [isAuthenticated, user?.activeRole]);
+  }, [isAuthenticated, user?.active_role]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -54,7 +54,7 @@ export default function MitraOrdersPage() {
     return matchSearch && matchTab;
   });
 
-  if (!isAuthenticated || user?.activeRole !== 'mitra') return null;
+  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

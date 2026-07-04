@@ -77,7 +77,7 @@ export default function MitraBankAccountPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  if (!isAuthenticated || user?.activeRole !== 'mitra') return null;
+  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

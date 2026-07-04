@@ -19,7 +19,7 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
   if (!isOpen || !user) return null;
 
   const handleSwitch = async (targetRole: 'customer' | 'mitra') => {
-    if (user.activeRole === targetRole) {
+    if (user.active_role === targetRole) {
       onClose();
       return;
     }
@@ -59,13 +59,13 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
             onClick={() => handleSwitch('customer')}
             disabled={loading}
             className={`w-full p-4 rounded-xl border flex items-center justify-between transition-colors ${
-              user.activeRole === 'customer' 
+              user.active_role === 'customer' 
                 ? 'border-[#b51822] bg-[#FFF5F5]' 
                 : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.activeRole === 'customer' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'customer' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
                 <User className="w-5 h-5" />
               </div>
               <div className="text-left">
@@ -73,7 +73,7 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
                 <p className="text-xs text-[#9e8e8c]">Cari dan pesan layanan</p>
               </div>
             </div>
-            {user.activeRole === 'customer' && (
+            {user.active_role === 'customer' && (
               <div className="w-4 h-4 rounded-full bg-[#b51822] flex items-center justify-center">
                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
               </div>
@@ -84,13 +84,13 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
             onClick={() => handleSwitch('mitra')}
             disabled={loading}
             className={`w-full p-4 rounded-xl border flex items-center justify-between transition-colors ${
-              user.activeRole === 'mitra' 
+              user.active_role === 'mitra' 
                 ? 'border-[#b51822] bg-[#FFF5F5]' 
                 : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.activeRole === 'mitra' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'mitra' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
                 <Briefcase className="w-5 h-5" />
               </div>
               <div className="text-left">
@@ -100,7 +100,7 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
                 </p>
               </div>
             </div>
-            {user.activeRole === 'mitra' && (
+            {user.active_role === 'mitra' && (
               <div className="w-4 h-4 rounded-full bg-[#b51822] flex items-center justify-center">
                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
               </div>

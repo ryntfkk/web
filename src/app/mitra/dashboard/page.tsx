@@ -40,9 +40,9 @@ export default function MitraDashboardPage() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.activeRole !== 'mitra') { router.push('/'); return; }
+    if (user?.active_role !== 'mitra') { router.push('/'); return; }
     fetchData();
-  }, [isAuthenticated, user?.activeRole]);
+  }, [isAuthenticated, user?.active_role]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -71,7 +71,7 @@ export default function MitraDashboardPage() {
 
   const formatTime = (t: string) => new Date(t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-  if (!isAuthenticated || user?.activeRole !== 'mitra') return null;
+  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

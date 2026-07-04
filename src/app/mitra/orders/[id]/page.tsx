@@ -56,9 +56,9 @@ export default function MitraOrderDetailPage() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.activeRole !== 'mitra') { router.push('/'); return; }
+    if (user?.active_role !== 'mitra') { router.push('/'); return; }
     fetchOrder();
-  }, [isAuthenticated, user?.activeRole, orderId]);
+  }, [isAuthenticated, user?.active_role, orderId]);
 
   const fetchOrder = async () => {
     setLoading(true);
@@ -89,7 +89,7 @@ export default function MitraOrderDetailPage() {
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
   const formatDate = (d: string) => new Date(d).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  if (!isAuthenticated || user?.activeRole !== 'mitra') return null;
+  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
 
   if (loading) {
     return (

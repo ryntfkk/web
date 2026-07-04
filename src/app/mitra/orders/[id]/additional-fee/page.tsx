@@ -24,7 +24,7 @@ export default function AdditionalFeeFormPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  if (!isAuthenticated || user?.activeRole !== 'mitra') {
+  if (!isAuthenticated || user?.active_role !== 'mitra') {
     router.push('/login');
     return null;
   }

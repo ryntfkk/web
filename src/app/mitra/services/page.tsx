@@ -26,9 +26,9 @@ export default function MitraServicesPage() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.activeRole !== 'mitra') { router.push('/'); return; }
+    if (user?.active_role !== 'mitra') { router.push('/'); return; }
     fetchServices();
-  }, [isAuthenticated, user?.activeRole]);
+  }, [isAuthenticated, user?.active_role]);
 
   const fetchServices = async () => {
     setLoading(true);
@@ -60,7 +60,7 @@ export default function MitraServicesPage() {
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
-  if (!isAuthenticated || user?.activeRole !== 'mitra') return null;
+  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">
