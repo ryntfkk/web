@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, Menu, ShoppingCart, Bell, User, X, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, Bell, User, X, ChevronDown } from 'lucide-react';
 
 import { useAuthStore } from '@/lib/store/authStore';
 
@@ -14,7 +14,6 @@ export default function TopNavbar() {
   const userName = user?.name || "Pengguna";
   const userAvatar = user?.avatar_url;
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -123,27 +122,78 @@ export default function TopNavbar() {
                 </Button>
 
                 {isAuthenticated ? (
-                  /* Logged In State */
-                  <div className="hidden lg:flex items-center gap-4">
-                    {/* Cart Icon */}
-                    <button className="text-[#5b403e] hover:text-[#b51822] transition-colors">
-                      <ShoppingCart className="h-[20px] w-[19.98px]" />
-                    </button>
+                  <>
+                    {/* Desktop: Cart & Bell */}
+                    <div className="hidden lg:flex items-center gap-4">
+                      {/* Cart Icon */}
+                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors">
+                        <ShoppingCart className="h-[20px] w-[19.98px]" />
+                      </button>
 
-                    {/* Bell Icon */}
-                    <button className="text-[#5b403e] hover:text-[#b51822] transition-colors relative">
-                      <Bell className="h-5 w-4" />
-                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
-                    </button>
+                      {/* Bell Icon */}
+                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors relative">
+                        <Bell className="h-5 w-4" />
+                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
+                      </button>
 
-                    {/* User Avatar */}
-                    <div className="relative" ref={dropdownRef}>
-                      <button
-                        className="flex items-center gap-2"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        aria-expanded={isDropdownOpen}
-                        aria-haspopup="true"
-                      >
+                      {/* User Avatar with Dropdown */}
+                      <div className="relative" ref={dropdownRef}>
+                        <button
+                          className="flex items-center gap-2"
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          aria-expanded={isDropdownOpen}
+                          aria-haspopup="true"
+                        >
+                          <div className="w-8 h-8 rounded-[12px] border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
+                            {userAvatar ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
+                            ) : (
+                              <User className="h-4 w-4 text-[#5b403e]" />
+                            )}
+                          </div>
+                          <ChevronDown className={`h-4 w-4 text-[#5b403e] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isDropdownOpen && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white border border-[#e5e2e1] rounded-lg shadow-lg py-2 z-50">
+                            <Link href="/profile" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
+                              Akun Saya
+                            </Link>
+                            <Link href="/orders" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
+                              Pesanan Saya
+                            </Link>
+                            <hr className="my-1 border-[#e5e2e1]" />
+                            <button
+                              onClick={() => {
+                                setIsDropdownOpen(false);
+                                handleLogout();
+                              }}
+                              className="w-full text-left block px-4 py-2 text-[14px] text-[#b51822] hover:bg-[#fdf2f2] font-semibold"
+                            >
+                              Logout
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Mobile: Cart, Bell & User Avatar */}
+                    <div className="lg:hidden flex items-center gap-3">
+                      {/* Cart Icon */}
+                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors">
+                        <ShoppingCart className="h-[20px] w-[19.98px]" />
+                      </button>
+
+                      {/* Bell Icon */}
+                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors relative">
+                        <Bell className="h-5 w-4" />
+                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
+                      </button>
+
+                      {/* User Avatar */}
+                      <Link href="/profile" className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-[12px] border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
                           {userAvatar ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -152,124 +202,49 @@ export default function TopNavbar() {
                             <User className="h-4 w-4 text-[#5b403e]" />
                           )}
                         </div>
-                        <ChevronDown className={`h-4 w-4 text-[#5b403e] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                      </button>
-
-                      {/* Dropdown Menu */}
-                      {isDropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white border border-[#e5e2e1] rounded-lg shadow-lg py-2 z-50">
-                          <Link href="/profile" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
-                            Akun Saya
-                          </Link>
-                          <Link href="/orders" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
-                            Pesanan Saya
-                          </Link>
-                          <hr className="my-1 border-[#e5e2e1]" />
-                          <button
-                            onClick={() => {
-                              setIsDropdownOpen(false);
-                              handleLogout();
-                            }}
-                            className="w-full text-left block px-4 py-2 text-[14px] text-[#b51822] hover:bg-[#fdf2f2] font-semibold"
-                          >
-                            Logout
-                          </button>
-                        </div>
-                      )}
+                      </Link>
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  /* Logged Out State */
-                  <div className="hidden lg:flex items-center gap-2">
-                    <Link
-                      href="/login"
-                      className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
-                    >
-                      Masuk
-                    </Link>
-                    <Link
-                      href="/register"
-                      className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
-                    >
-                      Daftar
-                    </Link>
-                  </div>
-                )}
+                  <>
+                    {/* Desktop: Login/Register */}
+                    <div className="hidden lg:flex items-center gap-2">
+                      <Link
+                        href="/login"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
+                      >
+                        Masuk
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
+                      >
+                        Daftar
+                      </Link>
+                    </div>
 
-                {/* Mobile Menu Toggle */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="lg:hidden text-[#5b403e] hover:text-[#b51822]"
-                  onClick={() => setIsMobileMenuOpen(true)}
-                >
-                  <Menu className="h-6 w-6" />
-                </Button>
+                    {/* Mobile: Login/Register */}
+                    <div className="lg:hidden flex items-center gap-2">
+                      <Link
+                        href="/login"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[36px] px-3"
+                      >
+                        Masuk
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[36px] px-3"
+                      >
+                        Daftar
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             </>
           )}
         </div>
       </header>
-
-      {/* Mobile Drawer Menu */}
-      {isMobileMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-50 lg:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className="fixed top-0 left-0 h-full w-[280px] bg-white z-50 shadow-lg lg:hidden">
-            <div className="flex items-center justify-between p-4 border-b border-[#e5e2e1]">
-              <div className="flex items-center gap-2">
-                <div className="relative w-6 h-6">
-                  <Image
-                    src="/logo.png"
-                    alt="POSKO JASA Logo"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <span className="text-[20px] font-bold text-[#1c1b1b]">POSKO</span>
-              </div>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-[#5b403e] hover:text-[#b51822]"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <nav className="p-4 flex flex-col gap-4">
-              <hr className="border-[#e5e2e1] my-2" />
-
-              {isAuthenticated ? (
-                <>
-                  <Link href="/orders" className="text-[16px] text-[#5b403e] py-2" onClick={() => setIsMobileMenuOpen(false)}>Pesanan</Link>
-                  <Link href="/wallet" className="text-[16px] text-[#5b403e] py-2" onClick={() => setIsMobileMenuOpen(false)}>Dompet</Link>
-                  <Link href="/profile" className="text-[16px] text-[#5b403e] py-2" onClick={() => setIsMobileMenuOpen(false)}>Profil</Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#b51822] border border-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
-                  >
-                    Masuk
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
-                  >
-                    Daftar
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        </>
-      )}
     </>
   );
 }
