@@ -8,7 +8,7 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 
 export default function WithdrawPage() {
-  const { isAuthenticated, user, checkAuth } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
 
   const [amount, setAmount] = useState('');
@@ -65,7 +65,6 @@ export default function WithdrawPage() {
 
     if (res.success) {
       setSuccess(true);
-      await checkAuth(); // refresh balance
     } else {
       setError(res.message || 'Gagal mengajukan penarikan');
     }

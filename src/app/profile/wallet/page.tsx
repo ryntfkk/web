@@ -18,7 +18,7 @@ interface WalletTransaction {
 }
 
 export default function WalletPage() {
-  const { isAuthenticated, user, checkAuth } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
 
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
@@ -31,7 +31,6 @@ export default function WalletPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    await checkAuth(); // Refresh balance
     const res = await fetchAPI<any>('/users/wallet/transactions');
     if (res.success && res.data) {
       setTransactions(res.data.data ?? res.data);

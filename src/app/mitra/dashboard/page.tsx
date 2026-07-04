@@ -31,7 +31,7 @@ interface DashboardData {
 }
 
 export default function MitraDashboardPage() {
-  const { isAuthenticated, user, checkAuth } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
 
   const [data, setData] = useState<DashboardData | null>(null);
