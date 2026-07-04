@@ -31,9 +31,9 @@ export default function MitraBankAccountPage() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.activeRole !== 'mitra') { router.push('/'); return; }
+    if (user?.active_role !== 'mitra') { router.push('/'); return; }
     fetchBankAccount();
-  }, [isAuthenticated, user?.activeRole]);
+  }, [isAuthenticated, user?.active_role]);
 
   const fetchBankAccount = async () => {
     setLoading(true);
