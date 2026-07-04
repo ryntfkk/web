@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,14 +9,21 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 export default function LoginPage() {
   const { login, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
-  
+
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  // Redirect to home if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/');
+    }
+  }, [isAuthenticated, router]);
+
+  // Don't render login form if authenticated
   if (isAuthenticated) {
-    router.replace('/');
     return null;
   }
 

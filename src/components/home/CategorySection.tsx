@@ -13,19 +13,11 @@ export default function CategorySection() {
 
   return (
     <section className="mb-6 sm:mb-10 md:mb-12">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-[#1c1b1b]">
-          Kategori
-        </h2>
-        <Button variant="ghost" className="text-[12px] sm:text-[14px] h-auto py-1">
-          Lihat Semua
-        </Button>
-      </div>
 
       {isLoading ? (
         <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-             <div key={i} className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-gray-100 rounded-[4px] animate-pulse h-[80px] sm:h-[100px]" />
+            <div key={i} className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-gray-100 rounded-[4px] animate-pulse h-[80px] sm:h-[100px]" />
           ))}
         </div>
       ) : isError ? (
@@ -45,7 +37,7 @@ export default function CategorySection() {
               </span>
             </div>
           ))}
-          
+
           {/* Tombol Lihat Semua Kategori */}
           <Link href="/categories" className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-white border border-dashed border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] transition-all">
             <div className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2 flex items-center justify-center bg-[#f0eded] rounded-full">

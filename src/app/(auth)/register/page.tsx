@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -13,14 +13,21 @@ export default function RegisterPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  
+
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Redirect to home if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/');
+    }
+  }, [isAuthenticated, router]);
+
+  // Don't render register form if authenticated
   if (isAuthenticated) {
-    router.replace('/');
     return null;
   }
 
