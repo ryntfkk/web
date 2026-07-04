@@ -8,11 +8,17 @@ interface ProfileHeaderProps {
 }
 
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
+  // Provide a proper fallback for avatar - handle any non-string value safely
+  const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60';
+  const avatarUrl = typeof profile.avatar_url === 'string' && profile.avatar_url.length > 0
+    ? profile.avatar_url
+    : DEFAULT_AVATAR;
+
   return (
     <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
       <div className="relative w-20 h-20 sm:w-32 sm:h-32 shrink-0">
         <Image
-          src={profile.avatar_url || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60'}
+          src={avatarUrl}
           alt={profile.name}
           fill
           className="object-cover rounded border-4 border-white shadow-md"

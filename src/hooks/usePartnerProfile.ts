@@ -10,7 +10,8 @@ export interface PartnerProfileData {
   avatar_url: string | null;
   service_area: string;
   is_online: boolean;
-  basecamp_location: any;
+  basecamp_lat: number | null;
+  basecamp_lon: number | null;
   avg_rating: number;
   total_reviews: number;
   total_orders: number;

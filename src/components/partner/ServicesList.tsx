@@ -6,7 +6,12 @@ interface ServicesListProps {
 }
 
 export default function ServicesList({ services }: ServicesListProps) {
-  if (!services || services.length === 0) {
+  // Filter out invalid service entries - ensure each service has a valid id and name
+  const validServices = Array.isArray(services)
+    ? services.filter(s => s && typeof s.id === 'string' && typeof s.name === 'string')
+    : [];
+
+  if (validServices.length === 0) {
     return (
       <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Layanan Tersedia</h2>
@@ -18,6 +23,7 @@ export default function ServicesList({ services }: ServicesListProps) {
   }
 
   const formatPrice = (price: number) => {
+    if (typeof price !== 'number' || isNaN(price)) return 'Rp 0';
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
@@ -29,36 +35,45 @@ export default function ServicesList({ services }: ServicesListProps) {
     <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
       <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Layanan Tersedia</h2>
       <div className="space-y-4">
-        {services.map((service) => (
-          <div key={service.id} className="border border-gray-100 rounded p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:border-blue-100 hover:shadow-sm transition-all">
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 text-base mb-1">{service.name}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-2">{service.description}</p>
-              
-              {service.included_items && service.included_items.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {service.included_items.slice(0, 3).map((item, idx) => (
-                    <span key={idx} className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded border border-green-100">
-                      ✓ {item}
-                    </span>
-                  ))}
-                  {service.included_items.length > 3 && (
-                    <span className="text-xs text-gray-500 py-1">
-                      +{service.included_items.length - 3} lainnya
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 sm:gap-2 border-t sm:border-t-0 border-gray-100 pt-3 sm:pt-0 mt-2 sm:mt-0">
-              <div className="text-lg font-bold text-blue-600">
-                {formatPrice(service.price)}
+        {validServices.map((service) => {
+          // Ensure included_items is an array of strings
+          const includedItems = Array.isArray(service.included_items)
+            ? service.included_items.filter(item => typeof item === 'string').slice(0, 3)
+            : [];
+
+          return (
+            <div key={service.id} className="border border-gray-100 rounded p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:border-blue-100 hover:shadow-sm transition-all">
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 text-base mb-1">{service.name}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-2">
+                  {typeof service.description === 'string' ? service.description : ''}
+                </p>
+
+                {includedItems.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {includedItems.map((item, idx) => (
+                      <span key={idx} className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded border border-green-100">
+                        ✓ {item}
+                      </span>
+                    ))}
+                    {(service.included_items?.length || 0) > 3 && (
+                      <span className="text-xs text-gray-500 py-1">
+                        +{(service.included_items?.length || 0) - 3} lainnya
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-              <Button size="sm" className="w-full sm:w-auto">Pilih</Button>
+
+              <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 sm:gap-2 border-t sm:border-t-0 border-gray-100 pt-3 sm:pt-0 mt-2 sm:mt-0">
+                <div className="text-lg font-bold text-blue-600">
+                  {formatPrice(service.price)}
+                </div>
+                <Button size="sm" className="w-full sm:w-auto">Pilih</Button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
