@@ -2,21 +2,39 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, Menu, ShoppingCart, Bell, User, X } from 'lucide-react';
+import { Search, Menu, ShoppingCart, Bell, User, X, ChevronDown } from 'lucide-react';
 
 import { useAuthStore } from '@/lib/store/authStore';
 
 export default function TopNavbar() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const userName = user?.name || "Pengguna";
   const userAvatar = user?.avatar_url;
-  
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -142,13 +160,12 @@ export default function TopNavbar() {
                 </button>
 
                 {/* User Avatar - 32x32px, border-radius 12px */}
-                <div className="relative">
-                  <button 
+                <div className="relative" ref={dropdownRef}>
+                  <button
                     className="flex items-center gap-2"
-                    onClick={() => {
-                      const dropdown = document.getElementById('user-dropdown');
-                      if (dropdown) dropdown.classList.toggle('hidden');
-                    }}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    aria-expanded={isDropdownOpen}
+                    aria-haspopup="true"
                   >
                     <div className="w-8 h-8 rounded-[12px] border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
                       {userAvatar ? (
@@ -158,30 +175,30 @@ export default function TopNavbar() {
                         <User className="h-4 w-4 text-[#5b403e]" />
                       )}
                     </div>
+                    <ChevronDown className={`h-4 w-4 text-[#5b403e] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Dropdown Menu */}
-                  <div id="user-dropdown" className="hidden absolute right-0 mt-2 w-48 bg-white border border-[#e5e2e1] rounded-lg shadow-lg py-2 z-50">
-                    <Link href="/profile" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]">
-                      Akun Saya
-                    </Link>
-                    <Link href="/orders" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]">
-                      Pesanan Saya
-                    </Link>
-                    <hr className="my-1 border-[#e5e2e1]" />
-                    <button 
-                      onClick={async () => {
-                        const { useAuth } = await import('@/hooks/useAuth');
-                        // We will need to use auth directly from store here if useAuth requires context
-                        // Since useAuth is a hook, let's just trigger authStore logout and redirect
-                        useAuthStore.getState().logout();
-                        window.location.href = '/login';
-                      }} 
-                      className="w-full text-left block px-4 py-2 text-[14px] text-[#b51822] hover:bg-[#fdf2f2] font-semibold"
-                    >
-                      Logout
-                    </button>
-                  </div>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-[#e5e2e1] rounded-lg shadow-lg py-2 z-50">
+                      <Link href="/profile" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
+                        Akun Saya
+                      </Link>
+                      <Link href="/orders" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
+                        Pesanan Saya
+                      </Link>
+                      <hr className="my-1 border-[#e5e2e1]" />
+                      <button
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full text-left block px-4 py-2 text-[14px] text-[#b51822] hover:bg-[#fdf2f2] font-semibold"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (

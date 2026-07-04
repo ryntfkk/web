@@ -5,7 +5,7 @@ import TopNavbar from "@/components/layout/TopNavbar";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/query-provider";
-import FloatingChat from "@/components/ui/floating-chat";
+import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 
 // Load Inter font with proper weights
 const inter = Inter({
@@ -34,7 +34,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <BottomNav />
-          <FloatingChat />
+          <FloatingChatWrapper />
         </QueryProvider>
       </body>
     </html>
