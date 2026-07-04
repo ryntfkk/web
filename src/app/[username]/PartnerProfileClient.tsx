@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { 
-  usePartnerProfile, 
-  usePartnerServices, 
-  usePartnerPortfolios, 
-  usePartnerReviews 
+import {
+  usePartnerProfile,
+  usePartnerServices,
+  usePartnerPortfolios,
+  usePartnerReviews
 } from '@/hooks/usePartnerProfile';
 import ProfileHeader from '@/components/partner/ProfileHeader';
 import AboutSection from '@/components/partner/AboutSection';
@@ -13,17 +13,18 @@ import ServicesList from '@/components/partner/ServicesList';
 import PortfolioGrid from '@/components/partner/PortfolioGrid';
 import ReviewSection from '@/components/partner/ReviewSection';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, WifiOff, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function PartnerProfileClient({ username }: { username: string }) {
   const router = useRouter();
 
-  const { data: profile, isLoading: isProfileLoading, isError: isProfileError } = usePartnerProfile(username);
+  const { data: profile, isLoading: isProfileLoading, isError: isProfileError, error: profileError } = usePartnerProfile(username);
   const { data: services, isLoading: isServicesLoading } = usePartnerServices(username);
   const { data: portfolios, isLoading: isPortfoliosLoading } = usePartnerPortfolios(username);
   const { data: reviewData, isLoading: isReviewsLoading } = usePartnerReviews(username);
 
+  // Show loading state
   if (isProfileLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -32,12 +33,39 @@ export default function PartnerProfileClient({ username }: { username: string })
     );
   }
 
+  // Show error state when API is unreachable or partner not found
   if (isProfileError || !profile) {
+    const isNetworkError = profileError instanceof TypeError &&
+      (profileError.message.includes('Failed to fetch') || profileError.message.includes('NetworkError'));
+
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Mitra Tidak Ditemukan</h1>
-        <p className="text-gray-500 mb-6 text-center">Maaf, kami tidak dapat menemukan profil mitra yang Anda cari.</p>
-        <Button onClick={() => router.push('/')}>Kembali ke Beranda</Button>
+        <div className="text-center max-w-md">
+          {isNetworkError ? (
+            <>
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                <WifiOff className="w-8 h-8 text-red-500" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Koneksi Gagal</h1>
+              <p className="text-gray-500 mb-6">
+                Tidak dapat terhubung ke server. Pastikan Anda terhubung ke internet dan coba lagi.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Mitra Tidak Ditemukan</h1>
+              <p className="text-gray-500 mb-6">
+                Maaf, kami tidak dapat menemukan profil mitra "{username}".
+              </p>
+            </>
+          )}
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => router.push('/')}>Kembali ke Beranda</Button>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              <RefreshCw className="w-4 h-4 mr-2" /> Coba Lagi
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -60,7 +88,7 @@ export default function PartnerProfileClient({ username }: { username: string })
         </div>
 
         <ProfileHeader profile={profile} />
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Main Column */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
