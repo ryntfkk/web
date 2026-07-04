@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
 import Breadcrumbs from '@/components/search/Breadcrumbs';
 import FilterPanel from '@/components/search/FilterPanel';
 import SortBar from '@/components/search/SortBar';
@@ -46,17 +47,18 @@ export default function SearchContent({ query }: SearchContentProps) {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
               {partners?.map((partner: any) => (
-                <ServiceCard 
-                  key={partner.id} 
-                  vendorName={partner.name}
-                  category={partner.categories?.[0]?.name || "Umum"}
-                  rating={partner.avg_rating || 0}
-                  reviewCount={partner.total_reviews || 0}
-                  price={partner.starting_price || 0}
-                  unit="Jasa"
-                  imageUrl={(typeof partner.avatar_url === 'object' ? partner.avatar_url?.String : partner.avatar_url) || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
-                  location={`${partner.distance_km || 0} km`}
-                />
+                <Link key={partner.id} href={`/${partner.username}`} className="block">
+                  <ServiceCard 
+                    vendorName={partner.name}
+                    category={partner.categories?.[0]?.name || "Umum"}
+                    rating={partner.avg_rating || 0}
+                    reviewCount={partner.total_reviews || 0}
+                    price={partner.starting_price || 0}
+                    unit="Jasa"
+                    imageUrl={(typeof partner.avatar_url === 'object' ? partner.avatar_url?.String : partner.avatar_url) || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"}
+                    location={`${partner.distance_km || 0} km`}
+                  />
+                </Link>
               ))}
             </div>
           )}
