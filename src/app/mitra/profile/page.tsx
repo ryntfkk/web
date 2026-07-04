@@ -42,7 +42,7 @@ export default function MitraProfilePage() {
       <div className="bg-white border-b border-[#e5e2e1] pt-12 pb-6 px-4 mb-4">
         <div className="max-w-lg mx-auto flex items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-[#f7f5f4] flex items-center justify-center text-3xl font-bold text-[#b51822] overflow-hidden shrink-0 border-2 border-[#e5e2e1]">
-            {user.avatar ? <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" /> : user.name.charAt(0).toUpperCase()}
+            {user.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user.name.charAt(0).toUpperCase()}
           </div>
           <div>
             <h1 className="text-xl font-bold text-[#1c1b1b]">{user.name}</h1>
