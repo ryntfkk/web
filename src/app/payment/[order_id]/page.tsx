@@ -1,7 +1,7 @@
 import PaymentClient from './Client';
 
 export function generateStaticParams() {
-  return [];
+  return [{ order_id: '1' }];
 }
 
 export default function PaymentPage() {

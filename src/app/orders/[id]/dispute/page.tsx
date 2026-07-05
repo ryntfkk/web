@@ -1,7 +1,7 @@
 import DisputeClient from './Client';
 
 export function generateStaticParams() {
-  return [];
+  return [{ id: '1' }];
 }
 
 export default function DisputePage() {

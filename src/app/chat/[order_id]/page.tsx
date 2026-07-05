@@ -1,7 +1,7 @@
 import ChatClient from './ChatClient';
 
 export function generateStaticParams() {
-  return [];
+  return [{ order_id: '1' }];
 }
 
 export default function ChatRoomPage() {

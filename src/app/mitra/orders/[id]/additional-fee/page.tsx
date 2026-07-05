@@ -1,7 +1,7 @@
 import AdditionalFeeFormClient from './Client';
 
 export function generateStaticParams() {
-  return [];
+  return [{ id: '1' }];
 }
 
 export default function AdditionalFeeFormPage() {
