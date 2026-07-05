@@ -17,6 +17,13 @@ export interface PartnerProfileData {
   total_orders: number;
 }
 
+export interface PartnerServicePhoto {
+  id: string;
+  photo_url: string;
+  is_primary: boolean;
+  sort_order: number;
+}
+
 export interface PartnerService {
   id: string;
   partner_id: string;
@@ -27,6 +34,7 @@ export interface PartnerService {
   included_items: string[] | null;
   excluded_items: string[] | null;
   estimated_duration: number;
+  photos: PartnerServicePhoto[];
 }
 
 export interface PartnerPortfolio {
