@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';

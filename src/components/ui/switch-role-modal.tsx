@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Briefcase, User, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SwitchRoleModalProps {
   isOpen: boolean;
@@ -12,19 +12,19 @@ interface SwitchRoleModalProps {
 }
 
 export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
-  const { user, switchRole } = useAuthStore();
+  const { user, switchRole } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   if (!isOpen || !user) return null;
 
-  const handleSwitch = async (targetRole: 'customer' | 'mitra') => {
+  const handleSwitch = async (targetRole: 'customer' | 'partner') => {
     if (user.active_role === targetRole) {
       onClose();
       return;
     }
 
-    if (targetRole === 'mitra' && !user.is_mitra_registered) {
+    if (targetRole === 'partner' && !user.partner_id) {
       // Buka halaman pendaftaran mitra jika belum terdaftar
       router.push('/register-mitra');
       onClose();
@@ -35,9 +35,9 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
     await switchRole(targetRole);
     setLoading(false);
     onClose();
-    
+
     // Redirect to respective dashboard
-    if (targetRole === 'mitra') {
+    if (targetRole === 'partner') {
       router.push('/mitra/dashboard');
     } else {
       router.push('/');
@@ -81,26 +81,26 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
           </button>
 
           <button
-            onClick={() => handleSwitch('mitra')}
+            onClick={() => handleSwitch('partner')}
             disabled={loading}
             className={`w-full p-4 rounded-xl border flex items-center justify-between transition-colors ${
-              user.active_role === 'mitra' 
+              user.active_role === 'partner' 
                 ? 'border-[#b51822] bg-[#FFF5F5]' 
                 : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'mitra' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'partner' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
                 <Briefcase className="w-5 h-5" />
               </div>
               <div className="text-left">
                 <p className="font-bold text-[#1c1b1b]">Mode Mitra</p>
                 <p className="text-xs text-[#9e8e8c]">
-                  {user.is_mitra_registered ? 'Kelola pesanan dan layanan' : 'Daftar jadi mitra'}
+                  {user.partner_id ? 'Kelola pesanan dan layanan' : 'Daftar jadi mitra'}
                 </p>
               </div>
             </div>
-            {user.active_role === 'mitra' && (
+            {user.active_role === 'partner' && (
               <div className="w-4 h-4 rounded-full bg-[#b51822] flex items-center justify-center">
                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
               </div>
