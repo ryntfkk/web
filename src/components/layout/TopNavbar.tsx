@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Search, ShoppingCart, Bell, User, X, ChevronDown } from 'lucide-react';
 
 import { useAuthStore } from '@/lib/store/authStore';
+import { useCartStore } from '@/lib/store/cartStore';
 
 export default function TopNavbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
+  const itemCount = useCartStore((s) => s.itemCount);
   const userName = user?.name || "Pengguna";
   const userAvatar = user?.avatar_url;
 
@@ -126,8 +128,16 @@ export default function TopNavbar() {
                     {/* Desktop: Cart & Bell */}
                     <div className="hidden lg:flex items-center gap-4">
                       {/* Cart Icon */}
-                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors">
+                      <button
+                        className="text-[#5b403e] hover:text-[#b51822] transition-colors relative"
+                        onClick={() => router.push('/cart')}
+                      >
                         <ShoppingCart className="h-[20px] w-[19.98px]" />
+                        {itemCount > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 bg-[#b51822] text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                            {itemCount > 99 ? '99+' : itemCount}
+                          </span>
+                        )}
                       </button>
 
                       {/* Bell Icon */}
@@ -182,8 +192,16 @@ export default function TopNavbar() {
                     {/* Mobile: Cart & Bell */}
                     <div className="lg:hidden flex items-center gap-3">
                       {/* Cart Icon */}
-                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors">
+                      <button
+                        className="text-[#5b403e] hover:text-[#b51822] transition-colors relative"
+                        onClick={() => router.push('/cart')}
+                      >
                         <ShoppingCart className="h-[20px] w-[19.98px]" />
+                        {itemCount > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 bg-[#b51822] text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                            {itemCount > 99 ? '99+' : itemCount}
+                          </span>
+                        )}
                       </button>
 
                       {/* Bell Icon */}

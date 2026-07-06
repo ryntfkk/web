@@ -25,10 +25,12 @@ export function ServiceCard({
   unit,
   imageUrl,
   isPro = false,
-  location = "Jakarta",
+  location,
   vendorAvatar,
   className,
 }: ServiceCardProps) {
+  // Only show the location row when real coordinates were used (not a fallback).
+  const showLocation = location && location !== '0.0 km' && !location.startsWith('0.0');
   return (
     <div
       className={cn(
@@ -90,10 +92,12 @@ export function ServiceCard({
             <span className="text-[12px] sm:text-[14px] font-medium text-[#1c1b1b]">{rating}</span>
             <span className="text-[11px] sm:text-[14px] font-normal text-[#5b403e] hidden sm:inline">({reviewCount})</span>
           </div>
-          <div className="flex items-center gap-0.5 text-[#5b403e]">
-            <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-            <span className="text-[11px] sm:text-[14px] font-normal">{location}</span>
-          </div>
+          {showLocation && (
+            <div className="flex items-center gap-0.5 text-[#5b403e]">
+              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <span className="text-[11px] sm:text-[14px] font-normal">{location}</span>
+            </div>
+          )}
         </div>
 
         {/* Price Row */}

@@ -5,6 +5,7 @@ import TopNavbar from "@/components/layout/TopNavbar";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/query-provider";
+import AuthProvider from "@/components/providers/auth-provider";
 import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 
 // Load Inter font with proper weights
@@ -28,13 +29,15 @@ export default function RootLayout({
     <html lang="id" className={`h-full antialiased ${inter.variable}`}>
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground pb-16 md:pb-0">
         <QueryProvider>
-          <TopNavbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <BottomNav />
-          <FloatingChatWrapper />
+          <AuthProvider>
+            <TopNavbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <BottomNav />
+            <FloatingChatWrapper />
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

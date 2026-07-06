@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import BookingClient from './BookingClient';
 
 // List of partner usernames to pre-render (same as [username] profile pages)
@@ -15,5 +16,15 @@ interface PageProps {
 
 export default async function BookingPage({ params }: PageProps) {
   const { username } = await params;
-  return <BookingClient />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="w-8 h-8 border-4 border-[#e5e2e1] border-t-[#b51822] rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <BookingClient />
+    </Suspense>
+  );
 }

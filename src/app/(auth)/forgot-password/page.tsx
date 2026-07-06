@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
+import { getErrorMessage } from '@/types/api';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ identifier }),
       });
       if (!res.success) {
-        throw new Error(res.message || res.error || 'Gagal mengirim permintaan pemulihan.');
+        throw new Error(getErrorMessage(res));
       }
       setSuccess('Kode pemulihan telah dikirim ke perangkat/email Anda');
       setStep(2);
@@ -57,7 +58,7 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ identifier, token, password }),
       });
       if (!res.success) {
-        throw new Error(res.message || res.error || 'Gagal mengubah password.');
+        throw new Error(getErrorMessage(res));
       }
       setSuccess('Password berhasil diubah. Mengalihkan...');
       setTimeout(() => {

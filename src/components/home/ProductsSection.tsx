@@ -35,7 +35,7 @@ export default function ProductsSection() {
           {services.map((service) => (
             <Link
               key={service.id}
-              href={`/${service.partner_username}`}
+              href={`/layanan?id=${service.id}`}
               className="block"
             >
               <div className="bg-white border border-[#e5e2e1] rounded-[4px] overflow-hidden hover:shadow-md transition-all h-full flex flex-col">

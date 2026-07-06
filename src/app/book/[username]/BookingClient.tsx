@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Check, MapPin, Calendar, Camera, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
@@ -27,7 +27,9 @@ export default function BookingClient() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const username = params?.username as string;
+  const preselectedServiceId = searchParams.get('service_id') || undefined;
 
   const [step, setStep] = useState(1);
   const [partner, setPartner] = useState<any>(null);
@@ -44,6 +46,8 @@ export default function BookingClient() {
   const [photos, setPhotos] = useState<File[]>([]);
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState(0);
+  // Refs to avoid effect loops
+  const preselectedRef = useRef(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -52,6 +56,21 @@ export default function BookingClient() {
     }
     fetchData();
   }, [isAuthenticated, username]);
+
+  // Pre-select service from query param (e.g. /book/user?service_id=xxx)
+  useEffect(() => {
+    if (
+      preselectedServiceId &&
+      services.length > 0 &&
+      !preselectedRef.current
+    ) {
+      const found = services.find((s) => s.id === preselectedServiceId);
+      if (found) {
+        preselectedRef.current = true;
+        setSelectedServices((prev) => ({ ...prev, [found.id]: true }));
+      }
+    }
+  }, [preselectedServiceId, services]);
 
   const fetchData = async () => {
     setLoading(true);

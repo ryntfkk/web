@@ -1,27 +1,107 @@
 import { useAuthStore } from './store/authStore';
+import type { ApiResponse } from '@/types/api';
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1';
 
+// ── Token refresh state (module-level – outside React) ──────────────
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+/**
+ * Call the /auth/refresh endpoint (sends the HttpOnly refresh_token cookie
+ * via `credentials: 'include'`). Returns true if a new access token was
+ * obtained, false otherwise.
+ */
+async function refreshAccessToken(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_URL}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include', // sends the HttpOnly refresh_token cookie
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) return false;
+
+    const json = await res.json();
+    if (json.success && json.data?.access_token) {
+      useAuthStore.getState().setAccessToken(json.data.access_token);
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Public helper so the AuthProvider can trigger a silent refresh on app
+ * start-up without duplicating the refresh logic.
+ */
+export async function silentRefresh(): Promise<boolean> {
+  return refreshAccessToken();
+}
+
+// ── Public API helper ───────────────────────────────────────────────
+
 export async function fetchAPI<T>(
   endpoint: string,
-  options: RequestInit = {}
-): Promise<{ success: boolean; data?: T; message?: string; pagination?: any; error?: any }> {
+  options: RequestInit = {},
+): Promise<ApiResponse<T>> {
   try {
     const accessToken = useAuthStore.getState().accessToken;
     const headers = new Headers(options.headers);
     headers.set('Content-Type', 'application/json');
     headers.set('X-Platform', 'web');
     headers.set('X-App-Version', '1.0.0');
-    
+
     if (accessToken) {
       headers.set('Authorization', `Bearer ${accessToken}`);
     }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
-      credentials: options.credentials || 'omit', // Allow overriding credentials
+      credentials: options.credentials || 'omit',
       headers,
     });
+
+    // ── 401 → attempt token refresh then retry ONCE ─────────────────
+    if (response.status === 401 && endpoint !== '/auth/refresh') {
+      // If a refresh is already in-flight, wait for it; otherwise start one
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = refreshAccessToken();
+      }
+
+      const refreshed = await refreshPromise;
+
+      // Clean up module-level state
+      isRefreshing = false;
+      refreshPromise = null;
+
+      if (refreshed) {
+        // Retry the original request with the new access token
+        const newToken = useAuthStore.getState().accessToken;
+        const retryHeaders = new Headers(options.headers);
+        retryHeaders.set('Content-Type', 'application/json');
+        retryHeaders.set('X-Platform', 'web');
+        retryHeaders.set('X-App-Version', '1.0.0');
+        if (newToken) {
+          retryHeaders.set('Authorization', `Bearer ${newToken}`);
+        }
+
+        const retryResponse = await fetch(`${API_URL}${endpoint}`, {
+          ...options,
+          credentials: options.credentials || 'omit',
+          headers: retryHeaders,
+        });
+
+        const retryData = await retryResponse.json();
+        return retryData;
+      }
+
+      // Refresh failed — clear auth state so the UI reacts
+      useAuthStore.getState().logout();
+    }
 
     const data = await response.json();
     return data;
