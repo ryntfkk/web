@@ -61,7 +61,9 @@ export default function DisputeClient() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1'}/disputes`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Platform': 'web',
+          'X-App-Version': '1.0.0',
         },
         body: formData,
       });

@@ -17,7 +17,10 @@ async function refreshAccessToken(): Promise<boolean> {
     const res = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
       credentials: 'include', // sends the HttpOnly refresh_token cookie
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'X-Platform': 'web',
+        'X-App-Version': '1.0.0',
+      },
     });
 
     if (!res.ok) return false;

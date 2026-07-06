@@ -136,7 +136,11 @@ export default function BookingClient() {
       const token = useAuthStore.getState().accessToken;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1'}/orders`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Platform': 'web',
+          'X-App-Version': '1.0.0',
+        },
         body: formData,
       });
       const data = await res.json();
