@@ -7,23 +7,25 @@ import { ArrowLeft, Search, MessageSquare } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 
-interface ChatRoom {
+interface ChatRoomDTO {
   order_id: string;
   order_number: string;
   partner_name: string;
-  partner_avatar?: string;
+  partner_avatar_url?: string;
+  customer_name: string;
+  customer_avatar_url?: string;
   last_message: string;
-  last_message_time: string;
+  last_message_at: string;
   unread_count: number;
-  status: 'active' | 'archived';
+  is_active: boolean;
 }
 
 export default function ChatListPage() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
-  const [chats, setChats] = useState<ChatRoom[]>([]);
+  const [chats, setChats] = useState<ChatRoomDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
@@ -34,7 +36,6 @@ export default function ChatListPage() {
 
   const fetchChats = async () => {
     setLoading(true);
-    // Assuming backend returns a list of chat rooms
     const res = await fetchAPI<any>('/chat/rooms');
     if (res.success && res.data) {
       setChats(res.data.data ?? res.data);
@@ -42,13 +43,18 @@ export default function ChatListPage() {
     setLoading(false);
   };
 
-  const filteredChats = chats.filter(c => 
-    c.status === activeTab && 
-    (c.partner_name.toLowerCase().includes(search.toLowerCase()) || 
-     c.order_number.toLowerCase().includes(search.toLowerCase()))
-  );
+  const isMitra = user?.active_role === 'mitra';
+
+  const filteredChats = chats.filter(c => {
+    const statusMatch = activeTab === 'active' ? c.is_active : !c.is_active;
+    const nameToSearch = isMitra ? c.customer_name : c.partner_name;
+    const searchMatch = nameToSearch?.toLowerCase().includes(search.toLowerCase()) || 
+                        c.order_number?.toLowerCase().includes(search.toLowerCase());
+    return statusMatch && searchMatch;
+  });
 
   const formatTime = (time: string) => {
+    if (!time) return '';
     const date = new Date(time);
     const now = new Date();
     if (date.toDateString() === now.toDateString()) {
@@ -65,7 +71,7 @@ export default function ChatListPage() {
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 py-4">
-            <Link href="/" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
+            <Link href={isMitra ? "/mitra" : "/"} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
               <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
             </Link>
             <h1 className="text-base font-bold text-[#1c1b1b]">Pesan</h1>
@@ -120,37 +126,41 @@ export default function ChatListPage() {
               <p className="text-sm text-[#5b403e]">Tidak ada percakapan {activeTab === 'active' ? 'aktif' : 'di arsip'}.</p>
             </div>
           ) : (
-            filteredChats.map(chat => (
-              <Link
-                key={chat.order_id}
-                href={`/chat/${chat.order_id}`}
-                className="block bg-white rounded border border-[#e5e2e1] p-4 hover:bg-[#f7f5f4] transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#e5e2e1] flex items-center justify-center text-lg font-bold text-[#5b403e] shrink-0 overflow-hidden relative">
-                    {chat.partner_avatar
-                      ? <img src={chat.partner_avatar} alt={chat.partner_name} className="w-full h-full object-cover" />
-                      : chat.partner_name.charAt(0).toUpperCase()
-                    }
-                  </div>
-                  <div className="flex-1 min-w-0 pt-0.5">
-                    <div className="flex justify-between items-start mb-1">
-                      <p className="font-semibold text-[#1c1b1b] truncate pr-2">{chat.partner_name}</p>
-                      <p className="text-xs text-[#9e8e8c] shrink-0">{formatTime(chat.last_message_time)}</p>
+            filteredChats.map(chat => {
+              const displayName = isMitra ? chat.customer_name : chat.partner_name;
+              const displayAvatar = isMitra ? chat.customer_avatar_url : chat.partner_avatar_url;
+              return (
+                <Link
+                  key={chat.order_id}
+                  href={`/chat/${chat.order_id}`}
+                  className="block bg-white rounded border border-[#e5e2e1] p-4 hover:bg-[#f7f5f4] transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-full bg-[#e5e2e1] flex items-center justify-center text-lg font-bold text-[#5b403e] shrink-0 overflow-hidden relative">
+                      {displayAvatar
+                        ? <img src={displayAvatar} alt={displayName} className="w-full h-full object-cover" />
+                        : displayName?.charAt(0)?.toUpperCase() || '?'
+                      }
                     </div>
-                    <p className="text-xs text-[#9e8e8c] mb-1">Pesanan {chat.order_number}</p>
-                    <div className="flex justify-between items-center gap-2">
-                      <p className="text-sm text-[#5b403e] truncate">{chat.last_message}</p>
-                      {chat.unread_count > 0 && (
-                        <span className="shrink-0 w-5 h-5 bg-[#b51822] text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-                          {chat.unread_count}
-                        </span>
-                      )}
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="flex justify-between items-start mb-1">
+                        <p className="font-semibold text-[#1c1b1b] truncate pr-2">{displayName}</p>
+                        <p className="text-xs text-[#9e8e8c] shrink-0">{formatTime(chat.last_message_at)}</p>
+                      </div>
+                      <p className="text-xs text-[#9e8e8c] mb-1">Pesanan {chat.order_number}</p>
+                      <div className="flex justify-between items-center gap-2">
+                        <p className="text-sm text-[#5b403e] truncate">{chat.last_message}</p>
+                        {chat.unread_count > 0 && (
+                          <span className="shrink-0 w-5 h-5 bg-[#b51822] text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+                            {chat.unread_count}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              );
+            })
           )}
         </div>
       </div>
