@@ -207,6 +207,11 @@ export default function OrderDetailClient() {
           </div>
 
           {/* State-specific info banners */}
+          {status === 'PAID' && (
+            <div className="mt-3 p-3 bg-[#EBF8FF] border-l-4 border-[#3182CE] rounded text-sm text-[#5b403e]">
+              Pembayaran berhasil. Menunggu Mitra tiba dan memulai pekerjaan sesuai jadwal.
+            </div>
+          )}
           {status === 'WAITING_CUSTOMER_CONFIRM' && (
             <div className="mt-3 p-3 bg-[#fff8f2] border-l-4 border-[#DD6B20] rounded text-sm text-[#5b403e]">
               Mitra telah menyelesaikan pekerjaan. Konfirmasi jika sudah sesuai untuk mencairkan dana ke mitra.
@@ -404,21 +409,12 @@ export default function OrderDetailClient() {
 
           {/* WAITING_ADDITIONAL_PAY */}
           {status === 'WAITING_ADDITIONAL_PAY' && (
-            <>
-              <Button
-                variant="outline"
-                className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded"
-                onClick={() => router.push(`/orders/${order.id}/additional-fee`)}
-              >
-                Tolak
-              </Button>
-              <Button
-                className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded"
-                onClick={() => router.push(`/orders/${order.id}/additional-fee`)}
-              >
-                Lihat & Setujui Tagihan
-              </Button>
-            </>
+            <Button
+              className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded"
+              onClick={() => router.push(`/orders/${order.id}/additional-fee`)}
+            >
+              Lihat Detail Tagihan
+            </Button>
           )}
 
           {/* WAITING_CUSTOMER_CONFIRM */}
@@ -483,7 +479,9 @@ export default function OrderDetailClient() {
               </button>
             </div>
             <p className="text-sm text-[#5b403e] mb-6">
-              Pesanan akan dibatalkan dan tidak dapat dikembalikan. Biaya yang sudah dibayar akan dikembalikan ke dompet Anda.
+              {status === 'WAITING_CONFIRMATION' 
+                ? 'Pesanan akan dibatalkan. Anda belum dikenakan biaya apapun.' 
+                : 'Pesanan akan dibatalkan dan tidak dapat dikembalikan. Biaya layanan yang sudah dibayar akan dikembalikan ke saldo dompet Anda.'}
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setShowCancelDialog(false)}>

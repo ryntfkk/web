@@ -70,8 +70,8 @@ export default function AdditionalFeeClient() {
       body: JSON.stringify({ action: 'approve' }),
     });
     if (res.success) {
-      showToast('Tagihan disetujui. Mengarahkan ke halaman pembayaran...');
-      setTimeout(() => router.push(`/payment/${orderId}`), 1500);
+      showToast('Tagihan berhasil disetujui dan dibayar.');
+      setTimeout(() => router.push(`/orders/${orderId}`), 1500);
     } else {
       showToast(res.message || 'Gagal menyetujui tagihan', 'error');
     }
@@ -206,7 +206,7 @@ export default function AdditionalFeeClient() {
             onClick={handleApprove}
             disabled={actionLoading}
           >
-            {actionLoading ? 'Memproses...' : `Setujui & Bayar ${formatPrice(fee.total)}`}
+            {actionLoading ? 'Memproses...' : `Setujui (Potong Saldo ${formatPrice(fee.total)})`}
           </Button>
         </div>
       </div>
