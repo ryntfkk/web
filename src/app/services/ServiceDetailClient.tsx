@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,14 +15,17 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
+  Heart,
+  Share2,
   X,
+  Minus,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDetail';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import ScheduleView from '@/components/service/ScheduleView';
-import { useState } from 'react';
 
 const PLACEHOLDER_IMG =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3';
@@ -38,15 +41,8 @@ function DetailContent() {
   const { isAuthenticated } = useAuthStore();
   const { addItem, removeItem, isInCart } = useCartStore();
 
-  const {
-    data: service,
-    isLoading,
-    isError,
-    refetch,
-  } = useServiceDetail(serviceId);
-
-  const { data: workingHours, isLoading: hoursLoading } =
-    usePartnerWorkingHours(service?.partner_id);
+  const { data: service, isLoading, isError, refetch } = useServiceDetail(serviceId);
+  const { data: workingHours, isLoading: hoursLoading } = usePartnerWorkingHours(service?.partner_id);
 
   const inCart = service ? isInCart(service.id) : false;
 
@@ -82,17 +78,13 @@ function DetailContent() {
 
   const nextPhoto = () => {
     if (service && service.photos.length > 1) {
-      setCurrentPhotoIndex((prev) =>
-        prev === service.photos.length - 1 ? 0 : prev + 1
-      );
+      setCurrentPhotoIndex((prev) => prev === service.photos.length - 1 ? 0 : prev + 1);
     }
   };
 
   const prevPhoto = () => {
     if (service && service.photos.length > 1) {
-      setCurrentPhotoIndex((prev) =>
-        prev === 0 ? service.photos.length - 1 : prev - 1
-      );
+      setCurrentPhotoIndex((prev) => prev === 0 ? service.photos.length - 1 : prev - 1);
     }
   };
 
@@ -120,11 +112,16 @@ function DetailContent() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#fcf9f8]">
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3">
-          <div className="w-full aspect-[16/9] bg-[#e5e2e1] rounded-[4px] animate-pulse mb-3" />
-          <div className="space-y-2">
-            <div className="h-6 bg-[#e5e2e1] rounded-[4px] animate-pulse w-3/4" />
-            <div className="h-4 bg-[#e5e2e1] rounded-[4px] animate-pulse w-1/2" />
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-1/2">
+              <div className="w-full aspect-square bg-[#e5e2e1] rounded-[4px] animate-pulse" />
+            </div>
+            <div className="w-full md:w-1/2 space-y-3">
+              <div className="h-6 bg-[#e5e2e1] rounded-[4px] animate-pulse w-3/4" />
+              <div className="h-4 bg-[#e5e2e1] rounded-[4px] animate-pulse w-1/2" />
+              <div className="h-10 bg-[#e5e2e1] rounded-[4px] animate-pulse w-1/3 mt-6" />
+            </div>
           </div>
         </div>
       </div>
@@ -155,197 +152,229 @@ function DetailContent() {
   // ── Normal ───────────────────────────────────────────────────────
   const mainPhoto = service.photo_url || PLACEHOLDER_IMG;
   const hasMultiplePhotos = service.photos && service.photos.length > 1;
+  const allPhotos = hasMultiplePhotos ? service.photos : [{ id: 'main', photo_url: mainPhoto }];
 
   return (
-    <div className="min-h-screen bg-[#fcf9f8] pb-20 sm:pb-4">
+    <div className="min-h-screen bg-[#f0f0f0] pb-20 sm:pb-4">
       {/* Mobile Header */}
       <div className="sm:hidden sticky top-0 z-30 bg-white border-b border-[#e5e2e1] px-3 py-2.5 flex items-center justify-between">
         <button onClick={() => router.back()} className="p-1.5 -ml-1.5 hover:bg-[#f0eded] rounded-full">
           <ArrowLeft className="w-4 h-4 text-[#1c1b1b]" />
         </button>
-        <h1 className="text-sm font-semibold text-[#1c1b1b] truncate mx-2">Detail Layanan</h1>
-        <div className="w-8" />
+        <h1 className="text-sm font-semibold text-[#1c1b1b]">Detail Layanan</h1>
+        <div className="flex gap-2">
+          <button className="p-1.5 hover:bg-[#f0eded] rounded-full">
+            <Share2 className="w-4 h-4 text-[#1c1b1b]" />
+          </button>
+        </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3">
-        {/* Photo Gallery */}
-        <div className="relative mb-4">
-          <div
-            className="relative w-full aspect-[16/9] bg-[#e5e2e1] rounded-[4px] overflow-hidden cursor-pointer"
-            onClick={() => hasMultiplePhotos && setShowGallery(true)}
-          >
-            <Image
-              src={hasMultiplePhotos ? service.photos[currentPhotoIndex].photo_url : mainPhoto}
-              alt={service.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, 896px"
-              priority
-            />
+      <div className="max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-3">
+        {/* Breadcrumb */}
+        <div className="hidden sm:flex items-center gap-2 text-xs text-[#5b403e] mb-3 px-4 py-2">
+          <Link href="/" className="hover:text-[#b51822]">Beranda</Link>
+          <span>/</span>
+          <Link href="/search" className="hover:text-[#b51822]">Layanan</Link>
+          <span>/</span>
+          <span className="text-[#1c1b1b]">{service.category_name}</span>
+        </div>
 
-            {hasMultiplePhotos && (
-              <>
-                <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
-                  className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white rounded-full items-center justify-center shadow">
-                  <ChevronLeft className="w-4 h-4 text-[#1c1b1b]" />
-                </button>
-                <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
-                  className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white rounded-full items-center justify-center shadow">
-                  <ChevronRight className="w-4 h-4 text-[#1c1b1b]" />
-                </button>
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                  {service.photos.map((_, idx) => (
-                    <button key={idx} onClick={(e) => { e.stopPropagation(); setCurrentPhotoIndex(idx); }}
-                      className={`h-1.5 rounded-full transition-all ${idx === currentPhotoIndex ? 'bg-white w-3' : 'bg-white/50 w-1.5'}`} />
+        {/* Main Content - Shopee Style */}
+        <div className="bg-white sm:rounded-[4px] sm:shadow-sm">
+          <div className="flex flex-col md:flex-row">
+            {/* Left: Images */}
+            <div className="w-full md:w-[42%] p-3 sm:p-4">
+              {/* Main Image */}
+              <div
+                className="relative w-full aspect-square bg-[#fafafa] rounded-[4px] overflow-hidden cursor-pointer group"
+                onClick={() => hasMultiplePhotos && setShowGallery(true)}
+              >
+                <Image
+                  src={allPhotos[currentPhotoIndex].photo_url}
+                  alt={service.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                />
+
+                {/* Badge */}
+                <div className="absolute top-0 left-0 bg-[#b51822] text-white text-xs px-2 py-1 rounded-br-[4px]">
+                  Favorit
+                </div>
+
+                {/* Navigation */}
+                {hasMultiplePhotos && (
+                  <>
+                    <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                      <ChevronLeft className="w-4 h-4 text-white" />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                      <ChevronRight className="w-4 h-4 text-white" />
+                    </button>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-white bg-black/50 px-2 py-0.5 rounded-full">
+                      {currentPhotoIndex + 1}/{allPhotos.length}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Thumbnails */}
+              {hasMultiplePhotos && (
+                <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                  {allPhotos.map((photo, idx) => (
+                    <button key={photo.id} onClick={() => setCurrentPhotoIndex(idx)}
+                      className={`relative flex-shrink-0 w-14 h-14 rounded-[4px] overflow-hidden transition-all ${idx === currentPhotoIndex ? 'ring-2 ring-[#b51822]' : 'opacity-60 hover:opacity-100'}`}>
+                      <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" />
+                    </button>
                   ))}
                 </div>
-              </>
-            )}
-          </div>
+              )}
 
-          {hasMultiplePhotos && (
-            <div className="hidden sm:flex gap-1.5 mt-2">
-              {service.photos.map((photo, idx) => (
-                <button key={photo.id} onClick={() => setCurrentPhotoIndex(idx)}
-                  className={`relative flex-shrink-0 w-16 h-11 rounded-[4px] overflow-hidden transition-all ${idx === currentPhotoIndex ? 'ring-2 ring-[#b51822] ring-offset-1' : 'opacity-50 hover:opacity-80'}`}>
-                  <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" />
+              {/* Share & Favorite */}
+              <div className="hidden sm:flex items-center gap-4 mt-4 pt-3 border-t border-[#e5e2e1]">
+                <span className="text-xs text-[#5b403e]">Bagikan:</span>
+                <button className="flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#b51822]">
+                  <Share2 className="w-3.5 h-3.5" />
+                  Share
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Main Info */}
-        <div className="space-y-3">
-          {/* Category & Badge */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#5b403e]">
-              <span className="inline-flex text-xs font-medium text-[#5b403e] bg-[#f0eded] rounded-full px-2.5 py-0.5">
-                {service.category_name}
-              </span>
-              <div className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5 fill-[#D69E2E] text-[#D69E2E]" />
-                <span className="font-semibold text-[#1c1b1b]">{service.partner_avg_rating.toFixed(1)}</span>
-                <span>({service.partner_total_reviews} ulasan)</span>
+                <button className="flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#b51822]">
+                  <Heart className="w-3.5 h-3.5" />
+                  Favorit
+                </button>
               </div>
             </div>
-            {/* Mobile Price */}
-            <p className="sm:hidden text-xl font-bold text-[#b51822] whitespace-nowrap">
-              Rp {service.price.toLocaleString('id-ID')}
-            </p>
+
+            {/* Right: Info */}
+            <div className="flex-1 p-3 sm:p-4 sm:pl-0">
+              {/* Title & Location */}
+              <div className="mb-3">
+                <h1 className="text-lg sm:text-xl font-semibold text-[#1c1b1b] leading-tight mb-2">
+                  {service.name}
+                </h1>
+                <div className="flex items-center gap-3 text-xs text-[#5b403e]">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    <span>{service.category_name}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rating & Reviews */}
+              <div className="flex items-center gap-3 py-2.5 px-3 bg-[#fafafa] rounded-[4px] mb-4">
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 fill-[#D69E2E] text-[#D69E2E]" />
+                  <span className="font-semibold text-[#1c1b1b]">{service.partner_avg_rating.toFixed(1)}</span>
+                </div>
+                <div className="w-px h-4 bg-[#e5e2e1]" />
+                <span className="text-sm text-[#5b403e]">{service.partner_total_reviews} Ulasan</span>
+                <div className="w-px h-4 bg-[#e5e2e1]" />
+                <span className="text-sm text-[#5b403e]">{service.estimated_duration} menit</span>
+              </div>
+
+              {/* Price */}
+              <div className="bg-[#fafafa] p-3 rounded-[4px] mb-4">
+                <span className="text-xs text-[#5b403e]">Harga</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl sm:text-3xl font-bold text-[#b51822]">
+                    Rp {service.price.toLocaleString('id-ID')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick Info */}
+              <div className="space-y-2 mb-4">
+                <button onClick={() => setShowSchedule(true)}
+                  className="w-full flex items-center justify-between p-3 bg-white border border-[#e5e2e1] rounded-[4px] hover:border-[#b51822] transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-[#5b403e]" />
+                    <span className="text-sm text-[#1c1b1b]">Jadwal {service.partner_name}</span>
+                  </div>
+                  <span className="text-xs text-[#b51822]">Lihat Jadwal →</span>
+                </button>
+              </div>
+
+              {/* Partner */}
+              <Link href={`/${service.partner_username}`}
+                className="flex items-center gap-3 p-3 bg-[#fafafa] rounded-[4px] hover:bg-[#f0eded] transition-colors mb-4">
+                <div className="w-12 h-12 rounded-full bg-[#e5e2e1] overflow-hidden flex-shrink-0">
+                  {service.partner_avatar_url ? (
+                    <Image src={service.partner_avatar_url} alt={service.partner_name} width={48} height={48} className="object-cover w-full h-full" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-[#5b403e]">
+                      {service.partner_name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[#1c1b1b]">{service.partner_name}</p>
+                  <p className="text-xs text-[#5b403e]">Lihat profil →</p>
+                </div>
+              </Link>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className={`flex-1 h-11 rounded-[4px] text-sm font-medium ${inCart ? 'border-green-500 text-green-700 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
+                  onClick={handleCartToggle}
+                >
+                  {inCart ? <><Check className="w-4 h-4 mr-1.5" /> Ditambahkan</> : <><ShoppingCart className="w-4 h-4 mr-1.5" /> Masukan Keranjang</>}
+                </Button>
+                <Button
+                  className="flex-1 h-11 bg-[#b51822] hover:bg-[#90121a] text-white font-semibold rounded-[4px] text-sm"
+                  onClick={handleOrderNow}
+                >
+                  <Zap className="w-4 h-4 mr-1.5" />
+                  Pesan Sekarang
+                </Button>
+              </div>
+            </div>
           </div>
 
-          {/* Title */}
-          <h1 className="text-xl sm:text-2xl font-bold text-[#1c1b1b] leading-tight">
-            {service.name}
-          </h1>
+          {/* Bottom Section: Description & Details */}
+          <div className="border-t border-[#e5e2e1] p-4">
+            {/* Description */}
+            {service.description && (
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-[#1c1b1b] mb-2">Deskripsi Layanan</h3>
+                <p className="text-sm text-[#5b403e] whitespace-pre-line leading-relaxed">
+                  {service.description}
+                </p>
+              </div>
+            )}
 
-          {/* Meta Row */}
-          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-[#5b403e]">
-            <div className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{service.estimated_duration} menit</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{service.category_name}</span>
-            </div>
-          </div>
-
-          {/* Quick Actions Row */}
-          <div className="flex flex-wrap gap-2">
-            {/* Schedule Button */}
-            <button
-              onClick={() => setShowSchedule(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-[#5b403e] bg-white border border-[#e5e2e1] rounded-[4px] hover:bg-[#f0eded] hover:border-[#b51822] transition-colors"
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              Lihat Jadwal Mitra
-            </button>
-          </div>
-
-          {/* Partner Card */}
-          <Link
-            href={`/${service.partner_username}`}
-            className="flex items-center gap-3 p-3 bg-white border border-[#e5e2e1] rounded-[4px] hover:border-[#b51822] transition-colors"
-          >
-            <div className="w-10 h-10 rounded-full bg-[#f0eded] overflow-hidden flex-shrink-0">
-              {service.partner_avatar_url ? (
-                <Image src={service.partner_avatar_url} alt={service.partner_name} width={40} height={40} className="object-cover w-full h-full" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-sm font-semibold text-[#5b403e]">
-                  {service.partner_name.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#1c1b1b]">{service.partner_name}</p>
-              <p className="text-xs text-[#5b403e]">Lihat profil mitra →</p>
-            </div>
-          </Link>
-
-          {/* Description */}
-          {service.description && (
-            <div className="bg-white rounded-[4px] border border-[#e5e2e1] p-3.5">
-              <h3 className="text-sm font-semibold text-[#1c1b1b] mb-2">Deskripsi</h3>
-              <p className="text-xs sm:text-sm text-[#5b403e] whitespace-pre-line leading-relaxed">
-                {service.description}
-              </p>
-            </div>
-          )}
-
-          {/* Included / Excluded */}
-          {(service.included_items.length > 0 || service.excluded_items.length > 0) && (
-            <div className="grid grid-cols-2 gap-3">
-              {service.included_items.length > 0 && (
-                <div className="bg-white rounded-[4px] border border-[#e5e2e1] p-3">
-                  <h3 className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Termasuk
-                  </h3>
-                  <ul className="space-y-1">
-                    {service.included_items.map((item, i) => (
-                      <li key={i} className="text-xs text-[#5b403e]">{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {service.excluded_items.length > 0 && (
-                <div className="bg-white rounded-[4px] border border-[#e5e2e1] p-3">
-                  <h3 className="text-xs font-semibold text-red-600 mb-2 flex items-center gap-1">
-                    <X className="w-3.5 h-3.5" /> Tidak Termasuk
-                  </h3>
-                  <ul className="space-y-1">
-                    {service.excluded_items.map((item, i) => (
-                      <li key={i} className="text-xs text-[#5b403e]">{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Desktop Price & Actions */}
-        <div className="hidden sm:block mt-4 bg-white rounded-[4px] border border-[#e5e2e1] p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs text-[#5b403e]">Harga</p>
-              <p className="text-2xl font-bold text-[#b51822]">
-                Rp {service.price.toLocaleString('id-ID')}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                className={`h-10 px-4 rounded-[4px] text-sm ${inCart ? 'border-green-500 text-green-700 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
-                onClick={handleCartToggle}
-              >
-                {inCart ? <><Check className="w-3.5 h-3.5 mr-1.5" /> Ditambahkan</> : <><ShoppingCart className="w-3.5 h-3.5 mr-1.5" /> Keranjang</>}
-              </Button>
-              <Button className="h-10 px-5 bg-[#b51822] hover:bg-[#90121a] text-white font-bold rounded-[4px] text-sm" onClick={handleOrderNow}>
-                <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan Sekarang
-              </Button>
-            </div>
+            {/* Included / Excluded */}
+            {(service.included_items.length > 0 || service.excluded_items.length > 0) && (
+              <div className="grid grid-cols-2 gap-3">
+                {service.included_items.length > 0 && (
+                  <div className="p-3 bg-green-50 rounded-[4px]">
+                    <h4 className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" /> Yang Termasuk
+                    </h4>
+                    <ul className="space-y-1">
+                      {service.included_items.map((item, i) => (
+                        <li key={i} className="text-xs text-green-700">{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {service.excluded_items.length > 0 && (
+                  <div className="p-3 bg-red-50 rounded-[4px]">
+                    <h4 className="text-xs font-semibold text-red-600 mb-2 flex items-center gap-1">
+                      <X className="w-3.5 h-3.5" /> Yang Tidak Termasuk
+                    </h4>
+                    <ul className="space-y-1">
+                      {service.excluded_items.map((item, i) => (
+                        <li key={i} className="text-xs text-red-600">{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -376,9 +405,7 @@ function DetailContent() {
             <div className="sticky top-0 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
               <h2 className="text-base font-semibold text-[#1c1b1b]">Jadwal {service.partner_name}</h2>
               <button onClick={() => setShowSchedule(false)} className="p-1 hover:bg-[#f0eded] rounded-full">
-                <svg className="w-5 h-5 text-[#5b403e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="w-5 h-5 text-[#5b403e]" />
               </button>
             </div>
             <div className="p-4">
@@ -390,26 +417,27 @@ function DetailContent() {
 
       {/* Gallery Modal */}
       {showGallery && hasMultiplePhotos && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={() => setShowGallery(false)}>
-          <button onClick={() => setShowGallery(false)} className="absolute top-3 right-3 w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center" onClick={() => setShowGallery(false)}>
+          <button onClick={() => setShowGallery(false)} className="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
+            <X className="w-6 h-6" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
-            <ChevronLeft className="w-5 h-5" />
+          <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }} className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
+            <ChevronLeft className="w-6 h-6" />
           </button>
-          <div className="relative w-full max-w-3xl aspect-[4/3] mx-4" onClick={e => e.stopPropagation()}>
-            <Image src={service.photos[currentPhotoIndex].photo_url} alt={`Foto ${currentPhotoIndex + 1}`} fill className="object-contain" sizes="100vw" />
+          <div className="relative w-full h-full max-w-3xl max-h-[80vh]" onClick={e => e.stopPropagation()}>
+            <Image src={allPhotos[currentPhotoIndex].photo_url} alt={`Foto ${currentPhotoIndex + 1}`} fill className="object-contain" sizes="100vw" />
           </div>
-          <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white">
-            <ChevronRight className="w-5 h-5" />
+          <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }} className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
+            <ChevronRight className="w-6 h-6" />
           </button>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {service.photos.map((_, idx) => (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {allPhotos.map((_, idx) => (
               <button key={idx} onClick={(e) => { e.stopPropagation(); setCurrentPhotoIndex(idx); }}
                 className={`w-2 h-2 rounded-full transition-all ${idx === currentPhotoIndex ? 'bg-white' : 'bg-white/40'}`} />
             ))}
+          </div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+            {currentPhotoIndex + 1}/{allPhotos.length}
           </div>
         </div>
       )}
