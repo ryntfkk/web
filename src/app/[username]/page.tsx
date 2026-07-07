@@ -1,13 +1,32 @@
 import PartnerProfileClient from './PartnerProfileClient';
-
-// Allow dynamic params — any username is valid (fetched from API at runtime).
-// This replaces the old hardcoded VALID_USERNAMES whitelist that caused 404
-// for any partner not in the list.
-export const dynamicParams = true;
+import { API_URL } from '@/lib/api';
 
 // Type for the params
 interface PageProps {
   params: Promise<{ username: string }>;
+}
+
+// Pre-generate all partner profile pages at build time
+export async function generateStaticParams() {
+  try {
+    const res = await fetch(`${API_URL}/partners/usernames`, {
+      headers: {
+        'X-Platform': 'web',
+        'X-App-Version': '1.0.0',
+      },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) {
+      console.error('Failed to fetch partner usernames');
+      return [];
+    }
+    const json = await res.json();
+    const usernames: string[] = json.data || [];
+    return usernames.map((username) => ({ username }));
+  } catch (error) {
+    console.error('Error fetching partner usernames:', error);
+    return [];
+  }
 }
 
 // Generate metadata for SEO
