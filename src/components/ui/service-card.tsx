@@ -89,7 +89,7 @@ export function ServiceCard({
           <div className="flex items-center gap-0.5 sm:gap-1">
             {/* Gold filled star */}
             <Star className="w-3 h-3 sm:w-[11.67px] sm:h-[11.08px] fill-[#D69E2E] text-[#D69E2E]" />
-            <span className="text-[12px] sm:text-[14px] font-medium text-[#1c1b1b]">{rating}</span>
+            <span className="text-[12px] sm:text-[14px] font-medium text-[#1c1b1b]">{Number(rating).toFixed(1)}</span>
             <span className="text-[11px] sm:text-[14px] font-normal text-[#5b403e] hidden sm:inline">({reviewCount})</span>
           </div>
           {showLocation && (

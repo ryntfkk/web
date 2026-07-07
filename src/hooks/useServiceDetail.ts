@@ -41,7 +41,7 @@ export interface WorkingHour {
 
 // ── Hooks ───────────────────────────────────────────────────────────
 
-/** Fetch a single service's full detail (for /layanan/[id] page). */
+/** Fetch a single service's full detail (for /services?id=[id] page). */
 export function useServiceDetail(serviceId: string) {
   return useQuery({
     queryKey: ['serviceDetail', serviceId],

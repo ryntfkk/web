@@ -1,16 +1,9 @@
-import { notFound } from 'next/navigation';
 import PartnerProfileClient from './PartnerProfileClient';
 
-// List of valid partner usernames for static generation
-const VALID_USERNAMES = ['budiac', 'siticom', 'jokoplumb', 'antotech'];
-
-// Generate static params for partner profile pages
-// These are the partner usernames that will be pre-rendered at build time
-export async function generateStaticParams() {
-  return VALID_USERNAMES.map((username) => ({
-    username,
-  }));
-}
+// Allow dynamic params — any username is valid (fetched from API at runtime).
+// This replaces the old hardcoded VALID_USERNAMES whitelist that caused 404
+// for any partner not in the list.
+export const dynamicParams = true;
 
 // Type for the params
 interface PageProps {
@@ -21,8 +14,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps) {
   const { username } = await params;
 
-  // Return basic metadata even for invalid params to avoid build errors
-  if (!username || !VALID_USERNAMES.includes(username)) {
+  if (!username) {
     return {
       title: 'Partner Tidak Ditemukan | Posko Jasa',
       description: 'Profil partner tidak ditemukan',
@@ -39,8 +31,9 @@ export default async function PartnerProfilePage({ params }: PageProps) {
   const resolvedParams = await params;
   const { username } = resolvedParams;
 
-  // Guard against undefined or invalid username
-  if (!username || !VALID_USERNAMES.includes(username)) {
+  // Guard against undefined username only — validity is checked by the API
+  if (!username) {
+    const { notFound } = await import('next/navigation');
     notFound();
   }
 
