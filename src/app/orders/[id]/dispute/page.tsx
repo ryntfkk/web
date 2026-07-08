@@ -1,8 +1,7 @@
 import DisputeClient from './Client';
 
-export function generateStaticParams() {
-  return [{ id: '1' }];
-}
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 export default function DisputePage() {
   return <DisputeClient />;

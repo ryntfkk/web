@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { ArrowLeft, Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 interface Notification {
   id: string;
@@ -18,14 +21,14 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
-  const { isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchNotifications();
   }, [isAuthenticated]);
 
@@ -34,7 +37,7 @@ export default function NotificationsPage() {
     // Assuming backend endpoint exists
     const res = await fetchAPI<any>('/notifications');
     if (res.success && res.data) {
-      setNotifications(res.data.data ?? res.data);
+      setNotifications(res.data);
     }
     setLoading(false);
   };
@@ -84,7 +87,8 @@ export default function NotificationsPage() {
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 

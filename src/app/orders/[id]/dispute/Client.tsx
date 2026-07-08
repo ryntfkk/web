@@ -7,9 +7,12 @@ import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 export default function DisputeClient() {
-  const { isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -22,7 +25,7 @@ export default function DisputeClient() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchOrder();
   }, [isAuthenticated, orderId]);
 
@@ -58,8 +61,8 @@ export default function DisputeClient() {
       // Assuming backend supports /disputes endpoint.
       
       const token = useAuthStore.getState().accessToken;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1'}/disputes`, {
-        method: 'POST',
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1'}/orders/${orderId}/dispute`, {
+        method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'X-Platform': 'web',
@@ -85,7 +88,8 @@ export default function DisputeClient() {
     }
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
   if (loading) {
     return <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />

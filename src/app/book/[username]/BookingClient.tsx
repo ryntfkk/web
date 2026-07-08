@@ -46,9 +46,16 @@ export default function BookingClient() {
   const [photos, setPhotos] = useState<File[]>([]);
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState(0);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [idempotencyKey, setIdempotencyKey] = useState<string>('');
   
   // Refs
   const preselectedRef = useRef(false);
+
+  useEffect(() => {
+    setIdempotencyKey(crypto.randomUUID());
+  }, [selectedServices, date, time, addressId, notes, photos.length, promoCode]);
 
   useEffect(() => {
     if (!isAuthenticated) {

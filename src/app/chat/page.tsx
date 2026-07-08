@@ -7,9 +7,13 @@ import { Search, MessageSquare } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import ChatConversation from '@/components/chat/ChatConversation';
+import { ROLE_PARTNER } from '@/lib/constants';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 export default function ChatListPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [chats, setChats] = useState<any[]>([]);
@@ -18,7 +22,7 @@ export default function ChatListPage() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchChats();
   }, [isAuthenticated]);
 
@@ -26,7 +30,7 @@ export default function ChatListPage() {
     setLoading(true);
     const res = await fetchAPI<any>('/chat/rooms');
     if (res.success && res.data) {
-      const data: any[] = res.data.data ?? res.data;
+      const data: any[] = res.data;
       setChats(data);
       // Auto-select first chat on desktop if none selected
       if (data.length > 0 && !selectedOrderId) {
@@ -36,7 +40,7 @@ export default function ChatListPage() {
     setLoading(false);
   };
 
-  const isMitra = user?.active_role === 'mitra';
+  const isMitra = user?.active_role === ROLE_PARTNER;
 
   // Unified list — no active/archived separation, sorted by most recent
   const filteredChats = chats
@@ -82,7 +86,8 @@ export default function ChatListPage() {
     }
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">

@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Package, Clock, CheckCircle, XCircle, ChevronRight, MapPin, Calendar, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { StatusBadge } from '@/components/ui/status-badge';
 
 interface OrderItem {
   id: string;
@@ -18,18 +21,31 @@ interface OrderItem {
 interface Order {
   id: string;
   order_number: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled' | 'on_the_way' | 'in_progress';
+  status: 'PENDING' | 'ACCEPTED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
   total_amount: number;
   created_at: string;
   service_date?: string;
+  scheduled_at?: string;
   service_address?: string;
+  address?: string;
   partner_name?: string;
   partner_avatar?: string;
   items: OrderItem[];
   notes?: string;
+  agreed_price?: number;
 }
 
+type OrderStatus = 'PENDING' | 'ACCEPTED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
 type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
+
+const statusConfig: Record<OrderStatus, { label: string, color: string, icon?: any }> = {
+  PENDING: { label: 'Menunggu', color: 'bg-[#FFF5F5] text-[#E53E3E] border-[#FEB2B2]' },
+  ACCEPTED: { label: 'Diterima', color: 'bg-[#EBF8FF] text-[#3182CE] border-[#90CDF4]' },
+  PROCESSING: { label: 'Diproses', color: 'bg-[#EBF8FF] text-[#3182CE] border-[#90CDF4]' },
+  COMPLETED: { label: 'Selesai', color: 'bg-[#F0FFF4] text-[#38A169] border-[#9AE6B4]' },
+  CANCELLED: { label: 'Dibatalkan', color: 'bg-[#f7f5f4] text-[#8f6f6d] border-[#e5e2e1]' },
+  DISPUTED: { label: 'Sengketa', color: 'bg-[#FFF5F5] text-[#E53E3E] border-[#FEB2B2]' }
+};
 
 export default function OrdersPage() {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -58,30 +74,21 @@ export default function OrdersPage() {
     setLoading(false);
   };
 
-  const getStatusConfig = (status: Order['status']) => {
-    const configs = {
-      pending: { label: 'Menunggu', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock },
-      processing: { label: 'Diproses', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: Package },
-      in_progress: { label: 'Sedang Dikerjakan', color: 'bg-purple-100 text-purple-800 border-purple-200', icon: Clock },
-      on_the_way: { label: 'Dalam Perjalanan', color: 'bg-orange-100 text-orange-800 border-orange-200', icon: MapPin },
-      completed: { label: 'Selesai', color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
-      cancelled: { label: 'Dibatalkan', color: 'bg-red-100 text-red-800 border-red-200', icon: XCircle },
-    };
-    return configs[status] || configs.pending;
-  };
-
-  const filteredOrders = activeFilter === 'all'
-    ? orders
-    : activeFilter === 'processing'
-      ? orders.filter(order => ['processing', 'in_progress', 'on_the_way'].includes(order.status))
-      : orders.filter(order => order.status === activeFilter);
+  const filteredOrders = orders.filter(order => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'pending') return order.status === 'PENDING' || order.status === 'ACCEPTED';
+    if (activeFilter === 'processing') return order.status === 'PROCESSING';
+    if (activeFilter === 'completed') return order.status === 'COMPLETED';
+    if (activeFilter === 'cancelled') return order.status === 'CANCELLED';
+    return true;
+  });
 
   const filterCounts = {
     all: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    processing: orders.filter(o => ['processing', 'in_progress', 'on_the_way'].includes(o.status)).length,
-    completed: orders.filter(o => o.status === 'completed').length,
-    cancelled: orders.filter(o => o.status === 'cancelled').length,
+    pending: orders.filter(o => o.status === 'PENDING' || o.status === 'ACCEPTED').length,
+    processing: orders.filter(o => o.status === 'PROCESSING').length,
+    completed: orders.filter(o => o.status === 'COMPLETED').length,
+    cancelled: orders.filter(o => o.status === 'CANCELLED').length,
   };
 
   const formatDate = (dateString: string) => {
@@ -106,7 +113,6 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-20 md:pb-8">
-      {/* CSS internal untuk menyembunyikan scrollbar di filter mobile tapi tetap bisa di-scroll */}
       <style dangerouslySetInnerHTML={{
         __html: `
         .scrollbar-hide::-webkit-scrollbar {
@@ -118,7 +124,6 @@ export default function OrdersPage() {
         }
       `}} />
 
-      {/* Header */}
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
@@ -130,18 +135,15 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
         <div className="flex flex-col lg:flex-row gap-6 max-w-full">
 
-          {/* Sidebar Filters - Ditambahkan min-w-0 agar tidak merusak layout flex pada mobile */}
           <div className="w-full lg:w-64 shrink-0 min-w-0">
             <div className="bg-white rounded-[2px] border border-[#e5e2e1] overflow-hidden">
               <div className="hidden lg:block p-4 border-b border-[#e5e2e1]">
                 <h3 className="font-semibold text-[#32201f]">Filter</h3>
               </div>
 
-              {/* Pembungkus Filter dengan perbaikan scroll horizontal */}
               <div
                 className="flex flex-row overflow-x-auto lg:flex-col divide-x lg:divide-x-0 lg:divide-y divide-[#e5e2e1] scrollbar-hide touch-pan-x w-full"
                 style={{ WebkitOverflowScrolling: 'touch' }}
@@ -175,10 +177,8 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          {/* Orders List */}
           <div className="flex-1 space-y-4 min-w-0">
             {loading ? (
-              // Loading skeletons
               <>
                 {[1, 2, 3].map(i => (
                   <div key={i} className="bg-white rounded-[2px] border border-[#e5e2e1] p-4 animate-pulse">
@@ -197,7 +197,6 @@ export default function OrdersPage() {
                 ))}
               </>
             ) : filteredOrders.length === 0 ? (
-              // Empty state
               <div className="bg-white rounded-[2px] border border-[#e5e2e1] p-8 text-center">
                 <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-[#32201f] mb-2">
@@ -215,14 +214,8 @@ export default function OrdersPage() {
                 )}
               </div>
             ) : (
-              // Orders list
-              filteredOrders.map(order => {
-                const statusConfig = getStatusConfig(order.status);
-                const StatusIcon = statusConfig.icon;
-
-                return (
+              filteredOrders.map(order => (
                   <div key={order.id} className="bg-white rounded-[2px] border border-[#e5e2e1] overflow-hidden">
-                    {/* Order Header */}
                     <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
@@ -232,16 +225,11 @@ export default function OrdersPage() {
                             {formatDate(order.created_at)}
                           </p>
                         </div>
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border rounded-[2px] self-start sm:self-auto ${statusConfig.color}`}>
-                          <StatusIcon className="w-3 h-3 shrink-0" />
-                          <span className="whitespace-nowrap">{statusConfig.label}</span>
-                        </span>
+                        <StatusBadge status={order.status as any} className="self-start sm:self-auto" />
                       </div>
                     </div>
 
-                    {/* Order Content */}
                     <div className="p-4">
-                      {/* Service Items */}
                       <div className="space-y-2 mb-4">
                         {order.items?.slice(0, 2).map(item => (
                           <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -280,43 +268,47 @@ export default function OrdersPage() {
                       )}
 
                       {/* Service Info */}
-                      {order.service_date && (
+                      {order.service_date || order.scheduled_at ? (
                         <div className="flex items-center gap-2 text-xs text-[#8f6f6d] mb-4">
                           <Calendar className="w-4 h-4 shrink-0" />
-                          <span className="truncate">Jadwal: {formatDate(order.service_date)}</span>
+                          <span className="truncate">Jadwal: {formatDate(order.service_date || order.scheduled_at || '')}</span>
                         </div>
-                      )}
+                      ) : null}
 
-                      {order.service_address && (
+                      {order.service_address || order.address ? (
                         <div className="flex items-center gap-2 text-xs text-[#8f6f6d] mb-4">
                           <MapPin className="w-4 h-4 shrink-0" />
-                          <span className="truncate">{order.service_address}</span>
+                          <span className="truncate">{order.service_address || order.address}</span>
                         </div>
-                      )}
+                      ) : null}
 
                       {/* Footer */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-[#e5e2e1] gap-4">
                         <div>
                           <p className="text-xs text-[#8f6f6d]">Total</p>
-                          <p className="text-lg font-bold text-[#b51822]">{formatPrice(order.total_amount)}</p>
+                          <p className="text-lg font-bold text-[#b51822]">{formatPrice(order.total_amount || order.agreed_price || 0)}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                          {order.status === 'completed' && (
-                            <Button size="sm" variant="secondary" className="flex-1 sm:flex-none border-[#e5e2e1] text-[#5b403e] rounded-[2px]">
-                              <MessageSquare className="w-4 h-4 mr-1" />
-                              Ulasan
-                            </Button>
+                          {order.status === 'COMPLETED' && (
+                            <Link href={`/orders/${order.id}/review`} className="flex-1 sm:flex-none">
+                              <Button size="sm" variant="secondary" className="w-full border-[#e5e2e1] text-[#5b403e] rounded-[2px]">
+                                <MessageSquare className="w-4 h-4 mr-1" />
+                                Ulasan
+                              </Button>
+                            </Link>
                           )}
-                          <Button size="sm" className="flex-1 sm:flex-none bg-[#b51822] hover:bg-[#90121a] rounded-[2px]">
-                            Detail
-                            <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
-                          </Button>
+                          <Link href={`/orders/${order.id}`} className="flex-1 sm:flex-none">
+                            <Button size="sm" className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-[2px]">
+                              Detail
+                              <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>
                   </div>
-                );
-              })
+                )
+              )
             )}
           </div>
         </div>

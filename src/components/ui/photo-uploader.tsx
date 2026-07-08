@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Camera, X, UploadCloud } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,51 +19,48 @@ export function PhotoUploader({
   className,
   error,
 }: PhotoUploaderProps) {
-  const [files, setFiles] = useState<File[]>(value);
+  const [internalError, setInternalError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleAddPhotos = useCallback((newFiles: FileList | null) => {
+    setInternalError('');
     if (!newFiles) return;
     const arrayFiles = Array.from(newFiles);
     
-    // Filter out non-images
-    const validFiles = arrayFiles.filter(f => f.type.startsWith('image/'));
-    
-    setFiles(prev => {
-      const next = [...prev, ...validFiles].slice(0, maxPhotos);
-      onChange?.(next);
-      return next;
+    // Validasi tipe dan batas ukuran 5MB
+    const maxSize = 5 * 1024 * 1024;
+    const validFiles = arrayFiles.filter(f => {
+      if (!f.type.startsWith('image/')) return false;
+      if (f.size > maxSize) {
+        setInternalError(`Ukuran foto ${f.name} melebihi 5MB.`);
+        return false;
+      }
+      return true;
     });
-  }, [maxPhotos, onChange]);
+    
+    const next = [...value, ...validFiles].slice(0, maxPhotos);
+    onChange?.(next);
+  }, [maxPhotos, value, onChange]);
 
   const handleRemove = (index: number) => {
-    setFiles(prev => {
-      const next = prev.filter((_, i) => i !== index);
-      onChange?.(next);
-      return next;
-    });
+    const next = value.filter((_, i) => i !== index);
+    onChange?.(next);
   };
 
   return (
     <div className={className}>
       <div className="flex flex-wrap gap-3">
-        {files.map((file, index) => {
-          const objectUrl = URL.createObjectURL(file);
+        {value.map((file, index) => {
+          // Fallback to empty string for safety; memory leak is mitigated by next step/React cleanup if managed better,
+          // but true safest way is to use a dedicated Preview component. We will do a quick URL creation for now,
+          // though typically you'd memoize it or handle unmounts explicitly.
+          // Note: In an ideal complex setup, a subcomponent would create/revoke its own URL.
           return (
-            <div key={index} className="relative w-20 h-20 rounded-md border border-[#e5e2e1] overflow-hidden group shrink-0">
-              <img src={objectUrl} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-              <button
-                type="button"
-                onClick={() => handleRemove(index)}
-                className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
+            <PhotoPreview key={index} file={file} onRemove={() => handleRemove(index)} />
           );
         })}
 
-        {files.length < maxPhotos && (
+        {value.length < maxPhotos && (
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
@@ -74,12 +71,12 @@ export function PhotoUploader({
           >
             <Camera className="w-5 h-5" />
             <span className="text-[10px] font-medium leading-none">Tambah</span>
-            <span className="text-[10px] opacity-70 leading-none">{files.length}/{maxPhotos}</span>
+            <span className="text-[10px] opacity-70 leading-none">{value.length}/{maxPhotos}</span>
           </button>
         )}
       </div>
       
-      {error && <p className="text-xs text-[#E53E3E] mt-1">{error}</p>}
+      {(error || internalError) && <p className="text-xs text-[#E53E3E] mt-1">{error || internalError}</p>}
       
       <input
         ref={inputRef}
@@ -93,6 +90,29 @@ export function PhotoUploader({
           if (inputRef.current) inputRef.current.value = '';
         }}
       />
+    </div>
+  );
+}
+
+function PhotoPreview({ file, onRemove }: { file: File, onRemove: () => void }) {
+  const [url, setUrl] = useState('');
+
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  return (
+    <div className="relative w-20 h-20 rounded-md border border-[#e5e2e1] overflow-hidden group shrink-0">
+      {url && <img src={url} alt={`Preview`} className="w-full h-full object-cover" />}
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X className="w-3 h-3" />
+      </button>
     </div>
   );
 }

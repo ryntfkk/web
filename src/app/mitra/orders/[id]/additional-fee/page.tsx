@@ -1,8 +1,7 @@
 import AdditionalFeeFormClient from './Client';
 
-export function generateStaticParams() {
-  return [{ id: '1' }];
-}
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 export default function AdditionalFeeFormPage() {
   return <AdditionalFeeFormClient />;

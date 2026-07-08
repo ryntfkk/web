@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { ROLE_PARTNER } from '@/lib/constants';
 
 export default function NewMitraServicePage() {
   const { isAuthenticated, user } = useAuthStore();
@@ -21,7 +22,7 @@ export default function NewMitraServicePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') {
+  if (!isAuthenticated || user?.active_role !== ROLE_PARTNER) {
     router.push('/login');
     return null;
   }

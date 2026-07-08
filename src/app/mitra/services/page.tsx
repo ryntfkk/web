@@ -7,6 +7,10 @@ import { ArrowLeft, Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+import { ROLE_PARTNER } from '@/lib/constants';
+
 
 interface Service {
   id: string;
@@ -18,7 +22,7 @@ interface Service {
 }
 
 export default function MitraServicesPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
   const router = useRouter();
 
   const [services, setServices] = useState<Service[]>([]);
@@ -26,8 +30,8 @@ export default function MitraServicesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.active_role !== 'mitra') { router.push('/'); return; }
+    
+    
     fetchServices();
   }, [isAuthenticated, user?.active_role]);
 
@@ -61,7 +65,8 @@ export default function MitraServicesPage() {
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

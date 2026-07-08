@@ -6,9 +6,12 @@ import { ArrowLeft, Landmark, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 export default function WithdrawPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [amount, setAmount] = useState('');

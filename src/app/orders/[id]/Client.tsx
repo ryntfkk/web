@@ -12,6 +12,9 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 interface OrderDetail {
   id: string;
@@ -68,7 +71,7 @@ function formatDate(d: string) {
 }
 
 export default function OrderDetailClient() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -80,7 +83,7 @@ export default function OrderDetailClient() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchOrder();
   }, [isAuthenticated, orderId]);
 
@@ -115,7 +118,8 @@ export default function OrderDetailClient() {
     await handleAction('cancel');
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   if (loading) {
     return (

@@ -7,6 +7,9 @@ import { ArrowLeft, MapPin, Pencil, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 interface Address {
   id: string;
@@ -18,7 +21,7 @@ interface Address {
 }
 
 export default function AddressesPage() {
-  const { isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -26,7 +29,7 @@ export default function AddressesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchAddresses();
   }, [isAuthenticated]);
 
@@ -34,7 +37,7 @@ export default function AddressesPage() {
     setLoading(true);
     const res = await fetchAPI<any>('/users/me/addresses');
     if (res.success && res.data) {
-      setAddresses(res.data.data ?? res.data);
+      setAddresses(res.data);
     }
     setLoading(false);
   };
@@ -57,7 +60,8 @@ export default function AddressesPage() {
     }
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

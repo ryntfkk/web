@@ -6,9 +6,13 @@ import { ArrowLeft, CheckCircle, Clock, XCircle, FileText, AlertCircle } from 'l
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+import { ROLE_PARTNER } from '@/lib/constants';
+
 
 export default function MitraVerificationStatusPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
   const router = useRouter();
 
   const [status, setStatus] = useState<'PENDING' | 'VERIFIED' | 'REJECTED' | null>(null);
@@ -16,8 +20,8 @@ export default function MitraVerificationStatusPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.active_role !== 'mitra') { router.push('/'); return; }
+    
+    
     fetchStatus();
   }, [isAuthenticated, user?.active_role]);
 
@@ -31,7 +35,8 @@ export default function MitraVerificationStatusPage() {
     setLoading(false);
   };
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

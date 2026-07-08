@@ -7,9 +7,12 @@ import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 export default function PaymentClient() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.order_id as string;
@@ -19,10 +22,12 @@ export default function PaymentClient() {
   const [processing, setProcessing] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [snapToken, setSnapToken] = useState<string>('');
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
     fetchOrder();
+    fetchBalance();
     
     // Load Midtrans script
     const script = document.createElement('script');
@@ -34,6 +39,15 @@ export default function PaymentClient() {
       document.body.removeChild(script);
     };
   }, [isAuthenticated, orderId]);
+
+  const fetchBalance = async () => {
+    const res = await fetchAPI<any>('/wallet/balance');
+    if (res.success && res.data) {
+      setWalletBalance(res.data.balance ?? 0);
+    } else {
+      setWalletBalance(user?.balance || 0);
+    }
+  };
 
   const fetchOrder = async () => {
     setLoading(true);
@@ -54,9 +68,9 @@ export default function PaymentClient() {
     setProcessing(true);
     if (selectedMethod === 'wallet') {
       // Internal wallet payment
-      const res = await fetchAPI(`/payments/initiate`, {
+      const res = await fetchAPI(`/payments`, {
         method: 'POST',
-        body: JSON.stringify({ order_id: orderId, payment_method: 'wallet_balance' })
+        body: JSON.stringify({ order_id: orderId, payment_method: 'wallet' })
       });
       if (res.success) {
         router.push(`/payment/${orderId}/status?status=success`);
@@ -67,7 +81,7 @@ export default function PaymentClient() {
       // Request Midtrans Snap Token
       const res = await fetchAPI<any>(`/payments/snap`, {
         method: 'POST',
-        body: JSON.stringify({ order_id: orderId })
+        body: JSON.stringify({ order_id: orderId, payment_method: selectedMethod })
       });
       
       if (res.success && res.data?.token) {
@@ -82,11 +96,14 @@ export default function PaymentClient() {
               // user closed the popup without finishing
             }
           });
-        } else {
-          alert('Midtrans SDK failed to load.');
+        }
+        if (!(window as any).snap) {
+          setError('Midtrans SDK failed to load.');
+          setProcessing(false);
+          return;
         }
       } else {
-        alert(res.message || 'Gagal membuat transaksi pembayaran.');
+        setError(res.message || 'Gagal membuat transaksi pembayaran.');
       }
     }
     setProcessing(false);
@@ -94,12 +111,14 @@ export default function PaymentClient() {
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
   if (loading) {
     return <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" /></div>;
   }
 
-  const isWalletDisabled = (user?.balance || 0) < (order?.total_amount || 0);
+  const amountToPay = order?.agreed_price || order?.total_amount || 0;
+  const isWalletDisabled = walletBalance < amountToPay;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">
@@ -112,7 +131,7 @@ export default function PaymentClient() {
             </button>
             <h1 className="text-base font-bold text-[#1c1b1b]">Pembayaran Pesanan</h1>
           </div>
-          {order?.payment_expired_at && (
+          {order?.payment_expired_at && !isNaN(Date.parse(order.payment_expired_at)) && (
             <CountdownTimer 
               targetDate={order.payment_expired_at} 
               format="mm:ss" 
@@ -127,7 +146,7 @@ export default function PaymentClient() {
         {/* Order Summary */}
         <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 text-center space-y-2">
           <p className="text-sm text-[#5b403e]">Total Pembayaran</p>
-          <p className="text-3xl font-bold text-[#b51822]">{formatPrice(order?.total_amount || 0)}</p>
+          <p className="text-3xl font-bold text-[#b51822]">{formatPrice(amountToPay)}</p>
           <p className="text-xs text-[#9e8e8c]">Pesanan #{order?.order_number}</p>
         </div>
 
@@ -142,7 +161,7 @@ export default function PaymentClient() {
                 <Wallet className={`w-5 h-5 ${selectedMethod === 'wallet' ? 'text-[#b51822]' : 'text-[#5b403e]'}`} />
                 <div>
                   <p className="font-semibold text-[#1c1b1b]">Saldo Dompet</p>
-                  <p className="text-xs text-[#9e8e8c]">Saldo: {formatPrice(user?.balance || 0)}</p>
+                  <p className="text-xs text-[#9e8e8c]">Saldo: {formatPrice(walletBalance)}</p>
                 </div>
               </div>
               <input type="radio" name="payment_method" className="hidden" disabled={isWalletDisabled} checked={selectedMethod === 'wallet'} onChange={() => setSelectedMethod('wallet')} />

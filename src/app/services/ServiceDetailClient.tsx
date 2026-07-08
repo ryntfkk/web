@@ -26,6 +26,9 @@ import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDeta
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import ScheduleView from '@/components/service/ScheduleView';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 const PLACEHOLDER_IMG =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3';
@@ -38,7 +41,7 @@ function DetailContent() {
   const [showGallery, setShowGallery] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
 
-  const { isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const { addItem, removeItem, isInCart } = useCartStore();
 
   const { data: service, isLoading, isError, refetch } = useServiceDetail(serviceId);

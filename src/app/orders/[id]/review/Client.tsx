@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 interface OrderInfo {
   id: string;
@@ -16,7 +19,7 @@ interface OrderInfo {
 }
 
 export default function ReviewClient() {
-  const { isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -30,7 +33,7 @@ export default function ReviewClient() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchOrder();
   }, [isAuthenticated, orderId]);
 
@@ -43,6 +46,7 @@ export default function ReviewClient() {
       if (data.review) {
         // Already reviewed, redirect
         router.replace(`/orders/${orderId}`);
+        return;
       }
     }
     setLoading(false);
@@ -50,21 +54,27 @@ export default function ReviewClient() {
 
   const handleSubmit = async () => {
     if (rating === 0) { setError('Pilih rating bintang terlebih dahulu.'); return; }
+    if (comment.trim().length < 10) { setError('Ulasan wajib diisi minimal 10 karakter.'); return; }
     setSubmitting(true);
     setError('');
     const res = await fetchAPI('/reviews', {
       method: 'POST',
-      body: JSON.stringify({ order_id: orderId, rating, comment: comment.trim() || undefined }),
+      body: JSON.stringify({ order_id: orderId, rating, comment: comment.trim() }),
     });
     if (res.success) {
       setSubmitted(true);
     } else {
-      setError(res.message || 'Gagal mengirim ulasan.');
+      if (res.message?.toLowerCase().includes('already reviewed') || (res as any).status === 400) {
+        router.replace(`/orders/${orderId}`);
+      } else {
+        setError(res.message || 'Gagal mengirim ulasan.');
+      }
     }
     setSubmitting(false);
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
   if (loading) {
     return <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
@@ -157,7 +167,7 @@ export default function ReviewClient() {
           {/* Comment */}
           <div>
             <label className="block text-sm font-medium text-[#1c1b1b] mb-2">
-              Komentar <span className="text-[#9e8e8c] font-normal">(opsional)</span>
+              Komentar <span className="text-[#E53E3E]">*</span>
             </label>
             <textarea
               value={comment}
@@ -178,7 +188,7 @@ export default function ReviewClient() {
             <Button
               className="w-full bg-[#b51822] hover:bg-[#90121a] rounded"
               onClick={handleSubmit}
-              disabled={submitting || rating === 0}
+              disabled={submitting || rating === 0 || comment.trim().length < 10}
             >
               {submitting ? 'Mengirim...' : 'Kirim Ulasan'}
             </Button>

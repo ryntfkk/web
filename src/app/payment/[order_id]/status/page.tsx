@@ -1,9 +1,8 @@
 import { Suspense } from 'react';
 import PaymentStatusClient from './Client';
 
-export function generateStaticParams() {
-  return [{ order_id: '1' }];
-}
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 export default function PaymentStatusPage() {
   return (

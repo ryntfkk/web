@@ -11,6 +11,10 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+import { ROLE_PARTNER } from '@/lib/constants';
+
 
 interface DashboardData {
   status: 'ACTIVE' | 'INACTIVE';
@@ -31,7 +35,7 @@ interface DashboardData {
 }
 
 export default function MitraDashboardPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
   const router = useRouter();
 
   const [data, setData] = useState<DashboardData | null>(null);
@@ -39,8 +43,8 @@ export default function MitraDashboardPage() {
   const [togglingStatus, setTogglingStatus] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.active_role !== 'mitra') { router.push('/'); return; }
+    
+    
     fetchData();
   }, [isAuthenticated, user?.active_role]);
 
@@ -48,7 +52,7 @@ export default function MitraDashboardPage() {
     setLoading(true);
     const res = await fetchAPI<any>('/partners/me/dashboard');
     if (res.success && res.data) {
-      setData(res.data.data ?? res.data);
+      setData(res.data);
     }
     setLoading(false);
   };
@@ -71,7 +75,8 @@ export default function MitraDashboardPage() {
 
   const formatTime = (t: string) => new Date(t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">
@@ -81,11 +86,11 @@ export default function MitraDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white text-[#b51822] flex items-center justify-center font-bold overflow-hidden shrink-0">
-                {user.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user.name.charAt(0).toUpperCase()}
+                {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.name.charAt(0).toUpperCase()}
               </div>
               <div>
                 <p className="text-xs text-white/80">Halo Mitra,</p>
-                <h1 className="text-sm font-bold truncate pr-4">{user.name}</h1>
+                <h1 className="text-sm font-bold truncate pr-4">{user?.name}</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">

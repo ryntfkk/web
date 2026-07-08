@@ -6,6 +6,10 @@ import { ArrowLeft, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+import { ROLE_PARTNER } from '@/lib/constants';
+
 
 const DAYS = [
   { id: 'monday', label: 'Senin' },
@@ -18,7 +22,7 @@ const DAYS = [
 ];
 
 export default function MitraSchedulePage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
   const router = useRouter();
 
   const [schedule, setSchedule] = useState<Record<string, { is_active: boolean; start_time: string; end_time: string }>>({
@@ -36,8 +40,8 @@ export default function MitraSchedulePage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.active_role !== 'mitra') { router.push('/'); return; }
+    
+    
     fetchSchedule();
   }, [isAuthenticated, user?.active_role]);
 
@@ -70,7 +74,8 @@ export default function MitraSchedulePage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

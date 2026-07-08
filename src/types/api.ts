@@ -17,6 +17,8 @@ export interface ApiResponse<T = unknown> {
   code?: string;
   /** Can be a plain string, a structured object, or null. */
   error?: string | ApiErrorDetail | null;
+  /** HTTP status code attached by the fetch wrapper */
+  status?: number;
   pagination?: {
     page: number;
     per_page: number;

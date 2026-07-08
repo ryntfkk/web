@@ -7,6 +7,10 @@ import { Calendar, Package, ArrowLeft, Search, Filter } from 'lucide-react';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+import { ROLE_PARTNER } from '@/lib/constants';
+
 
 interface Order {
   id: string;
@@ -18,7 +22,7 @@ interface Order {
 }
 
 export default function MitraOrdersPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
   const router = useRouter();
 
   const [orders, setOrders] = useState<Order[]>([]);
@@ -27,8 +31,8 @@ export default function MitraOrdersPage() {
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>('ACTIVE');
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.active_role !== 'mitra') { router.push('/'); return; }
+    
+    
     fetchOrders();
   }, [isAuthenticated, user?.active_role]);
 
@@ -36,7 +40,7 @@ export default function MitraOrdersPage() {
     setLoading(true);
     const res = await fetchAPI<any>('/mitra/orders');
     if (res.success && res.data) {
-      setOrders(res.data.data ?? res.data);
+      setOrders(res.data);
     }
     setLoading(false);
   };
@@ -54,7 +58,8 @@ export default function MitraOrdersPage() {
     return matchSearch && matchTab;
   });
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

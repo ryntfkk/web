@@ -5,9 +5,12 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 export default function PaymentStatusClient() {
-  const { isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -18,7 +21,7 @@ export default function PaymentStatusClient() {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
 
     if (status === 'success') {
       const timer = setInterval(() => {
@@ -35,7 +38,8 @@ export default function PaymentStatusClient() {
     }
   }, [isAuthenticated, status, orderId, router]);
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   if (status === 'success') {
     return (

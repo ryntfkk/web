@@ -12,6 +12,10 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+import { ROLE_PARTNER } from '@/lib/constants';
+
 
 interface MitraOrderDetail {
   id: string;
@@ -44,7 +48,7 @@ interface MitraOrderDetail {
 }
 
 export default function MitraOrderDetailClient() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -55,8 +59,8 @@ export default function MitraOrderDetailClient() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.active_role !== 'mitra') { router.push('/'); return; }
+    
+    
     fetchOrder();
   }, [isAuthenticated, user?.active_role, orderId]);
 
@@ -76,7 +80,7 @@ export default function MitraOrderDetailClient() {
 
   const handleAction = async (action: string, body?: object) => {
     setActionLoading(true);
-    const res = await fetchAPI(`/mitra/orders/${orderId}/${action}`, { method: 'PUT', body: JSON.stringify(body ?? {}) });
+    const res = await fetchAPI(`/orders/${orderId}/${action}`, { method: 'PUT', body: JSON.stringify(body ?? {}) });
     if (res.success) {
       showToast('Berhasil!');
       await fetchOrder();
@@ -89,7 +93,8 @@ export default function MitraOrderDetailClient() {
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
   const formatDate = (d: string) => new Date(d).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   if (loading) {
     return (
@@ -249,7 +254,7 @@ export default function MitraOrderDetailClient() {
           {status === 'WAITING_CONFIRMATION' && (
             <>
               <Button variant="outline" className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded" onClick={() => handleAction('reject')} disabled={actionLoading}>Tolak</Button>
-              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('accept')} disabled={actionLoading}>Terima</Button>
+              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('confirm')} disabled={actionLoading}>Terima</Button>
             </>
           )}
 
@@ -264,7 +269,7 @@ export default function MitraOrderDetailClient() {
               <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded flex items-center justify-center gap-1" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)}>
                 + Biaya Tambahan
               </Button>
-              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('finish')} disabled={actionLoading}>
+              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('complete')} disabled={actionLoading}>
                 Selesai Dikerjakan
               </Button>
             </>

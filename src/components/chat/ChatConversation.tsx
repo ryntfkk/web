@@ -8,6 +8,10 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { ROLE_PARTNER } from '@/lib/constants';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 interface Message {
   id: string;
@@ -28,7 +32,7 @@ interface ChatConversationProps {
 }
 
 export default function ChatConversation({ orderId, embedded = false, onBack }: ChatConversationProps) {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [partner, setPartner] = useState<any>(null);
@@ -50,7 +54,7 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
   });
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthorized) return;
     fetchData();
   }, [isAuthenticated, orderId]);
 
@@ -64,7 +68,7 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
       const orderRes = await fetchAPI<any>(`/orders/${orderId}`);
       if (orderRes.success && orderRes.data) {
         const orderData = orderRes.data.data || orderRes.data;
-        if (user?.active_role === 'mitra') {
+        if (user?.active_role === ROLE_PARTNER) {
           setPartner({
             name: orderData.customer?.name || 'Customer',
             avatar_url: orderData.customer?.avatar_url,
@@ -76,7 +80,7 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
           });
         }
         setIsArchived(orderData.status === 'COMPLETED' || orderData.status === 'CANCELLED');
-      } else if (user?.active_role === 'mitra') {
+      } else if (user?.active_role === ROLE_PARTNER) {
         const mitraOrderRes = await fetchAPI<any>(`/mitra/orders/${orderId}`);
         if (mitraOrderRes.success && mitraOrderRes.data) {
           const orderData = mitraOrderRes.data.data || mitraOrderRes.data;
@@ -124,7 +128,7 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
     return new Date(time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   };
 
-  const isMitra = user?.active_role === 'mitra';
+  const isMitra = user?.active_role === ROLE_PARTNER;
 
   return (
     <div className={`flex flex-col ${embedded ? 'h-full' : 'min-h-screen h-screen'} bg-[#f7f5f4]`}>

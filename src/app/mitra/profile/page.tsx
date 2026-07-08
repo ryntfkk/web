@@ -9,16 +9,21 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/authStore';
 import { fetchAPI } from '@/lib/api';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+import { ROLE_PARTNER } from '@/lib/constants';
+
 
 export default function MitraProfilePage() {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const logout = useAuthStore(s => s.logout);
   const router = useRouter();
 
   const [verificationStatus, setVerificationStatus] = useState<string>('VERIFIED');
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (user?.active_role !== 'mitra') { router.push('/'); return; }
+    
+    
     fetchProfile();
   }, [isAuthenticated, user?.active_role]);
 
@@ -34,7 +39,8 @@ export default function MitraProfilePage() {
     router.push('/login');
   };
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">
@@ -42,11 +48,11 @@ export default function MitraProfilePage() {
       <div className="bg-white border-b border-[#e5e2e1] pt-12 pb-6 px-4 mb-4">
         <div className="max-w-lg mx-auto flex items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-[#f7f5f4] flex items-center justify-center text-3xl font-bold text-[#b51822] overflow-hidden shrink-0 border-2 border-[#e5e2e1]">
-            {user.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user.name.charAt(0).toUpperCase()}
+            {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[#1c1b1b]">{user.name}</h1>
-            <p className="text-sm text-[#5b403e]">{user.phone}</p>
+            <h1 className="text-xl font-bold text-[#1c1b1b]">{user?.name}</h1>
+            <p className="text-sm text-[#5b403e]">{user?.phone}</p>
             <div className="flex items-center gap-1 mt-2">
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1 ${
                 verificationStatus === 'VERIFIED' ? 'bg-[#F0FFF4] text-[#38A169]' :

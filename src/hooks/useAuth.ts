@@ -10,7 +10,7 @@ export function useAuth() {
   const authStore = useAuthStore();
   const router = useRouter();
 
-  const login = async (identifier: string, password: string, rememberMe: boolean = false) => {
+  const login = async (identifier: string, password: string, rememberMe: boolean = false, redirectUrl?: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -22,7 +22,7 @@ export function useAuth() {
 
       if (res.success && res.data) {
         authStore.login(res.data.user, res.data.access_token);
-        router.push('/');
+        router.push(redirectUrl || '/');
       } else {
         setError(getErrorMessage(res));
       }

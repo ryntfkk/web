@@ -7,10 +7,14 @@ import { ArrowLeft, Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, Clock, Hi
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 interface WalletTransaction {
   id: string;
-  type: 'TOPUP' | 'WITHDRAW' | 'PAYMENT' | 'REFUND' | 'INCOME';
+  type: 'CREDIT' | 'DEBIT';
+  category: 'EARNING' | 'REFUND' | 'WITHDRAWAL' | 'TOPUP' | 'PAYMENT';
   amount: number;
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
   created_at: string;
@@ -18,14 +22,14 @@ interface WalletTransaction {
 }
 
 export default function WalletPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchData();
   }, [isAuthenticated]);
 
@@ -33,28 +37,24 @@ export default function WalletPage() {
     setLoading(true);
     const res = await fetchAPI<any>('/wallet/transactions');
     if (res.success && res.data) {
-      setTransactions(res.data.data ?? res.data);
+      setTransactions(res.data);
     }
     setLoading(false);
   };
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
-  const getTransactionIcon = (type: string) => {
-    switch (type) {
-      case 'INCOME':
-      case 'REFUND':
-      case 'TOPUP':
-        return <ArrowDownLeft className="w-5 h-5 text-[#38A169]" />;
-      case 'PAYMENT':
-      case 'WITHDRAW':
-        return <ArrowUpRight className="w-5 h-5 text-[#E53E3E]" />;
-      default:
-        return <History className="w-5 h-5 text-[#9e8e8c]" />;
+  const getTransactionIcon = (type: string, category: string) => {
+    if (type === 'CREDIT') {
+      return <ArrowDownLeft className="w-5 h-5 text-[#38A169]" />;
+    } else if (type === 'DEBIT') {
+      return <ArrowUpRight className="w-5 h-5 text-[#E53E3E]" />;
     }
+    return <History className="w-5 h-5 text-[#9e8e8c]" />;
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">
@@ -117,8 +117,8 @@ export default function WalletPage() {
             transactions.map(t => (
               <div key={t.id} className="bg-white rounded-xl border border-[#e5e2e1] p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${['INCOME', 'REFUND', 'TOPUP'].includes(t.type) ? 'bg-[#F0FFF4]' : 'bg-[#FFF5F5]'}`}>
-                    {getTransactionIcon(t.type)}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-[#F0FFF4]' : 'bg-[#FFF5F5]'}`}>
+                    {getTransactionIcon(t.type, t.category)}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#1c1b1b]">{t.description}</p>
@@ -133,8 +133,8 @@ export default function WalletPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm font-bold ${['INCOME', 'REFUND', 'TOPUP'].includes(t.type) ? 'text-[#38A169]' : 'text-[#1c1b1b]'}`}>
-                    {['INCOME', 'REFUND', 'TOPUP'].includes(t.type) ? '+' : '-'}{formatPrice(t.amount)}
+                  <p className={`text-sm font-bold ${t.type === 'CREDIT' ? 'text-[#38A169]' : 'text-[#1c1b1b]'}`}>
+                    {t.type === 'CREDIT' ? '+' : '-'}{formatPrice(t.amount)}
                   </p>
                 </div>
               </div>

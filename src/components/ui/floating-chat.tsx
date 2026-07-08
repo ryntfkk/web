@@ -4,15 +4,17 @@ import { MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from './button';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 export default function FloatingChat() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user } = useRequireAuth();
 
   // Only show chat button for authenticated users
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   const handleClick = () => {
     // Navigate to the chat list page

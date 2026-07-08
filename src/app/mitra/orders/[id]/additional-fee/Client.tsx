@@ -6,6 +6,7 @@ import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { ROLE_PARTNER } from '@/lib/constants';
 
 export default function AdditionalFeeFormClient() {
   const { isAuthenticated, user } = useAuthStore();
@@ -24,7 +25,7 @@ export default function AdditionalFeeFormClient() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  if (!isAuthenticated || user?.active_role !== 'mitra') {
+  if (!isAuthenticated || user?.active_role !== ROLE_PARTNER) {
     router.push('/login');
     return null;
   }

@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { Loader2 } from 'lucide-react';
+
 
 interface AdditionalFee {
   id: string;
@@ -24,7 +27,7 @@ interface OrderInfo {
   order_number: string;
   total_amount: number;
   partner_name?: string;
-  additional_fee?: AdditionalFee;
+  additional_fees?: AdditionalFee[];
 }
 
 function formatPrice(p: number) {
@@ -32,7 +35,7 @@ function formatPrice(p: number) {
 }
 
 export default function AdditionalFeeClient() {
-  const { isAuthenticated } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -44,7 +47,7 @@ export default function AdditionalFeeClient() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    
     fetchOrder();
   }, [isAuthenticated, orderId]);
 
@@ -63,11 +66,12 @@ export default function AdditionalFeeClient() {
   };
 
   const handleApprove = async () => {
-    if (!order?.additional_fee) return;
+    const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
+    if (!fee) return;
     setActionLoading(true);
-    const res = await fetchAPI(`/orders/${orderId}/additional-fees/${order.additional_fee.id}/respond`, {
+    const res = await fetchAPI(`/orders/${orderId}/additional-fees/${fee.id}/respond`, {
       method: 'PUT',
-      body: JSON.stringify({ action: 'approve' }),
+      body: JSON.stringify({ accept: true }),
     });
     if (res.success) {
       showToast('Tagihan berhasil disetujui dan dibayar.');
@@ -79,12 +83,13 @@ export default function AdditionalFeeClient() {
   };
 
   const handleReject = async () => {
-    if (!order?.additional_fee) return;
+    const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
+    if (!fee) return;
     setShowRejectDialog(false);
     setActionLoading(true);
-    const res = await fetchAPI(`/orders/${orderId}/additional-fees/${order.additional_fee.id}/respond`, {
+    const res = await fetchAPI(`/orders/${orderId}/additional-fees/${fee.id}/respond`, {
       method: 'PUT',
-      body: JSON.stringify({ action: 'reject' }),
+      body: JSON.stringify({ accept: false }),
     });
     if (res.success) {
       showToast('Tagihan ditolak.');
@@ -95,7 +100,8 @@ export default function AdditionalFeeClient() {
     setActionLoading(false);
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   if (loading) {
     return (
@@ -105,7 +111,7 @@ export default function AdditionalFeeClient() {
     );
   }
 
-  const fee = order?.additional_fee;
+  const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
   if (!fee || fee.status !== 'PENDING') {
     return (
       <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center p-4">
