@@ -68,30 +68,51 @@ export default function BookingClient() {
       if (found) {
         preselectedRef.current = true;
         setSelectedServices((prev) => ({ ...prev, [found.id]: true }));
+        // Automatically advance to step 2 if a service is pre-selected
+        setStep(2);
       }
     }
   }, [preselectedServiceId, services]);
 
   const fetchData = async () => {
     setLoading(true);
-    // Fetch partner details & services
-    const pRes = await fetchAPI<any>(`/partners/${username}`);
-    if (pRes.success && pRes.data) {
-      const data = pRes.data.data ?? pRes.data;
-      setPartner(data);
-      setServices(data.services || []);
-    }
+    try {
+      // Fetch partner details, services, and user addresses concurrently
+      const [pRes, sRes, aRes] = await Promise.all([
+        fetchAPI<any>(`/partners/${username}`),
+        fetchAPI<any>(`/partners/${username}/services`),
+        fetchAPI<any>('/users/addresses')
+      ]);
 
-    // Fetch user addresses
-    const aRes = await fetchAPI<any>('/users/addresses');
-    if (aRes.success && aRes.data) {
-      const addrList = aRes.data.data ?? aRes.data;
-      setAddresses(addrList);
-      const primary = addrList.find((a: Address) => a.is_primary);
-      if (primary) setAddressId(primary.id);
-      else if (addrList.length > 0) setAddressId(addrList[0].id);
+      if (pRes.success && pRes.data) {
+        const data = pRes.data.data ?? pRes.data;
+        setPartner(data);
+      }
+
+      if (sRes.success && sRes.data) {
+        const sData = sRes.data.data ?? sRes.data;
+        setServices(sData || []);
+      } else if (pRes.success && pRes.data) {
+        // Fallback in case services are returned within partner data (older API behavior)
+        const data = pRes.data.data ?? pRes.data;
+        if (data.services) {
+          setServices(data.services);
+        }
+      }
+
+      // Fetch user addresses
+      if (aRes.success && aRes.data) {
+        const addrList = aRes.data.data ?? aRes.data;
+        setAddresses(addrList);
+        const primary = addrList.find((a: Address) => a.is_primary);
+        if (primary) setAddressId(primary.id);
+        else if (addrList.length > 0) setAddressId(addrList[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to fetch booking data:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleNext = () => setStep(s => Math.min(5, s + 1));
