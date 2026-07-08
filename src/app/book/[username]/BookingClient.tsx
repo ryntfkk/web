@@ -75,7 +75,7 @@ export default function BookingClient() {
       const [pRes, sRes, aRes] = await Promise.all([
         fetchAPI<any>(`/partners/${username}`),
         fetchAPI<any>(`/partners/${username}/services`),
-        fetchAPI<any>('/users/addresses')
+        fetchAPI<any>('/users/me/addresses')
       ]);
 
       if (pRes.success && pRes.data) {

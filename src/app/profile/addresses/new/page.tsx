@@ -39,7 +39,7 @@ export default function NewAddressPage() {
     setLoading(true);
     setError('');
 
-    const res = await fetchAPI('/users/addresses', {
+    const res = await fetchAPI('/users/me/addresses', {
       method: 'POST',
       body: JSON.stringify(form)
     });

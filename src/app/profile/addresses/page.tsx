@@ -32,7 +32,7 @@ export default function AddressesPage() {
 
   const fetchAddresses = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/users/addresses');
+    const res = await fetchAPI<any>('/users/me/addresses');
     if (res.success && res.data) {
       setAddresses(res.data.data ?? res.data);
     }
@@ -41,7 +41,7 @@ export default function AddressesPage() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    const res = await fetchAPI(`/users/addresses/${deleteId}`, { method: 'DELETE' });
+    const res = await fetchAPI(`/users/me/addresses/${deleteId}`, { method: 'DELETE' });
     if (res.success) {
       setAddresses(prev => prev.filter(a => a.id !== deleteId));
     } else {
@@ -51,7 +51,7 @@ export default function AddressesPage() {
   };
 
   const handleSetPrimary = async (id: string) => {
-    const res = await fetchAPI(`/users/addresses/${id}/primary`, { method: 'PUT' });
+    const res = await fetchAPI(`/users/me/addresses/${id}/primary`, { method: 'PUT' });
     if (res.success) {
       setAddresses(prev => prev.map(a => ({ ...a, is_primary: a.id === id })));
     }
