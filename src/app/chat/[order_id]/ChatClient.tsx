@@ -1,14 +1,12 @@
 "use client";
 
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import ChatConversation from '@/components/chat/ChatConversation';
 
-export default function ChatClient() {
+export default function ChatClient({ orderId }: { orderId: string }) {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const params = useParams();
-  const orderId = params?.order_id as string;
 
   if (!isAuthenticated) {
     router.push('/login');

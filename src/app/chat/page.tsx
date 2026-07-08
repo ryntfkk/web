@@ -8,24 +8,11 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import ChatConversation from '@/components/chat/ChatConversation';
 
-interface ChatRoomDTO {
-  order_id: string;
-  order_number: string;
-  partner_name: string;
-  partner_avatar_url?: string;
-  customer_name: string;
-  customer_avatar_url?: string;
-  last_message: string;
-  last_message_at: string;
-  unread_count: number;
-  is_active: boolean;
-}
-
 export default function ChatListPage() {
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
 
-  const [chats, setChats] = useState<ChatRoomDTO[]>([]);
+  const [chats, setChats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -39,7 +26,7 @@ export default function ChatListPage() {
     setLoading(true);
     const res = await fetchAPI<any>('/chat/rooms');
     if (res.success && res.data) {
-      const data: ChatRoomDTO[] = res.data.data ?? res.data;
+      const data: any[] = res.data.data ?? res.data;
       setChats(data);
       // Auto-select first chat on desktop if none selected
       if (data.length > 0 && !selectedOrderId) {
