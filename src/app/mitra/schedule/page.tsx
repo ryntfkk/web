@@ -43,7 +43,7 @@ export default function MitraSchedulePage() {
 
   const fetchSchedule = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/mitra/schedule');
+    const res = await fetchAPI<any>('/partners/me/working-hours');
     if (res.success && res.data) {
       // Merge with default if partial
       setSchedule({ ...schedule, ...res.data });
@@ -53,7 +53,7 @@ export default function MitraSchedulePage() {
 
   const handleSave = async () => {
     setSaving(true);
-    const res = await fetchAPI('/mitra/schedule', {
+    const res = await fetchAPI('/partners/me/working-hours', {
       method: 'PUT',
       body: JSON.stringify(schedule)
     });

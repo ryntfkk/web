@@ -39,7 +39,7 @@ export default function NewMitraServicePage() {
     setLoading(true);
     setError('');
 
-    const res = await fetchAPI('/mitra/services', {
+    const res = await fetchAPI('/partners/me/services', {
       method: 'POST',
       body: JSON.stringify({
         name: form.name,

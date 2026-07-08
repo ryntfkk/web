@@ -60,3 +60,74 @@ export function normalizeNullString(value: unknown): string | null {
   // Defensive: if somehow an object leaks through, return null rather than crash
   return null;
 }
+
+export interface OrderItem {
+  id: string;
+  service_id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  duration: number;
+}
+
+export interface AdditionalFee {
+  id: string;
+  name: string;
+  fee_type: string;
+  price: number;
+  quantity: number;
+  total: number;
+  status: string;
+}
+
+export interface CustomerInfo {
+  id: string;
+  name: string;
+  phone: string;
+}
+
+export interface PartnerInfo {
+  id: string;
+  user_id: string;
+  name: string;
+  username: string;
+  avatar_url?: string;
+  phone: string;
+}
+
+export interface OrderDetail {
+  id: string;
+  order_number: string;
+  customer_id: string;
+  partner_id: string;
+  status: string;
+  scheduled_at: string;
+  address_id?: string;
+  address: string;
+  address_detail?: string;
+  notes?: string;
+  photo_urls: string[];
+  total_service_price: number;
+  transport_fee: number;
+  admin_fee: number;
+  promo_id?: string;
+  discount_amount: number;
+  agreed_price: number;
+  cancellation_reason?: string;
+  cancelled_by?: string;
+  refunded_amount: number;
+  version: number;
+  created_at: string;
+  updated_at: string;
+
+  confirmed_at?: string;
+  payment_expires_at?: string;
+  paid_at?: string;
+  started_at?: string;
+  completed_at?: string;
+
+  items: OrderItem[];
+  additional_fees: AdditionalFee[];
+  customer_info?: CustomerInfo;
+  partner_info?: PartnerInfo;
+}

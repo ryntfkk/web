@@ -31,7 +31,7 @@ export default function WalletPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/users/wallet/transactions');
+    const res = await fetchAPI<any>('/wallet/transactions');
     if (res.success && res.data) {
       setTransactions(res.data.data ?? res.data);
     }

@@ -33,25 +33,25 @@ export default function MitraServicesPage() {
 
   const fetchServices = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/mitra/services');
+    const res = await fetchAPI<any>('/partners/me/services');
     if (res.success && res.data) {
-      setServices(res.data.data ?? res.data);
+      setServices(res.data);
     }
     setLoading(false);
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    const res = await fetchAPI(`/mitra/services/${deleteId}`, { method: 'DELETE' });
+    const res = await fetchAPI(`/partners/me/services/${deleteId}`, { method: 'DELETE' });
     if (res.success) {
-      setServices(prev => prev.filter(s => s.id !== deleteId));
+      setServices(services.filter(s => s.id !== deleteId));
     }
     setDeleteId(null);
   };
 
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
-    const res = await fetchAPI(`/mitra/services/${id}`, {
-      method: 'PUT',
+    const res = await fetchAPI(`/partners/me/services/${id}`, {
+      method: 'PATCH',
       body: JSON.stringify({ is_active: !currentStatus })
     });
     if (res.success) {

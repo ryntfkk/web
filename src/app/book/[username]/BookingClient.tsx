@@ -111,26 +111,62 @@ export default function BookingClient() {
   const submitOrder = async () => {
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('partner_id', partner.id);
-      formData.append('scheduled_at', `${date}T${time}:00+07:00`);
-      formData.append('address_id', addressId);
-      if (notes) formData.append('notes', notes);
-      if (promoCode) formData.append('promo_code', promoCode);
-      
-      const selectedIds = Object.keys(selectedServices).filter(id => selectedServices[id]);
-      selectedIds.forEach(id => formData.append('service_ids', id));
-      photos.forEach(p => formData.append('photos', p));
-
       const token = useAuthStore.getState().accessToken;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1'}/orders`, {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1';
+      
+      // 1. Upload photos
+      const photoUrls: string[] = [];
+      for (const photo of photos) {
+        const presignedRes = await fetch(`${baseUrl}/uploads/presigned-url`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            filename: photo.name,
+            content_type: photo.type,
+          }),
+        });
+        const presignedData = await presignedRes.json();
+        
+        if (presignedData.success) {
+          await fetch(presignedData.data.upload_url, {
+            method: 'PUT',
+            headers: { 'Content-Type': photo.type },
+            body: photo,
+          });
+          photoUrls.push(presignedData.data.file_url);
+        } else {
+          throw new Error('Gagal mendapatkan upload URL');
+        }
+      }
+
+      // 2. Prepare JSON body
+      const selectedIds = Object.keys(selectedServices).filter(id => selectedServices[id]);
+      const items = selectedIds.map(id => ({ service_id: id, quantity: 1 }));
+
+      const payload = {
+        partner_id: partner.id,
+        scheduled_at: `${date}T${time}:00+07:00`,
+        address_id: addressId,
+        notes: notes || undefined,
+        promo_code: promoCode || undefined,
+        items: items,
+        photo_urls: photoUrls,
+        idempotency_key: crypto.randomUUID(),
+      };
+
+      // 3. Submit Order
+      const res = await fetch(`${baseUrl}/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
           'X-Platform': 'web',
           'X-App-Version': '1.0.0',
         },
-        body: formData,
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok && data.success) {

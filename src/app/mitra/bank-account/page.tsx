@@ -37,7 +37,7 @@ export default function MitraBankAccountPage() {
 
   const fetchBankAccount = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/mitra/bank-account');
+    const res = await fetchAPI<any>('/partners/me/bank-account');
     if (res.success && res.data) {
       setForm({
         bank_code: res.data.bank_code || 'BCA',
@@ -58,7 +58,7 @@ export default function MitraBankAccountPage() {
     setSaving(true);
     setError('');
 
-    const res = await fetchAPI('/mitra/bank-account', {
+    const res = await fetchAPI('/partners/me/bank-account', {
       method: 'PUT',
       body: JSON.stringify(form)
     });

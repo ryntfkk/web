@@ -46,7 +46,7 @@ export default function MitraDashboardPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/mitra/dashboard');
+    const res = await fetchAPI<any>('/partners/me/dashboard');
     if (res.success && res.data) {
       setData(res.data.data ?? res.data);
     }
@@ -57,9 +57,9 @@ export default function MitraDashboardPage() {
     if (!data) return;
     setTogglingStatus(true);
     const newStatus = data.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    const res = await fetchAPI('/mitra/status', {
-      method: 'PUT',
-      body: JSON.stringify({ status: newStatus })
+    const res = await fetchAPI('/partners/me/availability', {
+      method: 'PATCH',
+      body: JSON.stringify({ is_online: newStatus === 'ACTIVE' })
     });
     if (res.success) {
       setData({ ...data, status: newStatus });
