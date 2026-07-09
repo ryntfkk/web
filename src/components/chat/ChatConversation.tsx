@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Send, Camera, Image as ImageIcon } from 'lucide-react';
@@ -22,6 +22,7 @@ interface Message {
   message_type: string;
   is_read: boolean;
   created_at: string;
+  status?: 'pending' | 'error' | 'sent';
 }
 
 interface ChatConversationProps {
@@ -40,12 +41,16 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [isArchived, setIsArchived] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { isConnected, sendTypingIndicator } = useWebSocket({
     orderId,
     onMessage: (msg: Message) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => {
+        if (prev.some(m => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
       if (msg.sender_id !== user?.id) {
         fetchAPI(`/chat/${orderId}/messages/${msg.id}/read`, { method: 'PUT' });
       }
@@ -53,16 +58,7 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
     onTyping: () => {},
   });
 
-  useEffect(() => {
-    if (!isAuthorized) return;
-    fetchData();
-  }, [isAuthenticated, orderId]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const orderRes = await fetchAPI<any>(`/orders/${orderId}`);
@@ -100,7 +96,18 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
       console.error(e);
     }
     setLoading(false);
-  };
+  }, [orderId, user?.active_role]);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
+    fetchData();
+  }, [isAuthorized, fetchData]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -108,14 +115,34 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
 
     const content = input;
     setInput('');
+    setSendError(null);
+
+    const tempId = `temp-${Date.now()}`;
+    const tempMsg: Message = {
+      id: tempId,
+      sender_id: user?.id || '',
+      sender_name: user?.name || '',
+      sender_role: user?.active_role || '',
+      content,
+      message_type: 'text',
+      is_read: false,
+      created_at: new Date().toISOString(),
+      status: 'pending'
+    };
+    
+    setMessages(prev => [...prev, tempMsg]);
 
     const res = await fetchAPI<any>(`/chat/${orderId}/messages`, {
       method: 'POST',
       body: JSON.stringify({ content, message_type: 'text' }),
     });
 
-    if (!isConnected && res.success && res.data) {
-      setMessages((prev) => [...prev, res.data]);
+    if (res.success && res.data) {
+      setMessages(prev => prev.map(m => m.id === tempId ? res.data : m));
+    } else {
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      setInput(content);
+      setSendError(res.message || 'Gagal mengirim pesan');
     }
   };
 
@@ -221,7 +248,10 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
                   </div>
                   <div className="flex items-center gap-1 mt-1">
                     <span className="text-[10px] text-[#9e8e8c]">{formatTime(msg.created_at)}</span>
-                    {isMe && (
+                    {isMe && msg.status === 'pending' && (
+                      <span className="text-[10px] text-[#9e8e8c]">...</span>
+                    )}
+                    {isMe && msg.status !== 'pending' && (
                       <span className={`text-[10px] font-medium ${msg.is_read ? 'text-[#38A169]' : 'text-[#9e8e8c]'}`}>
                         {msg.is_read ? '✓✓' : '✓'}
                       </span>
@@ -242,10 +272,16 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
             <p className="text-sm text-[#9e8e8c] font-medium">Sesi chat ini telah diarsipkan karena pesanan selesai.</p>
           </div>
         ) : (
-          <form onSubmit={handleSend} className={`p-3 flex items-end gap-2 ${embedded ? '' : 'max-w-lg mx-auto'}`}>
-            <button type="button" className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0">
-              <ImageIcon className="w-5 h-5" />
-            </button>
+          <form onSubmit={handleSend} className={`p-3 flex flex-col gap-2 ${embedded ? '' : 'max-w-lg mx-auto'}`}>
+            {sendError && (
+              <div className="text-xs text-[#E53E3E] px-2 font-medium bg-[#FFF5F5] py-1.5 rounded-lg border border-[#FEB2B2]">
+                {sendError}
+              </div>
+            )}
+            <div className="flex items-end gap-2">
+              <button type="button" className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0">
+                <ImageIcon className="w-5 h-5" />
+              </button>
             <button type="button" className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0">
               <Camera className="w-5 h-5" />
             </button>

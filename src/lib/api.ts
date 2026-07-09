@@ -4,7 +4,6 @@ import type { ApiResponse } from '@/types/api';
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1';
 
 // ── Token refresh state (module-level – outside React) ──────────────
-let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
 /**
@@ -70,16 +69,13 @@ export async function fetchAPI<T>(
     // ── 401 → attempt token refresh then retry ONCE ─────────────────
     if (response.status === 401 && endpoint !== '/auth/refresh') {
       // If a refresh is already in-flight, wait for it; otherwise start one
-      if (!isRefreshing) {
-        isRefreshing = true;
-        refreshPromise = refreshAccessToken();
+      if (!refreshPromise) {
+        refreshPromise = refreshAccessToken().finally(() => {
+          refreshPromise = null;
+        });
       }
 
       const refreshed = await refreshPromise;
-
-      // Clean up module-level state
-      isRefreshing = false;
-      refreshPromise = null;
 
       if (refreshed) {
         // Retry the original request with the new access token
@@ -99,6 +95,9 @@ export async function fetchAPI<T>(
         });
 
         const retryData = await retryResponse.json();
+        if (typeof retryData === 'object' && retryData !== null) {
+          (retryData as any).status = retryResponse.status;
+        }
         return retryData;
       }
 

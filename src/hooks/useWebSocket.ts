@@ -23,33 +23,58 @@ export function useWebSocket({ orderId, onMessage, onTyping, onError }: UseWebSo
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
+  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
+  const isMounted = useRef(true);
+
+  const callbacksRef = useRef({ onMessage, onTyping, onError });
+
+  useEffect(() => {
+    callbacksRef.current = { onMessage, onTyping, onError };
+  });
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const connect = useCallback(() => {
-    if (!accessToken || !orderId) return;
+    if (!accessToken || !orderId || !isMounted.current) return;
+
+    if (ws.current && (ws.current.readyState === WebSocket.OPEN || ws.current.readyState === WebSocket.CONNECTING)) {
+      ws.current.close();
+    }
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1';
-    const wsUrlStr = apiUrl.replace(/^https?:/, protocol) + `/ws?token=${accessToken}&order_id=${orderId}`;
+    const wsUrlStr = apiUrl.replace(/^https?:/, protocol) + `/ws`;
 
     const socket = new WebSocket(wsUrlStr);
 
     socket.onopen = () => {
       setIsConnected(true);
       reconnectAttempts.current = 0;
+      socket.send(JSON.stringify({
+        type: 'auth',
+        token: accessToken,
+        order_id: orderId
+      }));
     };
 
     socket.onmessage = (event) => {
       try {
         const msg: WSMessage = JSON.parse(event.data);
+        const { onMessage: cbMsg, onTyping: cbTyping, onError: cbErr } = callbacksRef.current;
         switch (msg.type) {
           case 'message':
-            if (onMessage) onMessage(msg.data);
+            if (cbMsg) cbMsg(msg.data);
             break;
           case 'typing':
-            if (onTyping) onTyping(msg.data);
+            if (cbTyping) cbTyping(msg.data);
             break;
           case 'error':
-            if (onError) onError(msg.data);
+            if (cbErr) cbErr(msg.data);
             break;
         }
       } catch (e) {
@@ -59,9 +84,9 @@ export function useWebSocket({ orderId, onMessage, onTyping, onError }: UseWebSo
 
     socket.onclose = () => {
       setIsConnected(false);
-      if (reconnectAttempts.current < maxReconnectAttempts) {
+      if (isMounted.current && reconnectAttempts.current < maxReconnectAttempts) {
         const timeout = Math.pow(2, reconnectAttempts.current) * 1000;
-        setTimeout(() => {
+        reconnectTimer.current = setTimeout(() => {
           reconnectAttempts.current += 1;
           connect();
         }, timeout);
@@ -74,11 +99,12 @@ export function useWebSocket({ orderId, onMessage, onTyping, onError }: UseWebSo
     };
 
     ws.current = socket;
-  }, [accessToken, orderId, onMessage, onTyping, onError]);
+  }, [accessToken, orderId]);
 
   useEffect(() => {
     connect();
     return () => {
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
       if (ws.current) {
         ws.current.close();
         ws.current = null;

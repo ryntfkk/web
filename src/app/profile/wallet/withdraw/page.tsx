@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Landmark, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,22 @@ export default function WithdrawPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+
+  const fetchBalance = useCallback(async () => {
+    const res = await fetchAPI<any>('/wallet/balance');
+    if (res.success && res.data) {
+      setWalletBalance(res.data.balance ?? 0);
+    } else {
+      setWalletBalance(user?.balance || 0);
+    }
+  }, [user?.balance]);
+
+  useEffect(() => {
+    if (isAuthorized) {
+      fetchBalance();
+    }
+  }, [isAuthorized, fetchBalance]);
 
   const BANKS = [
     { code: 'BCA', name: 'BCA' },
@@ -31,20 +47,32 @@ export default function WithdrawPage() {
     { code: 'OVO', name: 'OVO' },
   ];
 
-  if (!isAuthenticated) {
-    router.push('/login');
+  const isSubmittingRef = useRef(false);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f7f5f4]">
+        <Loader2 className="w-8 h-8 text-[#b51822] animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
     return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingRef.current) return;
+    
+    isSubmittingRef.current = true;
     
     const numAmount = parseInt(amount.replace(/\D/g, ''), 10);
     if (!numAmount || numAmount < 50000) {
       setError('Minimal penarikan Rp 50.000');
       return;
     }
-    if (numAmount > (user?.balance || 0)) {
+    if (numAmount > walletBalance) {
       setError('Saldo tidak mencukupi');
       return;
     }
@@ -73,6 +101,7 @@ export default function WithdrawPage() {
     }
     
     setLoading(false);
+    isSubmittingRef.current = false;
   };
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
@@ -121,7 +150,7 @@ export default function WithdrawPage() {
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="bg-[#b51822] text-white p-4 rounded-xl mb-6 shadow-sm">
           <p className="text-sm text-white/80 mb-1">Saldo Tersedia</p>
-          <p className="text-2xl font-bold">{formatPrice(user?.balance || 0)}</p>
+          <p className="text-2xl font-bold">{formatPrice(walletBalance)}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -181,8 +210,8 @@ export default function WithdrawPage() {
 
           <div className="pt-4">
             <Button
+              type="submit"
               className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
-              onClick={handleSubmit}
               disabled={loading}
             >
               {loading ? 'Memproses...' : 'Tarik Dana'}

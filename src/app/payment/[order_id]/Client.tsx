@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Script from 'next/script';
 import { ArrowLeft, Wallet, CreditCard, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
@@ -25,31 +26,16 @@ export default function PaymentClient() {
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [error, setError] = useState<string>('');
 
-  useEffect(() => {
-    fetchOrder();
-    fetchBalance();
-    
-    // Load Midtrans script
-    const script = document.createElement('script');
-    script.src = process.env.NEXT_PUBLIC_MIDTRANS_SNAP_URL || 'https://app.sandbox.midtrans.com/snap/snap.js';
-    script.setAttribute('data-client-key', process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '');
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, [isAuthenticated, orderId]);
-
-  const fetchBalance = async () => {
+  const fetchBalance = useCallback(async () => {
     const res = await fetchAPI<any>('/wallet/balance');
     if (res.success && res.data) {
       setWalletBalance(res.data.balance ?? 0);
     } else {
       setWalletBalance(user?.balance || 0);
     }
-  };
+  }, [user?.balance]);
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
@@ -60,7 +46,14 @@ export default function PaymentClient() {
       }
     }
     setLoading(false);
-  };
+  }, [orderId, router]);
+
+  useEffect(() => {
+    if (isAuthorized) {
+      fetchOrder();
+      fetchBalance();
+    }
+  }, [isAuthorized, fetchOrder, fetchBalance]);
 
   const handlePay = async () => {
     if (!selectedMethod) return;
@@ -121,9 +114,15 @@ export default function PaymentClient() {
   const isWalletDisabled = walletBalance < amountToPay;
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-24">
-      {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10">
+    <>
+      <Script 
+        src={process.env.NEXT_PUBLIC_MIDTRANS_SNAP_URL || 'https://app.sandbox.midtrans.com/snap/snap.js'}
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ''}
+        strategy="lazyOnload"
+      />
+      <div className="min-h-screen bg-[#f7f5f4] pb-24">
+        {/* Header */}
+        <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
@@ -227,6 +226,7 @@ export default function PaymentClient() {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

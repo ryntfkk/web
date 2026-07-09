@@ -11,8 +11,15 @@ export default function ChatClient({ orderId }: { orderId: string }) {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
-  if (!isAuthenticated) {
-    router.push('/login');
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f7f5f4]">
+        <Loader2 className="w-8 h-8 text-[#b51822] animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
     return null;
   }
 

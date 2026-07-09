@@ -36,9 +36,9 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">
+    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <div className="mx-auto w-full max-w-md">
+        <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-neutral-900">
           Masuk ke akun Anda
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-600">
@@ -49,8 +49,8 @@ function LoginContent() {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-4 sm:px-10 border border-neutral-200 rounded-[2px] shadow-sm">
+      <div className="mt-6 sm:mt-8 mx-auto w-full max-w-md">
+        <div className="bg-white py-6 px-5 sm:py-8 sm:px-10 border border-neutral-200 rounded-[2px] shadow-sm">
           <form className="space-y-6" onSubmit={handleSubmit}>
             
             {error && (
@@ -72,7 +72,7 @@ function LoginContent() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
                   placeholder="08123456789 atau email Anda"
                 />
               </div>
@@ -91,7 +91,7 @@ function LoginContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] pr-10"
                 />
                 <button
                   type="button"
@@ -107,7 +107,7 @@ function LoginContent() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -133,7 +133,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
+                className="w-full flex justify-center items-center py-3 sm:py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
               >
                 {loading ? (
                   <Loader2 className="animate-spin h-5 w-5" />
