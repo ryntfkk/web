@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   usePartnerProfile,
   usePartnerServices,
@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 
 export default function PartnerProfileClient({ username }: { username: string }) {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'services' | 'portfolio'>('services');
 
   const { data: profile, isLoading: isProfileLoading, isError: isProfileError, error: profileError } = usePartnerProfile(username);
   const { data: services, isLoading: isServicesLoading } = usePartnerServices(username);
@@ -92,8 +93,38 @@ export default function PartnerProfileClient({ username }: { username: string })
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Main Column */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            <ServicesList services={services || []} />
-            <PortfolioGrid portfolios={portfolios || []} />
+            {/* Tabs: Layanan / Portofolio */}
+            <div className="bg-white rounded shadow-sm mb-4 sm:mb-6">
+              <div className="flex border-b border-gray-100">
+                <button
+                  onClick={() => setActiveTab('services')}
+                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${
+                    activeTab === 'services'
+                      ? 'border-[#b51822] text-[#b51822]'
+                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  Layanan
+                </button>
+                <button
+                  onClick={() => setActiveTab('portfolio')}
+                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${
+                    activeTab === 'portfolio'
+                      ? 'border-[#b51822] text-[#b51822]'
+                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  Portofolio
+                </button>
+              </div>
+              <div className="p-4 sm:p-6">
+                {activeTab === 'services' ? (
+                  <ServicesList services={services || []} profile={profile} isLoading={isServicesLoading} />
+                ) : (
+                  <PortfolioGrid portfolios={portfolios || []} isLoading={isPortfoliosLoading} />
+                )}
+              </div>
+            </div>
             <ReviewSection reviews={reviewData?.reviews || []} summary={reviewData?.summary || { total_reviews: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 }} />
           </div>
 
