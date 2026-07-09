@@ -7,13 +7,14 @@ import { ArrowLeft, Wallet, CreditCard, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { normalizeOrder, unwrapData } from '@/lib/order-utils';
+import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
 
 export default function PaymentClient() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized, user } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.order_id as string;
@@ -29,7 +30,8 @@ export default function PaymentClient() {
   const fetchBalance = useCallback(async () => {
     const res = await fetchAPI<any>('/wallet/balance');
     if (res.success && res.data) {
-      setWalletBalance(res.data.balance ?? 0);
+      const data = unwrapData<any>(res.data);
+      setWalletBalance(data?.balance ?? 0);
     } else {
       setWalletBalance(user?.balance || 0);
     }
@@ -39,7 +41,7 @@ export default function PaymentClient() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      const data = (res.data as any).data ?? res.data;
+      const data = normalizeOrder(unwrapData<any>(res.data));
       setOrder(data);
       if (data.status !== 'WAITING_PAYMENT' && data.status !== 'WAITING_ADDITIONAL_PAY') {
         router.replace(`/orders/${orderId}`);
@@ -56,10 +58,18 @@ export default function PaymentClient() {
   }, [isAuthorized, fetchOrder, fetchBalance]);
 
   const handlePay = async () => {
-    if (!selectedMethod) return;
-    
+    if (!selectedMethod || processing) return;
+
+    setError('');
     setProcessing(true);
+
     if (selectedMethod === 'wallet') {
+      // Guard tambahan: jangan kirim request jika saldo tidak cukup
+      if (isWalletDisabled) {
+        setError('Saldo dompet tidak mencukupi.');
+        setProcessing(false);
+        return;
+      }
       // Internal wallet payment
       const res = await fetchAPI(`/payments`, {
         method: 'POST',
@@ -68,38 +78,39 @@ export default function PaymentClient() {
       if (res.success) {
         router.push(`/payment/${orderId}/status?status=success`);
       } else {
-        router.push(`/payment/${orderId}/status?status=failed&message=${encodeURIComponent(res.message || 'Pembayaran gagal')}`);
+        router.push(`/payment/${orderId}/status?status=failed&message=${encodeURIComponent(getErrorMessage(res))}`);
       }
-    } else {
-      // Request Midtrans Snap Token
-      const res = await fetchAPI<any>(`/payments/snap`, {
-        method: 'POST',
-        body: JSON.stringify({ order_id: orderId, payment_method: selectedMethod })
-      });
-      
-      if (res.success && res.data?.token) {
-        setSnapToken(res.data.token);
-        // Trigger Snap popup
-        if ((window as any).snap) {
-          (window as any).snap.pay(res.data.token, {
-            onSuccess: () => router.push(`/payment/${orderId}/status?status=success`),
-            onPending: () => router.push(`/orders/${orderId}`), // Keep it on order detail to see pending status
-            onError: () => router.push(`/payment/${orderId}/status?status=failed`),
-            onClose: () => {
-              // user closed the popup without finishing
-            }
-          });
-        }
-        if (!(window as any).snap) {
-          setError('Midtrans SDK failed to load.');
-          setProcessing(false);
-          return;
-        }
-      } else {
-        setError(res.message || 'Gagal membuat transaksi pembayaran.');
-      }
+      setProcessing(false);
+      return;
     }
-    setProcessing(false);
+
+    // Request Midtrans Snap Token
+    const res = await fetchAPI<any>(`/payments/snap`, {
+      method: 'POST',
+      body: JSON.stringify({ order_id: orderId, payment_method: selectedMethod })
+    });
+    const snapData = res.success ? unwrapData<any>(res.data) : null;
+
+    if (snapData?.token) {
+      const snap = (window as any).snap;
+      // Cek SDK SEBELUM mencoba memanggilnya
+      if (!snap) {
+        setError('Midtrans SDK belum termuat. Tunggu sebentar lalu coba lagi.');
+        setProcessing(false);
+        return;
+      }
+      setSnapToken(snapData.token);
+      snap.pay(snapData.token, {
+        onSuccess: () => router.push(`/payment/${orderId}/status?status=success`),
+        onPending: () => router.push(`/orders/${orderId}`), // pending → lihat status di detail pesanan
+        onError: () => router.push(`/payment/${orderId}/status?status=failed`),
+        onClose: () => setProcessing(false), // user menutup popup tanpa membayar
+      });
+      // Jangan set processing=false di sini: popup Snap sedang aktif.
+    } else {
+      setError(getErrorMessage(res));
+      setProcessing(false);
+    }
   };
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
@@ -209,6 +220,11 @@ export default function PaymentClient() {
 
       {/* Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
+        {error && (
+          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-[#FFF5F5] border border-[#FEB2B2] rounded text-xs text-[#E53E3E]">
+            {error}
+          </div>
+        )}
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <Button
             variant="outline"

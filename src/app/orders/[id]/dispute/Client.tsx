@@ -6,13 +6,14 @@ import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { normalizeOrder, unwrapData } from '@/lib/order-utils';
+import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
 
 export default function DisputeClient() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -25,64 +26,69 @@ export default function DisputeClient() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    
+    if (!isAuthorized || !orderId) return;
     fetchOrder();
-  }, [isAuthenticated, orderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, orderId]);
 
   const fetchOrder = async () => {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      const data = (res.data as any).data ?? res.data;
-      setOrder(data);
+      setOrder(normalizeOrder(unwrapData<any>(res.data)));
     }
     setLoading(false);
   };
 
   const handleSubmit = async () => {
-    if (reason.length < 20) {
+    if (reason.trim().length < 20) {
       setError('Deskripsi masalah minimal 20 karakter.');
       return;
     }
-    
+
     setSubmitting(true);
     setError('');
 
     try {
-      // Create FormData to handle file upload
-      const formData = new FormData();
-      formData.append('order_id', orderId);
-      formData.append('reason', reason);
-      photos.forEach(photo => formData.append('photos', photo));
+      // 1. Upload bukti foto via presigned URL (pola yang sama dengan booking)
+      const photoUrls: string[] = [];
+      for (const photo of photos) {
+        const presignedRes = await fetchAPI<any>('/uploads/presigned-url', {
+          method: 'POST',
+          body: JSON.stringify({ filename: photo.name, content_type: photo.type }),
+        });
+        const presigned = presignedRes.success ? unwrapData<any>(presignedRes.data) : null;
+        if (!presigned?.upload_url) throw new Error('Gagal mendapatkan upload URL');
 
-      // Note: we can't use our standard fetchAPI wrapper easily with FormData
-      // because it forces Content-Type: application/json.
-      // We will do a direct fetch here or modify fetchAPI to support FormData.
-      // Assuming backend supports /disputes endpoint.
-      
-      const token = useAuthStore.getState().accessToken;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1'}/orders/${orderId}/dispute`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'X-Platform': 'web',
-          'X-App-Version': '1.0.0',
-        },
-        body: formData,
+        const uploadRes = await fetch(presigned.upload_url, {
+          method: 'PUT',
+          headers: { 'Content-Type': photo.type },
+          body: photo,
+        });
+        if (!uploadRes.ok) throw new Error(`Gagal mengunggah foto "${photo.name}"`);
+        photoUrls.push(presigned.file_url);
+      }
+
+      // 2. Kirim laporan sengketa sebagai JSON (fetchAPI = auto token-refresh)
+      const res = await fetchAPI(`/disputes/`, {
+        method: 'POST',
+        body: JSON.stringify({
+          order_id: orderId,
+          dispute_type: 'OTHER',
+          reason: reason.trim(),
+          evidence_urls: photoUrls
+        }),
       });
 
-      const data = await res.json();
-      
-      if (res.ok && data.success) {
-        // Redirect to detail page
+      if (res.success) {
         router.push(`/orders/${orderId}`);
         // Buka WA di tab baru
-        window.open(`https://wa.me/6281234567890?text=Halo CS Posko Jasa. Saya melaporkan sengketa pada Pesanan %23${order?.order_number}.`, '_blank');
+        window.open(`https://wa.me/6281234567890?text=Halo CS Posko Jasa. Saya melaporkan sengketa pada Pesanan %23${order?.order_number ?? ''}.`, '_blank');
       } else {
-        setError(data.message || 'Gagal mengirim laporan sengketa.');
+        setError(getErrorMessage(res));
       }
     } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan jaringan.');
+      setError(err?.message || 'Terjadi kesalahan jaringan.');
     } finally {
       setSubmitting(false);
     }

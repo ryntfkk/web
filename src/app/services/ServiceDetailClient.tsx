@@ -26,8 +26,6 @@ import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDeta
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import ScheduleView from '@/components/service/ScheduleView';
-import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
 
 
 const PLACEHOLDER_IMG =
@@ -41,7 +39,9 @@ function DetailContent() {
   const [showGallery, setShowGallery] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
 
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  // Halaman ini publik — auth hanya dicek saat user melakukan aksi
+  // (tambah keranjang / pesan), bukan saat melihat halaman.
+  const { isAuthenticated } = useAuthStore();
   const { addItem, removeItem, isInCart } = useCartStore();
 
   const { data: service, isLoading, isError, refetch } = useServiceDetail(serviceId);
@@ -51,7 +51,7 @@ function DetailContent() {
 
   const handleCartToggle = () => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push(`/login?redirect=${encodeURIComponent(`/services?id=${serviceId}`)}`);
       return;
     }
     if (!service) return;
@@ -72,7 +72,7 @@ function DetailContent() {
 
   const handleOrderNow = () => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push(`/login?redirect=${encodeURIComponent(`/services?id=${serviceId}`)}`);
       return;
     }
     if (!service) return;

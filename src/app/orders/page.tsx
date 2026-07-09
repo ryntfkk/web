@@ -7,8 +7,7 @@ import Link from 'next/link';
 import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
-import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { normalizeOrder } from '@/lib/order-utils';
 import { StatusBadge } from '@/components/ui/status-badge';
 
 interface OrderItem {
@@ -21,7 +20,7 @@ interface OrderItem {
 interface Order {
   id: string;
   order_number: string;
-  status: 'PENDING' | 'ACCEPTED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
+  status: string;
   total_amount: number;
   created_at: string;
   service_date?: string;
@@ -35,17 +34,22 @@ interface Order {
   agreed_price?: number;
 }
 
-type OrderStatus = 'PENDING' | 'ACCEPTED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
 type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
 
-const statusConfig: Record<OrderStatus, { label: string, color: string, icon?: any }> = {
-  PENDING: { label: 'Menunggu', color: 'bg-[#FFF5F5] text-[#E53E3E] border-[#FEB2B2]' },
-  ACCEPTED: { label: 'Diterima', color: 'bg-[#EBF8FF] text-[#3182CE] border-[#90CDF4]' },
-  PROCESSING: { label: 'Diproses', color: 'bg-[#EBF8FF] text-[#3182CE] border-[#90CDF4]' },
-  COMPLETED: { label: 'Selesai', color: 'bg-[#F0FFF4] text-[#38A169] border-[#9AE6B4]' },
-  CANCELLED: { label: 'Dibatalkan', color: 'bg-[#f7f5f4] text-[#8f6f6d] border-[#e5e2e1]' },
-  DISPUTED: { label: 'Sengketa', color: 'bg-[#FFF5F5] text-[#E53E3E] border-[#FEB2B2]' }
+// Pemetaan status backend → grup filter UI.
+// Status backend: WAITING_CONFIRMATION, WAITING_PAYMENT, PAID, IN_PROGRESS,
+// WAITING_ADDITIONAL_PAY, WAITING_CUSTOMER_CONFIRM, COMPLETED, CANCELLED, DISPUTED
+const FILTER_GROUPS: Record<Exclude<FilterStatus, 'all'>, string[]> = {
+  pending: ['WAITING_CONFIRMATION', 'WAITING_PAYMENT', 'PENDING', 'ACCEPTED'],
+  processing: ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'PROCESSING'],
+  completed: ['COMPLETED'],
+  cancelled: ['CANCELLED'],
 };
+
+function matchesFilter(status: string, filter: FilterStatus): boolean {
+  if (filter === 'all') return true;
+  return FILTER_GROUPS[filter].includes(status);
+}
 
 export default function OrdersPage() {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -64,31 +68,30 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const res = await fetchAPI<{ data: Order[] }>('/orders', {
+    const res = await fetchAPI<unknown>('/orders', {
       method: 'GET',
       credentials: 'include',
     });
-    if (res.success && res.data && Array.isArray(res.data)) {
-      setOrders(res.data as Order[]);
+    if (res.success && res.data) {
+      // Respons bisa berupa array langsung ATAU envelope { data: [...] }
+      const list = Array.isArray(res.data)
+        ? res.data
+        : (res.data as { data?: unknown[] })?.data;
+      if (Array.isArray(list)) {
+        setOrders(list.map(normalizeOrder) as Order[]);
+      }
     }
     setLoading(false);
   };
 
-  const filteredOrders = orders.filter(order => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'pending') return order.status === 'PENDING' || order.status === 'ACCEPTED';
-    if (activeFilter === 'processing') return order.status === 'PROCESSING';
-    if (activeFilter === 'completed') return order.status === 'COMPLETED';
-    if (activeFilter === 'cancelled') return order.status === 'CANCELLED';
-    return true;
-  });
+  const filteredOrders = orders.filter(order => matchesFilter(order.status, activeFilter));
 
   const filterCounts = {
     all: orders.length,
-    pending: orders.filter(o => o.status === 'PENDING' || o.status === 'ACCEPTED').length,
-    processing: orders.filter(o => o.status === 'PROCESSING').length,
-    completed: orders.filter(o => o.status === 'COMPLETED').length,
-    cancelled: orders.filter(o => o.status === 'CANCELLED').length,
+    pending: orders.filter(o => matchesFilter(o.status, 'pending')).length,
+    processing: orders.filter(o => matchesFilter(o.status, 'processing')).length,
+    completed: orders.filter(o => matchesFilter(o.status, 'completed')).length,
+    cancelled: orders.filter(o => matchesFilter(o.status, 'cancelled')).length,
   };
 
   const formatDate = (dateString: string) => {
@@ -289,6 +292,13 @@ export default function OrdersPage() {
                           <p className="text-lg font-bold text-[#b51822]">{formatPrice(order.total_amount || order.agreed_price || 0)}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto">
+                          {order.status === 'WAITING_PAYMENT' && (
+                            <Link href={`/payment/${order.id}`} className="flex-1 sm:flex-none">
+                              <Button size="sm" className="w-full bg-[#DD6B20] hover:bg-[#C05621] rounded-[2px]">
+                                Bayar
+                              </Button>
+                            </Link>
+                          )}
                           {order.status === 'COMPLETED' && (
                             <Link href={`/orders/${order.id}/review`} className="flex-1 sm:flex-none">
                               <Button size="sm" variant="secondary" className="w-full border-[#e5e2e1] text-[#5b403e] rounded-[2px]">

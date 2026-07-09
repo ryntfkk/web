@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { normalizeOrder } from '@/lib/order-utils';
+import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -71,7 +72,7 @@ function formatDate(d: string) {
 }
 
 export default function OrderDetailClient() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -83,15 +84,16 @@ export default function OrderDetailClient() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    
+    if (!isAuthorized || !orderId) return;
     fetchOrder();
-  }, [isAuthenticated, orderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, orderId]);
 
   const fetchOrder = async () => {
     setLoading(true);
     const res = await fetchAPI<{ data: OrderDetail }>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      setOrder((res.data as any).data ?? res.data);
+      setOrder(normalizeOrder((res.data as any).data ?? res.data));
     }
     setLoading(false);
   };
@@ -108,7 +110,7 @@ export default function OrderDetailClient() {
       showToast('Berhasil!');
       await fetchOrder();
     } else {
-      showToast(res.message || 'Terjadi kesalahan', 'error');
+      showToast(getErrorMessage(res), 'error');
     }
     setActionLoading(false);
   };
@@ -274,8 +276,11 @@ export default function OrderDetailClient() {
           <div className="space-y-2">
             {order.items?.map(item => (
               <div key={item.id} className="flex justify-between text-sm">
-                <span className="text-[#1c1b1b]">{item.service_name}</span>
-                <span className="font-semibold text-[#1c1b1b]">{formatPrice(item.price)}</span>
+                <span className="text-[#1c1b1b]">
+                  {item.service_name}
+                  {item.quantity > 1 && <span className="text-[#9e8e8c]"> x{item.quantity}</span>}
+                </span>
+                <span className="font-semibold text-[#1c1b1b]">{formatPrice(item.price * (item.quantity || 1))}</span>
               </div>
             ))}
           </div>

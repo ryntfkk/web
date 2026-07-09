@@ -6,7 +6,8 @@ import { ArrowLeft, X, AlertTriangle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { normalizeOrder, unwrapData } from '@/lib/order-utils';
+import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -35,7 +36,7 @@ function formatPrice(p: number) {
 }
 
 export default function AdditionalFeeClient() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -47,15 +48,16 @@ export default function AdditionalFeeClient() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    
+    if (!isAuthorized || !orderId) return;
     fetchOrder();
-  }, [isAuthenticated, orderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, orderId]);
 
   const fetchOrder = async () => {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      setOrder((res.data as any).data ?? res.data);
+      setOrder(normalizeOrder(unwrapData<any>(res.data)));
     }
     setLoading(false);
   };
@@ -77,7 +79,7 @@ export default function AdditionalFeeClient() {
       showToast('Tagihan berhasil disetujui dan dibayar.');
       setTimeout(() => router.push(`/orders/${orderId}`), 1500);
     } else {
-      showToast(res.message || 'Gagal menyetujui tagihan', 'error');
+      showToast(getErrorMessage(res), 'error');
     }
     setActionLoading(false);
   };
@@ -95,7 +97,7 @@ export default function AdditionalFeeClient() {
       showToast('Tagihan ditolak.');
       setTimeout(() => router.push(`/orders/${orderId}`), 1500);
     } else {
-      showToast(res.message || 'Gagal menolak tagihan', 'error');
+      showToast(getErrorMessage(res), 'error');
     }
     setActionLoading(false);
   };
@@ -123,7 +125,7 @@ export default function AdditionalFeeClient() {
     );
   }
 
-  const baseAmount = (order?.total_amount ?? 0) - fee.total;
+  const baseAmount = Math.max(0, (order?.total_amount ?? 0) - fee.total);
 
   return (
     <div className="min-h-screen bg-[#f7f5f4] pb-24">

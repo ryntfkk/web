@@ -6,7 +6,6 @@ import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -19,7 +18,7 @@ interface OrderInfo {
 }
 
 export default function ReviewClient() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -33,9 +32,10 @@ export default function ReviewClient() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    
+    if (!isAuthorized || !orderId) return;
     fetchOrder();
-  }, [isAuthenticated, orderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, orderId]);
 
   const fetchOrder = async () => {
     setLoading(true);

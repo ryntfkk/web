@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Check, MapPin, Calendar, Tag } from 'lucide-react';
+import { ArrowLeft, Check, MapPin, Calendar, Tag, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useCartStore } from '@/lib/store/cartStore';
+import { unwrapData } from '@/lib/order-utils';
+import { getErrorMessage } from '@/types/api';
 
 // Types
 interface PartnerService {
@@ -29,7 +32,16 @@ export default function BookingClient() {
   const params = useParams();
   const searchParams = useSearchParams();
   const username = params?.username as string;
-  const preselectedServiceId = searchParams.get('service_id') || undefined;
+  // Mendukung ?service_id=xxx (satu layanan) dan ?service_ids=a,b,c (dari keranjang)
+  const preselectedIds = useMemo(
+    () =>
+      (searchParams.get('service_ids') ?? searchParams.get('service_id') ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    [searchParams],
+  );
+  const removeCartItem = useCartStore((s) => s.removeItem);
 
   const [step, setStep] = useState(1);
   const [partner, setPartner] = useState<any>(null);
@@ -53,28 +65,47 @@ export default function BookingClient() {
   // Refs
   const preselectedRef = useRef(false);
 
+  // Derived values (dihitung sebelum efek agar bisa jadi dependency)
+  const selectedCount = Object.values(selectedServices).filter(Boolean).length;
+  const subtotal = useMemo(
+    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? s.price : 0), 0),
+    [services, selectedServices],
+  );
+  const totalPayment = Math.max(0, subtotal - promoDiscount);
+
   useEffect(() => {
     setIdempotencyKey(crypto.randomUUID());
   }, [selectedServices, date, time, addressId, notes, photos.length, promoCode]);
 
+  // Diskon promo divalidasi terhadap subtotal — jika pilihan layanan
+  // berubah, diskon lama tidak lagi valid dan harus divalidasi ulang.
+  useEffect(() => {
+    setPromoDiscount(0);
+  }, [subtotal]);
+
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push(`/login?redirect=${encodeURIComponent(`/book/${username}`)}`);
       return;
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, username]);
 
   useEffect(() => {
-    if (preselectedServiceId && services.length > 0 && !preselectedRef.current) {
-      const found = services.find((s) => s.id === preselectedServiceId);
-      if (found) {
+    if (preselectedIds.length > 0 && services.length > 0 && !preselectedRef.current) {
+      const found = services.filter((s) => preselectedIds.includes(s.id));
+      if (found.length > 0) {
         preselectedRef.current = true;
-        setSelectedServices((prev) => ({ ...prev, [found.id]: true }));
+        setSelectedServices((prev) => {
+          const next = { ...prev };
+          for (const s of found) next[s.id] = true;
+          return next;
+        });
         setStep(2);
       }
     }
-  }, [preselectedServiceId, services]);
+  }, [preselectedIds, services]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -86,24 +117,25 @@ export default function BookingClient() {
       ]);
 
       if (pRes.success && pRes.data) {
-        const data = pRes.data.data ?? pRes.data;
-        setPartner(data);
+        setPartner(unwrapData(pRes.data));
       }
 
       if (sRes.success && sRes.data) {
-        const sData = sRes.data.data ?? sRes.data;
-        setServices(sData || []);
+        const sData = unwrapData<PartnerService[]>(sRes.data);
+        setServices(Array.isArray(sData) ? sData : []);
       } else if (pRes.success && pRes.data) {
-        const data = pRes.data.data ?? pRes.data;
-        if (data.services) setServices(data.services);
+        const data = unwrapData<any>(pRes.data);
+        if (Array.isArray(data?.services)) setServices(data.services);
       }
 
       if (aRes.success && aRes.data) {
-        const addrList = aRes.data.data ?? aRes.data;
-        setAddresses(addrList);
-        const primary = addrList.find((a: Address) => a.is_primary);
-        if (primary) setAddressId(primary.id);
-        else if (addrList.length > 0) setAddressId(addrList[0].id);
+        const addrList = unwrapData<Address[]>(aRes.data);
+        if (Array.isArray(addrList)) {
+          setAddresses(addrList);
+          const primary = addrList.find((a: Address) => a.is_primary);
+          if (primary) setAddressId(primary.id);
+          else if (addrList.length > 0) setAddressId(addrList[0].id);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch booking data:', error);
@@ -116,99 +148,104 @@ export default function BookingClient() {
   const handlePrev = () => setStep(1);
 
   const submitOrder = async () => {
+    setErrorMsg('');
+
+    // Guard: data partner wajib ada sebelum submit
+    if (!partner?.id) {
+      setErrorMsg('Data mitra belum termuat. Silakan muat ulang halaman.');
+      return;
+    }
+
+    const selectedIds = Object.keys(selectedServices).filter(id => selectedServices[id]);
+    if (selectedIds.length === 0) {
+      setErrorMsg('Pilih minimal satu layanan.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const token = useAuthStore.getState().accessToken;
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1';
-      
-      // 1. Upload photos
+      // 1. Upload photos (via presigned URL)
       const photoUrls: string[] = [];
       for (const photo of photos) {
-        const presignedRes = await fetch(`${baseUrl}/uploads/presigned-url`, {
+        const presignedRes = await fetchAPI<any>('/uploads/presigned-url', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify({
             filename: photo.name,
             content_type: photo.type,
           }),
         });
-        const presignedData = await presignedRes.json();
-        
-        if (presignedData.success) {
-          await fetch(presignedData.data.upload_url, {
-            method: 'PUT',
-            headers: { 'Content-Type': photo.type },
-            body: photo,
-          });
-          photoUrls.push(presignedData.data.file_url);
-        } else {
+
+        const presigned = presignedRes.success ? unwrapData<any>(presignedRes.data) : null;
+        if (!presigned?.upload_url) {
           throw new Error('Gagal mendapatkan upload URL');
         }
+
+        const uploadRes = await fetch(presigned.upload_url, {
+          method: 'PUT',
+          headers: { 'Content-Type': photo.type },
+          body: photo,
+        });
+        if (!uploadRes.ok) {
+          throw new Error(`Gagal mengunggah foto "${photo.name}"`);
+        }
+        photoUrls.push(presigned.file_url);
       }
 
-      // 2. Prepare JSON body
-      const selectedIds = Object.keys(selectedServices).filter(id => selectedServices[id]);
+      // 2. Prepare JSON body — pakai idempotencyKey yang stabil selama
+      //    form tidak berubah, agar retry tidak membuat pesanan ganda.
       const items = selectedIds.map(id => ({ service_id: id, quantity: 1 }));
-
       const payload = {
         partner_id: partner.id,
         scheduled_at: `${date}T${time}:00+07:00`,
         address_id: addressId,
         notes: notes || undefined,
-        promo_code: promoCode || undefined,
-        items: items,
+        promo_code: promoDiscount > 0 ? promoCode || undefined : undefined,
+        items,
         photo_urls: photoUrls,
-        idempotency_key: crypto.randomUUID(),
+        idempotency_key: idempotencyKey,
       };
 
-      // 3. Submit Order
-      const res = await fetch(`${baseUrl}/orders`, {
+      // 3. Submit Order (fetchAPI = auto token-refresh saat 401)
+      const res = await fetchAPI<any>('/orders', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'X-Platform': 'web',
-          'X-App-Version': '1.0.0',
-        },
+        headers: { 'Idempotency-Key': idempotencyKey },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        const order = data.data.data ?? data.data;
+
+      if (res.success && res.data) {
+        const order = unwrapData<any>(res.data);
+        // Bersihkan layanan yang sudah dipesan dari keranjang
+        for (const id of selectedIds) removeCartItem(id);
+        setSuccessMsg('Pesanan berhasil dibuat!');
         router.push(`/orders/${order.id}`);
-      } else {
-        alert(data.message || 'Gagal membuat pesanan');
+        return;
       }
+      setErrorMsg(getErrorMessage(res));
     } catch (e: any) {
-      alert('Terjadi kesalahan jaringan.');
+      setErrorMsg(e?.message || 'Terjadi kesalahan jaringan.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const validatePromo = async () => {
     if (!promoCode) return;
+    setErrorMsg('');
     const res = await fetchAPI<any>('/promos/validate', {
       method: 'POST',
       body: JSON.stringify({ code: promoCode, total_amount: subtotal })
     });
     if (res.success && res.data) {
-      setPromoDiscount(res.data.discount_amount);
-      alert('Promo berhasil digunakan!');
+      const promo = unwrapData<any>(res.data);
+      setPromoDiscount(promo?.summary?.discount_amount ?? promo?.discount_amount ?? 0);
     } else {
       setPromoDiscount(0);
-      alert(res.message || 'Promo tidak valid');
+      setErrorMsg(getErrorMessage(res));
     }
   };
 
   if (!isAuthenticated) return null;
   if (loading && step === 1) return <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" /></div>;
-
-  const selectedCount = Object.values(selectedServices).filter(Boolean).length;
-  const subtotal = services.reduce((sum, s) => sum + (selectedServices[s.id] ? s.price : 0), 0);
-  const totalPayment = Math.max(0, subtotal - promoDiscount);
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
@@ -388,6 +425,17 @@ export default function BookingClient() {
 
       {/* Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        {errorMsg && (
+          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-[#FFF5F5] border border-[#FEB2B2] rounded text-xs text-[#E53E3E] flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+        {successMsg && (
+          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-[#F0FFF4] border border-[#9AE6B4] rounded text-xs text-[#38A169]">
+            {successMsg}
+          </div>
+        )}
         <div className="max-w-lg mx-auto flex items-center justify-between gap-4">
           {step === 1 ? (
             <>
