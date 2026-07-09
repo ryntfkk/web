@@ -112,7 +112,7 @@ export default function TopNavbar() {
               </div>
 
               {/* Right Section: Actions */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1 lg:gap-4">
                 {/* Mobile Search Button */}
                 <Button
                   variant="ghost"
@@ -142,7 +142,7 @@ export default function TopNavbar() {
 
                       {/* Bell Icon */}
                       <button className="text-[#5b403e] hover:text-[#b51822] transition-colors relative">
-                        <Bell className="h-5 w-4" />
+                        <Bell className="h-5 w-5" />
                         <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
                       </button>
 
@@ -190,24 +190,28 @@ export default function TopNavbar() {
                     </div>
 
                     {/* Mobile: Cart & Bell */}
-                    <div className="lg:hidden flex items-center gap-3">
+                    <div className="lg:hidden flex items-center gap-1">
                       {/* Cart Icon */}
                       <button
-                        className="text-[#5b403e] hover:text-[#b51822] transition-colors relative"
+                        className="relative flex h-10 w-10 items-center justify-center text-[#5b403e] hover:text-[#b51822] transition-colors"
                         onClick={() => router.push('/cart')}
+                        aria-label="Keranjang"
                       >
-                        <ShoppingCart className="h-[20px] w-[19.98px]" />
+                        <ShoppingCart className="h-[22px] w-[22px]" />
                         {itemCount > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 bg-[#b51822] text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute top-0 right-0 bg-[#b51822] text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {itemCount > 99 ? '99+' : itemCount}
                           </span>
                         )}
                       </button>
 
                       {/* Bell Icon */}
-                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors relative">
-                        <Bell className="h-5 w-4" />
-                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
+                      <button
+                        className="relative flex h-10 w-10 items-center justify-center text-[#5b403e] hover:text-[#b51822] transition-colors"
+                        aria-label="Notifikasi"
+                      >
+                        <Bell className="h-[22px] w-[22px]" />
+                        <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#b51822] rounded-full" />
                       </button>
                     </div>
                   </>
