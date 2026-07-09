@@ -22,10 +22,9 @@ jobs:
             cd ~/web
             git pull origin main
             
-            # 2. Masuk ke folder deploy dan jalankan docker-compose build
-            cd ~/backend/deploy
-            sudo docker-compose up -d --build web
-            
+            # 2. Masuk ke root direktori dan jalankan docker-compose build
+            cd ~
+            sudo docker-compose up -d --build web            
             # 3. Bersihkan sisa image docker yang lama (opsional)
             sudo docker image prune -f
             
