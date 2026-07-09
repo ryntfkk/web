@@ -1,14 +1,7 @@
 import { Suspense } from 'react';
 import BookingClient from './BookingClient';
 
-// List of partner usernames to pre-render (same as [username] profile pages)
-const VALID_USERNAMES = ['budiac', 'siticom', 'jokoplumb', 'antotech'];
-
-export function generateStaticParams() {
-  return VALID_USERNAMES.map((username) => ({
-    username,
-  }));
-}
+// generateStaticParams removed to fully embrace SSR using standalone Next.js server
 
 interface PageProps {
   params: Promise<{ username: string }>;

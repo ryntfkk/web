@@ -71,9 +71,9 @@ export default function PaymentClient() {
         return;
       }
       // Internal wallet payment
-      const res = await fetchAPI(`/payments`, {
+      const res = await fetchAPI(`/payments/initiate`, {
         method: 'POST',
-        body: JSON.stringify({ order_id: orderId, payment_method: 'wallet' })
+        body: JSON.stringify({ order_id: orderId, payment_method: 'wallet_balance' })
       });
       if (res.success) {
         router.push(`/payment/${orderId}/status?status=success`);

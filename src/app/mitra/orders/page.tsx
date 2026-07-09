@@ -38,7 +38,7 @@ export default function MitraOrdersPage() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/mitra/orders');
+    const res = await fetchAPI<any>('/orders?role=partner');
     if (res.success && res.data) {
       setOrders(res.data);
     }
