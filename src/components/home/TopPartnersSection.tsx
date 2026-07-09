@@ -15,7 +15,7 @@ export default function TopPartnersSection() {
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
 
   const { data: partners, isLoading, isError, refetch } = usePartners({
-    per_page: 4,
+    per_page: 6,
     sort_by: 'rating',
     latitude: hasLocation ? latitude ?? undefined : undefined,
     longitude: hasLocation ? longitude ?? undefined : undefined,
@@ -48,9 +48,9 @@ export default function TopPartnersSection() {
       )}
 
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-[250px] bg-gray-100 animate-pulse rounded-lg" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-[280px] bg-gray-100 animate-pulse rounded-lg" />
           ))}
         </div>
       ) : isError ? (
@@ -67,7 +67,7 @@ export default function TopPartnersSection() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
           {partners?.map((partner: Partner) => (
             <Link key={partner.id} href={`/${partner.username}`} className="block">
               <ServiceCard

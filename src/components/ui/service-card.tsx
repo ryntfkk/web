@@ -38,14 +38,14 @@ export function ServiceCard({
         className
       )}
     >
-      {/* Image Section - Responsive height: 140px mobile, 204px desktop */}
-      <div className="relative w-full h-[140px] sm:h-[180px] md:h-[204px] bg-[#e5e2e1]">
+      {/* Image Section - Square 1:1 ratio (Shopee style) */}
+      <div className="relative w-full aspect-square bg-[#e5e2e1]">
         <Image
           src={imageUrl}
           alt={vendorName}
           fill
           className="object-cover"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
         />
         {/* PRO Badge - positioned 8px from edges */}
         {isPro && (
@@ -58,7 +58,7 @@ export function ServiceCard({
       {/* Content Section - Responsive padding */}
       <div className="p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1">
         {/* Service Title - Responsive font size */}
-        <h3 className="text-[13px] sm:text-[14px] md:text-[16px] font-semibold text-[#1c1b1b] leading-tight line-clamp-2">
+        <h3 className="text-[13px] sm:text-[14px] font-semibold text-[#1c1b1b] leading-tight line-clamp-2">
           {vendorName}
         </h3>
 
@@ -88,24 +88,24 @@ export function ServiceCard({
         <div className="flex items-center justify-between mt-0.5 sm:mt-1">
           <div className="flex items-center gap-0.5 sm:gap-1">
             {/* Gold filled star */}
-            <Star className="w-3 h-3 sm:w-[11.67px] sm:h-[11.08px] fill-[#D69E2E] text-[#D69E2E]" />
-            <span className="text-[12px] sm:text-[14px] font-medium text-[#1c1b1b]">{Number(rating).toFixed(1)}</span>
-            <span className="text-[11px] sm:text-[14px] font-normal text-[#5b403e] hidden sm:inline">({reviewCount})</span>
+            <Star className="w-3 h-3 fill-[#D69E2E] text-[#D69E2E]" />
+            <span className="text-[12px] font-medium text-[#1c1b1b]">{Number(rating).toFixed(1)}</span>
+            <span className="text-[11px] sm:text-[12px] font-normal text-[#5b403e] hidden sm:inline">({reviewCount})</span>
           </div>
           {showLocation && (
             <div className="flex items-center gap-0.5 text-[#5b403e]">
               <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-              <span className="text-[11px] sm:text-[14px] font-normal">{location}</span>
+              <span className="text-[11px] sm:text-[12px] font-normal">{location}</span>
             </div>
           )}
         </div>
 
         {/* Price Row */}
         <div className="flex items-end gap-0.5 sm:gap-1 mt-1 sm:mt-2">
-          <span className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold text-[#b51822] leading-none">
+          <span className="text-[14px] sm:text-[16px] font-semibold text-[#b51822] leading-none">
             Rp {price.toLocaleString('id-ID')}
           </span>
-          <span className="text-[11px] sm:text-[14px] font-normal text-[#5b403e] mb-0.5 sm:mb-1">
+          <span className="text-[11px] sm:text-[12px] font-normal text-[#5b403e] mb-0.5">
             /{unit}
           </span>
         </div>

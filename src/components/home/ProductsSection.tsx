@@ -40,7 +40,7 @@ export default function ProductsSection() {
             >
               <div className="bg-white border border-[#e5e2e1] rounded-[4px] overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
                 {/* Image */}
-                <div className="relative w-full h-[140px] sm:h-[160px] bg-[#e5e2e1] flex-shrink-0">
+                <div className="relative w-full aspect-square bg-[#e5e2e1] flex-shrink-0">
                   <Image
                     src={service.photo_url || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500"}
                     alt={service.name}
