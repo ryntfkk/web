@@ -1,65 +1,56 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
+import { API_URL } from '@/lib/api';
 
-type WSMessage = {
+interface WSMessage {
   type: string;
-  order_id?: string;
-  content?: string;
-  message_type?: string;
-  is_typing?: boolean;
   data?: any;
-};
-
-interface UseWebSocketOptions {
-  orderId: string;
-  onMessage?: (msg: any) => void;
-  onTyping?: (data: { order_id: string; user_id: string; is_typing: boolean }) => void;
-  onError?: (err: any) => void;
 }
 
-export function useWebSocket({ orderId, onMessage, onTyping, onError }: UseWebSocketOptions) {
-  const { accessToken } = useAuthStore();
+interface UseWebSocketProps {
+  roomId?: string;
+  onMessage?: (message: any) => void;
+  onTyping?: (typingData: any) => void;
+  onError?: (error: any) => void;
+}
+
+export function useWebSocket({ roomId, onMessage, onTyping, onError }: UseWebSocketProps = {}) {
   const [isConnected, setIsConnected] = useState(false);
   const ws = useRef<WebSocket | null>(null);
+  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
-  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
   const isMounted = useRef(true);
 
+  // Store callbacks in ref so effect doesn't re-run when they change
   const callbacksRef = useRef({ onMessage, onTyping, onError });
-
   useEffect(() => {
     callbacksRef.current = { onMessage, onTyping, onError };
-  });
+  }, [onMessage, onTyping, onError]);
 
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   const connect = useCallback(() => {
-    if (!accessToken || !orderId || !isMounted.current) return;
+    if (!accessToken) return;
 
-    if (ws.current && (ws.current.readyState === WebSocket.OPEN || ws.current.readyState === WebSocket.CONNECTING)) {
-      ws.current.close();
+    let wsUrl = API_URL.replace('http', 'ws') + `/chat/ws?token=${accessToken}`;
+    if (roomId) {
+      wsUrl += `&room_id=${roomId}`;
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1';
-    const wsUrlStr = apiUrl.replace(/^https?:/, protocol) + `/ws`;
-
-    const socket = new WebSocket(wsUrlStr);
+    const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
       setIsConnected(true);
       reconnectAttempts.current = 0;
-      socket.send(JSON.stringify({
-        type: 'auth',
-        token: accessToken,
-        order_id: orderId
-      }));
+      // We pass room_id during connection, but can also send join event
+      if (roomId && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: 'auth',
+          token: accessToken,
+          room_id: roomId
+        }));
+      }
     };
 
     socket.onmessage = (event) => {
@@ -99,11 +90,14 @@ export function useWebSocket({ orderId, onMessage, onTyping, onError }: UseWebSo
     };
 
     ws.current = socket;
-  }, [accessToken, orderId]);
+  }, [accessToken, roomId]);
 
   useEffect(() => {
+    isMounted.current = true;
     connect();
+
     return () => {
+      isMounted.current = false;
       if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
       if (ws.current) {
         ws.current.close();
@@ -116,11 +110,11 @@ export function useWebSocket({ orderId, onMessage, onTyping, onError }: UseWebSo
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({
         type: 'typing',
-        order_id: orderId,
+        room_id: roomId,
         is_typing: isTyping,
       }));
     }
-  }, [orderId]);
+  }, [roomId]);
 
   return { isConnected, sendTypingIndicator };
 }

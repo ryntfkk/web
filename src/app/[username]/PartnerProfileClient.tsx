@@ -94,7 +94,7 @@ export default function PartnerProfileClient({ username }: { username: string })
           {/* Main Column */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Tabs: Layanan / Portofolio */}
-            <div className="bg-white rounded shadow-sm mb-4 sm:mb-6">
+            <div id="services-tabs" className="bg-white rounded shadow-sm mb-4 sm:mb-6">
               <div className="flex border-b border-gray-100">
                 <button
                   onClick={() => setActiveTab('services')}

@@ -19,10 +19,9 @@ export default function ChatListPage() {
   const [chats, setChats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   useEffect(() => {
-    
     fetchChats();
   }, [isAuthenticated]);
 
@@ -33,8 +32,8 @@ export default function ChatListPage() {
       const data: any[] = res.data;
       setChats(data);
       // Auto-select first chat on desktop if none selected
-      if (data.length > 0 && !selectedOrderId) {
-        setSelectedOrderId(data[0].order_id);
+      if (data.length > 0 && !selectedRoomId) {
+        setSelectedRoomId(data[0].room_id);
       }
     }
     setLoading(false);
@@ -47,10 +46,7 @@ export default function ChatListPage() {
     .filter(c => {
       if (!search) return true;
       const nameToSearch = isMitra ? c.customer_name : c.partner_name;
-      return (
-        nameToSearch?.toLowerCase().includes(search.toLowerCase()) ||
-        c.order_number?.toLowerCase().includes(search.toLowerCase())
-      );
+      return nameToSearch?.toLowerCase().includes(search.toLowerCase());
     })
     .sort((a, b) => {
       // Sort by last_message_at descending (most recent first)
@@ -76,13 +72,13 @@ export default function ChatListPage() {
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
   };
 
-  const handleSelectChat = (orderId: string) => {
+  const handleSelectChat = (roomId: string) => {
     // On desktop (lg+), show in the right panel
     // On mobile, navigate to the chat page
     if (window.innerWidth >= 1024) {
-      setSelectedOrderId(orderId);
+      setSelectedRoomId(roomId);
     } else {
-      router.push(`/chat/${orderId}`);
+      router.push(`/chat/${roomId}`);
     }
   };
 
@@ -106,7 +102,7 @@ export default function ChatListPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9e8e8c]" />
               <input
                 type="text"
-                placeholder="Cari"
+                placeholder="Cari nama"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="w-full bg-[#f7f5f4] rounded-lg p-2.5 pl-9 text-sm text-[#1c1b1b] placeholder:text-[#9e8e8c] focus:outline-none focus:ring-1 focus:ring-[#b51822] border-none"
@@ -140,13 +136,13 @@ export default function ChatListPage() {
                 {filteredChats.map(chat => {
                   const displayName = isMitra ? chat.customer_name : chat.partner_name;
                   const displayAvatar = isMitra ? chat.customer_avatar_url : chat.partner_avatar_url;
-                  const isSelected = selectedOrderId === chat.order_id;
+                  const isSelected = selectedRoomId === chat.room_id;
                   const hasUnread = chat.unread_count > 0;
 
                   return (
                     <button
-                      key={chat.order_id}
-                      onClick={() => handleSelectChat(chat.order_id)}
+                      key={chat.room_id}
+                      onClick={() => handleSelectChat(chat.room_id)}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#f7f5f4] relative ${
                         isSelected ? 'bg-[#fdf1f1] lg:bg-[#fdf1f1]' : ''
                       }`}
@@ -203,10 +199,10 @@ export default function ChatListPage() {
 
         {/* ===== RIGHT PANEL: Conversation (Desktop only) ===== */}
         <div className="hidden lg:flex flex-1 flex-col min-w-0">
-          {selectedOrderId ? (
+          {selectedRoomId ? (
             <ChatConversation
-              key={selectedOrderId}
-              orderId={selectedOrderId}
+              key={selectedRoomId}
+              roomId={selectedRoomId}
               embedded
             />
           ) : (

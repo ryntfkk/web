@@ -1,5 +1,6 @@
 import { PartnerService, PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { ServiceCard } from '@/components/ui/service-card';
+import Link from 'next/link';
 
 const PLACEHOLDER_IMG =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3';
@@ -43,17 +44,19 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
           PLACEHOLDER_IMG;
 
         return (
-          <ServiceCard
-            key={service.id}
-            vendorName={service.name}
-            category={profile.name}
-            rating={profile.avg_rating}
-            reviewCount={profile.total_reviews}
-            price={service.price}
-            unit="Jasa"
-            imageUrl={primaryPhoto}
-            vendorAvatar={profile.avatar_url || undefined}
-          />
+          <Link key={service.id} href={`/services?id=${service.id}`} className="block h-full">
+            <ServiceCard
+              vendorName={service.name}
+              category={profile.name}
+              rating={profile.avg_rating}
+              reviewCount={profile.total_reviews}
+              price={service.price}
+              unit="Jasa"
+              imageUrl={primaryPhoto}
+              vendorAvatar={profile.avatar_url || undefined}
+              className="h-full"
+            />
+          </Link>
         );
       })}
     </div>

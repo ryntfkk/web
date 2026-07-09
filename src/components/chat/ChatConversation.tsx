@@ -26,13 +26,13 @@ interface Message {
 }
 
 interface ChatConversationProps {
-  orderId: string;
+  roomId: string;
   /** If true, renders as embedded panel (no back button, no full-screen) */
   embedded?: boolean;
   onBack?: () => void;
 }
 
-export default function ChatConversation({ orderId, embedded = false, onBack }: ChatConversationProps) {
+export default function ChatConversation({ roomId, embedded = false, onBack }: ChatConversationProps) {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
@@ -45,14 +45,14 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { isConnected, sendTypingIndicator } = useWebSocket({
-    orderId,
+    roomId,
     onMessage: (msg: Message) => {
       setMessages((prev) => {
         if (prev.some(m => m.id === msg.id)) return prev;
         return [...prev, msg];
       });
       if (msg.sender_id !== user?.id) {
-        fetchAPI(`/chat/${orderId}/messages/${msg.id}/read`, { method: 'PUT' });
+        fetchAPI(`/chat/${roomId}/messages/${msg.id}/read`, { method: 'PUT' });
       }
     },
     onTyping: () => {},
@@ -61,34 +61,27 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const orderRes = await fetchAPI<any>(`/orders/${orderId}`);
-      if (orderRes.success && orderRes.data) {
-        const orderData = orderRes.data.data || orderRes.data;
-        if (user?.active_role === ROLE_PARTNER) {
-          setPartner({
-            name: orderData.customer?.name || 'Customer',
-            avatar_url: orderData.customer?.avatar_url,
-          });
-        } else {
-          setPartner({
-            name: orderData.partner?.name || 'Mitra',
-            avatar_url: orderData.partner?.avatar_url,
-          });
-        }
-        setIsArchived(orderData.status === 'COMPLETED' || orderData.status === 'CANCELLED');
-      } else if (user?.active_role === ROLE_PARTNER) {
-        const mitraOrderRes = await fetchAPI<any>(`/mitra/orders/${orderId}`);
-        if (mitraOrderRes.success && mitraOrderRes.data) {
-          const orderData = mitraOrderRes.data.data || mitraOrderRes.data;
-          setPartner({
-            name: orderData.customer?.name || 'Customer',
-            avatar_url: orderData.customer?.avatar_url,
-          });
-          setIsArchived(orderData.status === 'COMPLETED' || orderData.status === 'CANCELLED');
+      const roomRes = await fetchAPI<any>(`/chat/rooms`);
+      if (roomRes.success && roomRes.data) {
+        const rooms = roomRes.data;
+        const currentRoom = rooms.find((r: any) => r.room_id === roomId);
+        if (currentRoom) {
+          if (user?.active_role === ROLE_PARTNER) {
+            setPartner({
+              name: currentRoom.customer_name || 'Customer',
+              avatar_url: currentRoom.customer_avatar_url,
+            });
+          } else {
+            setPartner({
+              name: currentRoom.partner_name || 'Mitra',
+              avatar_url: currentRoom.partner_avatar_url,
+            });
+          }
+          setIsArchived(!currentRoom.is_active);
         }
       }
 
-      const msgRes = await fetchAPI<any>(`/chat/${orderId}/messages?per_page=100`);
+      const msgRes = await fetchAPI<any>(`/chat/${roomId}/messages?per_page=100`);
       if (msgRes.success && msgRes.data?.data) {
         setMessages(msgRes.data.data);
       }
@@ -96,7 +89,7 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
       console.error(e);
     }
     setLoading(false);
-  }, [orderId, user?.active_role]);
+  }, [roomId, user?.active_role]);
 
   useEffect(() => {
     if (!isAuthorized) return;
@@ -132,7 +125,7 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
     
     setMessages(prev => [...prev, tempMsg]);
 
-    const res = await fetchAPI<any>(`/chat/${orderId}/messages`, {
+    const res = await fetchAPI<any>(`/chat/${roomId}/messages`, {
       method: 'POST',
       body: JSON.stringify({ content, message_type: 'text' }),
     });
@@ -179,12 +172,6 @@ export default function ChatConversation({ orderId, embedded = false, onBack }: 
                 </div>
                 <div>
                   <h1 className="text-sm font-bold text-[#1c1b1b] leading-tight">{partner.name}</h1>
-                  <Link
-                    href={isMitra ? `/mitra/orders/${orderId}` : `/orders/${orderId}`}
-                    className="text-[11px] text-[#b51822] font-semibold hover:underline mt-0.5 inline-block"
-                  >
-                    Lihat Pesanan
-                  </Link>
                 </div>
               </div>
             ) : (

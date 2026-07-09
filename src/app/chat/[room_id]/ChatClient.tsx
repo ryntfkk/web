@@ -7,7 +7,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
 
-export default function ChatClient({ orderId }: { orderId: string }) {
+export default function ChatClient({ roomId }: { roomId: string }) {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
@@ -23,5 +23,5 @@ export default function ChatClient({ orderId }: { orderId: string }) {
     return null;
   }
 
-  return <ChatConversation orderId={orderId} onBack={() => router.push('/chat')} />;
+  return <ChatConversation roomId={roomId} onBack={() => router.push('/chat')} />;
 }
