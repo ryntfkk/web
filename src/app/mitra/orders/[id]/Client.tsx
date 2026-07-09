@@ -77,6 +77,28 @@ export default function MitraOrderDetailClient() {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
+  const [isChatLoading, setIsChatLoading] = useState(false);
+
+  const handleChat = async () => {
+    if (!order) return;
+    setIsChatLoading(true);
+    try {
+      const res = await fetchAPI<any>('/chat/rooms', {
+        method: 'POST',
+        body: JSON.stringify({ target_user_id: order.customer.id }),
+      });
+      if (res.success && res.data?.room_id) {
+        router.push(`/chat/${res.data.room_id}`);
+      } else {
+        showToast('Gagal memulai obrolan', 'error');
+      }
+    } catch (error) {
+      console.error('Error creating chat room:', error);
+      showToast('Terjadi kesalahan saat memulai obrolan', 'error');
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
 
   const handleAction = async (action: string, body?: object) => {
     setActionLoading(true);
@@ -173,11 +195,16 @@ export default function MitraOrderDetailClient() {
                   </p>
                 )}
               </div>
-              <Link href={`/chat/${order.id}`}>
-                <Button size="sm" variant="outline" className="gap-1 text-xs border-[#e5e2e1] text-[#5b403e] rounded">
-                  <MessageSquare className="w-3.5 h-3.5" /> Chat
-                </Button>
-              </Link>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="gap-1 text-xs border-[#e5e2e1] text-[#5b403e] rounded"
+                onClick={handleChat}
+                disabled={isChatLoading}
+              >
+                {isChatLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MessageSquare className="w-3.5 h-3.5" />}
+                Chat
+              </Button>
             </div>
           </div>
         )}
@@ -289,11 +316,16 @@ export default function MitraOrderDetailClient() {
 
           {/* Chat always visible */}
           {(status === 'PAID' || status === 'IN_PROGRESS' || status === 'WAITING_ADDITIONAL_PAY') && (
-            <Link href={`/chat/${order.id}`} className="shrink-0">
-              <Button variant="outline" size="icon" className="border-[#e5e2e1] rounded">
-                <MessageSquare className="w-4 h-4 text-[#5b403e]" />
-              </Button>
-            </Link>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-1 shrink-0"
+              onClick={handleChat}
+              disabled={isChatLoading}
+            >
+              {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
+              Chat
+            </Button>
           )}
         </div>
       </div>
