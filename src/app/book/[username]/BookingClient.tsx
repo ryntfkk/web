@@ -61,6 +61,8 @@ export default function BookingClient() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [idempotencyKey, setIdempotencyKey] = useState<string>('');
+  const [previewQuote, setPreviewQuote] = useState<any>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   
   // Refs
   const preselectedRef = useRef(false);
@@ -228,20 +230,62 @@ export default function BookingClient() {
     }
   };
 
+  const fetchPreview = async (currentPromo?: string) => {
+    if (!partner?.id || !addressId || !date || !time) return;
+    
+    const items = Object.keys(selectedServices)
+      .filter(id => selectedServices[id])
+      .map(id => ({ service_id: id, quantity: 1 }));
+
+    if (items.length === 0) return;
+
+    setPreviewLoading(true);
+    try {
+      const [hours, minutes] = time.split(':');
+      const scheduledAt = new Date(date);
+      scheduledAt.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+
+      const payload = {
+        partner_id: partner.id,
+        address_id: addressId,
+        scheduled_at: scheduledAt.toISOString(),
+        promo_code: currentPromo || undefined,
+        items
+      };
+
+      const res = await fetchAPI<any>('/orders/preview', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (res.success && res.data) {
+        setPreviewQuote(unwrapData(res.data));
+        setErrorMsg('');
+        if (currentPromo) {
+          setPromoDiscount(unwrapData(res.data).discount_amount || 0);
+        }
+      } else {
+        setPreviewQuote(null);
+        if (currentPromo) setPromoDiscount(0);
+        setErrorMsg(getErrorMessage(res));
+      }
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (step === 2) {
+      fetchPreview(promoDiscount > 0 ? promoCode : undefined);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, addressId, date, time, selectedServices]);
+
   const validatePromo = async () => {
     if (!promoCode) return;
-    setErrorMsg('');
-    const res = await fetchAPI<any>('/promos/validate', {
-      method: 'POST',
-      body: JSON.stringify({ code: promoCode, total_amount: subtotal })
-    });
-    if (res.success && res.data) {
-      const promo = unwrapData<any>(res.data);
-      setPromoDiscount(promo?.summary?.discount_amount ?? promo?.discount_amount ?? 0);
-    } else {
-      setPromoDiscount(0);
-      setErrorMsg(getErrorMessage(res));
-    }
+    await fetchPreview(promoCode);
   };
 
   if (!isAuthenticated) return null;
@@ -404,17 +448,31 @@ export default function BookingClient() {
               <div className="space-y-2 text-sm pt-3 border-t border-[#e5e2e1]">
                 <div className="flex justify-between text-[#5b403e]">
                   <span>Subtotal Jasa</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span>{formatPrice(previewQuote ? previewQuote.total_service_price : subtotal)}</span>
                 </div>
+                {previewQuote && (
+                  <>
+                    <div className="flex justify-between text-[#5b403e]">
+                      <span>Biaya Transportasi</span>
+                      <span>{formatPrice(previewQuote.transport_fee)}</span>
+                    </div>
+                    <div className="flex justify-between text-[#5b403e]">
+                      <span>Biaya Layanan (Platform)</span>
+                      <span>{formatPrice(previewQuote.admin_fee)}</span>
+                    </div>
+                  </>
+                )}
                 {promoDiscount > 0 && (
                   <div className="flex justify-between text-[#38A169]">
                     <span>Diskon Promo</span>
                     <span>- {formatPrice(promoDiscount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-base text-[#1c1b1b] pt-2">
+                <div className="flex justify-between font-bold text-base text-[#1c1b1b] pt-2 border-t border-[#e5e2e1] mt-2">
                   <span>Total Bayar</span>
-                  <span className="text-[#b51822]">{formatPrice(totalPayment)}</span>
+                  <span className="text-[#b51822]">
+                    {previewLoading ? 'Menghitung...' : formatPrice(previewQuote ? previewQuote.agreed_price : totalPayment)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -455,7 +513,9 @@ export default function BookingClient() {
             <>
               <div className="flex-1">
                 <p className="text-xs text-[#9e8e8c]">Total Bayar</p>
-                <p className="text-lg font-bold text-[#b51822]">{formatPrice(totalPayment)}</p>
+                <p className="text-lg font-bold text-[#b51822]">
+                  {previewLoading ? '...' : formatPrice(previewQuote ? previewQuote.agreed_price : totalPayment)}
+                </p>
               </div>
               <Button
                 className="bg-[#b51822] hover:bg-[#90121a] rounded px-8"

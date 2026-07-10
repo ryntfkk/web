@@ -43,7 +43,9 @@ export default function PaymentClient() {
     if (res.success && res.data) {
       const data = normalizeOrder(unwrapData<any>(res.data));
       setOrder(data);
-      if (data.status !== 'WAITING_PAYMENT' && data.status !== 'WAITING_ADDITIONAL_PAY') {
+      if (data.status === 'WAITING_ADDITIONAL_PAY') {
+        router.replace(`/orders/${orderId}/additional-fee`);
+      } else if (data.status !== 'WAITING_PAYMENT') {
         router.replace(`/orders/${orderId}`);
       }
     }
