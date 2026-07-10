@@ -1,11 +1,10 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowLeft,
   Star,
   ShoppingCart,
   Check,
@@ -14,12 +13,10 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  MapPin,
+  Tag,
   Heart,
   Share2,
   X,
-  Minus,
-  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDetail';
@@ -38,6 +35,8 @@ function DetailContent() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   // Halaman ini publik — auth hanya dicek saat user melakukan aksi
   // (tambah keranjang / pesan), bukan saat melihat halaman.
@@ -79,15 +78,41 @@ function DetailContent() {
     router.push(`/book/${service.partner_username}?service_id=${service.id}`);
   };
 
+  const photoCount = service?.photos?.length ?? 0;
+
+  const scrollToPhoto = (idx: number) => {
+    setCurrentPhotoIndex(idx);
+    const el = carouselRef.current;
+    if (el) el.scrollTo({ left: idx * el.clientWidth, behavior: 'smooth' });
+  };
+
   const nextPhoto = () => {
-    if (service && service.photos.length > 1) {
-      setCurrentPhotoIndex((prev) => prev === service.photos.length - 1 ? 0 : prev + 1);
-    }
+    if (photoCount > 1) scrollToPhoto(currentPhotoIndex === photoCount - 1 ? 0 : currentPhotoIndex + 1);
   };
 
   const prevPhoto = () => {
-    if (service && service.photos.length > 1) {
-      setCurrentPhotoIndex((prev) => prev === 0 ? service.photos.length - 1 : prev - 1);
+    if (photoCount > 1) scrollToPhoto(currentPhotoIndex === 0 ? photoCount - 1 : currentPhotoIndex - 1);
+  };
+
+  const handleCarouselScroll = () => {
+    const el = carouselRef.current;
+    if (!el || el.clientWidth === 0) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    if (idx !== currentPhotoIndex) setCurrentPhotoIndex(idx);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: service?.name, url });
+      } catch { /* user cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      } catch { /* clipboard unavailable */ }
     }
   };
 
@@ -154,24 +179,13 @@ function DetailContent() {
 
   // ── Normal ───────────────────────────────────────────────────────
   const mainPhoto = service.photo_url || PLACEHOLDER_IMG;
-  const hasMultiplePhotos = service.photos && service.photos.length > 1;
+  const hasMultiplePhotos = !!service.photos && service.photos.length > 1;
   const allPhotos = hasMultiplePhotos ? service.photos : [{ id: 'main', photo_url: mainPhoto }];
+  const includedItems = service.included_items ?? [];
+  const excludedItems = service.excluded_items ?? [];
 
   return (
     <div className="min-h-screen bg-[#f0f0f0] pb-20 sm:pb-4">
-      {/* Mobile Header */}
-      <div className="sm:hidden sticky top-0 z-30 bg-white border-b border-[#e5e2e1] px-3 py-2.5 flex items-center justify-between">
-        <button onClick={() => router.back()} className="p-1.5 -ml-1.5 hover:bg-[#f0eded] rounded-full">
-          <ArrowLeft className="w-4 h-4 text-[#1c1b1b]" />
-        </button>
-        <h1 className="text-sm font-semibold text-[#1c1b1b]">Detail Layanan</h1>
-        <div className="flex gap-2">
-          <button className="p-1.5 hover:bg-[#f0eded] rounded-full">
-            <Share2 className="w-4 h-4 text-[#1c1b1b]" />
-          </button>
-        </div>
-      </div>
-
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-3">
         {/* Breadcrumb */}
         <div className="hidden sm:flex items-center gap-2 text-xs text-[#5b403e] mb-3 px-4 py-2">
@@ -187,22 +201,34 @@ function DetailContent() {
           <div className="flex flex-col md:flex-row">
             {/* Left: Images */}
             <div className="w-full md:w-[42%] p-3 sm:p-4">
-              {/* Main Image */}
-              <div
-                className="relative w-full aspect-square bg-[#fafafa] rounded-[4px] overflow-hidden cursor-pointer group"
-                onClick={() => hasMultiplePhotos && setShowGallery(true)}
-              >
-                <Image
-                  src={allPhotos[currentPhotoIndex].photo_url}
-                  alt={service.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
+              {/* Main Image — swipeable carousel (all photos) */}
+              <div className="relative w-full aspect-square bg-[#fafafa] rounded-[4px] overflow-hidden group">
+                <div
+                  ref={carouselRef}
+                  onScroll={handleCarouselScroll}
+                  className="flex w-full h-full overflow-x-auto snap-x snap-mandatory"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {allPhotos.map((photo, idx) => (
+                    <div
+                      key={photo.id}
+                      className="relative min-w-full h-full snap-center cursor-pointer"
+                      onClick={() => hasMultiplePhotos && setShowGallery(true)}
+                    >
+                      <Image
+                        src={photo.photo_url}
+                        alt={`${service.name} — foto ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        priority={idx === 0}
+                      />
+                    </div>
+                  ))}
+                </div>
 
                 {/* Badge */}
-                <div className="absolute top-0 left-0 bg-[#b51822] text-white text-xs px-2 py-1 rounded-br-[4px]">
+                <div className="absolute top-0 left-0 bg-[#b51822] text-white text-xs px-2 py-1 rounded-br-[4px] pointer-events-none">
                   Favorit
                 </div>
 
@@ -217,7 +243,13 @@ function DetailContent() {
                       className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
                       <ChevronRight className="w-4 h-4 text-white" />
                     </button>
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-white bg-black/50 px-2 py-0.5 rounded-full">
+                    {/* Dots (mobile) */}
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex sm:hidden gap-1.5">
+                      {allPhotos.map((_, idx) => (
+                        <span key={idx} className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentPhotoIndex ? 'bg-white' : 'bg-white/40'}`} />
+                      ))}
+                    </div>
+                    <div className="absolute bottom-2 right-2 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 text-xs text-white bg-black/50 px-2 py-0.5 rounded-full pointer-events-none">
                       {currentPhotoIndex + 1}/{allPhotos.length}
                     </div>
                   </>
@@ -228,7 +260,7 @@ function DetailContent() {
               {hasMultiplePhotos && (
                 <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
                   {allPhotos.map((photo, idx) => (
-                    <button key={photo.id} onClick={() => setCurrentPhotoIndex(idx)}
+                    <button key={photo.id} onClick={() => scrollToPhoto(idx)}
                       className={`relative flex-shrink-0 w-14 h-14 rounded-[4px] overflow-hidden transition-all ${idx === currentPhotoIndex ? 'ring-2 ring-[#b51822]' : 'opacity-60 hover:opacity-100'}`}>
                       <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" />
                     </button>
@@ -239,9 +271,9 @@ function DetailContent() {
               {/* Share & Favorite */}
               <div className="hidden sm:flex items-center gap-4 mt-4 pt-3 border-t border-[#e5e2e1]">
                 <span className="text-xs text-[#5b403e]">Bagikan:</span>
-                <button className="flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#b51822]">
+                <button onClick={handleShare} className="flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#b51822]">
                   <Share2 className="w-3.5 h-3.5" />
-                  Share
+                  {shareCopied ? 'Tersalin!' : 'Share'}
                 </button>
                 <button className="flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#b51822]">
                   <Heart className="w-3.5 h-3.5" />
@@ -259,22 +291,34 @@ function DetailContent() {
                 </h1>
                 <div className="flex items-center gap-3 text-xs text-[#5b403e]">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
+                    <Tag className="w-3 h-3" />
                     <span>{service.category_name}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Rating & Reviews */}
-              <div className="flex items-center gap-3 py-2.5 px-3 bg-[#fafafa] rounded-[4px] mb-4">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-[#D69E2E] text-[#D69E2E]" />
-                  <span className="font-semibold text-[#1c1b1b]">{service.partner_avg_rating.toFixed(1)}</span>
+              {/* Rating, Reviews, Estimasi & Share */}
+              <div className="flex items-center justify-between gap-2 py-2.5 px-3 bg-[#fafafa] rounded-[4px] mb-4">
+                <div className="flex items-center gap-3 flex-wrap min-w-0">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-[#D69E2E] text-[#D69E2E]" />
+                    <span className="font-semibold text-[#1c1b1b]">{(service.partner_avg_rating ?? 0).toFixed(1)}</span>
+                  </div>
+                  <div className="w-px h-4 bg-[#e5e2e1]" />
+                  <span className="text-sm text-[#5b403e]">{service.partner_total_reviews} Ulasan</span>
+                  <div className="w-px h-4 bg-[#e5e2e1]" />
+                  <span className="flex items-center gap-1 text-sm text-[#5b403e]">
+                    <Clock className="w-3.5 h-3.5" />
+                    Estimasi {service.estimated_duration} menit
+                  </span>
                 </div>
-                <div className="w-px h-4 bg-[#e5e2e1]" />
-                <span className="text-sm text-[#5b403e]">{service.partner_total_reviews} Ulasan</span>
-                <div className="w-px h-4 bg-[#e5e2e1]" />
-                <span className="text-sm text-[#5b403e]">{service.estimated_duration} menit</span>
+                <button
+                  onClick={handleShare}
+                  aria-label="Bagikan layanan"
+                  className="flex-shrink-0 p-1.5 hover:bg-[#f0eded] rounded-full text-[#5b403e] hover:text-[#b51822] transition-colors"
+                >
+                  {shareCopied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
+                </button>
               </div>
 
               {/* Price */}
@@ -288,14 +332,11 @@ function DetailContent() {
               </div>
 
               {/* Quick Info */}
-              <div className="space-y-2 mb-4">
+              <div className="mb-4">
                 <button onClick={() => setShowSchedule(true)}
-                  className="w-full flex items-center justify-between p-3 bg-white border border-[#e5e2e1] rounded-[4px] hover:border-[#b51822] transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-[#5b403e]" />
-                    <span className="text-sm text-[#1c1b1b]">Jadwal {service.partner_name}</span>
-                  </div>
-                  <span className="text-xs text-[#b51822]">Lihat Jadwal →</span>
+                  className="inline-flex items-center gap-2 h-9 px-3 bg-white border border-[#e5e2e1] rounded-[4px] hover:border-[#b51822] transition-colors text-sm text-[#1c1b1b]">
+                  <Calendar className="w-4 h-4 text-[#b51822]" />
+                  Lihat Jadwal
                 </button>
               </div>
 
@@ -337,8 +378,43 @@ function DetailContent() {
             </div>
           </div>
 
-          {/* Bottom Section: Description & Details */}
+          {/* Bottom Section: Specs, Description & Details */}
           <div className="border-t border-[#e5e2e1] p-4">
+            {/* Informasi Layanan (spesifikasi lengkap dari database) */}
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-[#1c1b1b] mb-2">Informasi Layanan</h3>
+              <div className="divide-y divide-[#f0eded] text-sm">
+                <div className="flex py-2">
+                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Kategori</span>
+                  <span className="text-[#1c1b1b]">{service.category_name}</span>
+                </div>
+                <div className="flex py-2">
+                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Estimasi Waktu Kerja</span>
+                  <span className="text-[#1c1b1b]">{service.estimated_duration} menit</span>
+                </div>
+                <div className="flex py-2">
+                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Harga</span>
+                  <span className="text-[#1c1b1b]">Rp {service.price.toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex py-2">
+                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Mitra</span>
+                  <Link href={`/${service.partner_username}`} className="text-[#b51822] hover:underline">
+                    {service.partner_name}
+                  </Link>
+                </div>
+                <div className="flex py-2">
+                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Rating Mitra</span>
+                  <span className="text-[#1c1b1b]">
+                    {(service.partner_avg_rating ?? 0).toFixed(1)} ({service.partner_total_reviews} ulasan)
+                  </span>
+                </div>
+                <div className="flex py-2">
+                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Jumlah Foto</span>
+                  <span className="text-[#1c1b1b]">{allPhotos.length}</span>
+                </div>
+              </div>
+            </div>
+
             {/* Description */}
             {service.description && (
               <div className="mb-4">
@@ -350,27 +426,27 @@ function DetailContent() {
             )}
 
             {/* Included / Excluded */}
-            {(service.included_items.length > 0 || service.excluded_items.length > 0) && (
-              <div className="grid grid-cols-2 gap-3">
-                {service.included_items.length > 0 && (
+            {(includedItems.length > 0 || excludedItems.length > 0) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {includedItems.length > 0 && (
                   <div className="p-3 bg-green-50 rounded-[4px]">
                     <h4 className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1">
                       <Check className="w-3.5 h-3.5" /> Yang Termasuk
                     </h4>
                     <ul className="space-y-1">
-                      {service.included_items.map((item, i) => (
+                      {includedItems.map((item, i) => (
                         <li key={i} className="text-xs text-green-700">{item}</li>
                       ))}
                     </ul>
                   </div>
                 )}
-                {service.excluded_items.length > 0 && (
+                {excludedItems.length > 0 && (
                   <div className="p-3 bg-red-50 rounded-[4px]">
                     <h4 className="text-xs font-semibold text-red-600 mb-2 flex items-center gap-1">
                       <X className="w-3.5 h-3.5" /> Yang Tidak Termasuk
                     </h4>
                     <ul className="space-y-1">
-                      {service.excluded_items.map((item, i) => (
+                      {excludedItems.map((item, i) => (
                         <li key={i} className="text-xs text-red-600">{item}</li>
                       ))}
                     </ul>
@@ -435,7 +511,7 @@ function DetailContent() {
           </button>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
             {allPhotos.map((_, idx) => (
-              <button key={idx} onClick={(e) => { e.stopPropagation(); setCurrentPhotoIndex(idx); }}
+              <button key={idx} onClick={(e) => { e.stopPropagation(); scrollToPhoto(idx); }}
                 className={`w-2 h-2 rounded-full transition-all ${idx === currentPhotoIndex ? 'bg-white' : 'bg-white/40'}`} />
             ))}
           </div>
