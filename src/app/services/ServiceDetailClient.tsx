@@ -286,8 +286,11 @@ function DetailContent() {
                 <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
                   {allPhotos.map((photo, idx) => (
                     <button key={photo.id} onClick={() => scrollToPhoto(idx)}
-                      className={`relative flex-shrink-0 w-14 h-14 rounded-[4px] overflow-hidden transition-all ${idx === currentPhotoIndex ? 'ring-2 ring-[#b51822]' : 'opacity-60 hover:opacity-100'}`}>
+                      className={`relative flex-shrink-0 w-14 h-14 rounded-[4px] overflow-hidden transition-all ${idx === currentPhotoIndex ? '' : 'opacity-60 hover:opacity-100'}`}>
                       <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" />
+                      {idx === currentPhotoIndex && (
+                        <div className="absolute inset-0 rounded-[4px] ring-2 ring-inset ring-[#b51822] pointer-events-none" aria-hidden="true" />
+                      )}
                     </button>
                   ))}
                 </div>

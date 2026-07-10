@@ -64,6 +64,10 @@ export default function BookingClient() {
   const [previewQuote, setPreviewQuote] = useState<any>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   
+  // Slots State
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  
   // Refs
   const preselectedRef = useRef(false);
 
@@ -108,6 +112,36 @@ export default function BookingClient() {
       }
     }
   }, [preselectedIds, services]);
+
+  const totalDuration = useMemo(
+    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? s.duration_minutes : 0), 0),
+    [services, selectedServices],
+  );
+
+  useEffect(() => {
+    if (date && partner?.id) {
+      const fetchSlots = async () => {
+        setSlotsLoading(true);
+        try {
+          const res = await fetchAPI<any>(`/orders/${partner.id}/schedule?date=${date}&duration=${totalDuration || 60}`);
+          const data = res.success ? unwrapData<any>(res.data) : null;
+          if (data && Array.isArray(data.slots)) {
+            setAvailableSlots(data.slots);
+          } else {
+            setAvailableSlots([]);
+          }
+        } catch (err) {
+          console.error('Failed to fetch schedule', err);
+          setAvailableSlots([]);
+        } finally {
+          setSlotsLoading(false);
+        }
+      };
+      fetchSlots();
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [date, partner?.id, totalDuration]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -355,13 +389,21 @@ export default function BookingClient() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Pilih Waktu</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['08:00', '10:00', '13:00', '15:00', '17:00'].map(t => (
-                      <button key={t} onClick={() => setTime(t)} className={`p-2 rounded border text-sm font-medium transition-colors ${time === t ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}>
-                        {t}
-                      </button>
-                    ))}
-                  </div>
+                  {slotsLoading ? (
+                    <div className="text-sm text-[#5b403e]">Memuat jadwal...</div>
+                  ) : !date ? (
+                    <div className="text-sm text-[#5b403e]">Pilih tanggal terlebih dahulu</div>
+                  ) : availableSlots.length === 0 ? (
+                    <div className="text-sm text-red-600">Tidak ada jadwal tersedia pada tanggal ini</div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableSlots.map(t => (
+                        <button key={t} onClick={() => setTime(t)} className={`p-2 rounded border text-sm font-medium transition-colors ${time === t ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}>
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

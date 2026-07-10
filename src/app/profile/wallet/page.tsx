@@ -14,7 +14,7 @@ import { Loader2 } from 'lucide-react';
 interface WalletTransaction {
   id: string;
   type: 'CREDIT' | 'DEBIT';
-  category: 'EARNING' | 'REFUND' | 'WITHDRAWAL' | 'TOPUP' | 'PAYMENT';
+  category: 'EARNING' | 'REFUND' | 'WITHDRAWAL' | 'PAYMENT';
   amount: number;
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
   created_at: string;
@@ -78,14 +78,7 @@ export default function WalletPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="max-w-lg mx-auto px-4 -mt-4 relative z-20 flex gap-3">
-        <Button
-          className="flex-1 bg-white hover:bg-gray-50 text-[#b51822] shadow-sm border border-[#e5e2e1] h-12 rounded-xl"
-          onClick={() => router.push('/profile/wallet/topup')}
-        >
-          <ArrowDownLeft className="w-4 h-4 mr-2" /> Top Up
-        </Button>
         <Button
           className="flex-1 bg-white hover:bg-gray-50 text-[#1c1b1b] shadow-sm border border-[#e5e2e1] h-12 rounded-xl"
           onClick={() => router.push('/profile/wallet/withdraw')}
