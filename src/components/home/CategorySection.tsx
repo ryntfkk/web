@@ -36,14 +36,12 @@ export default function CategorySection() {
               className="group flex-shrink-0 w-[72px] sm:w-[84px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
               <div className="w-14 h-14 sm:w-16 sm:h-16 mb-2 flex items-center justify-center bg-[#fcf9f8] border border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:shadow-md transition-all relative overflow-hidden">
-                <div className="relative w-8 h-8 sm:w-10 sm:h-10">
-                  <Image
-                    src={cat.icon_url || '/icons/default.svg'}
-                    alt={cat.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
+                <Image
+                  src={cat.icon_url || '/icons/default.svg'}
+                  alt={cat.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
               <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight line-clamp-2 px-1">
                 {cat.name}
