@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import ReportDialog from '@/components/ReportDialog';
 
 interface ProfileHeaderProps {
   profile: PartnerProfileData;
@@ -116,6 +117,10 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
             </Button>
           </div>
+        </div>
+
+        <div className="mt-3 flex justify-end">
+          <ReportDialog targetType="partner" targetId={profile.id} />
         </div>
       </div>
     </div>

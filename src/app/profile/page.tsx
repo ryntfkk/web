@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/layout/BottomNav';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Briefcase, Phone, Mail, Star, Clock, TrendingUp, Package, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Briefcase, Phone, Mail, Star, Clock, TrendingUp, Package, Calendar, CheckCircle, XCircle, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -500,14 +500,22 @@ export default function ProfilePage() {
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
                     </button>
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    <Link href="/profile/favorites" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                      <Heart className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                      <div className="flex-1">
+                        <span className="text-[#32201f] font-medium block text-sm">Favorit</span>
+                        <span className="text-xs text-[#8f6f6d]">Mitra & layanan tersimpan</span>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
+                    </Link>
+                    <Link href="/profile/notifications" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
                       <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Notifikasi</span>
                         <span className="text-xs text-[#8f6f6d]">Email, push notification</span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
+                    </Link>
                     <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
                       <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
