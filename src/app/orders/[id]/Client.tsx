@@ -32,6 +32,7 @@ interface OrderDetail {
   photos?: string[];
   partner?: {
     id: string;
+    user_id?: string;
     name: string;
     username: string;
     avatar_url?: string;
@@ -90,7 +91,7 @@ export default function OrderDetailClient() {
     try {
       const res = await fetchAPI<any>('/chat/rooms', {
         method: 'POST',
-        body: JSON.stringify({ target_user_id: order.partner?.id }),
+        body: JSON.stringify({ partner_id: order.partner?.user_id ?? order.partner?.id }),
       });
       if (res.success && res.data?.room_id) {
         router.push(`/chat/${res.data.room_id}`);

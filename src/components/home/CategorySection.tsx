@@ -14,33 +14,38 @@ export default function CategorySection() {
   return (
     <section className="mb-6 sm:mb-10 md:mb-12">
       {isLoading ? (
-        <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
+        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 scrollbar-hide">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-gray-100 rounded-[4px] animate-pulse h-[80px] sm:h-[100px]"
-            />
+              className="flex-shrink-0 w-[72px] sm:w-[84px] md:w-auto flex flex-col items-center gap-2"
+            >
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-200 rounded-2xl animate-pulse" />
+              <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
+            </div>
           ))}
         </div>
       ) : isError ? (
         <div className="text-sm text-red-500">Gagal memuat kategori.</div>
       ) : (
-        <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
+        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayCategories.map((cat: Category) => (
             <Link
               key={cat.id}
               href={`/search?q=${cat.name}`}
-              className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-[#fcf9f8] border border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] hover:shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all"
+              className="group flex-shrink-0 w-[72px] sm:w-[84px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
-              <div className="relative w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2">
-                <Image
-                  src={cat.icon_url || '/icons/default.svg'}
-                  alt={cat.name}
-                  fill
-                  className="object-contain"
-                />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mb-2 flex items-center justify-center bg-[#fcf9f8] border border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:shadow-md transition-all relative overflow-hidden">
+                <div className="relative w-8 h-8 sm:w-10 sm:h-10">
+                  <Image
+                    src={cat.icon_url || '/icons/default.svg'}
+                    alt={cat.name}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </div>
-              <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight">
+              <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight line-clamp-2 px-1">
                 {cat.name}
               </span>
             </Link>
@@ -49,12 +54,12 @@ export default function CategorySection() {
           {/* Tombol Lihat Semua Kategori */}
           <Link
             href="/categories"
-            className="flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 bg-white border border-dashed border-[#e5e2e1] rounded-[4px] cursor-pointer hover:border-[#b51822] transition-all"
+            className="group flex-shrink-0 w-[72px] sm:w-[84px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
           >
-            <div className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2 flex items-center justify-center bg-[#f0eded] rounded-full">
-              <span className="text-[#b51822] font-bold text-[20px]">+</span>
+            <div className="w-14 h-14 sm:w-16 sm:h-16 mb-2 flex items-center justify-center bg-[#f0eded] border border-dashed border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:bg-[#fcf9f8] transition-all">
+              <span className="text-[#b51822] font-bold text-[24px]">+</span>
             </div>
-            <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-[#b51822] text-center leading-tight">
+            <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-[#b51822] text-center leading-tight px-1">
               Lainnya
             </span>
           </Link>

@@ -85,7 +85,7 @@ export default function MitraOrderDetailClient() {
     try {
       const res = await fetchAPI<any>('/chat/rooms', {
         method: 'POST',
-        body: JSON.stringify({ target_user_id: order.customer?.id }),
+        body: JSON.stringify({ partner_id: order.customer?.id }),
       });
       if (res.success && res.data?.room_id) {
         router.push(`/chat/${res.data.room_id}`);
