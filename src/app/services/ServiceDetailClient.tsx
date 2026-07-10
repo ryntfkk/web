@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDetail';
+import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import ScheduleView from '@/components/service/ScheduleView';
@@ -47,6 +48,30 @@ function DetailContent() {
   const { data: workingHours, isLoading: hoursLoading } = usePartnerWorkingHours(service?.partner_id);
 
   const inCart = service ? isInCart(service.id) : false;
+
+  // Favorit
+  const { data: favServices } = useFavoriteServices();
+  const { addService, removeService } = useFavoritesActions();
+  const [favBusy, setFavBusy] = useState(false);
+  const isFav = !!(service && favServices?.some((f) => f.service_id === service.id));
+
+  const handleFavToggle = async () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent(`/services?id=${serviceId}`)}`);
+      return;
+    }
+    if (!service || favBusy) return;
+    setFavBusy(true);
+    try {
+      if (isFav) {
+        await removeService(service.id);
+      } else {
+        await addService(service.id);
+      }
+    } finally {
+      setFavBusy(false);
+    }
+  };
 
   const handleCartToggle = () => {
     if (!isAuthenticated) {
@@ -275,9 +300,15 @@ function DetailContent() {
                   <Share2 className="w-3.5 h-3.5" />
                   {shareCopied ? 'Tersalin!' : 'Share'}
                 </button>
-                <button className="flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#b51822]">
-                  <Heart className="w-3.5 h-3.5" />
-                  Favorit
+                <button
+                  onClick={handleFavToggle}
+                  disabled={favBusy}
+                  className={`flex items-center gap-1 text-xs hover:text-[#b51822] disabled:opacity-50 ${
+                    isFav ? 'text-[#b51822]' : 'text-[#5b403e]'
+                  }`}
+                >
+                  <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
+                  {isFav ? 'Tersimpan' : 'Favorit'}
                 </button>
               </div>
             </div>
