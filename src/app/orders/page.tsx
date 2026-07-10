@@ -241,7 +241,7 @@ export default function OrdersPage() {
                                 <Package className="w-4 h-4 text-[#8f6f6d]" />
                               </div>
                               <div className="min-w-0">
-                                <p className="text-sm font-medium text-[#32201f] truncate">{item.service_name}</p>
+                                <p className="text-sm font-medium text-[#32201f] truncate">{item.service_name || (item as any).name}</p>
                                 <p className="text-xs text-[#8f6f6d]">x{item.quantity}</p>
                               </div>
                             </div>
