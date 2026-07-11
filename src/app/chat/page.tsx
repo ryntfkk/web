@@ -86,7 +86,8 @@ export default function ChatListPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
+    // Mobile: viewport − navbar (4rem) − BottomNav (4rem); Desktop: − navbar saja
+    <div className="h-[calc(100dvh-8rem)] md:h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
       {/* Desktop: split panel | Mobile: full list */}
       <div className="flex flex-1 min-h-0">
 

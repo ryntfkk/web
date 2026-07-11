@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import ChatConversation from '@/components/chat/ChatConversation';
@@ -10,6 +11,13 @@ import { Loader2 } from 'lucide-react';
 export default function ChatClient({ roomId }: { roomId: string }) {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
+
+  // BottomNav disembunyikan di room chat — hapus padding bawah body agar
+  // area percakapan pas satu layar tanpa scroll kosong.
+  useEffect(() => {
+    document.body.classList.add('chat-room');
+    return () => document.body.classList.remove('chat-room');
+  }, []);
 
   if (authLoading) {
     return (

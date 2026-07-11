@@ -7,6 +7,11 @@ import { usePathname } from 'next/navigation';
 export default function BottomNav() {
   const pathname = usePathname();
 
+  // Sembunyikan di dalam room chat (/chat/{id}) agar area percakapan penuh;
+  // tetap tampil di daftar chat (/chat) karena Chat adalah tab utama.
+  const isChatRoom = pathname?.startsWith('/chat/');
+  if (isChatRoom) return null;
+
   if (pathname.startsWith('/chat')) return null;
 
   const navItems = [

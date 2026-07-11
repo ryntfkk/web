@@ -218,6 +218,11 @@
   min-height: calc(100dvh - 4rem);
 }
 
+/* Halaman room chat: BottomNav disembunyikan, jadi padding bawah body tidak diperlukan */
+body.chat-room {
+  padding-bottom: 0 !important;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
