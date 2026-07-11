@@ -49,7 +49,7 @@ export function ServiceCard({
         />
         {/* PRO Badge - positioned 8px from edges */}
         {isPro && (
-          <div className="absolute top-2 left-2 bg-[#b51822] text-white px-2 py-0.5 rounded-[2px]">
+          <div className="absolute top-2 left-2 bg-[#b51822] text-white px-2 py-0.5 rounded-md">
             <span className="text-[12px] sm:text-[14px] font-semibold leading-none">PRO</span>
           </div>
         )}

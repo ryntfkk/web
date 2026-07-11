@@ -188,18 +188,18 @@ export default function ProfilePage() {
                 </div>
                 <div className="p-4 grid grid-cols-3 gap-3 text-center">
                   <div>
-                    <Star className="w-4 h-4 text-yellow-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-[#32201f]">4.8</p>
+                    <Star className="w-4 h-4 text-[#D69E2E] mx-auto mb-1" />
+                    <p className="text-lg font-bold text-[#32201f]">{partnerStatus && 'rating' in partnerStatus ? (partnerStatus as any).rating?.toFixed(1) ?? '—' : '—'}</p>
                     <p className="text-xs text-[#8f6f6d]">Rating</p>
                   </div>
                   <div>
-                    <Clock className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-[#32201f]">127</p>
+                    <Clock className="w-4 h-4 text-[#3182CE] mx-auto mb-1" />
+                    <p className="text-lg font-bold text-[#32201f]">{partnerStatus && 'total_orders' in partnerStatus ? (partnerStatus as any).total_orders ?? 0 : 0}</p>
                     <p className="text-xs text-[#8f6f6d]">Order</p>
                   </div>
                   <div>
-                    <TrendingUp className="w-4 h-4 text-green-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-[#32201f]">98%</p>
+                    <TrendingUp className="w-4 h-4 text-[#38A169] mx-auto mb-1" />
+                    <p className="text-lg font-bold text-[#32201f]">{partnerStatus && 'acceptance_rate' in partnerStatus ? `${(partnerStatus as any).acceptance_rate ?? 0}%` : '—'}</p>
                     <p className="text-xs text-[#8f6f6d]">Acc Rate</p>
                   </div>
                 </div>
@@ -288,38 +288,38 @@ export default function ProfilePage() {
                     <h3 className="font-semibold text-[#32201f]">Informasi Akun</h3>
                   </div>
                   <div className="divide-y divide-[#e5e2e1]">
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
                       <User className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Nama</span>
                         <span className="text-xs text-[#8f6f6d]">{user.name}</span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    </Link>
+                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
                       <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Nomor HP</span>
                         <span className="text-xs text-[#8f6f6d]">{user.phone}</span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    </Link>
+                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
                       <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Email</span>
                         <span className="text-xs text-[#8f6f6d]">{user.email || 'Belum diisi'}</span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    </Link>
+                    <Link href="/profile/addresses" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
                       <MapPin className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Buku Alamat</span>
                         <span className="text-xs text-[#8f6f6d]">Kelola alamat pengiriman</span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
 

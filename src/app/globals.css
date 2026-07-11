@@ -41,14 +41,14 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Enforce 2px boxy radius globally */
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
-  --radius-xl: 2px;
-  --radius-2xl: 2px;
-  --radius-3xl: 2px;
-  --radius-4xl: 2px;
+  /* Enforce slightly rounded corners globally */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  --radius-4xl: 24px;
 
   /* Posko Jasa Brand Colors */
   --color-brand-red: #b51822;
@@ -84,7 +84,7 @@
   --space-12: 48px;
 
   /* Border Radius Tokens */
-  --radius-xs: 2px;
+  --radius-xs: 4px;
   --radius-full: 9999px;
 
   /* Shadow Tokens */
@@ -126,7 +126,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 2px;
+  --radius: 6px;
   --sidebar: #fcf9f8;
   --sidebar-foreground: #1c1b1b;
   --sidebar-primary: #b51822;
@@ -229,4 +229,77 @@ body.chat-room {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ========================================
+   COMPACT FORMS - MOBILE OPTIMIZED
+   ======================================== */
+
+/* Compact inputs on mobile */
+@media (max-width: 767px) {
+  /* Form inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  textarea,
+  select {
+    padding-top: 0.625rem !important;  /* 10px instead of 12px */
+    padding-bottom: 0.625rem !important;
+    font-size: 0.875rem !important;  /* 14px */
+  }
+
+  /* Compact buttons on mobile */
+  button:not(.no-compact),
+  .btn,
+  [type="button"],
+  [type="submit"],
+  [type="reset"] {
+    min-height: 40px !important;  /* Smaller touch target but still accessible */
+  }
+
+  /* Form groups */
+  .form-group,
+  .input-group,
+  .form-item {
+    margin-bottom: 0.875rem !important;  /* 14px instead of 16px */
+  }
+
+  /* Labels */
+  label {
+    font-size: 0.8125rem !important;  /* 13px */
+    margin-bottom: 0.375rem !important;  /* 6px */
+  }
+}
+
+/* Global compact mode for forms */
+.form-compact input,
+.form-compact textarea,
+.form-compact select {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.form-compact button,
+.form-compact .btn {
+  min-height: 40px;
+}
+
+/* Rounded inputs globally */
+input,
+textarea,
+select {
+  border-radius: var(--radius-md) !important;
+}
+
+/* Rounded buttons */
+button,
+.btn,
+[type="button"],
+[type="submit"],
+[type="reset"] {
+  border-radius: var(--radius-md) !important;
 }

@@ -52,7 +52,7 @@ export default function ScheduleView({
           {Array.from({ length: 7 }).map((_, i) => (
             <div
               key={i}
-              className="h-[28px] bg-gray-100 animate-pulse rounded-[2px]"
+              className="h-[28px] bg-gray-100 animate-pulse rounded-md"
             />
           ))}
         </div>

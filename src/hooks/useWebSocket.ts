@@ -33,7 +33,8 @@ export function useWebSocket({ roomId, onMessage, onTyping, onError }: UseWebSoc
   const connect = useCallback(() => {
     if (!accessToken) return;
 
-    let wsUrl = API_URL.replace('http', 'ws') + `/chat/ws?token=${accessToken}`;
+    // Route WS backend terdaftar di /api/v1/ws (bukan /chat/ws) — lihat cmd/api/main.go
+    let wsUrl = API_URL.replace('http', 'ws') + `/ws?token=${accessToken}`;
     if (roomId) {
       wsUrl += `&room_id=${roomId}`;
     }

@@ -120,7 +120,7 @@ export default function OrdersPage() {
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
-            <Link href="/profile" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-[2px]">
+            <Link href="/profile" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-md">
               <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
             </Link>
             <h1 className="text-lg font-bold text-[#1c1b1b]">Riwayat Pesanan</h1>
@@ -132,7 +132,7 @@ export default function OrdersPage() {
         <div className="flex flex-col lg:flex-row gap-6 max-w-full">
 
           <div className="w-full lg:w-64 shrink-0 min-w-0">
-            <div className="bg-white rounded-[2px] border border-[#e5e2e1] overflow-hidden">
+            <div className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
               <div className="hidden lg:block p-4 border-b border-[#e5e2e1]">
                 <h3 className="font-semibold text-[#32201f]">Filter</h3>
               </div>
@@ -158,7 +158,7 @@ export default function OrdersPage() {
                       }`}>
                       {filter.label}
                     </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-[2px] shrink-0 ${activeFilter === filter.key
+                    <span className={`text-xs px-2 py-0.5 rounded-md shrink-0 ${activeFilter === filter.key
                         ? 'bg-[#b51822] text-white'
                         : 'bg-[#e5e2e1] text-[#5b403e]'
                       }`}>
@@ -174,23 +174,23 @@ export default function OrdersPage() {
             {loading ? (
               <>
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-white rounded-[2px] border border-[#e5e2e1] p-4 animate-pulse">
+                  <div key={i} className="bg-white rounded-md border border-[#e5e2e1] p-4 animate-pulse">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <div className="h-4 w-32 bg-[#e5e2e1] rounded-[2px] mb-2"></div>
-                        <div className="h-3 w-24 bg-[#e5e2e1] rounded-[2px]"></div>
+                        <div className="h-4 w-32 bg-[#e5e2e1] rounded-md mb-2"></div>
+                        <div className="h-3 w-24 bg-[#e5e2e1] rounded-md"></div>
                       </div>
-                      <div className="h-6 w-20 bg-[#e5e2e1] rounded-[2px]"></div>
+                      <div className="h-6 w-20 bg-[#e5e2e1] rounded-md"></div>
                     </div>
                     <div className="space-y-2">
-                      <div className="h-3 w-full bg-[#e5e2e1] rounded-[2px]"></div>
-                      <div className="h-3 w-3/4 bg-[#e5e2e1] rounded-[2px]"></div>
+                      <div className="h-3 w-full bg-[#e5e2e1] rounded-md"></div>
+                      <div className="h-3 w-3/4 bg-[#e5e2e1] rounded-md"></div>
                     </div>
                   </div>
                 ))}
               </>
             ) : filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-[2px] border border-[#e5e2e1] p-8 text-center">
+              <div className="bg-white rounded-md border border-[#e5e2e1] p-8 text-center">
                 <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-[#32201f] mb-2">
                   {activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
@@ -201,14 +201,14 @@ export default function OrdersPage() {
                     : 'Tidak ada pesanan dengan status ini.'}
                 </p>
                 {activeFilter === 'all' && (
-                  <Button onClick={() => router.push('/')} className="rounded-[2px]">
+                  <Button onClick={() => router.push('/')} className="rounded-md">
                     Cari Jasa
                   </Button>
                 )}
               </div>
             ) : (
               filteredOrders.map(order => (
-                  <div key={order.id} className="bg-white rounded-[2px] border border-[#e5e2e1] overflow-hidden">
+                  <div key={order.id} className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
                     <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
@@ -227,7 +227,7 @@ export default function OrdersPage() {
                         {order.items?.slice(0, 2).map(item => (
                           <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 shrink-0 bg-[#f7f5f4] rounded-[2px] flex items-center justify-center">
+                              <div className="w-8 h-8 shrink-0 bg-[#f7f5f4] rounded-md flex items-center justify-center">
                                 <Package className="w-4 h-4 text-[#8f6f6d]" />
                               </div>
                               <div className="min-w-0">
@@ -249,8 +249,8 @@ export default function OrdersPage() {
 
                       {/* Partner Info */}
                       {order.partner_name && (
-                        <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded-[2px] mb-4">
-                          <div className="w-10 h-10 shrink-0 bg-[#e5e2e1] rounded-[2px] flex items-center justify-center text-sm font-bold text-[#5b403e]">
+                        <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded-md mb-4">
+                          <div className="w-10 h-10 shrink-0 bg-[#e5e2e1] rounded-md flex items-center justify-center text-sm font-bold text-[#5b403e]">
                             {order.partner_name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -284,21 +284,21 @@ export default function OrdersPage() {
                         <div className="flex items-center gap-2 w-full sm:w-auto">
                           {order.status === 'WAITING_PAYMENT' && (
                             <Link href={`/payment/${order.id}`} className="flex-1 sm:flex-none">
-                              <Button size="sm" className="w-full bg-[#DD6B20] hover:bg-[#C05621] rounded-[2px]">
+                              <Button size="sm" className="w-full bg-[#DD6B20] hover:bg-[#C05621] rounded-md">
                                 Bayar
                               </Button>
                             </Link>
                           )}
                           {order.status === 'COMPLETED' && (
                             <Link href={`/orders/${order.id}/review`} className="flex-1 sm:flex-none">
-                              <Button size="sm" variant="secondary" className="w-full border-[#e5e2e1] text-[#5b403e] rounded-[2px]">
+                              <Button size="sm" variant="secondary" className="w-full border-[#e5e2e1] text-[#5b403e] rounded-md">
                                 <MessageSquare className="w-4 h-4 mr-1" />
                                 Ulasan
                               </Button>
                             </Link>
                           )}
                           <Link href={`/orders/${order.id}`} className="flex-1 sm:flex-none">
-                            <Button size="sm" className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-[2px]">
+                            <Button size="sm" className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-md">
                               Detail
                               <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
                             </Button>

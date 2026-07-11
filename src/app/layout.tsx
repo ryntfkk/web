@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import TopNavbar from "@/components/layout/TopNavbar";
+import HeaderWrapper from "@/components/layout/HeaderWrapper";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/query-provider";
@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground pb-16 md:pb-0">
         <QueryProvider>
           <AuthProvider>
-            <TopNavbar />
+            <HeaderWrapper />
             <main className="flex-1">
               {children}
             </main>

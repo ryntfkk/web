@@ -17,7 +17,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "flex flex-col overflow-hidden bg-white border border-[#e5e2e1] rounded-[2px]",
+        "flex flex-col overflow-hidden bg-white border border-[#e5e2e1] rounded-md",
         withShadow && "shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
         className
       )}

@@ -12,7 +12,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = `
       inline-flex items-center justify-center
       font-bold text-[14px] leading-none
-      rounded-[2px] border border-transparent
+      rounded-md border border-transparent
       transition-all duration-200
       focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b51822] focus-visible:ring-offset-2
       disabled:opacity-40 disabled:cursor-not-allowed

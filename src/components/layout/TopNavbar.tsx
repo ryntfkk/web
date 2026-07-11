@@ -104,7 +104,7 @@ export default function TopNavbar() {
                   </div>
                   <input
                     type="text"
-                    className="block w-full rounded-[2px] border border-[#e5e2e1] bg-white py-2.5 pl-4 pr-10 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
+                    className="block w-full rounded-md border border-[#e5e2e1] bg-white py-2.5 pl-4 pr-10 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
                     placeholder="Cari jasa AC, ledeng, kebersihan..."
                     onKeyDown={handleSearch}
                   />
@@ -141,7 +141,11 @@ export default function TopNavbar() {
                       </button>
 
                       {/* Bell Icon */}
-                      <button className="text-[#5b403e] hover:text-[#b51822] transition-colors relative">
+                      <button
+                        className="text-[#5b403e] hover:text-[#b51822] transition-colors relative"
+                        onClick={() => router.push('/notifications')}
+                        aria-label="Notifikasi"
+                      >
                         <Bell className="h-5 w-5" />
                         <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
                       </button>
@@ -209,6 +213,7 @@ export default function TopNavbar() {
                       <button
                         className="relative flex h-10 w-10 items-center justify-center text-[#5b403e] hover:text-[#b51822] transition-colors"
                         aria-label="Notifikasi"
+                        onClick={() => router.push('/notifications')}
                       >
                         <Bell className="h-[22px] w-[22px]" />
                         <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#b51822] rounded-full" />
@@ -221,13 +226,13 @@ export default function TopNavbar() {
                     <div className="hidden lg:flex items-center gap-2">
                       <Link
                         href="/login"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
                       >
                         Masuk
                       </Link>
                       <Link
                         href="/register"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
                       >
                         Daftar
                       </Link>
@@ -237,13 +242,13 @@ export default function TopNavbar() {
                     <div className="lg:hidden flex items-center gap-2">
                       <Link
                         href="/login"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[36px] px-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[36px] px-3"
                       >
                         Masuk
                       </Link>
                       <Link
                         href="/register"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-[2px] transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[36px] px-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[36px] px-3"
                       >
                         Daftar
                       </Link>

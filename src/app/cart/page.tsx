@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
 import { useCartStore, CartItem } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
+import BottomNav from '@/components/layout/BottomNav';
 
 function formatPrice(p: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
@@ -94,7 +95,7 @@ export default function CartPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         {items.length === 0 ? (
-          <div className="bg-white rounded-xl border border-[#e5e2e1] p-10 text-center">
+          <div className="bg-white rounded-md border border-[#e5e2e1] p-10 text-center">
             <ShoppingCart className="w-16 h-16 text-[#9e8e8c]/50 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-[#1c1b1b] mb-2">Keranjang Kosong</h2>
             <p className="text-sm text-[#5b403e] mb-6">
@@ -107,7 +108,7 @@ export default function CartPage() {
         ) : (
           <>
             {groups.map((group) => (
-              <div key={group.partner_username} className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
+              <div key={group.partner_username} className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
                 {/* Partner header */}
                 <Link
                   href={`/${group.partner_username}`}
@@ -145,7 +146,7 @@ export default function CartPage() {
                     <p className="text-base font-bold text-[#b51822]">{formatPrice(group.subtotal)}</p>
                   </div>
                   <Button
-                    className="bg-[#b51822] hover:bg-[#90121a] rounded px-6"
+                    className="bg-[#b51822] hover:bg-[#90121a] rounded-md px-6"
                     onClick={() => handleCheckout(group)}
                   >
                     Pesan
@@ -162,6 +163,7 @@ export default function CartPage() {
           </>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

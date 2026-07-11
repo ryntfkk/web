@@ -38,12 +38,20 @@ function LoginContent() {
   return (
     // Mobile: rata atas dengan padding ringkas agar form langsung terlihat tanpa scroll.
     // Desktop (sm+): tetap terpusat vertikal; 4rem = tinggi TopNavbar (h-16).
-    <div className="min-h-[calc(100dvh-4rem)] bg-neutral-50 flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
+    <div className="min-h-[calc(100dvh-4rem)] bg-[#f7f5f4] flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
       <div className="mx-auto w-full max-w-md">
-        <h2 className="text-center text-xl sm:text-3xl font-extrabold text-neutral-900">
+        {/* Brand Logo */}
+        <div className="flex justify-center mb-4">
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="POSKO JASA" className="w-8 h-8 object-contain" />
+            <span className="text-[22px] font-bold text-[#1c1b1b] tracking-[-0.5px]">POSKO</span>
+          </div>
+        </div>
+        <h2 className="text-center text-xl sm:text-3xl font-extrabold text-[#1c1b1b]">
           Masuk ke akun Anda
         </h2>
-        <p className="mt-1 sm:mt-2 text-center text-sm text-neutral-600">
+        <p className="mt-1 sm:mt-2 text-center text-sm text-[#5b403e]">
           Atau{' '}
           <Link href="/register" className="font-medium text-[#b51822] hover:text-[#90121a]">
             daftar baru sekarang
@@ -56,13 +64,13 @@ function LoginContent() {
           <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
             
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-[2px] text-sm border border-red-100">
+              <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-100">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="identifier" className="block text-sm font-medium text-neutral-700">
+              <label htmlFor="identifier" className="block text-sm font-medium text-[#1c1b1b]">
                 Email / Nomor HP / Username
               </label>
               <div className="mt-1">
@@ -74,14 +82,14 @@ function LoginContent() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
                   placeholder="08123456789 atau email Anda"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-neutral-700">
+              <label htmlFor="password" className="block text-sm font-medium text-[#1c1b1b]">
                 Password
               </label>
               <div className="mt-1 relative">
@@ -93,11 +101,11 @@ function LoginContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] pr-10"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] pr-10"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#8f6f6d] hover:text-[#5b403e]"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -117,9 +125,9 @@ function LoginContent() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[#b51822] focus:ring-[#b51822] border-neutral-300 rounded-[2px]"
+                  className="h-4 w-4 text-[#b51822] focus:ring-[#b51822] border-neutral-300 rounded-md"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-900">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-[#1c1b1b]">
                   Ingat saya
                 </label>
               </div>
@@ -135,7 +143,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center items-center py-3 sm:py-2.5 px-4 border border-transparent rounded-[2px] shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
+                className="w-full flex justify-center items-center py-3 sm:py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
               >
                 {loading ? (
                   <Loader2 className="animate-spin h-5 w-5" />

@@ -10,6 +10,7 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
+import MitraBottomNav from '@/components/layout/MitraBottomNav';
 
 
 interface Order {
@@ -119,7 +120,7 @@ export default function MitraOrdersPage() {
           </div>
         ) : (
           filteredOrders.map(order => (
-            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-[#e5e2e1] rounded-xl p-4 hover:border-[#b51822] transition-colors">
+            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-[#e5e2e1] rounded-md p-4 hover:border-[#b51822] transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <p className="text-xs text-[#9e8e8c] font-medium mb-0.5">#{order.order_number}</p>
@@ -139,6 +140,7 @@ export default function MitraOrdersPage() {
           ))
         )}
       </div>
+      <MitraBottomNav />
     </div>
   );
 }

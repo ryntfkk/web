@@ -12,6 +12,7 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
+import MitraBottomNav from '@/components/layout/MitraBottomNav';
 
 
 export default function MitraProfilePage() {
@@ -69,7 +70,7 @@ export default function MitraProfilePage() {
 
       <div className="max-w-lg mx-auto px-4 space-y-4">
         {/* Menu Group 1: Akun & Keamanan */}
-        <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
+        <div className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
           <Link href="/mitra/verification-status" className="flex items-center justify-between p-4 border-b border-[#e5e2e1] hover:bg-[#f7f5f4] transition-colors">
             <div className="flex items-center gap-3">
               <ShieldCheck className="w-5 h-5 text-[#9e8e8c]" />
@@ -94,7 +95,7 @@ export default function MitraProfilePage() {
         </div>
 
         {/* Menu Group 2: Lainnya */}
-        <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
+        <div className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
           <Link href="/terms" className="flex items-center justify-between p-4 border-b border-[#e5e2e1] hover:bg-[#f7f5f4] transition-colors">
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-[#9e8e8c]" />
@@ -111,23 +112,7 @@ export default function MitraProfilePage() {
         </div>
       </div>
 
-      {/* Bottom Navigation for Mitra */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] pb-safe z-50">
-        <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-          <Link href="/mitra/dashboard" className="flex flex-col items-center justify-center w-full h-full text-[#9e8e8c] hover:text-[#5b403e]">
-            <LayoutDashboard className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-semibold">Beranda</span>
-          </Link>
-          <Link href="/mitra/orders" className="flex flex-col items-center justify-center w-full h-full text-[#9e8e8c] hover:text-[#5b403e]">
-            <Package className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-semibold">Pesanan</span>
-          </Link>
-          <Link href="/mitra/profile" className="flex flex-col items-center justify-center w-full h-full text-[#b51822]">
-            <Settings className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-bold">Profil</span>
-          </Link>
-        </div>
-      </div>
+      <MitraBottomNav />
     </div>
   );
 }

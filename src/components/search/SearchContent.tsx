@@ -59,12 +59,12 @@ export default function SearchContent({ query }: SearchContentProps) {
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-[250px] bg-gray-100 animate-pulse rounded-lg" />
+                <div key={i} className="h-[250px] bg-[#e5e2e1] animate-pulse rounded-md" />
               ))}
             </div>
           ) : isError ? (
             <div className="flex flex-col items-center gap-3 py-10 text-center mt-4 md:mt-6">
-              <p className="text-sm text-red-500">Gagal memuat hasil pencarian.</p>
+              <p className="text-sm text-[#b51822]">Gagal memuat hasil pencarian.</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -76,7 +76,7 @@ export default function SearchContent({ query }: SearchContentProps) {
               </Button>
             </div>
           ) : partners?.length === 0 ? (
-            <div className="mt-6 text-center text-gray-500 py-10">Belum ada mitra di area ini.</div>
+            <div className="mt-6 text-center text-[#5b403e] py-10">Belum ada mitra di area ini.</div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
               {partners?.map((partner: Partner) => (

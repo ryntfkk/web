@@ -8,6 +8,7 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
+import BottomNav from '@/components/layout/BottomNav';
 
 
 interface Notification {
@@ -34,12 +35,18 @@ export default function NotificationsPage() {
 
   const fetchNotifications = async () => {
     setLoading(true);
-    // Assuming backend endpoint exists
     const res = await fetchAPI<any>('/notifications');
     if (res.success && res.data) {
-      setNotifications(res.data);
+      // Backend may return array directly OR envelope { data: [...] }
+      const list = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.data)
+          ? res.data.data
+          : [];
+      setNotifications(list);
     }
     setLoading(false);
+
   };
 
   const handleMarkAllRead = async () => {
@@ -67,12 +74,12 @@ export default function NotificationsPage() {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'order': return <FileText className="w-5 h-5 text-blue-500" />;
-      case 'payment': return <CreditCard className="w-5 h-5 text-orange-500" />;
-      case 'system': return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'dispute': return <AlertTriangle className="w-5 h-5 text-red-500" />;
-      case 'withdrawal': return <DollarSign className="w-5 h-5 text-purple-500" />;
-      default: return <Bell className="w-5 h-5 text-gray-500" />;
+      case 'order': return <FileText className="w-5 h-5 text-[#3182CE]" />;
+      case 'payment': return <CreditCard className="w-5 h-5 text-[#DD6B20]" />;
+      case 'system': return <CheckCircle className="w-5 h-5 text-[#38A169]" />;
+      case 'dispute': return <AlertTriangle className="w-5 h-5 text-[#b51822]" />;
+      case 'withdrawal': return <DollarSign className="w-5 h-5 text-[#5b403e]" />;
+      default: return <Bell className="w-5 h-5 text-[#8f6f6d]" />;
     }
   };
 
@@ -158,6 +165,7 @@ export default function NotificationsPage() {
           ))
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

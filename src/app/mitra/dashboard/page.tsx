@@ -14,6 +14,7 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
+import MitraBottomNav from '@/components/layout/MitraBottomNav';
 
 
 interface DashboardData {
@@ -141,17 +142,17 @@ export default function MitraDashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 flex flex-col justify-center">
+            <div className="bg-white rounded-md border border-[#e5e2e1] p-4 flex flex-col justify-center">
               <p className="text-xs text-[#5b403e] flex items-center gap-1 mb-1"><Package className="w-3.5 h-3.5" /> Pesanan Hari Ini</p>
               <p className="text-xl font-bold text-[#1c1b1b]">{data?.stats.today_orders || 0}</p>
             </div>
-            <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 flex flex-col justify-center">
+            <div className="bg-white rounded-md border border-[#e5e2e1] p-4 flex flex-col justify-center">
               <p className="text-xs text-[#5b403e] flex items-center gap-1 mb-1"><TrendingUp className="w-3.5 h-3.5" /> Pendapatan Hari Ini</p>
               <p className="text-lg font-bold text-[#38A169]">{formatPrice(data?.stats.today_income || 0)}</p>
             </div>
-            <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 col-span-2 flex items-center justify-between">
+            <div className="bg-white rounded-md border border-[#e5e2e1] p-4 col-span-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#FFFAF0] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-md bg-[#FFFAF0] flex items-center justify-center">
                   <Star className="w-4 h-4 text-[#D69E2E] fill-[#D69E2E]" />
                 </div>
                 <div>
@@ -166,22 +167,22 @@ export default function MitraDashboardPage() {
 
         {/* Quick Menu */}
         <div className="grid grid-cols-3 gap-3">
-          <Link href="/mitra/services" className="bg-white rounded-xl border border-[#e5e2e1] p-3 flex flex-col items-center justify-center gap-2 hover:bg-[#f7f5f4] transition-colors">
+          <Link href="/mitra/services" className="bg-white rounded-md border border-[#e5e2e1] p-3 flex flex-col items-center justify-center gap-2 hover:bg-[#f7f5f4] transition-colors">
             <Wrench className="w-6 h-6 text-[#b51822]" />
             <span className="text-[10px] font-bold text-[#5b403e] text-center">Kelola Layanan</span>
           </Link>
-          <Link href="/mitra/schedule" className="bg-white rounded-xl border border-[#e5e2e1] p-3 flex flex-col items-center justify-center gap-2 hover:bg-[#f7f5f4] transition-colors">
+          <Link href="/mitra/schedule" className="bg-white rounded-md border border-[#e5e2e1] p-3 flex flex-col items-center justify-center gap-2 hover:bg-[#f7f5f4] transition-colors">
             <Calendar className="w-6 h-6 text-[#b51822]" />
             <span className="text-[10px] font-bold text-[#5b403e] text-center">Atur Jadwal</span>
           </Link>
-          <Link href="/mitra/wallet" className="bg-white rounded-xl border border-[#e5e2e1] p-3 flex flex-col items-center justify-center gap-2 hover:bg-[#f7f5f4] transition-colors">
+          <Link href="/mitra/wallet" className="bg-white rounded-md border border-[#e5e2e1] p-3 flex flex-col items-center justify-center gap-2 hover:bg-[#f7f5f4] transition-colors">
             <Wallet className="w-6 h-6 text-[#b51822]" />
             <span className="text-[10px] font-bold text-[#5b403e] text-center">Dompet</span>
           </Link>
         </div>
 
         {/* Active Orders */}
-        <div className="bg-white rounded-xl border border-[#e5e2e1] p-4">
+        <div className="bg-white rounded-md border border-[#e5e2e1] p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-[#1c1b1b]">Pesanan Aktif</h3>
             <Link href="/mitra/orders" className="text-xs font-semibold text-[#b51822] hover:underline">Lihat Semua</Link>
@@ -189,14 +190,14 @@ export default function MitraDashboardPage() {
           
           <div className="space-y-3">
             {loading ? (
-              <div className="h-20 bg-[#e5e2e1] rounded-xl animate-pulse" />
+              <div className="h-20 bg-[#e5e2e1] rounded-md animate-pulse" />
             ) : data?.active_orders?.length === 0 ? (
               <div className="text-center py-6">
                 <p className="text-sm text-[#5b403e]">Belum ada pesanan aktif saat ini.</p>
               </div>
             ) : (
               data?.active_orders?.map(order => (
-                <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block border border-[#e5e2e1] rounded-lg p-3 hover:border-[#b51822] transition-colors">
+                <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block border border-[#e5e2e1] rounded-md p-3 hover:border-[#b51822] transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <p className="text-xs font-bold text-[#1c1b1b]">{order.customer_name}</p>
                     <StatusBadge status={order.status} size="sm" />
@@ -214,23 +215,7 @@ export default function MitraDashboardPage() {
         </div>
       </div>
 
-      {/* Bottom Navigation for Mitra */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] pb-safe z-50">
-        <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-          <Link href="/mitra/dashboard" className="flex flex-col items-center justify-center w-full h-full text-[#b51822]">
-            <LayoutDashboard className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-bold">Beranda</span>
-          </Link>
-          <Link href="/mitra/orders" className="flex flex-col items-center justify-center w-full h-full text-[#9e8e8c] hover:text-[#5b403e]">
-            <Package className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-semibold">Pesanan</span>
-          </Link>
-          <Link href="/mitra/profile" className="flex flex-col items-center justify-center w-full h-full text-[#9e8e8c] hover:text-[#5b403e]">
-            <Settings className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-semibold">Profil</span>
-          </Link>
-        </div>
-      </div>
+      <MitraBottomNav />
     </div>
   );
 }
