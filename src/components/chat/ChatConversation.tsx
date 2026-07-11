@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send, Camera, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Send, Camera, Image as ImageIcon, Loader2 as UploadSpinner } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
@@ -42,7 +42,10 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
   const [loading, setLoading] = useState(true);
   const [isArchived, setIsArchived] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const { isConnected, sendTypingIndicator } = useWebSocket({
     roomId,
@@ -144,6 +147,79 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
     sendTypingIndicator(e.target.value.length > 0);
   };
 
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  // Kirim foto: upload via presigned URL lalu kirim pesan message_type=image.
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // reset agar file yang sama bisa dipilih ulang
+    if (!file || isArchived || uploading) return;
+
+    if (!file.type.startsWith('image/')) {
+      setSendError('File harus berupa gambar.');
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setSendError('Ukuran foto maksimal 5MB.');
+      return;
+    }
+
+    setSendError(null);
+    setUploading(true);
+
+    // Pesan sementara dengan preview lokal (optimistic)
+    const tempId = `temp-img-${Date.now()}`;
+    const previewUrl = URL.createObjectURL(file);
+    setMessages((prev) => [...prev, {
+      id: tempId,
+      sender_id: user?.id || '',
+      sender_name: user?.name || '',
+      sender_role: user?.active_role || '',
+      content: previewUrl,
+      message_type: 'image',
+      is_read: false,
+      created_at: new Date().toISOString(),
+      status: 'pending',
+    }]);
+
+    try {
+      // 1. Minta presigned URL
+      const presignedRes = await fetchAPI<any>('/uploads/presigned-url', {
+        method: 'POST',
+        body: JSON.stringify({ filename: file.name, content_type: file.type }),
+      });
+      const presigned = presignedRes.success
+        ? ((presignedRes.data as any)?.data ?? presignedRes.data)
+        : null;
+      if (!presigned?.upload_url || !presigned?.file_url) {
+        throw new Error('Gagal mendapatkan URL upload');
+      }
+
+      // 2. Upload file ke storage
+      const uploadRes = await fetch(presigned.upload_url, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      if (!uploadRes.ok) throw new Error('Gagal mengunggah foto');
+
+      // 3. Kirim pesan bertipe image
+      const res = await fetchAPI<any>(`/chat/${roomId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ content: presigned.file_url, message_type: 'image' }),
+      });
+      if (!res.success || !res.data) throw new Error(res.message || 'Gagal mengirim foto');
+
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? res.data : m)));
+    } catch (err: any) {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setSendError(err?.message || 'Gagal mengirim foto.');
+    } finally {
+      URL.revokeObjectURL(previewUrl);
+      setUploading(false);
+    }
+  };
+
   const formatTime = (time: string) => {
     return new Date(time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   };
@@ -229,7 +305,14 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                     }`}
                   >
                     {msg.message_type === 'image' && (
-                      <img src={msg.content} alt="Attachment" className="max-w-full rounded mb-2 border border-black/10" />
+                      <a href={msg.content} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={msg.content}
+                          alt="Foto"
+                          loading="lazy"
+                          className="max-w-full max-h-64 object-contain rounded border border-black/10"
+                        />
+                      </a>
                     )}
                     {msg.message_type === 'text' && <p className="text-[14px] leading-relaxed">{msg.content}</p>}
                   </div>
@@ -266,12 +349,40 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
               </div>
             )}
             <div className="flex items-end gap-2">
-              <button type="button" className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0">
-                <ImageIcon className="w-5 h-5" />
+              {/* Input file tersembunyi: galeri & kamera (capture di mobile) */}
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+              <button
+                type="button"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={uploading}
+                title="Kirim foto dari galeri"
+                className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0 disabled:opacity-50"
+              >
+                {uploading ? <UploadSpinner className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
               </button>
-            <button type="button" className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0">
-              <Camera className="w-5 h-5" />
-            </button>
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={uploading}
+                title="Ambil foto dengan kamera"
+                className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0 disabled:opacity-50 sm:hidden"
+              >
+                <Camera className="w-5 h-5" />
+              </button>
             <div className="flex-1 bg-[#f7f5f4] border border-[#e5e2e1] rounded-2xl flex items-center pr-1 overflow-hidden transition-colors focus-within:border-[#b51822]">
               <textarea
                 value={input}

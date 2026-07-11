@@ -1,22 +1,21 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { MessageCircle, X, Maximize2, ArrowLeft } from 'lucide-react';
-import { Button } from './button';
+import { MessageCircle, Maximize2, ArrowLeft, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useChatUiStore } from '@/lib/store/chatUiStore';
 import ChatRoomList from '@/components/chat/ChatRoomList';
 import ChatConversation from '@/components/chat/ChatConversation';
 
 /**
- * Floating chat untuk desktop: FAB yang membuka panel chat melayang
- * (daftar percakapan -> percakapan) tanpa meninggalkan halaman.
+ * Floating chat desktop ala marketplace: tombol pill "Chat" di kanan bawah.
+ * Saat dibuka, tombol hilang dan panel muncul menempel di dasar layar.
  */
 export default function FloatingChat() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isInitializing = useAuthStore((s) => s.isInitializing);
-  const { isPanelOpen, activeRoomId, togglePanel, closePanel, selectRoom, backToList } = useChatUiStore();
+  const { isPanelOpen, activeRoomId, openPanel, closePanel, selectRoom, backToList } = useChatUiStore();
 
   // Hide (don't redirect!) when not authenticated or still loading
   if (isInitializing || !isAuthenticated) return null;
@@ -28,42 +27,44 @@ export default function FloatingChat() {
 
   return (
     <div className="hidden lg:block">
-      {/* Panel */}
-      {isPanelOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[380px] h-[540px] max-h-[calc(100dvh-8rem)] bg-white border border-[#e5e2e1] rounded-xl shadow-2xl flex flex-col overflow-hidden">
-          {/* Panel header */}
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-[#e5e2e1] bg-[#fcf9f8] shrink-0">
+      {isPanelOpen ? (
+        /* ── Panel: menempel di dasar layar, ala Shopee/Tokopedia ── */
+        <div className="fixed bottom-0 right-6 z-50 w-[400px] h-[520px] max-h-[calc(100dvh-6rem)] bg-white border border-b-0 border-[#e5e2e1] rounded-t-xl shadow-2xl flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-[#e5e2e1] bg-[#b51822] shrink-0">
             <div className="flex items-center gap-2 min-w-0">
-              {activeRoomId && (
+              {activeRoomId ? (
                 <button
                   onClick={backToList}
-                  className="p-1.5 -ml-1 hover:bg-[#f0eded] rounded-lg transition-colors"
+                  className="p-1 -ml-0.5 hover:bg-white/15 rounded-lg transition-colors"
                   title="Kembali ke daftar"
                 >
-                  <ArrowLeft className="w-4 h-4 text-[#5b403e]" />
+                  <ArrowLeft className="w-4 h-4 text-white" />
                 </button>
+              ) : (
+                <MessageCircle className="w-4 h-4 text-white" />
               )}
-              <h2 className="text-sm font-bold text-[#1c1b1b] truncate">Chat</h2>
+              <h2 className="text-sm font-bold text-white truncate">Chat</h2>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <button
                 onClick={openFullPage}
-                className="p-1.5 hover:bg-[#f0eded] rounded-lg transition-colors"
+                className="p-1.5 hover:bg-white/15 rounded-lg transition-colors"
                 title="Buka halaman penuh"
               >
-                <Maximize2 className="w-4 h-4 text-[#5b403e]" />
+                <Maximize2 className="w-4 h-4 text-white" />
               </button>
               <button
                 onClick={closePanel}
-                className="p-1.5 hover:bg-[#f0eded] rounded-lg transition-colors"
-                title="Tutup"
+                className="p-1.5 hover:bg-white/15 rounded-lg transition-colors"
+                title="Kecilkan"
               >
-                <X className="w-4 h-4 text-[#5b403e]" />
+                <ChevronDown className="w-4 h-4 text-white" />
               </button>
             </div>
           </div>
 
-          {/* Panel body */}
+          {/* Body */}
           <div className="flex-1 min-h-0 flex flex-col">
             {activeRoomId ? (
               <ChatConversation key={activeRoomId} roomId={activeRoomId} embedded />
@@ -72,22 +73,17 @@ export default function FloatingChat() {
             )}
           </div>
         </div>
-      )}
-
-      {/* FAB */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={togglePanel}
-          className="rounded-lg w-14 h-14 bg-[#b51822] hover:bg-[#90121a] shadow-lg flex items-center justify-center p-0 transition-all hover:scale-105"
-          title={isPanelOpen ? 'Tutup Pesan' : 'Buka Pesan'}
+      ) : (
+        /* ── Launcher pill: hanya tampil saat panel tertutup ── */
+        <button
+          onClick={() => openPanel()}
+          title="Buka Pesan"
+          className="fixed bottom-0 right-6 z-50 flex items-center gap-2 bg-[#b51822] hover:bg-[#90121a] text-white font-bold text-sm pl-4 pr-5 py-2.5 rounded-t-xl shadow-lg transition-colors"
         >
-          {isPanelOpen ? (
-            <X className="w-6 h-6 text-white" />
-          ) : (
-            <MessageCircle className="w-6 h-6 text-white" />
-          )}
-        </Button>
-      </div>
+          <MessageCircle className="w-5 h-5" />
+          Chat
+        </button>
+      )}
     </div>
   );
 }

@@ -14,8 +14,8 @@ export default function ChatListPage() {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   const handleSelectChat = (roomId: string) => {
-    // Desktop (lg+): tampilkan di panel kanan; Mobile: navigasi ke halaman room
-    if (window.innerWidth >= 1024) {
+    // Desktop/tablet (md+): tampilkan di panel kanan; Mobile: navigasi ke halaman room
+    if (window.innerWidth >= 768) {
       setSelectedRoomId(roomId);
     } else {
       router.push(`/chat/${roomId}`);
@@ -32,7 +32,7 @@ export default function ChatListPage() {
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List ===== */}
-        <div className="w-full lg:w-[360px] xl:w-[400px] lg:min-w-[320px] flex flex-col border-r border-[#e5e2e1] bg-white shrink-0 min-h-0">
+        <div className="w-full md:w-[320px] lg:w-[360px] xl:w-[400px] md:min-w-[300px] flex flex-col border-r border-[#e5e2e1] bg-white shrink-0 min-h-0">
           <div className="px-4 pt-4 shrink-0">
             <h1 className="text-lg font-bold text-[#1c1b1b] mb-1">Chat</h1>
           </div>
@@ -41,8 +41,8 @@ export default function ChatListPage() {
               onSelect={handleSelectChat}
               selectedRoomId={selectedRoomId}
               onFirstRoom={(roomId) => {
-                // Auto-select percakapan pertama hanya di desktop
-                if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+                // Auto-select percakapan pertama hanya di layar md+
+                if (typeof window !== 'undefined' && window.innerWidth >= 768) {
                   setSelectedRoomId((prev) => prev ?? roomId);
                 }
               }}
@@ -50,8 +50,8 @@ export default function ChatListPage() {
           </div>
         </div>
 
-        {/* ===== RIGHT PANEL: Conversation (Desktop only) ===== */}
-        <div className="hidden lg:flex flex-1 flex-col min-w-0">
+        {/* ===== RIGHT PANEL: Conversation (md+) ===== */}
+        <div className="hidden md:flex flex-1 flex-col min-w-0">
           {selectedRoomId ? (
             <ChatConversation
               key={selectedRoomId}
