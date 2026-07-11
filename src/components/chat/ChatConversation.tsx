@@ -253,7 +253,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       </div>
 
       {/* Input Area */}
-      <div className="bg-white border-t border-[#e5e2e1] mt-auto shrink-0">
+      <div className={`bg-white border-t border-[#e5e2e1] mt-auto shrink-0 ${embedded ? '' : 'pb-[env(safe-area-inset-bottom)]'}`}>
         {isArchived ? (
           <div className={`p-4 text-center ${embedded ? '' : 'max-w-lg mx-auto'}`}>
             <p className="text-sm text-[#9e8e8c] font-medium">Sesi chat ini telah diarsipkan karena pesanan selesai.</p>

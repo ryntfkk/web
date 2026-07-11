@@ -12,8 +12,6 @@ export default function BottomNav() {
   const isChatRoom = pathname?.startsWith('/chat/');
   if (isChatRoom) return null;
 
-  if (pathname.startsWith('/chat')) return null;
-
   const navItems = [
     {
       icon: Home,
