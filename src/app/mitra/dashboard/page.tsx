@@ -41,6 +41,7 @@ export default function MitraDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [togglingStatus, setTogglingStatus] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     
@@ -50,9 +51,15 @@ export default function MitraDashboardPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/partners/me/dashboard');
+    const [res, unreadRes] = await Promise.all([
+      fetchAPI<any>('/partners/me/dashboard'),
+      fetchAPI<any>('/notifications/unread-count')
+    ]);
     if (res.success && res.data) {
       setData(res.data);
+    }
+    if (unreadRes.success && unreadRes.data) {
+      setUnreadCount(unreadRes.data.unread_count || 0);
     }
     setLoading(false);
   };
@@ -75,13 +82,13 @@ export default function MitraDashboardPage() {
 
   const formatTime = (t: string) => new Date(t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm sticky top-0 z-10">
+      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm sticky top-16 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -94,9 +101,11 @@ export default function MitraDashboardPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors relative">
+              <button onClick={() => router.push('/notifications')} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors relative">
                 <Bell className="w-5 h-5 text-white" />
-                <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#D69E2E] rounded-full border border-[#b51822]" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#D69E2E] rounded-full border border-[#b51822]" />
+                )}
               </button>
               <button onClick={() => router.push('/mitra/profile')} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                 <Settings className="w-5 h-5 text-white" />
@@ -225,3 +234,4 @@ export default function MitraDashboardPage() {
     </div>
   );
 }
+

@@ -94,18 +94,18 @@ export default function DisputeClient() {
     }
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
   if (loading) {
-    return <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center">
+    return <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
     </div>;
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-16 z-10">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />

@@ -82,11 +82,11 @@ export default function ChatListPage() {
     }
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   return (
-    <div className="h-screen flex flex-col bg-white overflow-hidden">
+    <div className="h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
       {/* Desktop: split panel | Mobile: full list */}
       <div className="flex flex-1 min-h-0">
 
@@ -222,3 +222,4 @@ export default function ChatListPage() {
     </div>
   );
 }
+

@@ -58,13 +58,13 @@ export default function MitraOrdersPage() {
     return matchSearch && matchTab;
   });
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-16 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 py-4">
             <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
@@ -142,3 +142,4 @@ export default function MitraOrdersPage() {
     </div>
   );
 }
+

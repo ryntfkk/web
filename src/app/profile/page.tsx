@@ -146,7 +146,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-20 md:pb-8">
+    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
       {/* Header - Full Width */}
       <div className="bg-[#b51822] text-white px-4 py-6 md:py-8">
         <div className="max-w-6xl mx-auto">
@@ -559,3 +559,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

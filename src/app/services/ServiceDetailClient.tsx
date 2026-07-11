@@ -24,10 +24,10 @@ import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import ScheduleView from '@/components/service/ScheduleView';
+import { PLACEHOLDER_SERVICE } from '@/lib/images';
 
 
-const PLACEHOLDER_IMG =
-  'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3';
+
 
 function DetailContent() {
   const router = useRouter();
@@ -89,7 +89,7 @@ function DetailContent() {
         partner_username: service.partner_username,
         service_name: service.name,
         price: service.price,
-        photo_url: service.photo_url || PLACEHOLDER_IMG,
+        photo_url: service.photo_url || PLACEHOLDER_SERVICE,
       });
     }
   };
@@ -144,7 +144,7 @@ function DetailContent() {
   // ── No ID ───────────────────────────────────────────────────────
   if (!serviceId) {
     return (
-      <div className="min-h-screen bg-[#fcf9f8] flex items-center justify-center p-4">
+      <div className="page-h bg-[#fcf9f8] flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-14 h-14 rounded-full bg-[#f0eded] flex items-center justify-center mx-auto mb-3">
             <svg className="w-7 h-7 text-[#5b403e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@ function DetailContent() {
   // ── Loading ──────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#fcf9f8]">
+      <div className="page-h bg-[#fcf9f8]">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2">
@@ -184,7 +184,7 @@ function DetailContent() {
   // ── Error ───────────────────────────────────────────────────────
   if (isError || !service) {
     return (
-      <div className="min-h-screen bg-[#fcf9f8] flex items-center justify-center p-4">
+      <div className="page-h bg-[#fcf9f8] flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
             <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +210,7 @@ function DetailContent() {
   const excludedItems = service.excluded_items ?? [];
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0] pb-20 sm:pb-4">
+    <div className="page-h bg-[#f0f0f0] pb-20 sm:pb-4">
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-3">
         {/* Breadcrumb */}
         <div className="hidden sm:flex items-center gap-2 text-xs text-[#5b403e] mb-3 px-4 py-2">
@@ -252,10 +252,6 @@ function DetailContent() {
                   ))}
                 </div>
 
-                {/* Badge */}
-                <div className="absolute top-0 left-0 bg-[#b51822] text-white text-xs px-2 py-1 rounded-br-[4px] pointer-events-none">
-                  Favorit
-                </div>
 
                 {/* Navigation */}
                 {hasMultiplePhotos && (
@@ -515,7 +511,7 @@ function DetailContent() {
       {showSchedule && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setShowSchedule(false)}>
           <div className="bg-white w-full sm:max-w-md rounded-t-[12px] sm:rounded-[8px] max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
+            <div className="sticky top-16 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
               <h2 className="text-base font-semibold text-[#1c1b1b]">Jadwal {service.partner_name}</h2>
               <button onClick={() => setShowSchedule(false)} className="p-1 hover:bg-[#f0eded] rounded-full">
                 <X className="w-5 h-5 text-[#5b403e]" />
@@ -561,7 +557,7 @@ function DetailContent() {
 export default function ServiceDetailClient() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#fcf9f8] flex items-center justify-center">
+      <div className="page-h bg-[#fcf9f8] flex items-center justify-center">
         <div className="w-8 h-8 border-3 border-[#e5e2e1] border-t-[#b51822] rounded-full animate-spin" />
       </div>
     }>
@@ -569,3 +565,4 @@ export default function ServiceDetailClient() {
     </Suspense>
   );
 }
+

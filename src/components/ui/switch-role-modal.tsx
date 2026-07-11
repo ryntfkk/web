@@ -26,7 +26,7 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
 
     if (targetRole === 'partner' && !user.partner_id) {
       // Buka halaman pendaftaran mitra jika belum terdaftar
-      router.push('/register-mitra');
+      router.push('/mitra/register');
       onClose();
       return;
     }

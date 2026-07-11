@@ -23,12 +23,15 @@ export function useAuth() {
       if (res.success && res.data) {
         authStore.login(res.data.user, res.data.access_token);
         router.push(redirectUrl || '/');
+        // Do not set loading false on success, keep it true during navigation
       } else {
         setError(getErrorMessage(res));
+        setLoading(false);
       }
       return res;
-    } finally {
+    } catch (err) {
       setLoading(false);
+      throw err;
     }
   };
 
@@ -63,12 +66,15 @@ export function useAuth() {
       if (res.success && res.data) {
         authStore.login(res.data.user, res.data.access_token);
         router.push('/');
+        // Do not set loading false on success, keep it true during navigation
       } else {
         setError(getErrorMessage(res));
+        setLoading(false);
       }
       return res;
-    } finally {
+    } catch (err) {
       setLoading(false);
+      throw err;
     }
   };
 
@@ -83,13 +89,17 @@ export function useAuth() {
       });
 
       if (res.success && res.data) {
-        authStore.login(res.data.user, res.data.access_token);
-        router.push('/');
+        authStore.updateUser(res.data.user);
+        // If API returns new token on switch-role:
+        if (res.data.access_token) {
+          authStore.setAccessToken(res.data.access_token);
+        }
       } else {
         setError(getErrorMessage(res));
       }
       return res;
     } finally {
+      // For switchRole, we can safely setLoading(false) because SwitchRoleModal handles its own loading state.
       setLoading(false);
     }
   };

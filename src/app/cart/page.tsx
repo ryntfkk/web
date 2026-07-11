@@ -62,16 +62,16 @@ export default function CartPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center">
+      <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-20">
+    <div className="page-h bg-[#f7f5f4] pb-20">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-16 z-10">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
@@ -172,3 +172,4 @@ export default function CartPage() {
     </div>
   );
 }
+

@@ -81,11 +81,11 @@ export default function MitraBankAccountPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
@@ -94,7 +94,7 @@ export default function MitraBankAccountPage() {
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-16 z-10">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -171,3 +171,4 @@ export default function MitraBankAccountPage() {
     </div>
   );
 }
+

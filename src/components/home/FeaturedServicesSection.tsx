@@ -8,8 +8,7 @@ import { usePartners } from '@/hooks/usePartners';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import type { Partner } from '@/types/partner';
 
-const PLACEHOLDER_IMG =
-  'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3';
+import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 
 export default function FeaturedServicesSection() {
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();

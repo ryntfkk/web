@@ -213,24 +213,15 @@
   }
 }
 
-/* Chat page: hide footer, bottom nav, floating chat, and use full viewport */
-body.chat-page {
-  padding-bottom: 0 !important;
-  overflow: hidden;
+/* Layout utilities */
+.page-h {
+  min-height: calc(100dvh - 4rem);
 }
 
-body.chat-page > div footer,
-body.chat-page footer {
-  display: none !important;
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
-
-/* Hide bottom mobile nav on chat page */
-body.chat-page > div > div > nav:last-of-type,
-body.chat-page nav[class*="fixed"][class*="bottom-0"] {
-  display: none !important;
-}
-
-/* Hide floating chat button on chat page */
-body.chat-page > div > div > div:last-child[class*="fixed"] {
-  display: none !important;
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

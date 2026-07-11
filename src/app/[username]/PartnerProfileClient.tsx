@@ -28,7 +28,7 @@ export default function PartnerProfileClient({ username }: { username: string })
   // Show loading state
   if (isProfileLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="page-h bg-gray-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
       </div>
     );
@@ -40,7 +40,7 @@ export default function PartnerProfileClient({ username }: { username: string })
       (profileError.message.includes('Failed to fetch') || profileError.message.includes('NetworkError'));
 
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <div className="page-h bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="text-center max-w-md">
           {isNetworkError ? (
             <>
@@ -72,9 +72,9 @@ export default function PartnerProfileClient({ username }: { username: string })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 sm:pb-12">
+    <div className="page-h bg-gray-50 pb-20 sm:pb-12">
       {/* Header Mobile Only */}
-      <div className="sm:hidden bg-white px-4 py-3 sticky top-0 z-10 border-b border-gray-100 flex items-center gap-3">
+      <div className="sm:hidden bg-white px-4 py-3 sticky top-16 z-10 border-b border-gray-100 flex items-center gap-3">
         <button onClick={() => router.back()} className="p-1 hover:bg-gray-100 rounded-full">
           <ArrowLeft className="w-5 h-5 text-gray-700" />
         </button>

@@ -2,8 +2,7 @@ import { PartnerService, PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { ServiceCard } from '@/components/ui/service-card';
 import Link from 'next/link';
 
-const PLACEHOLDER_IMG =
-  'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3';
+import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 
 interface ServicesListProps {
   services: PartnerService[];

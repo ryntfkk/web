@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
 import { usePublicServices } from '@/hooks/usePublicServices';
+import { PLACEHOLDER_SERVICE } from '@/lib/images';
 
 export default function ProductsSection() {
   const { data: services, isLoading, isError } = usePublicServices({ limit: 12 });
@@ -42,7 +43,7 @@ export default function ProductsSection() {
                 {/* Image */}
                 <div className="relative w-full aspect-square bg-[#e5e2e1] flex-shrink-0">
                   <Image
-                    src={service.photo_url || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500"}
+                    src={service.photo_url || PLACEHOLDER_SERVICE}
                     alt={service.name}
                     fill
                     className="object-cover"

@@ -115,17 +115,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-20 md:pb-8">
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-      `}} />
+    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
 
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-4">
         <div className="max-w-6xl mx-auto">

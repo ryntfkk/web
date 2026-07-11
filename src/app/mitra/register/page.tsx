@@ -106,8 +106,8 @@ export default function MitraRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
-      <div className="bg-white px-4 py-3 flex items-center border-b border-[#e5e2e1] sticky top-0 z-10 shadow-sm">
+    <div className="page-h bg-[#f7f5f4] flex flex-col">
+      <div className="bg-white px-4 py-3 flex items-center border-b border-[#e5e2e1] sticky top-16 z-10 shadow-sm">
         <button onClick={() => step > 1 ? prevStep() : router.back()} className="p-2 -ml-2 text-[#8f6f6d]">
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -225,3 +225,4 @@ export default function MitraRegisterPage() {
     </div>
   );
 }
+

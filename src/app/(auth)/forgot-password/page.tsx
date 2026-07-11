@@ -72,9 +72,9 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="page-h bg-neutral-50 flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">
+        <h2 className="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-neutral-900">
           Lupa Password
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-600">
@@ -213,3 +213,4 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+

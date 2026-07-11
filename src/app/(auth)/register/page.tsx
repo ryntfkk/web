@@ -52,9 +52,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="page-h bg-neutral-50 flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">
+        <h2 className="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-neutral-900">
           {step === 1 && 'Daftar Akun Baru'}
           {step === 2 && 'Verifikasi OTP'}
           {step === 3 && 'Lengkapi Profil Anda'}
@@ -248,3 +248,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

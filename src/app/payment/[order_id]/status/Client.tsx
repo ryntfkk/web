@@ -38,12 +38,12 @@ export default function PaymentStatusClient() {
     }
   }, [isAuthenticated, status, orderId, router]);
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   if (status === 'success') {
     return (
-      <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center p-4">
+      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
           <CheckCircle className="w-16 h-16 text-[#38A169] mx-auto mb-4" />
           <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Pembayaran Berhasil!</h1>
@@ -68,7 +68,7 @@ export default function PaymentStatusClient() {
 
   if (status === 'timeout') {
     return (
-      <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center p-4">
+      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
           <Clock className="w-16 h-16 text-[#9e8e8c] mx-auto mb-4" />
           <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Batas Waktu Habis</h1>
@@ -85,7 +85,7 @@ export default function PaymentStatusClient() {
 
   // Failed
   return (
-    <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center p-4">
+    <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
         <XCircle className="w-16 h-16 text-[#E53E3E] mx-auto mb-4" />
         <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Pembayaran Gagal</h1>

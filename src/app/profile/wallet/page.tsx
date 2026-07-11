@@ -53,13 +53,13 @@ export default function WalletPage() {
     return <History className="w-5 h-5 text-[#9e8e8c]" />;
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-[#b51822] text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-0 z-10">
+      <div className="bg-[#b51822] text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-16 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-white/10 rounded">
@@ -138,3 +138,4 @@ export default function WalletPage() {
     </div>
   );
 }
+

@@ -102,12 +102,12 @@ export default function AdditionalFeeClient() {
     setActionLoading(false);
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center">
+      <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -116,7 +116,7 @@ export default function AdditionalFeeClient() {
   const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
   if (!fee || fee.status !== 'PENDING') {
     return (
-      <div className="min-h-screen bg-[#f7f5f4] flex items-center justify-center p-4">
+      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-[#5b403e] mb-4">Tidak ada tagihan tambahan yang menunggu persetujuan.</p>
           <Button onClick={() => router.push(`/orders/${orderId}`)}>Kembali</Button>
@@ -128,7 +128,7 @@ export default function AdditionalFeeClient() {
   const baseAmount = Math.max(0, (order?.total_amount ?? 0) - fee.total);
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-24">
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
           {toast.message}
@@ -136,7 +136,7 @@ export default function AdditionalFeeClient() {
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-16 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">

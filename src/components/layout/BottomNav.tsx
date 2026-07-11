@@ -7,6 +7,8 @@ import { usePathname } from 'next/navigation';
 export default function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname.startsWith('/chat')) return null;
+
   const navItems = [
     {
       icon: Home,

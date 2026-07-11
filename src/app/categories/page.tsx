@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function CategoriesPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="page-h bg-gray-50 flex flex-col items-center justify-center p-4">
       <h1 className="text-3xl font-bold text-gray-900 mb-4">Semua Kategori</h1>
       <p className="text-gray-500 mb-6 text-center max-w-md">Halaman penjelajahan kategori lengkap sedang dalam tahap pengembangan.</p>
       <Link href="/" className="inline-flex items-center gap-2 px-4 py-2 bg-[#b51822] text-white rounded-[2px] hover:bg-[#90121a] transition-colors">
@@ -13,3 +13,4 @@ export default function CategoriesPage() {
     </div>
   );
 }
+

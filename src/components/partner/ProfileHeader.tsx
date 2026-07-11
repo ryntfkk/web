@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import ReportDialog from '@/components/ReportDialog';
+import { PLACEHOLDER_AVATAR as DEFAULT_AVATAR } from '@/lib/images';
 
 interface ProfileHeaderProps {
   profile: PartnerProfileData;
@@ -18,7 +19,6 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
   // Provide a proper fallback for avatar - handle any non-string value safely
-  const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60';
   const avatarUrl = typeof profile.avatar_url === 'string' && profile.avatar_url.length > 0
     ? profile.avatar_url
     : DEFAULT_AVATAR;
