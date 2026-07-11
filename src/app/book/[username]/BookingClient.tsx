@@ -2,9 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Check, MapPin, Calendar, Tag, AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, MapPin, Calendar, Tag, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
+import { ServiceItemCard } from '@/components/ui/service-item-card';
+import { PLACEHOLDER_AVATAR } from '@/lib/images';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useCartStore } from '@/lib/store/cartStore';
@@ -12,11 +15,33 @@ import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 
 // Types
+interface ServicePhoto {
+  id: string;
+  photo_url: string;
+  is_primary?: boolean;
+}
+
 interface PartnerService {
   id: string;
   name: string;
   price: number;
-  duration_minutes: number;
+  duration_minutes?: number;
+  estimated_duration?: number;
+  photos?: ServicePhoto[];
+  photo_url?: string;
+}
+
+function servicePhoto(s: PartnerService): string | undefined {
+  return (
+    s.photos?.find((p) => p.is_primary)?.photo_url ||
+    s.photos?.[0]?.photo_url ||
+    s.photo_url ||
+    undefined
+  );
+}
+
+function serviceDuration(s: PartnerService): number | undefined {
+  return s.duration_minutes ?? s.estimated_duration;
 }
 
 interface Address {
@@ -114,7 +139,7 @@ export default function BookingClient() {
   }, [preselectedIds, services]);
 
   const totalDuration = useMemo(
-    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? s.duration_minutes : 0), 0),
+    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? (serviceDuration(s) || 0) : 0), 0),
     [services, selectedServices],
   );
 
@@ -349,25 +374,35 @@ export default function BookingClient() {
       <div className="max-w-lg mx-auto px-4 py-6">
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-[#1c1b1b]">Layanan Tersedia</h2>
-            <p className="text-sm text-[#5b403e]">Pilih satu atau lebih layanan dari {partner?.name}.</p>
-            <div className="space-y-3 mt-4">
+            {/* Header mitra */}
+            <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 flex items-center gap-3">
+              <div className="relative w-11 h-11 rounded-full overflow-hidden bg-[#f0eded] shrink-0">
+                <Image
+                  src={partner?.avatar_url || PLACEHOLDER_AVATAR}
+                  alt={partner?.name || 'Mitra'}
+                  fill
+                  className="object-cover"
+                  sizes="44px"
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[#1c1b1b] truncate">{partner?.name}</p>
+                <p className="text-xs text-[#9e8e8c]">Pilih satu atau lebih layanan di bawah ini</p>
+              </div>
+            </div>
+
+            {/* Kartu layanan horizontal (selectable) */}
+            <div className="space-y-3">
               {services.map(s => (
-                <label key={s.id} className={`block relative p-4 rounded-xl border cursor-pointer transition-colors ${selectedServices[s.id] ? 'border-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/50'}`}>
-                  <div className="flex justify-between items-start gap-3">
-                    <div className="flex-1">
-                      <p className="font-semibold text-[#1c1b1b]">{s.name}</p>
-                      <p className="text-xs text-[#9e8e8c] mt-1">{s.duration_minutes} menit</p>
-                    </div>
-                    <div className="text-right flex flex-col items-end">
-                      <p className="font-bold text-[#b51822]">{formatPrice(s.price)}</p>
-                      <div className={`mt-2 w-5 h-5 rounded-sm flex items-center justify-center border ${selectedServices[s.id] ? 'bg-[#b51822] border-[#b51822]' : 'border-[#e5e2e1]'}`}>
-                        {selectedServices[s.id] && <Check className="w-3.5 h-3.5 text-white" />}
-                      </div>
-                    </div>
-                  </div>
-                  <input type="checkbox" className="hidden" checked={!!selectedServices[s.id]} onChange={e => setSelectedServices(prev => ({ ...prev, [s.id]: e.target.checked }))} />
-                </label>
+                <ServiceItemCard
+                  key={s.id}
+                  name={s.name}
+                  price={s.price}
+                  photoUrl={servicePhoto(s)}
+                  durationMinutes={serviceDuration(s)}
+                  selected={!!selectedServices[s.id]}
+                  onSelect={() => setSelectedServices(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
+                />
               ))}
             </div>
           </div>

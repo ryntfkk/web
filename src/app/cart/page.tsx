@@ -3,9 +3,9 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowLeft, ShoppingCart, Trash2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ServiceItemCard } from '@/components/ui/service-item-card';
 import { useCartStore, CartItem } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 
@@ -117,31 +117,24 @@ export default function CartPage() {
                   <ChevronRight className="w-4 h-4 text-[#9e8e8c]" />
                 </Link>
 
-                {/* Items */}
-                <div className="divide-y divide-[#e5e2e1]">
+                {/* Items — kartu horizontal yang sama dengan halaman booking */}
+                <div className="p-3 space-y-2">
                   {group.items.map((item) => (
-                    <div key={item.service_id} className="flex items-center gap-3 p-4">
-                      <div className="relative w-16 h-16 rounded-[4px] overflow-hidden bg-[#e5e2e1] shrink-0">
-                        {item.photo_url ? (
-                          <Image src={item.photo_url} alt={item.service_name} fill className="object-cover" sizes="64px" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ShoppingCart className="w-5 h-5 text-[#9e8e8c]" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#1c1b1b] truncate">{item.service_name}</p>
-                        <p className="text-sm font-bold text-[#b51822] mt-1">{formatPrice(item.price)}</p>
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.service_id)}
-                        className="p-2 text-[#9e8e8c] hover:text-[#E53E3E] hover:bg-[#FFF5F5] rounded"
-                        aria-label={`Hapus ${item.service_name}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <ServiceItemCard
+                      key={item.service_id}
+                      name={item.service_name}
+                      price={item.price}
+                      photoUrl={item.photo_url || undefined}
+                      action={
+                        <button
+                          onClick={() => removeItem(item.service_id)}
+                          className="p-2 text-[#9e8e8c] hover:text-[#E53E3E] hover:bg-[#FFF5F5] rounded-lg shrink-0 transition-colors"
+                          aria-label={`Hapus ${item.service_name}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      }
+                    />
                   ))}
                 </div>
 
