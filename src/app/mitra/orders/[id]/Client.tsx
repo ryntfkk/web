@@ -10,7 +10,6 @@ import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
 
 

@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { ROLE_PARTNER } from '@/lib/constants';
+import { Loader2 } from 'lucide-react';
 
 export default function NewMitraServicePage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth(ROLE_PARTNER);
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -37,13 +38,13 @@ export default function NewMitraServicePage() {
         console.error("Failed to fetch categories");
       }
     };
-    fetchCategories();
-  }, []);
+    if (isAuthorized) {
+      fetchCategories();
+    }
+  }, [isAuthorized]);
 
-  if (!isAuthenticated || user?.active_role !== ROLE_PARTNER) {
-    router.push('/login');
-    return null;
-  }
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -21,10 +21,8 @@ export default function SecurityPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  if (!isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
