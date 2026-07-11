@@ -235,7 +235,7 @@ export default function BookingClient() {
         scheduled_at: `${date}T${time}:00+07:00`,
         address_id: addressId,
         notes: notes || undefined,
-        promo_code: promoDiscount > 0 ? promoCode || undefined : undefined,
+        promo_code: promoCode || undefined,
         items,
         photo_urls: photoUrls,
         idempotency_key: idempotencyKey,

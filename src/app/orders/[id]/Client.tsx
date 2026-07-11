@@ -138,9 +138,15 @@ export default function OrderDetailClient() {
     setActionLoading(false);
   };
 
+  const [cancelReason, setCancelReason] = useState('');
+
   const handleCancel = async () => {
+    if (!cancelReason) {
+      showToast('Harap pilih alasan pembatalan', 'error');
+      return;
+    }
     setShowCancelDialog(false);
-    await handleAction('cancel');
+    await handleAction('cancel', { reason: cancelReason });
   };
 
   if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -520,11 +526,26 @@ export default function OrderDetailClient() {
                 <X className="w-5 h-5 text-[#9e8e8c]" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-6">
+            <p className="text-sm text-[#5b403e] mb-4">
               {status === 'WAITING_CONFIRMATION' 
                 ? 'Pesanan akan dibatalkan. Anda belum dikenakan biaya apapun.' 
                 : 'Pesanan akan dibatalkan dan tidak dapat dikembalikan. Biaya layanan yang sudah dibayar akan dikembalikan ke saldo dompet Anda.'}
             </p>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#1c1b1b] mb-1">Alasan Pembatalan</label>
+              <select 
+                className="w-full px-3 py-2 border border-[#e5e2e1] rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+              >
+                <option value="">Pilih alasan...</option>
+                <option value="Berubah pikiran">Berubah pikiran</option>
+                <option value="Jadwal tidak cocok">Jadwal tidak cocok</option>
+                <option value="Menemukan mitra lain">Menemukan mitra lain</option>
+                <option value="Mitra tidak merespon">Mitra tidak merespon</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setShowCancelDialog(false)}>
                 Batal

@@ -2,6 +2,7 @@ import { useAuthStore } from './store/authStore';
 import type { ApiResponse } from '@/types/api';
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.poskojasa.com/api/v1';
+export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0';
 
 // ── Token refresh state (module-level – outside React) ──────────────
 let refreshPromise: Promise<boolean> | null = null;
@@ -18,7 +19,7 @@ async function refreshAccessToken(): Promise<boolean> {
       credentials: 'include', // sends the HttpOnly refresh_token cookie
       headers: {
         'X-Platform': 'web',
-        'X-App-Version': '1.0.0',
+        'X-App-Version': APP_VERSION,
       },
     });
 
@@ -54,7 +55,7 @@ export async function fetchAPI<T>(
     const headers = new Headers(options.headers);
     headers.set('Content-Type', 'application/json');
     headers.set('X-Platform', 'web');
-    headers.set('X-App-Version', '1.0.0');
+    headers.set('X-App-Version', APP_VERSION);
 
     if (accessToken) {
       headers.set('Authorization', `Bearer ${accessToken}`);
@@ -83,7 +84,7 @@ export async function fetchAPI<T>(
         const retryHeaders = new Headers(options.headers);
         retryHeaders.set('Content-Type', 'application/json');
         retryHeaders.set('X-Platform', 'web');
-        retryHeaders.set('X-App-Version', '1.0.0');
+        retryHeaders.set('X-App-Version', APP_VERSION);
         if (newToken) {
           retryHeaders.set('Authorization', `Bearer ${newToken}`);
         }

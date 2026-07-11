@@ -36,22 +36,23 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="min-h-[100dvh] bg-[#fcf9f8] flex flex-col px-6 pt-10 pb-8 sm:justify-center sm:px-6 sm:py-12">
+      {/* Wordmark (UI-UX §4.1 — mockup Login) */}
       <div className="mx-auto w-full max-w-md">
-        <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-neutral-900">
-          Masuk ke akun Anda
-        </h2>
-        <p className="mt-2 text-center text-sm text-neutral-600">
-          Atau{' '}
-          <Link href="/register" className="font-medium text-[#b51822] hover:text-[#90121a]">
-            daftar baru sekarang
-          </Link>
+        <p className="text-center text-xl font-extrabold tracking-wide text-[#b51822]">
+          POSKO JASA
+        </p>
+        <h1 className="mt-8 text-3xl font-extrabold text-neutral-900 sm:mt-6">
+          Login
+        </h1>
+        <p className="mt-2 text-sm text-neutral-600">
+          Masuk ke akun Anda untuk melanjutkan.
         </p>
       </div>
 
-      <div className="mt-6 sm:mt-8 mx-auto w-full max-w-md">
-        <div className="bg-white py-6 px-5 sm:py-8 sm:px-10 border border-neutral-200 rounded-[2px] shadow-sm">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+      <div className="mt-6 mx-auto w-full max-w-md flex-1 flex flex-col sm:flex-none">
+        <div className="sm:bg-white sm:py-8 sm:px-10 sm:border sm:border-neutral-200 sm:rounded-[2px] sm:shadow-sm">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             
             {error && (
               <div className="p-3 bg-red-50 text-red-600 rounded-[2px] text-sm border border-red-100">
@@ -72,7 +73,7 @@ function LoginContent() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
                   placeholder="08123456789 atau email Anda"
                 />
               </div>
@@ -91,7 +92,7 @@ function LoginContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] pr-10"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-neutral-300 rounded-[2px] shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] pr-10"
                 />
                 <button
                   type="button"
@@ -144,6 +145,14 @@ function LoginContent() {
             </div>
           </form>
         </div>
+
+        {/* Link daftar di bawah (mockup: "Belum punya akun? Daftar sekarang") */}
+        <p className="mt-auto pt-8 text-center text-sm text-neutral-600 sm:mt-6 sm:pt-0">
+          Belum punya akun?{' '}
+          <Link href="/register" className="font-bold text-[#b51822] hover:text-[#90121a]">
+            Daftar sekarang
+          </Link>
+        </p>
       </div>
     </div>
   );
