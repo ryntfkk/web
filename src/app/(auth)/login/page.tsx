@@ -52,7 +52,7 @@ function LoginContent() {
       </div>
 
       <div className="mt-4 sm:mt-8 mx-auto w-full max-w-md">
-        <div className="bg-white py-5 px-5 sm:py-8 sm:px-10 border border-neutral-200 rounded-[2px] shadow-sm">
+        <div className="py-5 px-1 sm:py-8 sm:px-2">
           <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
             
             {error && (
