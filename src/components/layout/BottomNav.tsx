@@ -7,10 +7,22 @@ import { usePathname } from 'next/navigation';
 export default function BottomNav() {
   const pathname = usePathname();
 
-  // Sembunyikan di dalam room chat (/chat/{id}) agar area percakapan penuh;
-  // tetap tampil di daftar chat (/chat) karena Chat adalah tab utama.
-  const isChatRoom = pathname?.startsWith('/chat/');
-  if (isChatRoom) return null;
+  // Sembunyikan BottomNav pada:
+  // 1. Room chat (/chat/{id}) — area percakapan penuh; daftar chat (/chat) tetap tampil.
+  // 2. Seluruh area mitra (/mitra/*) — punya MitraBottomNav sendiri / flow penuh.
+  // 3. Halaman dengan action bar fixed di bawah (booking, payment, detail layanan,
+  //    detail pesanan, form alamat) agar tombol aksi tidak tertutup nav.
+  //    /orders exact tetap tampil karena Pesanan adalah tab utama.
+  const p = pathname ?? '';
+  const hideNav =
+    p.startsWith('/chat/') ||
+    p.startsWith('/mitra') ||
+    p.startsWith('/book') ||
+    p.startsWith('/payment') ||
+    p.startsWith('/orders/') ||
+    p.startsWith('/services') ||
+    p.startsWith('/profile/addresses');
+  if (hideNav) return null;
 
   const navItems = [
     {

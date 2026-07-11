@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
 import { useCartStore, CartItem } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
-import BottomNav from '@/components/layout/BottomNav';
 
 function formatPrice(p: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
@@ -163,7 +162,6 @@ export default function CartPage() {
           </>
         )}
       </div>
-      <BottomNav />
     </div>
   );
 }

@@ -39,14 +39,17 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         }
 
         // Step 2: fetch the user profile with the fresh access token
-        const res = await fetchAPI<{ user: User }>('/users/me', {
+        const res = await fetchAPI<any>('/users/me', {
           credentials: 'include',
         });
 
-        if (res.success && res.data?.user) {
+        // Backend mengembalikan objek user langsung di `data`
+        // (dukung juga bentuk lama `data.user` untuk jaga-jaga).
+        const payload: User | undefined = res.data?.user ?? res.data;
+        if (res.success && payload?.id) {
           const token = useAuthStore.getState().accessToken;
           if (token) {
-            login(res.data.user, token);
+            login(payload, token);
             return;
           }
         }

@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import BottomNav from '@/components/layout/BottomNav';
 import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Briefcase, Phone, Mail, Star, Clock, TrendingUp, Package, Calendar, CheckCircle, XCircle, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -69,7 +69,7 @@ export default function ProfilePage() {
       credentials: 'include',
     });
     if (res.success && res.data) {
-      setPartnerStatus(res.data);
+      setPartnerStatus(unwrapData<PartnerProfile>(res.data));
     }
     setStatusLoading(false);
   };
@@ -173,7 +173,7 @@ export default function ProfilePage() {
           {/* Left Sidebar - Partner Info */}
           <div className="w-full lg:w-72 shrink-0">
             {/* Partner Stats Card (if partner) */}
-            {user.roles.includes('partner') && partnerStatus?.verification_status === 'approved' && (
+            {partnerStatus?.verification_status === 'approved' && (
               <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden mb-4">
                 <div className="p-4 border-b border-[#e5e2e1] bg-[#fdf2f2]">
                   <div className="flex items-center">
@@ -217,13 +217,19 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Partner Registration Card (if not partner) */}
-            {!user.roles.includes('partner') && !statusLoading && (
+            {/* Partner Registration / Verification Card (belum approved) */}
+            {!statusLoading && partnerStatus?.verification_status !== 'approved' && (
               <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden mb-4">
                 <div className="p-4 text-center">
                   <Briefcase className="w-12 h-12 text-[#8f6f6d]/50 mx-auto mb-3" />
-                  <p className="font-semibold text-[#32201f] mb-1">Jadilah Mitra Kami</p>
-                  <p className="text-xs text-[#8f6f6d] mb-4">Daftar sebagai mitra dan mulai hasilkan uang tambahan.</p>
+                  <p className="font-semibold text-[#32201f] mb-1">
+                    {partnerStatus?.verification_status === 'pending' ? 'Pendaftaran Mitra' : 'Jadilah Mitra Kami'}
+                  </p>
+                  <p className="text-xs text-[#8f6f6d] mb-4">
+                    {partnerStatus?.verification_status === 'pending'
+                      ? 'Dokumen Anda sedang kami tinjau.'
+                      : 'Daftar sebagai mitra dan mulai hasilkan uang tambahan.'}
+                  </p>
                   {!partnerStatus ? (
                     <Button className="w-full" onClick={() => router.push('/mitra/register')}>
                       Daftar Jadi Mitra
@@ -234,9 +240,17 @@ export default function ProfilePage() {
                       <p className="text-xs text-yellow-700 mt-1">Maks. 24 jam</p>
                     </div>
                   ) : partnerStatus.verification_status === 'rejected' ? (
-                    <Button size="sm" variant="danger" className="w-full border-[#b51822]" onClick={() => router.push('/mitra/register')}>
-                      Perbaiki & Kirim Ulang
-                    </Button>
+                    <div className="space-y-2">
+                      {partnerStatus.rejection_reason && (
+                        <div className="bg-red-50 rounded p-3 border border-red-200 text-left">
+                          <p className="text-xs font-medium text-[#b51822]">Pendaftaran ditolak:</p>
+                          <p className="text-xs text-[#5b403e] mt-1">{partnerStatus.rejection_reason}</p>
+                        </div>
+                      )}
+                      <Button size="sm" variant="danger" className="w-full border-[#b51822]" onClick={() => router.push('/mitra/register')}>
+                        Perbaiki & Kirim Ulang
+                      </Button>
+                    </div>
                   ) : null}
                 </div>
               </div>
@@ -555,7 +569,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <BottomNav />
     </div>
   );
 }

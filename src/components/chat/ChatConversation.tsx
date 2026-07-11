@@ -227,7 +227,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
   const isMitra = user?.active_role === ROLE_PARTNER;
 
   return (
-    <div className={`flex flex-col ${embedded ? 'h-full' : 'h-[calc(100dvh-4rem)]'} bg-[#f7f5f4]`}>
+    <div className={`flex flex-col ${embedded ? 'h-full' : 'h-[100dvh] lg:h-[calc(100dvh-4rem)]'} bg-[#f7f5f4]`}>
       {/* Header */}
       <div className={`bg-white border-b border-[#e5e2e1] shrink-0 ${embedded ? '' : 'shadow-sm'}`}>
         <div className={`flex items-center justify-between px-4 py-3 ${embedded ? '' : 'max-w-lg mx-auto'}`}>

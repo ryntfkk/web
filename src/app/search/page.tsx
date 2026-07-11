@@ -1,5 +1,4 @@
 import SearchContent from '@/components/search/SearchContent';
-import BottomNav from '@/components/layout/BottomNav';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -31,7 +30,6 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
         <SearchContent query={query} />
       </div>
 
-      <BottomNav />
     </div>
   );
 }
