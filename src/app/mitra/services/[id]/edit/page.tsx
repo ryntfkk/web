@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { useRouter, useParams } from 'next/navigation';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { ROLE_PARTNER } from '@/lib/constants';
 
-export default function NewMitraServicePage() {
+export default function EditMitraServicePage() {
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
+  const params = useParams();
+  const serviceId = params?.id as string;
 
   const [form, setForm] = useState({
     name: '',
@@ -24,21 +26,45 @@ export default function NewMitraServicePage() {
 
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetchAPI<any>('/categories');
-        if (res.success && res.data) {
-          setCategories(res.data);
+        const catRes = await fetchAPI<any>('/categories');
+        if (catRes.success && catRes.data) {
+          setCategories(catRes.data);
+        }
+
+        const svcsRes = await fetchAPI<any>('/partners/me/services');
+        if (svcsRes.success && svcsRes.data) {
+          const service = svcsRes.data.find((s: any) => s.id === serviceId);
+          if (service) {
+            setForm({
+              name: service.name || '',
+              category_id: service.category_id || '',
+              price: service.price ? new Intl.NumberFormat('id-ID').format(service.price) : '',
+              duration_minutes: service.estimated_duration ? String(service.estimated_duration) : '60',
+              description: service.description || '',
+              included_items: service.included_items ? service.included_items.join('\n') : '',
+              excluded_items: service.excluded_items ? service.excluded_items.join('\n') : '',
+            });
+          } else {
+            setError('Layanan tidak ditemukan');
+          }
         }
       } catch (err) {
-        console.error("Failed to fetch categories");
+        console.error("Failed to fetch data");
+        setError('Gagal memuat data layanan');
+      } finally {
+        setFetchLoading(false);
       }
     };
-    fetchCategories();
-  }, []);
+    if (isAuthenticated && user?.active_role === ROLE_PARTNER) {
+      fetchData();
+    }
+  }, [isAuthenticated, user, serviceId]);
 
   if (!isAuthenticated || user?.active_role !== ROLE_PARTNER) {
     router.push('/login');
@@ -60,8 +86,8 @@ export default function NewMitraServicePage() {
     setLoading(true);
     setError('');
 
-    const res = await fetchAPI('/partners/me/services', {
-      method: 'POST',
+    const res = await fetchAPI(`/partners/me/services/${serviceId}`, {
+      method: 'PATCH',
       body: JSON.stringify({
         name: form.name,
         category_id: form.category_id,
@@ -76,7 +102,7 @@ export default function NewMitraServicePage() {
     if (res.success) {
       router.push('/mitra/services');
     } else {
-      setError(res.message || 'Gagal menambahkan layanan');
+      setError(res.message || 'Gagal mengubah layanan');
       setLoading(false);
     }
   };
@@ -90,6 +116,14 @@ export default function NewMitraServicePage() {
     setForm({ ...form, price: new Intl.NumberFormat('id-ID').format(parseInt(val, 10)) });
   };
 
+  if (fetchLoading) {
+    return (
+      <div className="page-h bg-[#f7f5f4] flex justify-center items-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#b51822]" />
+      </div>
+    );
+  }
+
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
@@ -98,7 +132,7 @@ export default function NewMitraServicePage() {
           <button type="button" onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
           </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Tambah Layanan Baru</h1>
+          <h1 className="text-base font-bold text-[#1c1b1b]">Edit Layanan</h1>
         </div>
       </div>
 
@@ -197,7 +231,7 @@ export default function NewMitraServicePage() {
               className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
               disabled={loading}
             >
-              {loading ? 'Menyimpan...' : 'Simpan Layanan'}
+              {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
             </Button>
           </div>
         </form>
@@ -205,4 +239,3 @@ export default function NewMitraServicePage() {
     </div>
   );
 }
-

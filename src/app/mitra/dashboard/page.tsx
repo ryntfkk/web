@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Bell, Settings, LayoutDashboard, Wrench, Wallet, Calendar, 
-  ChevronRight, Star, TrendingUp, Package, Power
+  ChevronRight, Star, TrendingUp, Package, Power, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
@@ -179,6 +179,47 @@ export default function MitraDashboardPage() {
             <Wallet className="w-6 h-6 text-[#b51822]" />
             <span className="text-[10px] font-bold text-[#5b403e] text-center">Dompet</span>
           </Link>
+        </div>
+
+        {/* Jadwal Kalender Widget */}
+        <div className="bg-white rounded-md border border-[#e5e2e1] p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[#1c1b1b]">Jadwal Mendatang</h3>
+            <Calendar className="w-5 h-5 text-[#b51822]" />
+          </div>
+          
+          <div className="space-y-3">
+            {loading ? (
+              <div className="h-16 bg-[#e5e2e1] rounded-md animate-pulse" />
+            ) : data?.active_orders?.filter(o => o.status === 'PAID').length === 0 ? (
+              <div className="text-center py-4 bg-[#f7f5f4] rounded border border-[#e5e2e1]">
+                <p className="text-sm text-[#5b403e]">Tidak ada jadwal pesanan terkonfirmasi.</p>
+              </div>
+            ) : (
+              data?.active_orders?.filter(o => o.status === 'PAID')
+                .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+                .slice(0, 3)
+                .map(order => {
+                  const date = new Date(order.scheduled_at);
+                  const isToday = new Date().toDateString() === date.toDateString();
+                  return (
+                    <Link key={order.id} href={`/mitra/orders/${order.id}`} className="flex items-center gap-3 p-3 border border-[#e5e2e1] rounded hover:border-[#b51822] transition-colors">
+                      <div className={`w-12 h-12 rounded flex flex-col items-center justify-center shrink-0 ${isToday ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#1c1b1b]'}`}>
+                        <span className="text-xs font-semibold">{date.toLocaleDateString('id-ID', { month: 'short' })}</span>
+                        <span className="text-lg font-bold leading-none">{date.getDate()}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-[#1c1b1b] truncate">{order.customer_name}</p>
+                        <p className="text-xs text-[#5b403e] flex items-center gap-1 mt-0.5">
+                          <Clock className="w-3 h-3" /> {formatTime(order.scheduled_at)}
+                        </p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[#9e8e8c]" />
+                    </Link>
+                  );
+                })
+            )}
+          </div>
         </div>
 
         {/* Active Orders */}

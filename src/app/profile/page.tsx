@@ -10,6 +10,7 @@ import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
+import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 
 
 interface PartnerProfile {
@@ -52,6 +53,7 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
+  const [showSwitchModal, setShowSwitchModal] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -84,11 +86,6 @@ export default function ProfilePage() {
       setOrders(Array.isArray(res.data) ? res.data as Order[] : []);
     }
     setOrdersLoading(false);
-  };
-
-  const handleSwitchRole = async (role: 'customer' | 'partner') => {
-    await switchRole(role);
-    window.location.reload();
   };
 
   const getStatusConfig = (status: Order['status']) => {
@@ -208,7 +205,7 @@ export default function ProfilePage() {
                     size="sm"
                     variant={user.active_role === 'partner' ? 'secondary' : 'primary'}
                     className="w-full"
-                    onClick={() => handleSwitchRole(user.active_role === 'partner' ? 'customer' : 'partner')}
+                    onClick={() => setShowSwitchModal(true)}
                     disabled={loading}
                   >
                     {user.active_role === 'partner' ? 'Ke Pelanggan' : 'Ke Mitra'}
@@ -569,6 +566,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      <SwitchRoleModal isOpen={showSwitchModal} onClose={() => setShowSwitchModal(false)} />
     </div>
   );
 }

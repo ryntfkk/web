@@ -12,7 +12,6 @@ import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
 import MitraBottomNav from '@/components/layout/MitraBottomNav';
 
-
 interface Order {
   id: string;
   order_number: string;
@@ -29,11 +28,9 @@ export default function MitraOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>('ACTIVE');
+  const [activeTab, setActiveTab] = useState<'WAITING' | 'ACTIVE' | 'HISTORY'>('WAITING');
 
   useEffect(() => {
-    
-    
     fetchOrders();
   }, [isAuthenticated, user?.active_role]);
 
@@ -50,14 +47,25 @@ export default function MitraOrdersPage() {
   const formatTime = (t: string) => new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   const isActiveStatus = (status: OrderStatus) => 
-    !['COMPLETED', 'CANCELLED', 'DISPUTED'].includes(status);
+    !['COMPLETED', 'CANCELLED', 'DISPUTED', 'REJECTED'].includes(status as string);
 
   const filteredOrders = orders.filter(o => {
     const matchSearch = o.order_number.toLowerCase().includes(search.toLowerCase()) || 
                         o.customer_name.toLowerCase().includes(search.toLowerCase());
-    const matchTab = activeTab === 'ACTIVE' ? isActiveStatus(o.status) : !isActiveStatus(o.status);
+    
+    let matchTab = false;
+    if (activeTab === 'WAITING') {
+      matchTab = o.status === 'WAITING_CONFIRMATION';
+    } else if (activeTab === 'ACTIVE') {
+      matchTab = isActiveStatus(o.status) && o.status !== 'WAITING_CONFIRMATION';
+    } else {
+      matchTab = !isActiveStatus(o.status) && o.status !== 'WAITING_CONFIRMATION';
+    }
+
     return matchSearch && matchTab;
   });
+
+  const waitingCount = orders.filter(o => o.status === 'WAITING_CONFIRMATION').length;
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
@@ -93,6 +101,17 @@ export default function MitraOrdersPage() {
           {/* Tabs */}
           <div className="flex px-4 border-t border-[#e5e2e1]">
             <button
+              onClick={() => setActiveTab('WAITING')}
+              className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 flex items-center justify-center gap-2 ${activeTab === 'WAITING' ? 'border-[#b51822] text-[#b51822]' : 'border-transparent text-[#9e8e8c]'}`}
+            >
+              Masuk
+              {waitingCount > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'WAITING' ? 'bg-[#b51822] text-white' : 'bg-[#e5e2e1] text-[#5b403e]'}`}>
+                  {waitingCount}
+                </span>
+              )}
+            </button>
+            <button
               onClick={() => setActiveTab('ACTIVE')}
               className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${activeTab === 'ACTIVE' ? 'border-[#b51822] text-[#b51822]' : 'border-transparent text-[#9e8e8c]'}`}
             >
@@ -116,7 +135,7 @@ export default function MitraOrdersPage() {
         ) : filteredOrders.length === 0 ? (
           <div className="text-center py-10">
             <Package className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
-            <p className="text-sm text-[#5b403e]">Belum ada pesanan {activeTab === 'ACTIVE' ? 'aktif' : 'di riwayat'}.</p>
+            <p className="text-sm text-[#5b403e]">Belum ada pesanan {activeTab === 'ACTIVE' ? 'aktif' : activeTab === 'WAITING' ? 'baru' : 'di riwayat'}.</p>
           </div>
         ) : (
           filteredOrders.map(order => (

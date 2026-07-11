@@ -27,7 +27,7 @@ export default function MitraVerificationStatusPage() {
 
   const fetchStatus = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/mitra/profile');
+    const res = await fetchAPI<any>('/partners/me');
     if (res.success && res.data) {
       setStatus(res.data.verification_status || 'VERIFIED');
       setReason(res.data.rejection_reason || null);

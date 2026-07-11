@@ -26,6 +26,7 @@ export default function WalletPage() {
   const router = useRouter();
 
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+  const [filterType, setFilterType] = useState<'ALL' | 'IN' | 'OUT'>('ALL');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -88,7 +89,29 @@ export default function WalletPage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <h3 className="font-bold text-[#1c1b1b] mb-4">Riwayat Transaksi</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-[#1c1b1b]">Riwayat Transaksi</h3>
+          <div className="flex bg-white rounded-lg border border-[#e5e2e1] p-1 shadow-sm">
+            <button 
+              onClick={() => setFilterType('ALL')}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'ALL' ? 'bg-[#f7f5f4] text-[#1c1b1b]' : 'text-[#9e8e8c] hover:text-[#5b403e]'}`}
+            >
+              Semua
+            </button>
+            <button 
+              onClick={() => setFilterType('IN')}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'IN' ? 'bg-[#F0FFF4] text-[#38A169]' : 'text-[#9e8e8c] hover:text-[#5b403e]'}`}
+            >
+              Masuk
+            </button>
+            <button 
+              onClick={() => setFilterType('OUT')}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'OUT' ? 'bg-[#FFF5F5] text-[#E53E3E]' : 'text-[#9e8e8c] hover:text-[#5b403e]'}`}
+            >
+              Keluar
+            </button>
+          </div>
+        </div>
 
         <div className="space-y-3">
           {loading ? (
@@ -101,13 +124,13 @@ export default function WalletPage() {
                 </div>
               </div>
             ))
-          ) : transactions.length === 0 ? (
+          ) : transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').length === 0 ? (
             <div className="text-center py-10 bg-white rounded-xl border border-[#e5e2e1]">
               <History className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
               <p className="text-sm text-[#5b403e]">Belum ada transaksi.</p>
             </div>
           ) : (
-            transactions.map(t => (
+            transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').map(t => (
               <div key={t.id} className="bg-white rounded-xl border border-[#e5e2e1] p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-[#F0FFF4]' : 'bg-[#FFF5F5]'}`}>

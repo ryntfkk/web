@@ -1,0 +1,198 @@
+"use client";
+
+import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Plus, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { fetchAPI } from '@/lib/api';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { ROLE_PARTNER } from '@/lib/constants';
+
+interface Portfolio {
+  id: string;
+  photo_url: string;
+  caption?: string;
+}
+
+export default function MitraPortfolioPage() {
+  const { isLoading: authLoading, isAuthorized, user } = useRequireAuth(ROLE_PARTNER);
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isAuthorized) {
+      fetchPortfolios();
+    }
+  }, [isAuthorized]);
+
+  const fetchPortfolios = async () => {
+    setLoading(true);
+    const res = await fetchAPI<Portfolio[]>('/partners/me/portfolios');
+    if (res.success && res.data) {
+      setPortfolios(res.data);
+    }
+    setLoading(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Hapus foto ini dari portofolio?')) return;
+    
+    const res = await fetchAPI(`/partners/me/portfolios/${id}`, { method: 'DELETE' });
+    if (res.success) {
+      setPortfolios(portfolios.filter(p => p.id !== id));
+    } else {
+      alert(res.message || 'Gagal menghapus portofolio');
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (portfolios.length >= 5) {
+      setError('Maksimal 5 foto portofolio');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Format file harus berupa gambar');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Ukuran maksimal file 5MB');
+      return;
+    }
+
+    setError('');
+    setUploading(true);
+
+    try {
+      // 1. Get Presigned URL
+      const { success, data } = await fetchAPI<{ upload_url: string, file_url: string }>('/partners/upload/presigned-url', {
+        method: 'POST',
+        body: JSON.stringify({ filename: file.name, content_type: file.type }),
+      });
+
+      if (!success || !data) throw new Error('Gagal mendapatkan URL upload');
+
+      // 2. Upload to S3
+      const uploadRes = await fetch(data.upload_url, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type }
+      });
+
+      if (!uploadRes.ok) throw new Error('Gagal mengupload file ke server');
+
+      // 3. Save to backend
+      const saveRes = await fetchAPI<Portfolio>('/partners/me/portfolios', {
+        method: 'POST',
+        body: JSON.stringify({ photo_url: data.file_url, caption: '' })
+      });
+
+      if (saveRes.success && saveRes.data) {
+        setPortfolios([...portfolios, saveRes.data]);
+      } else {
+        throw new Error(saveRes.message || 'Gagal menyimpan portofolio');
+      }
+
+    } catch (err: any) {
+      setError(err.message || 'Terjadi kesalahan saat upload');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized) return null;
+
+  return (
+    <div className="page-h bg-[#f7f5f4] pb-24">
+      {/* Header */}
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+        <div className="max-w-lg mx-auto flex items-center gap-3 px-4 py-4">
+          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded transition-colors">
+            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+          </button>
+          <div>
+            <h1 className="text-base font-bold text-[#1c1b1b]">Galeri Portofolio</h1>
+            <p className="text-xs text-[#9e8e8c]">Maksimal 5 foto</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        {error && (
+          <div className="bg-[#FFF5F5] border border-[#FEB2B2] text-[#E53E3E] p-3 rounded text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-3">
+          {loading ? (
+            [1, 2].map(i => <div key={i} className="aspect-square bg-[#e5e2e1] rounded-xl animate-pulse" />)
+          ) : (
+            <>
+              {portfolios.map((item) => (
+                <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-[#e5e2e1] group bg-white">
+                  <img src={item.photo_url} alt="Portfolio" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button 
+                      onClick={() => handleDelete(item.id)}
+                      className="p-2 bg-white rounded-full text-[#E53E3E] hover:bg-[#FFF5F5] transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              
+              {portfolios.length < 5 && (
+                <div 
+                  onClick={() => !uploading && fileInputRef.current?.click()}
+                  className={`aspect-square rounded-xl border-2 border-dashed border-[#d4c8c7] flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer bg-white ${uploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#b51822] hover:bg-[#fdf2f2]'}`}
+                >
+                  {uploading ? (
+                    <Loader2 className="w-8 h-8 text-[#9e8e8c] animate-spin" />
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-[#f7f5f4] flex items-center justify-center">
+                        <Plus className="w-5 h-5 text-[#8f6f6d]" />
+                      </div>
+                      <span className="text-xs font-medium text-[#5b403e]">Tambah Foto</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        
+        {!loading && portfolios.length === 0 && (
+          <div className="text-center py-10">
+            <ImageIcon className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
+            <p className="text-sm text-[#5b403e]">Belum ada foto portofolio.</p>
+            <p className="text-xs text-[#9e8e8c] mt-1">Tambahkan foto hasil kerja Anda untuk menarik lebih banyak pelanggan.</p>
+          </div>
+        )}
+
+        <input 
+          type="file" 
+          ref={fileInputRef}
+          className="hidden" 
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+      </div>
+    </div>
+  );
+}

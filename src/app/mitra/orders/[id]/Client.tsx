@@ -3,10 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowLeft, MapPin, Calendar, MessageSquare,
-  AlertTriangle, Phone, CheckCircle2, X
-} from 'lucide-react';
+import { ArrowLeft, MessageSquare, MapPin, Calendar, Clock, Phone, Loader2, X, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
@@ -58,6 +55,10 @@ export default function MitraOrderDetailClient() {
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+
   useEffect(() => {
     
     
@@ -66,7 +67,7 @@ export default function MitraOrderDetailClient() {
 
   const fetchOrder = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>(`/mitra/orders/${orderId}`);
+    const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
       setOrder((res.data as any).data ?? res.data);
     }
@@ -105,6 +106,8 @@ export default function MitraOrderDetailClient() {
     const res = await fetchAPI(`/orders/${orderId}/${action}`, { method: 'PUT', body: JSON.stringify(body ?? {}) });
     if (res.success) {
       showToast('Berhasil!');
+      if (action === 'reject') setShowRejectModal(false);
+      if (action === 'confirm') setShowAcceptModal(false);
       await fetchOrder();
     } else {
       showToast(res.message || 'Terjadi kesalahan', 'error');
@@ -280,8 +283,8 @@ export default function MitraOrderDetailClient() {
           
           {status === 'WAITING_CONFIRMATION' && (
             <>
-              <Button variant="outline" className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded" onClick={() => handleAction('reject')} disabled={actionLoading}>Tolak</Button>
-              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('confirm')} disabled={actionLoading}>Terima</Button>
+              <Button variant="outline" className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded" onClick={() => setShowRejectModal(true)} disabled={actionLoading}>Tolak</Button>
+              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => setShowAcceptModal(true)} disabled={actionLoading}>Terima</Button>
             </>
           )}
 
@@ -292,14 +295,19 @@ export default function MitraOrderDetailClient() {
           )}
 
           {status === 'IN_PROGRESS' && (
-            <>
-              <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded flex items-center justify-center gap-1" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)}>
-                + Biaya Tambahan
+            <div className="flex flex-col w-full gap-2">
+              <Button variant="outline" className="w-full border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded flex items-center justify-center gap-2" onClick={() => window.open(`https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mitra%20ingin%20melaporkan%20kendala%20untuk%20pesanan%20%23${order.order_number}`, '_blank')}>
+                <AlertTriangle className="w-4 h-4" /> Lapor Masalah
               </Button>
-              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('complete')} disabled={actionLoading}>
-                Selesai Dikerjakan
-              </Button>
-            </>
+              <div className="flex gap-2 w-full">
+                <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded flex items-center justify-center gap-1" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)}>
+                  + Biaya Tambahan
+                </Button>
+                <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('complete')} disabled={actionLoading}>
+                  Selesai
+                </Button>
+              </div>
+            </div>
           )}
 
           {status === 'WAITING_CUSTOMER_CONFIRM' && (
@@ -329,6 +337,55 @@ export default function MitraOrderDetailClient() {
           )}
         </div>
       </div>
+
+      {/* Accept Modal */}
+      {showAcceptModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-xl w-full max-w-sm p-6">
+            <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Terima Pesanan?</h3>
+            <p className="text-sm text-[#5b403e] mb-6">Pastikan Anda siap mengerjakan pesanan sesuai jadwal dan harga yang disepakati.</p>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e]" onClick={() => setShowAcceptModal(false)} disabled={actionLoading}>Batal</Button>
+              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A]" onClick={() => handleAction('confirm')} disabled={actionLoading}>Ya, Terima</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center">
+          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-[#1c1b1b]">Tolak Pesanan</h3>
+              <button onClick={() => setShowRejectModal(false)} className="p-1 hover:bg-gray-100 rounded-full">
+                <X className="w-5 h-5 text-[#9e8e8c]" />
+              </button>
+            </div>
+            <p className="text-sm text-[#5b403e] mb-4">Silakan pilih alasan penolakan. Ini membantu kami meningkatkan kualitas layanan.</p>
+            
+            <div className="space-y-2 mb-6">
+              {['Harga tidak sesuai', 'Jadwal bentrok', 'Di luar area layanan', 'Lainnya'].map(reason => (
+                <button 
+                  key={reason}
+                  className={`w-full text-left px-4 py-3 border rounded-lg text-sm transition-colors ${rejectReason === reason ? 'border-[#b51822] bg-red-50 text-[#b51822] font-medium' : 'border-[#e5e2e1] text-[#1c1b1b] hover:border-gray-300'}`}
+                  onClick={() => setRejectReason(reason)}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+
+            <Button 
+              className="w-full bg-[#E53E3E] hover:bg-[#C53030]" 
+              disabled={!rejectReason || actionLoading}
+              onClick={() => handleAction('reject', { reason: rejectReason })}
+            >
+              {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Konfirmasi Tolak'}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

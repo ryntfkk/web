@@ -46,7 +46,7 @@ export default function AdditionalFeeFormClient() {
     setLoading(true);
     setError('');
 
-    const res = await fetchAPI(`/mitra/orders/${orderId}/additional-fees`, {
+    const res = await fetchAPI(`/orders/${orderId}/additional-fees`, {
       method: 'POST',
       body: JSON.stringify({
         type: form.type,

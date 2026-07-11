@@ -5,22 +5,26 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   User, ShieldCheck, CreditCard, ChevronRight, LayoutDashboard, Package,
-  Settings, LogOut, FileText, CheckCircle
+  Settings, LogOut, FileText, CheckCircle, RefreshCw, Image as ImageIcon
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
 import MitraBottomNav from '@/components/layout/MitraBottomNav';
+import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 
 
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
   const logout = useAuthStore(s => s.logout);
+  const { switchRole } = useAuth();
   const router = useRouter();
 
   const [verificationStatus, setVerificationStatus] = useState<string>('VERIFIED');
+  const [showSwitchModal, setShowSwitchModal] = useState(false);
 
   useEffect(() => {
     
@@ -29,7 +33,7 @@ export default function MitraProfilePage() {
   }, [isAuthenticated, user?.active_role]);
 
   const fetchProfile = async () => {
-    const res = await fetchAPI<any>('/mitra/profile');
+    const res = await fetchAPI<any>('/partners/me');
     if (res.success && res.data) {
       setVerificationStatus(res.data.verification_status || 'VERIFIED');
     }
@@ -85,10 +89,17 @@ export default function MitraProfilePage() {
             </div>
             <ChevronRight className="w-5 h-5 text-[#9e8e8c]" />
           </Link>
-          <Link href="/mitra/bank-account" className="flex items-center justify-between p-4 hover:bg-[#f7f5f4] transition-colors">
+          <Link href="/mitra/bank-account" className="flex items-center justify-between p-4 border-b border-[#e5e2e1] hover:bg-[#f7f5f4] transition-colors">
             <div className="flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-[#9e8e8c]" />
               <span className="font-semibold text-[#1c1b1b]">Rekening Bank</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#9e8e8c]" />
+          </Link>
+          <Link href="/mitra/portfolio" className="flex items-center justify-between p-4 hover:bg-[#f7f5f4] transition-colors">
+            <div className="flex items-center gap-3">
+              <ImageIcon className="w-5 h-5 text-[#9e8e8c]" />
+              <span className="font-semibold text-[#1c1b1b]">Galeri Portofolio</span>
             </div>
             <ChevronRight className="w-5 h-5 text-[#9e8e8c]" />
           </Link>
@@ -96,6 +107,18 @@ export default function MitraProfilePage() {
 
         {/* Menu Group 2: Lainnya */}
         <div className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
+          <button
+            onClick={() => setShowSwitchModal(true)}
+            className="w-full flex items-center justify-between p-4 border-b border-[#e5e2e1] hover:bg-[#f7f5f4] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <RefreshCw className="w-5 h-5 text-[#b51822]" />
+              <span className="font-semibold text-[#1c1b1b]">
+                Beralih ke Mode Pelanggan
+              </span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#9e8e8c]" />
+          </button>
           <Link href="/terms" className="flex items-center justify-between p-4 border-b border-[#e5e2e1] hover:bg-[#f7f5f4] transition-colors">
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-[#9e8e8c]" />
@@ -113,6 +136,7 @@ export default function MitraProfilePage() {
       </div>
 
       <MitraBottomNav />
+      <SwitchRoleModal isOpen={showSwitchModal} onClose={() => setShowSwitchModal(false)} />
     </div>
   );
 }

@@ -154,6 +154,12 @@ export default function MitraSchedulePage() {
         )}
 
         <div className="pt-6">
+          <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4 flex gap-2 items-start">
+            <Clock className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-yellow-700 font-medium leading-relaxed">
+              Catatan: Perubahan jam operasional hanya akan berlaku pada pesanan yang baru masuk. Pesanan yang sudah terjadwal tidak akan terpengaruh.
+            </p>
+          </div>
           <Button
             className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
             onClick={handleSave}

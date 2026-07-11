@@ -32,6 +32,8 @@ export default function MitraBankAccountPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState('');
 
   useEffect(() => {
     
@@ -52,13 +54,26 @@ export default function MitraBankAccountPage() {
     setLoading(false);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleInitiateSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.account_number || !form.account_name) {
       setError('Mohon lengkapi semua kolom');
       return;
     }
 
+    // Tampilkan modal OTP sebagai mock verifikasi keamanan
+    setError('');
+    setShowOtp(true);
+    setOtp('');
+  };
+
+  const handleConfirmOtp = async () => {
+    if (otp !== '1234') {
+      setError('Kode OTP salah (Gunakan: 1234)');
+      return;
+    }
+    setShowOtp(false);
+    
     setSaving(true);
     setError('');
 
@@ -117,7 +132,7 @@ export default function MitraBankAccountPage() {
         {loading ? (
           <div className="bg-white rounded-xl border border-[#e5e2e1] p-6 h-64 animate-pulse" />
         ) : (
-          <form onSubmit={handleSave} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
+          <form onSubmit={handleInitiateSave} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
             <div>
               <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Pilih Bank</label>
               <select
@@ -159,7 +174,7 @@ export default function MitraBankAccountPage() {
             <div className="pt-4 border-t border-[#e5e2e1]">
               <Button
                 className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
-                onClick={handleSave}
+                type="submit"
                 disabled={saving}
               >
                 {saving ? 'Menyimpan...' : 'Simpan Rekening'}
@@ -168,6 +183,45 @@ export default function MitraBankAccountPage() {
           </form>
         )}
       </div>
+
+      {/* OTP Modal */}
+      {showOtp && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-sm w-full p-6 text-center animate-in zoom-in-95">
+            <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Verifikasi Keamanan</h3>
+            <p className="text-sm text-[#5b403e] mb-6">
+              Masukkan 4 digit kode OTP (Gunakan: 1234) untuk menyetujui perubahan rekening.
+            </p>
+            
+            <input
+              type="text"
+              maxLength={4}
+              value={otp}
+              onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+              className="w-full text-center text-2xl tracking-widest p-3 border border-[#e5e2e1] rounded-lg mb-6 focus:outline-none focus:border-[#b51822] font-mono"
+              placeholder="••••"
+              autoFocus
+            />
+
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1" 
+                onClick={() => setShowOtp(false)}
+              >
+                Batal
+              </Button>
+              <Button 
+                className="flex-1 bg-[#b51822] hover:bg-[#90121a]" 
+                onClick={handleConfirmOtp}
+                disabled={otp.length !== 4}
+              >
+                Konfirmasi
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

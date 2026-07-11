@@ -166,9 +166,20 @@ export default function WithdrawPage() {
                 className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-lg font-bold text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
               />
             </div>
-            <p className="text-xs text-[#9e8e8c] mt-2 flex items-center gap-1">
+            <p className="text-xs text-[#9e8e8c] mt-2 flex items-center gap-1 mb-4">
               <AlertCircle className="w-3.5 h-3.5" /> Minimal Rp 50.000
             </p>
+            
+            <div className="border-t border-[#e5e2e1] pt-3 space-y-2">
+              <div className="flex justify-between text-sm text-[#5b403e]">
+                <span>Biaya Admin</span>
+                <span>Rp 3.000</span>
+              </div>
+              <div className="flex justify-between text-sm font-bold text-[#1c1b1b]">
+                <span>Total Diterima</span>
+                <span>{amount ? formatPrice(Math.max(0, parseInt(amount.replace(/\D/g, ''), 10) - 3000)) : 'Rp 0'}</span>
+              </div>
+            </div>
           </div>
 
           <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-4">
