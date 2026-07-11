@@ -249,7 +249,8 @@ body.chat-room {
   select {
     padding-top: 0.625rem !important;  /* 10px instead of 12px */
     padding-bottom: 0.625rem !important;
-    font-size: 0.875rem !important;  /* 14px */
+    /* 16px minimum: font < 16px pada input memicu auto-zoom iOS Safari saat fokus */
+    font-size: 1rem !important;
   }
 
   /* Compact buttons on mobile */

@@ -87,16 +87,15 @@ export default function HeroCarousel() {
         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
       </button>
 
-      {/* Dots Indicator */}
       <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 sm:gap-2">
         {HERO_SLIDES.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
+            className={`p-0 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? "bg-[#b51822] w-4 sm:w-6"
-                : "bg-white/60 hover:bg-white w-1.5 sm:w-2"
+                ? "bg-[#b51822] h-2 w-6 sm:w-8"
+                : "bg-white/70 hover:bg-white h-2 w-2"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

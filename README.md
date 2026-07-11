@@ -1,5 +1,13 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Dokumentasi untuk Developer
+
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [DESIGN_GUIDELINES.md](./DESIGN_GUIDELINES.md) | Standar desain UI/UX, border radius, form design, color palette |
+| [DEVELOPER_NOTES.md](./DEVELOPER_NOTES.md) | Arsitektur, kredensial, troubleshooting |
+| [CHANGELOG.md](./CHANGELOG.md) | Riwayat perubahan codebase |
+
 ## Getting Started
 
 First, run the development server:

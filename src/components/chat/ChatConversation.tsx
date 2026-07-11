@@ -388,7 +388,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 value={input}
                 onChange={handleTyping}
                 placeholder="Ketik pesan..."
-                className="w-full bg-transparent p-3 text-sm text-[#1c1b1b] focus:outline-none resize-none max-h-32"
+                className="w-full bg-transparent p-3 text-base sm:text-sm text-[#1c1b1b] focus:outline-none resize-none max-h-32"
                 rows={1}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
