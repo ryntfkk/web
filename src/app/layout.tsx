@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import AppChrome from "@/components/layout/AppChrome";
+import TopNavbar from "@/components/layout/TopNavbar";
+import BottomNav from "@/components/layout/BottomNav";
+import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/query-provider";
 import AuthProvider from "@/components/providers/auth-provider";
+import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 
 // Load Inter font with proper weights
 const inter = Inter({
@@ -24,10 +27,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`h-full antialiased ${inter.variable}`}>
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
+      <body className="min-h-full flex flex-col font-sans bg-background text-foreground pb-16 md:pb-0">
         <QueryProvider>
           <AuthProvider>
-            <AppChrome>{children}</AppChrome>
+            <TopNavbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <BottomNav />
+            <FloatingChatWrapper />
           </AuthProvider>
         </QueryProvider>
       </body>
