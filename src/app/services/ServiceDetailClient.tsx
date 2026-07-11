@@ -203,7 +203,7 @@ function DetailContent() {
   }
 
   // ── Normal ───────────────────────────────────────────────────────
-  const mainPhoto = service.photo_url || PLACEHOLDER_IMG;
+  const mainPhoto = service.photo_url || PLACEHOLDER_SERVICE;
   const hasMultiplePhotos = !!service.photos && service.photos.length > 1;
   const allPhotos = hasMultiplePhotos ? service.photos : [{ id: 'main', photo_url: mainPhoto }];
   const includedItems = service.included_items ?? [];
