@@ -3,9 +3,12 @@
 import Link from 'next/link';
 import { Home, ClipboardList, MessageSquare, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useAuthStore } from '@/lib/store/authStore';
+import MitraBottomNav from './MitraBottomNav';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const activeRole = useAuthStore((s) => s.user?.active_role);
 
   // Sembunyikan BottomNav pada:
   // 1. Room chat (/chat/{id}) — area percakapan penuh; daftar chat (/chat) tetap tampil.
@@ -14,6 +17,25 @@ export default function BottomNav() {
   //    detail pesanan, form alamat) agar tombol aksi tidak tertutup nav.
   //    /orders exact tetap tampil karena Pesanan adalah tab utama.
   const p = pathname ?? '';
+
+  // Mode Mitra: di halaman BERSAMA (chat list, notifikasi, dll) tampilkan
+  // MitraBottomNav agar navigasi mitra tetap konsisten (docs 3.2 — Chat
+  // adalah bagian dari mode mitra). Area /mitra/* merender nav-nya sendiri.
+  if (activeRole === 'partner') {
+    const hideForPartner =
+      p.startsWith('/mitra') ||       // dirender oleh halaman mitra sendiri
+      p.startsWith('/chat/') ||       // room chat = layar penuh
+      p.startsWith('/book') ||
+      p.startsWith('/payment') ||
+      p.startsWith('/orders/') ||
+      p.startsWith('/services') ||
+      p.startsWith('/profile/addresses');
+    if (hideForPartner) return null;
+    // Tanpa md:hidden — area mitra memakai MitraBottomNav di semua ukuran layar
+    // (header pelanggan tidak ada di mode mitra).
+    return <MitraBottomNav />;
+  }
+
   const hideNav =
     p.startsWith('/chat/') ||
     p.startsWith('/mitra') ||

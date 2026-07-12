@@ -39,9 +39,19 @@ async function refreshAccessToken(): Promise<boolean> {
 /**
  * Public helper so the AuthProvider can trigger a silent refresh on app
  * start-up without duplicating the refresh logic.
+ *
+ * PENTING: memakai dedup `refreshPromise` yang sama dengan jalur retry-401
+ * di fetchAPI. Tanpa ini, dua request /auth/refresh bisa berjalan paralel
+ * saat app start; karena backend me-rotate refresh token, request kedua
+ * membawa cookie lama yang sudah dihapus → sesi mati → user terlempar.
  */
 export async function silentRefresh(): Promise<boolean> {
-  return refreshAccessToken();
+  if (!refreshPromise) {
+    refreshPromise = refreshAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
 }
 
 // ── Public API helper ───────────────────────────────────────────────
@@ -69,14 +79,8 @@ export async function fetchAPI<T>(
 
     // ── 401 → attempt token refresh then retry ONCE ─────────────────
     if (response.status === 401 && endpoint !== '/auth/refresh') {
-      // If a refresh is already in-flight, wait for it; otherwise start one
-      if (!refreshPromise) {
-        refreshPromise = refreshAccessToken().finally(() => {
-          refreshPromise = null;
-        });
-      }
-
-      const refreshed = await refreshPromise;
+      // Satu jalur refresh untuk seluruh app (dedup via silentRefresh)
+      const refreshed = await silentRefresh();
 
       if (refreshed) {
         // Retry the original request with the new access token

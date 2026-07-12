@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { X, Briefcase, User, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { fetchAPI } from '@/lib/api';
+import { getErrorMessage } from '@/types/api';
 
 interface SwitchRoleModalProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
   const { user, switchRole } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isOpen || !user) return null;
 
@@ -24,18 +27,34 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
       return;
     }
 
+    setLoading(true);
+    setError('');
+
+    // Jangan percaya store untuk partner_id — bisa basi setelah reload.
+    // Verifikasi ke server sebelum menyimpulkan user belum terdaftar mitra.
     if (targetRole === 'partner' && !user.partner_id) {
-      // Buka halaman pendaftaran mitra jika belum terdaftar
-      router.push('/mitra/register');
-      onClose();
+      const check = await fetchAPI<any>('/partners/me');
+      if (!check.success || !check.data) {
+        // Benar-benar belum terdaftar → arahkan ke pendaftaran
+        setLoading(false);
+        onClose();
+        router.push('/mitra/register');
+        return;
+      }
+      // Terdaftar (status apa pun) → lanjutkan switch; guard/halaman mitra
+      // yang menangani status PENDING/REJECTED.
+    }
+
+    const res = await switchRole(targetRole);
+    setLoading(false);
+
+    if (!res?.success) {
+      // JANGAN navigasi saat gagal — tampilkan error agar user tahu.
+      setError(getErrorMessage(res ?? { success: false }));
       return;
     }
 
-    setLoading(true);
-    await switchRole(targetRole);
-    setLoading(false);
     onClose();
-
     // Redirect to respective dashboard
     if (targetRole === 'partner') {
       router.push('/mitra/dashboard');
@@ -112,6 +131,12 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
           <div className="mt-4 flex items-center justify-center text-sm text-[#5b403e]">
             <RefreshCw className="w-4 h-4 mr-2 animate-spin text-[#b51822]" />
             Beralih mode...
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="mt-4 bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">
+            Gagal beralih mode: {error}. Coba lagi.
           </div>
         )}
       </div>

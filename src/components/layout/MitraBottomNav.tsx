@@ -1,12 +1,13 @@
 "use client";
 
 import Link from 'next/link';
-import { LayoutDashboard, Package, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, MessageSquare, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/mitra/dashboard', label: 'Beranda', icon: LayoutDashboard },
   { href: '/mitra/orders', label: 'Pesanan', icon: Package },
+  { href: '/chat', label: 'Chat', icon: MessageSquare },
   { href: '/mitra/profile', label: 'Profil', icon: Settings },
 ];
 
