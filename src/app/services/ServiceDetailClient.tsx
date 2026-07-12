@@ -153,7 +153,7 @@ function DetailContent() {
           </div>
           <h2 className="text-lg font-semibold text-[#1c1b1b] mb-1">Layanan Tidak Ditemukan</h2>
           <p className="text-sm text-[#5b403e] mb-4">Pilih layanan dari katalog kami.</p>
-          <Button onClick={() => router.push('/')} className="bg-[#b51822] hover:bg-[#90121a] text-white h-9 px-5 rounded-[4px] text-sm">
+          <Button onClick={() => router.push('/')} className="bg-[#b51822] hover:bg-[#90121a] text-white h-9 px-5 rounded-md text-sm">
             Kembali ke Beranda
           </Button>
         </div>
@@ -168,12 +168,12 @@ function DetailContent() {
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2">
-              <div className="w-full aspect-square bg-[#e5e2e1] rounded-[4px] animate-pulse" />
+              <div className="w-full aspect-square bg-[#e5e2e1] rounded-md animate-pulse" />
             </div>
             <div className="w-full md:w-1/2 space-y-3">
-              <div className="h-6 bg-[#e5e2e1] rounded-[4px] animate-pulse w-3/4" />
-              <div className="h-4 bg-[#e5e2e1] rounded-[4px] animate-pulse w-1/2" />
-              <div className="h-10 bg-[#e5e2e1] rounded-[4px] animate-pulse w-1/3 mt-6" />
+              <div className="h-6 bg-[#e5e2e1] rounded-md animate-pulse w-3/4" />
+              <div className="h-4 bg-[#e5e2e1] rounded-md animate-pulse w-1/2" />
+              <div className="h-10 bg-[#e5e2e1] rounded-md animate-pulse w-1/3 mt-6" />
             </div>
           </div>
         </div>
@@ -194,8 +194,8 @@ function DetailContent() {
           <h2 className="text-lg font-semibold text-[#1c1b1b] mb-1">Gagal Memuat</h2>
           <p className="text-sm text-[#5b403e] mb-4">Tidak dapat memuat detail layanan.</p>
           <div className="flex gap-2 justify-center">
-            <Button variant="outline" onClick={() => refetch()} className="border-[#e5e2e1] h-9 px-4 rounded-[4px] text-sm">Coba Lagi</Button>
-            <Button onClick={() => router.push('/')} className="bg-[#b51822] hover:bg-[#90121a] text-white h-9 px-4 rounded-[4px] text-sm">Kembali</Button>
+            <Button variant="outline" onClick={() => refetch()} className="border-[#e5e2e1] h-9 px-4 rounded-md text-sm">Coba Lagi</Button>
+            <Button onClick={() => router.push('/')} className="bg-[#b51822] hover:bg-[#90121a] text-white h-9 px-4 rounded-md text-sm">Kembali</Button>
           </div>
         </div>
       </div>
@@ -222,12 +222,12 @@ function DetailContent() {
         </div>
 
         {/* Main Content - Shopee Style */}
-        <div className="bg-white sm:rounded-[4px] sm:shadow-sm">
+        <div className="bg-white sm:rounded-md sm:shadow-sm">
           <div className="flex flex-col md:flex-row">
             {/* Left: Images */}
             <div className="w-full md:w-[42%] p-3 sm:p-4">
               {/* Main Image — swipeable carousel (all photos) */}
-              <div className="relative w-full aspect-square bg-[#fafafa] rounded-[4px] overflow-hidden group">
+              <div className="relative w-full aspect-square bg-[#fafafa] rounded-md overflow-hidden group">
                 <div
                   ref={carouselRef}
                   onScroll={handleCarouselScroll}
@@ -282,10 +282,10 @@ function DetailContent() {
                 <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
                   {allPhotos.map((photo, idx) => (
                     <button key={photo.id} onClick={() => scrollToPhoto(idx)}
-                      className={`relative flex-shrink-0 w-14 h-14 rounded-[4px] overflow-hidden transition-all ${idx === currentPhotoIndex ? '' : 'opacity-60 hover:opacity-100'}`}>
+                      className={`relative flex-shrink-0 w-14 h-14 rounded-md overflow-hidden transition-all ${idx === currentPhotoIndex ? '' : 'opacity-60 hover:opacity-100'}`}>
                       <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" />
                       {idx === currentPhotoIndex && (
-                        <div className="absolute inset-0 rounded-[4px] ring-2 ring-inset ring-[#b51822] pointer-events-none" aria-hidden="true" />
+                        <div className="absolute inset-0 rounded-md ring-2 ring-inset ring-[#b51822] pointer-events-none" aria-hidden="true" />
                       )}
                     </button>
                   ))}
@@ -328,7 +328,7 @@ function DetailContent() {
               </div>
 
               {/* Rating, Reviews, Estimasi & Share */}
-              <div className="flex items-center justify-between gap-2 py-2.5 px-3 bg-[#fafafa] rounded-[4px] mb-4">
+              <div className="flex items-center justify-between gap-2 py-2.5 px-3 bg-[#fafafa] rounded-md mb-4">
                 <div className="flex items-center gap-3 flex-wrap min-w-0">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-[#D69E2E] text-[#D69E2E]" />
@@ -352,7 +352,7 @@ function DetailContent() {
               </div>
 
               {/* Price */}
-              <div className="bg-[#fafafa] p-3 rounded-[4px] mb-4">
+              <div className="bg-[#fafafa] p-3 rounded-md mb-4">
                 <span className="text-xs text-[#5b403e]">Harga</span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl sm:text-3xl font-bold text-[#b51822]">
@@ -364,7 +364,7 @@ function DetailContent() {
               {/* Quick Info */}
               <div className="mb-4">
                 <button onClick={() => setShowSchedule(true)}
-                  className="inline-flex items-center gap-2 h-9 px-3 bg-white border border-[#e5e2e1] rounded-[4px] hover:border-[#b51822] transition-colors text-sm text-[#1c1b1b]">
+                  className="inline-flex items-center gap-2 h-9 px-3 bg-white border border-[#e5e2e1] rounded-md hover:border-[#b51822] transition-colors text-sm text-[#1c1b1b]">
                   <Calendar className="w-4 h-4 text-[#b51822]" />
                   Lihat Jadwal
                 </button>
@@ -372,7 +372,7 @@ function DetailContent() {
 
               {/* Partner */}
               <Link href={`/${service.partner_username}`}
-                className="flex items-center gap-3 p-3 bg-[#fafafa] rounded-[4px] hover:bg-[#f0eded] transition-colors mb-4">
+                className="flex items-center gap-3 p-3 bg-[#fafafa] rounded-md hover:bg-[#f0eded] transition-colors mb-4">
                 <div className="w-12 h-12 rounded-full bg-[#e5e2e1] overflow-hidden flex-shrink-0">
                   {service.partner_avatar_url ? (
                     <Image src={service.partner_avatar_url} alt={service.partner_name} width={48} height={48} className="object-cover w-full h-full" />
@@ -392,13 +392,13 @@ function DetailContent() {
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  className={`flex-1 h-11 rounded-[4px] text-sm font-medium ${inCart ? 'border-green-500 text-green-700 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
+                  className={`flex-1 h-11 rounded-md text-sm font-medium ${inCart ? 'border-green-500 text-green-700 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
                   onClick={handleCartToggle}
                 >
                   {inCart ? <><Check className="w-4 h-4 mr-1.5" /> Ditambahkan</> : <><ShoppingCart className="w-4 h-4 mr-1.5" /> Masukan Keranjang</>}
                 </Button>
                 <Button
-                  className="flex-1 h-11 bg-[#b51822] hover:bg-[#90121a] text-white font-semibold rounded-[4px] text-sm"
+                  className="flex-1 h-11 bg-[#b51822] hover:bg-[#90121a] text-white font-semibold rounded-md text-sm"
                   onClick={handleOrderNow}
                 >
                   <Zap className="w-4 h-4 mr-1.5" />
@@ -459,7 +459,7 @@ function DetailContent() {
             {(includedItems.length > 0 || excludedItems.length > 0) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {includedItems.length > 0 && (
-                  <div className="p-3 bg-green-50 rounded-[4px]">
+                  <div className="p-3 bg-green-50 rounded-md">
                     <h4 className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1">
                       <Check className="w-3.5 h-3.5" /> Yang Termasuk
                     </h4>
@@ -471,7 +471,7 @@ function DetailContent() {
                   </div>
                 )}
                 {excludedItems.length > 0 && (
-                  <div className="p-3 bg-red-50 rounded-[4px]">
+                  <div className="p-3 bg-red-50 rounded-md">
                     <h4 className="text-xs font-semibold text-red-600 mb-2 flex items-center gap-1">
                       <X className="w-3.5 h-3.5" /> Yang Tidak Termasuk
                     </h4>
@@ -493,7 +493,7 @@ function DetailContent() {
         <div className="flex items-center gap-2 px-3 py-2.5">
           <Button
             variant="outline"
-            className={`flex-shrink-0 h-10 w-10 p-0 rounded-[4px] ${inCart ? 'border-green-500 text-green-600 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
+            className={`flex-shrink-0 h-10 w-10 p-0 rounded-md ${inCart ? 'border-green-500 text-green-600 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
             onClick={handleCartToggle}
           >
             {inCart ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
@@ -501,7 +501,7 @@ function DetailContent() {
           <div className="flex-1">
             <p className="text-base font-bold text-[#b51822]">Rp {service.price.toLocaleString('id-ID')}</p>
           </div>
-          <Button className="h-10 px-5 bg-[#b51822] hover:bg-[#90121a] text-white font-bold rounded-[4px] text-sm" onClick={handleOrderNow}>
+          <Button className="h-10 px-5 bg-[#b51822] hover:bg-[#90121a] text-white font-bold rounded-md text-sm" onClick={handleOrderNow}>
             <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan
           </Button>
         </div>
@@ -510,7 +510,7 @@ function DetailContent() {
       {/* Schedule Modal */}
       {showSchedule && (
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setShowSchedule(false)}>
-          <div className="bg-white w-full sm:max-w-md rounded-t-[12px] sm:rounded-[8px] max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-xl max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="sticky top-16 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
               <h2 className="text-base font-semibold text-[#1c1b1b]">Jadwal {service.partner_name}</h2>
               <button onClick={() => setShowSchedule(false)} className="p-1 hover:bg-[#f0eded] rounded-full">
@@ -545,24 +545,4 @@ function DetailContent() {
                 className={`w-2 h-2 rounded-full transition-all ${idx === currentPhotoIndex ? 'bg-white' : 'bg-white/40'}`} />
             ))}
           </div>
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
-            {currentPhotoIndex + 1}/{allPhotos.length}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function ServiceDetailClient() {
-  return (
-    <Suspense fallback={
-      <div className="page-h bg-[#fcf9f8] flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-[#e5e2e1] border-t-[#b51822] rounded-full animate-spin" />
-      </div>
-    }>
-      <DetailContent />
-    </Suspense>
-  );
-}
-
+          <div className="abso

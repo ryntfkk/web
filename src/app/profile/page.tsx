@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Briefcase, Phone, Mail, Star, Clock, TrendingUp, Package, Calendar, CheckCircle, XCircle, Heart } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Briefcase, Phone, Mail, Star, Clock, TrendingUp, Package, Calendar, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -30,7 +31,7 @@ interface OrderItem {
 interface Order {
   id: string;
   order_number: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled' | 'on_the_way' | 'in_progress';
+  status: string;
   total_amount: number;
   created_at: string;
   service_date?: string;
@@ -43,6 +44,21 @@ interface Order {
 
 type ActiveTab = 'profile' | 'orders' | 'settings';
 type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
+
+// Canonical backend statuses grouped into UI filters (mirrors /orders page).
+// Backend: WAITING_CONFIRMATION, WAITING_PAYMENT, PAID, IN_PROGRESS,
+// WAITING_ADDITIONAL_PAY, WAITING_CUSTOMER_CONFIRM, COMPLETED, CANCELLED, DISPUTED
+const FILTER_GROUPS: Record<Exclude<FilterStatus, 'all'>, string[]> = {
+  pending: ['WAITING_CONFIRMATION', 'WAITING_PAYMENT'],
+  processing: ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED'],
+  completed: ['COMPLETED'],
+  cancelled: ['CANCELLED'],
+};
+
+function matchesFilter(status: string, filter: FilterStatus): boolean {
+  if (filter === 'all') return true;
+  return FILTER_GROUPS[filter].includes(status);
+}
 
 export default function ProfilePage() {
   const { user, isAuthenticated, logout, switchRole, loading } = useAuth();
@@ -88,34 +104,14 @@ export default function ProfilePage() {
     setOrdersLoading(false);
   };
 
-  const getStatusConfig = (status: Order['status']) => {
-    const configs = {
-      pending: { label: 'Menunggu', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock },
-      processing: { label: 'Diproses', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: Package },
-      in_progress: { label: 'Sedang Dikerjakan', color: 'bg-purple-100 text-purple-800 border-purple-200', icon: Clock },
-      on_the_way: { label: 'Dalam Perjalanan', color: 'bg-orange-100 text-orange-800 border-orange-200', icon: MapPin },
-      completed: { label: 'Selesai', color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
-      cancelled: { label: 'Dibatalkan', color: 'bg-red-100 text-red-800 border-red-200', icon: XCircle },
-    };
-    return configs[status] || configs.pending;
-  };
-
-  const filteredOrders = activeFilter === 'all'
-    ? orders
-    : orders.filter(order => {
-      if (activeFilter === 'pending') return order.status === 'pending';
-      if (activeFilter === 'processing') return ['processing', 'in_progress', 'on_the_way'].includes(order.status);
-      if (activeFilter === 'completed') return order.status === 'completed';
-      if (activeFilter === 'cancelled') return order.status === 'cancelled';
-      return true;
-    });
+  const filteredOrders = orders.filter(order => matchesFilter(order.status, activeFilter));
 
   const filterCounts = {
     all: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    processing: orders.filter(o => ['processing', 'in_progress', 'on_the_way'].includes(o.status)).length,
-    completed: orders.filter(o => o.status === 'completed').length,
-    cancelled: orders.filter(o => o.status === 'cancelled').length,
+    pending: orders.filter(o => matchesFilter(o.status, 'pending')).length,
+    processing: orders.filter(o => matchesFilter(o.status, 'processing')).length,
+    completed: orders.filter(o => matchesFilter(o.status, 'completed')).length,
+    cancelled: orders.filter(o => matchesFilter(o.status, 'cancelled')).length,
   };
 
   const formatDate = (dateString: string) => {
@@ -299,27 +295,32 @@ export default function ProfilePage() {
                     <h3 className="font-semibold text-[#32201f]">Informasi Akun</h3>
                   </div>
                   <div className="divide-y divide-[#e5e2e1]">
-                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    <div className="w-full flex items-center p-4 text-left">
                       <User className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Nama</span>
                         <span className="text-xs text-[#8f6f6d]">{user.name}</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </Link>
-                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    </div>
+                    <div className="w-full flex items-center p-4 text-left">
                       <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Nomor HP</span>
                         <span className="text-xs text-[#8f6f6d]">{user.phone}</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </Link>
-                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                    </div>
+                    <div className="w-full flex items-center p-4 text-left">
                       <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
                       <div className="flex-1">
                         <span className="text-[#32201f] font-medium block text-sm">Email</span>
                         <span className="text-xs text-[#8f6f6d]">{user.email || 'Belum diisi'}</span>
+                      </div>
+                    </div>
+                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
+                      <ShieldCheck className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                      <div className="flex-1">
+                        <span className="text-[#32201f] font-medium block text-sm">Keamanan Akun</span>
+                        <span className="text-xs text-[#8f6f6d]">Ubah kata sandi &amp; keamanan</span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
                     </Link>
@@ -425,9 +426,6 @@ export default function ProfilePage() {
                   ) : (
                     // Orders list
                     filteredOrders.map(order => {
-                      const statusConfig = getStatusConfig(order.status);
-                      const StatusIcon = statusConfig.icon;
-
                       return (
                         <div key={order.id} className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
                           {/* Order Header */}
@@ -440,10 +438,7 @@ export default function ProfilePage() {
                                   {formatDate(order.created_at)}
                                 </p>
                               </div>
-                              <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border rounded ${statusConfig.color}`}>
-                                <StatusIcon className="w-3 h-3" />
-                                {statusConfig.label}
-                              </span>
+                              <StatusBadge status={order.status as never} size="sm" />
                             </div>
                           </div>
 
