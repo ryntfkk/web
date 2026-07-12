@@ -14,10 +14,10 @@ import { Loader2 } from 'lucide-react';
 interface Address {
   id: string;
   label: string;
-  recipient_name: string;
-  recipient_phone: string;
-  full_address: string;
-  is_primary: boolean;
+  // Backend: address (alamat lengkap), address_detail (detail/penerima), is_default.
+  address: string;
+  address_detail?: string;
+  is_default: boolean;
 }
 
 export default function AddressesPage() {
@@ -56,7 +56,7 @@ export default function AddressesPage() {
   const handleSetPrimary = async (id: string) => {
     const res = await fetchAPI(`/users/me/addresses/${id}/primary`, { method: 'PUT' });
     if (res.success) {
-      setAddresses(prev => prev.map(a => ({ ...a, is_primary: a.id === id })));
+      setAddresses(prev => prev.map(a => ({ ...a, is_default: a.id === id })));
     }
   };
 
@@ -93,11 +93,11 @@ export default function AddressesPage() {
           </div>
         ) : (
           addresses.map(a => (
-            <div key={a.id} className={`bg-white rounded-xl border p-4 transition-colors ${a.is_primary ? 'border-[#b51822]' : 'border-[#e5e2e1]'}`}>
+            <div key={a.id} className={`bg-white rounded-xl border p-4 transition-colors ${a.is_default ? 'border-[#b51822]' : 'border-[#e5e2e1]'}`}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-[#1c1b1b]">{a.label}</h3>
-                  {a.is_primary && (
+                  {a.is_default && (
                     <span className="bg-[#b51822] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
                       Utama
                     </span>
@@ -117,10 +117,10 @@ export default function AddressesPage() {
                   </button>
                 </div>
               </div>
-              <p className="text-sm font-semibold text-[#5b403e]">{a.recipient_name} | {a.recipient_phone}</p>
-              <p className="text-sm text-[#5b403e] mt-1 leading-relaxed">{a.full_address}</p>
-              
-              {!a.is_primary && (
+              {a.address_detail && <p className="text-sm font-semibold text-[#5b403e]">{a.address_detail}</p>}
+              <p className="text-sm text-[#5b403e] mt-1 leading-relaxed">{a.address}</p>
+
+              {!a.is_default && (
                 <button
                   onClick={() => handleSetPrimary(a.id)}
                   className="mt-3 text-sm font-semibold text-[#b51822] hover:underline"

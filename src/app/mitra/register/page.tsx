@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Upload, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Upload, CheckCircle, MapPin } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
@@ -207,11 +207,20 @@ export default function MitraRegisterPage() {
               <p className="text-sm text-[#8f6f6d]">Tentukan lokasi tempat Anda bekerja (basecamp) di peta. Jarak pesanan dihitung dari lokasi ini.</p>
               
               <div className="flex-1 min-h-[300px] border border-[#d4c8c7] rounded-xl overflow-hidden relative">
-                 <MapPicker 
-                    lat={formData.basecamp_lat} 
-                    lng={formData.basecamp_lon} 
-                    onChange={(lat, lng) => setFormData({...formData, basecamp_lat: lat, basecamp_lon: lng})} 
+                 <MapPicker
+                    lat={formData.basecamp_lat}
+                    lng={formData.basecamp_lon}
+                    onChange={(lat, lng) => setFormData({...formData, basecamp_lat: lat, basecamp_lon: lng})}
+                    onResolveLocation={(loc) => { if (loc.area) setFormData((prev) => ({ ...prev, service_area: [loc.area] })); }}
                  />
+              </div>
+
+              <div className="flex items-start gap-2 p-3 bg-[#f7f5f4] rounded-lg">
+                <MapPin className="w-4 h-4 text-[#b51822] mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] text-[#8f6f6d] uppercase tracking-wide font-semibold">Lokasi terdeteksi</p>
+                  <p className="text-sm text-[#32201f] font-medium">{formData.service_area?.[0] && formData.service_area[0] !== 'general' ? formData.service_area[0] : 'Belum terdeteksi — geser pin di peta'}</p>
+                </div>
               </div>
 
               <Button className="w-full mt-auto" onClick={nextStep}>Selanjutnya</Button>

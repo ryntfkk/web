@@ -48,8 +48,9 @@ export default function MitraBankAccountPage() {
     if (res.success && res.data) {
       setForm({
         bank_code: res.data.bank_code || 'BCA',
-        account_number: res.data.account_number || '',
-        account_name: res.data.account_name || '',
+        // GET /partners/me/bank-account (BankAccountDTO) → account_number / account_name.
+        account_number: res.data.account_number || res.data.bank_account_number || '',
+        account_name: res.data.account_name || res.data.bank_account_name || '',
       });
     }
     setLoading(false);
@@ -86,9 +87,15 @@ export default function MitraBankAccountPage() {
     setSaving(true);
     setError('');
 
+    // PUT /partners/me/bank-account bind BankAccountDTO → account_number / account_name / otp.
     const res = await fetchAPI('/partners/me/bank-account', {
       method: 'PUT',
-      body: JSON.stringify({ ...form, otp })
+      body: JSON.stringify({
+        bank_code: form.bank_code,
+        account_number: form.account_number,
+        account_name: form.account_name,
+        otp,
+      })
     });
 
     if (res.success) {

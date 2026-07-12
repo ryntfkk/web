@@ -47,8 +47,10 @@ function serviceDuration(s: PartnerService): number | undefined {
 interface Address {
   id: string;
   label: string;
-  full_address: string;
-  is_primary: boolean;
+  // Backend memakai field `address` dan `is_default`.
+  address: string;
+  address_detail?: string;
+  is_default: boolean;
 }
 
 export default function BookingClient() {
@@ -194,7 +196,7 @@ export default function BookingClient() {
         const addrList = unwrapData<Address[]>(aRes.data);
         if (Array.isArray(addrList)) {
           setAddresses(addrList);
-          const primary = addrList.find((a: Address) => a.is_primary);
+          const primary = addrList.find((a: Address) => a.is_default);
           if (primary) setAddressId(primary.id);
           else if (addrList.length > 0) setAddressId(addrList[0].id);
         }
@@ -526,9 +528,9 @@ export default function BookingClient() {
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-[#1c1b1b] text-sm">{selectedAddress.label}</span>
-                          {selectedAddress.is_primary && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                          {selectedAddress.is_default && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
                         </div>
-                        <p className="text-xs text-[#5b403e] leading-snug">{selectedAddress.full_address}</p>
+                        <p className="text-xs text-[#5b403e] leading-snug">{selectedAddress.address}</p>
                       </div>
                     ) : (
                       <Button variant="outline" className="w-full border-dashed border-2 border-[#e5e2e1] text-[#b51822] hover:bg-[#FFF5F5] hover:border-[#b51822]/50 rounded-xl" onClick={() => router.push('/profile/addresses/new')}>
@@ -546,9 +548,9 @@ export default function BookingClient() {
                             <div className="min-w-0">
                               <div className="flex items-center gap-2 mb-0.5">
                                 <span className="font-semibold text-[#1c1b1b] text-sm">{a.label}</span>
-                                {a.is_primary && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                                {a.is_default && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
                               </div>
-                              <p className="text-xs text-[#5b403e] leading-snug">{a.full_address}</p>
+                              <p className="text-xs text-[#5b403e] leading-snug">{a.address}</p>
                             </div>
                           </div>
                           <input type="radio" name="address" className="hidden" checked={addressId === a.id} onChange={() => { setAddressId(a.id); setShowAddressList(false); }} />

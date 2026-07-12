@@ -1,70 +1,104 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { unwrapData } from '@/lib/order-utils';
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 
-// Leaflet mengakses `window` saat import → harus dynamic + ssr:false.
+// Leaflet mengakses `window` saat import → dynamic + ssr:false.
 const MapPicker = dynamic(() => import('@/components/MapPicker'), {
   ssr: false,
   loading: () => <div className="h-64 bg-gray-100 flex items-center justify-center rounded-lg animate-pulse"><MapPin className="w-8 h-8 text-gray-300" /></div>,
 });
 
+interface Address {
+  id: string;
+  label: string;
+  address: string;
+  address_detail?: string;
+  is_default: boolean;
+  lon?: number;
+  lat?: number;
+}
 
-export default function NewAddressPage() {
+export default function EditAddressPage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
+  const params = useParams();
+  const id = params?.id as string;
 
   const [form, setForm] = useState({
     label: '',
-    recipient_name: '',
-    recipient_phone: '',
-    full_address: '',
-    is_primary: false,
-    latitude: -6.200000,
-    longitude: 106.816666,
+    address: '',
+    address_detail: '',
+    is_default: false,
+    lon: 106.816666,
+    lat: -6.2,
   });
-  
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  useEffect(() => {
+    if (!isAuthorized) return;
+    const load = async () => {
+      setLoading(true);
+      const res = await fetchAPI<Address[]>('/users/me/addresses');
+      if (res.success && res.data) {
+        const list = unwrapData<Address[]>(res.data);
+        const a = Array.isArray(list) ? list.find((x) => x.id === id) : undefined;
+        if (a) {
+          setForm({
+            label: a.label || '',
+            address: a.address || '',
+            address_detail: a.address_detail || '',
+            is_default: Boolean(a.is_default),
+            lon: a.lon ?? 106.816666,
+            lat: a.lat ?? -6.2,
+          });
+        } else {
+          setError('Alamat tidak ditemukan');
+        }
+      }
+      setLoading(false);
+    };
+    load();
+  }, [isAuthorized, id]);
+
+  if (authLoading || loading) {
+    return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
   if (!isAuthorized) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.label || !form.recipient_name || !form.recipient_phone || !form.full_address) {
-      setError('Semua kolom wajib diisi');
+    if (!form.label || !form.address) {
+      setError('Label dan alamat lengkap wajib diisi');
       return;
     }
-
-    setLoading(true);
+    setSaving(true);
     setError('');
-
-    // Backend memakai field: label, address, address_detail, lon, lat, is_default.
-    // Info penerima tidak punya kolom sendiri → simpan di address_detail agar tidak hilang.
-    const res = await fetchAPI('/users/me/addresses', {
-      method: 'POST',
+    const res = await fetchAPI(`/users/me/addresses/${id}`, {
+      method: 'PATCH',
       body: JSON.stringify({
         label: form.label,
-        address: form.full_address,
-        address_detail: `Penerima: ${form.recipient_name} (${form.recipient_phone})`,
-        lon: form.longitude,
-        lat: form.latitude,
-        is_default: form.is_primary,
-      })
+        address: form.address,
+        address_detail: form.address_detail,
+        lon: form.lon,
+        lat: form.lat,
+        is_default: form.is_default,
+      }),
     });
-
     if (res.success) {
       router.push('/profile/addresses');
     } else {
       setError(res.message || 'Gagal menyimpan alamat');
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -76,26 +110,12 @@ export default function NewAddressPage() {
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
           </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Tambah Alamat Baru</h1>
+          <h1 className="text-base font-bold text-[#1c1b1b]">Edit Alamat</h1>
         </div>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
-          
-          {/* Pin lokasi — koordinat harus cocok dengan alamat (dipakai untuk hitung jarak & ongkos ke basecamp mitra) */}
-          <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Titik Lokasi (Pinpoint)</label>
-            <p className="text-xs text-[#8f6f6d] mb-2">Ketuk peta untuk menandai lokasi persis alamat ini.</p>
-            <div className="h-64 border border-[#e5e2e1] rounded-lg overflow-hidden">
-              <MapPicker
-                lat={form.latitude}
-                lng={form.longitude}
-                onChange={(lat, lng) => setForm({ ...form, latitude: lat, longitude: lng })}
-              />
-            </div>
-          </div>
-
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Label Alamat</label>
             <input
@@ -107,45 +127,45 @@ export default function NewAddressPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nama Penerima</label>
-              <input
-                type="text"
-                placeholder="Nama lengkap"
-                value={form.recipient_name}
-                onChange={e => setForm({ ...form, recipient_name: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nomor HP</label>
-              <input
-                type="tel"
-                placeholder="08123456789"
-                value={form.recipient_phone}
-                onChange={e => setForm({ ...form, recipient_phone: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-          </div>
-
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Alamat Lengkap</label>
             <textarea
               placeholder="Jalan, RT/RW, Patokan..."
-              value={form.full_address}
-              onChange={e => setForm({ ...form, full_address: e.target.value })}
+              value={form.address}
+              onChange={e => setForm({ ...form, address: e.target.value })}
               rows={3}
               className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Detail / Catatan (opsional)</label>
+            <input
+              type="text"
+              placeholder="Penerima, patokan, dsb."
+              value={form.address_detail}
+              onChange={e => setForm({ ...form, address_detail: e.target.value })}
+              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Titik Lokasi (Pinpoint)</label>
+            <p className="text-xs text-[#8f6f6d] mb-2">Ketuk peta untuk memperbarui lokasi persis alamat ini.</p>
+            <div className="h-64 border border-[#e5e2e1] rounded-lg overflow-hidden">
+              <MapPicker
+                lat={form.lat}
+                lng={form.lon}
+                onChange={(lat, lng) => setForm({ ...form, lat, lon: lng })}
+              />
+            </div>
+          </div>
+
           <label className="flex items-center gap-3 p-4 border border-[#e5e2e1] rounded-lg cursor-pointer hover:bg-[#f7f5f4] transition-colors">
             <input
               type="checkbox"
-              checked={form.is_primary}
-              onChange={e => setForm({ ...form, is_primary: e.target.checked })}
+              checked={form.is_default}
+              onChange={e => setForm({ ...form, is_default: e.target.checked })}
               className="w-4 h-4 text-[#b51822] focus:ring-[#b51822] border-[#e5e2e1] rounded"
             />
             <span className="text-sm font-semibold text-[#1c1b1b]">Jadikan Alamat Utama</span>
@@ -161,13 +181,12 @@ export default function NewAddressPage() {
           <Button
             className="w-full bg-[#b51822] hover:bg-[#90121a] rounded"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={saving}
           >
-            {loading ? 'Menyimpan...' : 'Simpan Alamat'}
+            {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
           </Button>
         </div>
       </div>
     </div>
   );
 }
-

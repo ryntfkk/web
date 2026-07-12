@@ -56,7 +56,9 @@ export default function MitraDashboardPage() {
       fetchAPI<any>('/notifications/unread-count')
     ]);
     if (res.success && res.data) {
-      setData(res.data);
+      // Backend mengirim `is_online` (boolean), bukan `status`.
+      // Turunkan status ACTIVE/INACTIVE agar indikator tidak selalu "Tutup Sementara".
+      setData({ ...res.data, status: res.data.is_online ? 'ACTIVE' : 'INACTIVE' });
     }
     if (unreadRes.success && unreadRes.data) {
       setUnreadCount(unreadRes.data.unread_count || 0);

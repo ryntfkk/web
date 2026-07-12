@@ -46,6 +46,12 @@ export default function MitraProfilePage() {
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
+  // Backend mengirim nilai enum lowercase: 'approved' | 'pending' | 'rejected'.
+  // Normalisasi + terima juga alias VERIFIED agar tidak keliru tampil "Ditolak".
+  const vs = (verificationStatus || '').toUpperCase();
+  const isVerified = vs === 'APPROVED' || vs === 'VERIFIED';
+  const isPending = vs === 'PENDING';
+
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header Profile Info */}
@@ -59,12 +65,12 @@ export default function MitraProfilePage() {
             <p className="text-sm text-[#5b403e]">{user?.phone}</p>
             <div className="flex items-center gap-1 mt-2">
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1 ${
-                verificationStatus === 'VERIFIED' ? 'bg-[#F0FFF4] text-[#38A169]' :
-                verificationStatus === 'PENDING' ? 'bg-[#FFFAF0] text-[#DD6B20]' :
+                isVerified ? 'bg-[#F0FFF4] text-[#38A169]' :
+                isPending ? 'bg-[#FFFAF0] text-[#DD6B20]' :
                 'bg-[#FFF5F5] text-[#E53E3E]'
               }`}>
-                {verificationStatus === 'VERIFIED' && <CheckCircle className="w-3 h-3" />}
-                {verificationStatus === 'VERIFIED' ? 'Terverifikasi' : verificationStatus === 'PENDING' ? 'Menunggu Verifikasi' : 'Ditolak'}
+                {isVerified && <CheckCircle className="w-3 h-3" />}
+                {isVerified ? 'Terverifikasi' : isPending ? 'Menunggu Verifikasi' : 'Ditolak'}
               </span>
             </div>
           </div>

@@ -14,8 +14,11 @@ interface Notification {
   id: string;
   title: string;
   body: string;
-  type: 'order' | 'payment' | 'system' | 'dispute' | 'withdrawal';
+  // Backend mengirim string bebas (mis. 'review_reminder', 'order_update').
+  type: string;
   reference_id?: string;
+  // Backend menaruh id terkait di metadata (mis. { order_id }).
+  metadata?: { order_id?: string; [k: string]: unknown };
   is_read: boolean;
   created_at: string;
 }
@@ -60,26 +63,33 @@ export default function NotificationsPage() {
       await fetchAPI(`/notifications/${n.id}/read`, { method: 'PUT' });
     }
     
-    if (n.reference_id) {
-      if (n.type === 'order' || n.type === 'dispute') {
-        router.push(`/orders/${n.reference_id}`);
-      } else if (n.type === 'payment') {
-        router.push(`/payment/${n.reference_id}`);
-      } else if (n.type === 'withdrawal') {
-        router.push(`/mitra/wallet`); // or profile/wallet depending on active role
+    // Referensi bisa datang sebagai reference_id ATAU metadata.order_id (backend memakai metadata).
+    const ref = n.reference_id || n.metadata?.order_id;
+    const t = (n.type || '').toLowerCase();
+
+    if (t === 'withdrawal') {
+      router.push('/mitra/wallet');
+      return;
+    }
+    if (ref) {
+      if (t.includes('payment')) {
+        router.push(`/payment/${ref}`);
+      } else {
+        // order_update, review_reminder, dispute, dll. → detail pesanan
+        router.push(`/orders/${ref}`);
       }
     }
   };
 
   const getIcon = (type: string) => {
-    switch (type) {
-      case 'order': return <FileText className="w-5 h-5 text-[#3182CE]" />;
-      case 'payment': return <CreditCard className="w-5 h-5 text-[#DD6B20]" />;
-      case 'system': return <CheckCircle className="w-5 h-5 text-[#38A169]" />;
-      case 'dispute': return <AlertTriangle className="w-5 h-5 text-[#b51822]" />;
-      case 'withdrawal': return <DollarSign className="w-5 h-5 text-[#5b403e]" />;
-      default: return <Bell className="w-5 h-5 text-[#8f6f6d]" />;
-    }
+    const t = (type || '').toLowerCase();
+    if (t.includes('payment')) return <CreditCard className="w-5 h-5 text-[#DD6B20]" />;
+    if (t.includes('dispute')) return <AlertTriangle className="w-5 h-5 text-[#b51822]" />;
+    if (t.includes('withdraw')) return <DollarSign className="w-5 h-5 text-[#5b403e]" />;
+    if (t.includes('review')) return <CheckCircle className="w-5 h-5 text-[#38A169]" />;
+    if (t.includes('order')) return <FileText className="w-5 h-5 text-[#3182CE]" />;
+    if (t === 'system') return <CheckCircle className="w-5 h-5 text-[#38A169]" />;
+    return <Bell className="w-5 h-5 text-[#8f6f6d]" />;
   };
 
   const formatTime = (time: string) => {

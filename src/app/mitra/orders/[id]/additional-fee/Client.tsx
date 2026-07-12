@@ -46,13 +46,19 @@ export default function AdditionalFeeFormClient() {
     setLoading(true);
     setError('');
 
+    // Backend mengharapkan { fees: [{ name, fee_type, price, quantity }] }
+    // dengan fee_type enum 'material' | 'service' (bukan 'extra_service').
     const res = await fetchAPI(`/orders/${orderId}/additional-fees`, {
       method: 'POST',
       body: JSON.stringify({
-        type: form.type,
-        item_name: form.item_name,
-        unit_price: unitPrice,
-        quantity: form.quantity
+        fees: [
+          {
+            name: form.item_name,
+            fee_type: form.type === 'material' ? 'material' : 'service',
+            price: unitPrice,
+            quantity: Number(form.quantity),
+          },
+        ],
       })
     });
 

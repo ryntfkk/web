@@ -55,8 +55,22 @@ export default function MitraSchedulePage() {
       fetchAPI<any>('/orders?role=partner')
     ]);
 
-    if (schedRes.success && schedRes.data) {
-      setSchedule({ ...schedule, ...schedRes.data });
+    if (schedRes.success && Array.isArray(schedRes.data)) {
+      // Backend mengembalikan ARRAY baris { day_of_week, open_time, close_time, is_open },
+      // bukan map per-hari. Petakan kembali ke bentuk state UI.
+      const next = { ...schedule };
+      const hhmm = (v: unknown) => String(v ?? '').match(/(\d{2}:\d{2})/)?.[1];
+      for (const row of schedRes.data as Array<Record<string, unknown>>) {
+        const day = String(row.day_of_week || '');
+        if (next[day]) {
+          next[day] = {
+            is_active: Boolean(row.is_open),
+            start_time: hhmm(row.open_time) || next[day].start_time,
+            end_time: hhmm(row.close_time) || next[day].end_time,
+          };
+        }
+      }
+      setSchedule(next);
     }
 
     if (ordersRes.success && ordersRes.data) {
@@ -77,15 +91,36 @@ export default function MitraSchedulePage() {
 
   const handleSave = async () => {
     setSaving(true);
-    const res = await fetchAPI('/partners/me/working-hours', {
-      method: 'PUT',
-      body: JSON.stringify(schedule)
-    });
-    if (res.success) {
-      showToast('Jadwal berhasil disimpan!');
-      fetchSchedule();
-    } else {
-      showToast(getErrorMessage(res), 'error');
+    // Backend menyimpan SATU hari per request dengan field
+    // { day_of_week, open_time, close_time, is_open } dan format waktu HH:MM:SS.
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    const toHms = (t: string) => (t && t.length === 5 ? `${t}:00` : t);
+    try {
+      const results = await Promise.all(
+        days.map((day) => {
+          const d = schedule[day];
+          return fetchAPI(`/partners/me/working-hours`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              day_of_week: day,
+              open_time: toHms(d.start_time),
+              close_time: toHms(d.end_time),
+              is_open: d.is_active,
+            }),
+          });
+        })
+      );
+      // Endpoint ini memakai envelope non-standar (tanpa `success`),
+      // jadi anggap berhasil bila status HTTP 2xx atau data.updated true.
+      const ok = results.every((r: any) => r?.success || r?.data?.updated || (r?.status >= 200 && r?.status < 300));
+      if (ok) {
+        showToast('Jadwal berhasil disimpan!');
+        fetchSchedule();
+      } else {
+        showToast(getErrorMessage(results.find((r: any) => !(r?.success || r?.data?.updated)) || {}), 'error');
+      }
+    } catch {
+      showToast('Gagal menyimpan jadwal', 'error');
     }
     setSaving(false);
   };
