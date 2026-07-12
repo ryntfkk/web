@@ -6,7 +6,7 @@ import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
-import { normalizeOrder, unwrapData } from '@/lib/order-utils';
+import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
@@ -35,7 +35,7 @@ export default function DisputeClient() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      setOrder(normalizeOrder(unwrapData<any>(res.data)));
+      setOrder(unwrapData<any>(res.data));
     }
     setLoading(false);
   };
@@ -70,7 +70,7 @@ export default function DisputeClient() {
       }
 
       // 2. Kirim laporan sengketa sebagai JSON (fetchAPI = auto token-refresh)
-      const res = await fetchAPI(`/disputes/`, {
+      const res = await fetchAPI(`/disputes`, {
         method: 'POST',
         body: JSON.stringify({
           order_id: orderId,

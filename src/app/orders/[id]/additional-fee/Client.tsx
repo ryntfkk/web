@@ -6,7 +6,7 @@ import { ArrowLeft, X, AlertTriangle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { normalizeOrder, unwrapData } from '@/lib/order-utils';
+import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
@@ -57,7 +57,7 @@ export default function AdditionalFeeClient() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      setOrder(normalizeOrder(unwrapData<any>(res.data)));
+      setOrder(unwrapData<any>(res.data));
     }
     setLoading(false);
   };

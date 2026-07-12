@@ -545,4 +545,19 @@ function DetailContent() {
                 className={`w-2 h-2 rounded-full transition-all ${idx === currentPhotoIndex ? 'bg-white' : 'bg-white/40'}`} />
             ))}
           </div>
-          <div className="abso
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white font-medium bg-black/50 px-3 py-1 rounded-full">
+            {currentPhotoIndex + 1} / {allPhotos.length}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ServiceDetailClient() {
+  return (
+    <Suspense fallback={<div className="p-4 text-center">Memuat layanan...</div>}>
+      <DetailContent />
+    </Suspense>
+  );
+}

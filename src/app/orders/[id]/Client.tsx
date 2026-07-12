@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { normalizeOrder } from '@/lib/order-utils';
+import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
@@ -116,7 +116,7 @@ export default function OrderDetailClient() {
     setLoading(true);
     const res = await fetchAPI<{ data: OrderDetail }>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      setOrder(normalizeOrder((res.data as any).data ?? res.data));
+      setOrder((res.data as any).data ?? res.data);
     }
     setLoading(false);
   };

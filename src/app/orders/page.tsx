@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { normalizeOrder } from '@/lib/order-utils';
+import { unwrapData } from '@/lib/order-utils';
 import { StatusBadge } from '@/components/ui/status-badge';
 
 interface OrderItem {
@@ -78,7 +78,7 @@ export default function OrdersPage() {
         ? res.data
         : (res.data as { data?: unknown[] })?.data;
       if (Array.isArray(list)) {
-        setOrders(list.map(normalizeOrder) as Order[]);
+        setOrders(list as Order[]);
       }
     }
     setLoading(false);
