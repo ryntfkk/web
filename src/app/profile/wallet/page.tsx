@@ -95,10 +95,10 @@ export default function WalletPage() {
       <div className="bg-[#b51822] text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-0 lg:top-16 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-6">
-            <button onClick={() => user?.role === ROLE_PARTNER ? router.push('/mitra/dashboard') : router.push('/profile')} className="p-2 -ml-2 hover:bg-white/10 rounded">
+            <button onClick={() => user?.active_role === ROLE_PARTNER ? router.push('/mitra/dashboard') : router.push('/profile')} className="p-2 -ml-2 hover:bg-white/10 rounded">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-base font-bold">Dompet {user?.role === ROLE_PARTNER ? 'Mitra' : 'Posko'}</h1>
+            <h1 className="text-base font-bold">Dompet {user?.active_role === ROLE_PARTNER ? 'Mitra' : 'Posko'}</h1>
           </div>
 
           <div className="flex items-center justify-between">
