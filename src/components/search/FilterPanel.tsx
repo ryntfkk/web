@@ -12,14 +12,14 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
       {/* Mobile Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-[60] md:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Panel */}
       <aside className={`
-        fixed md:static inset-y-0 right-0 z-50 w-[280px] md:w-[256px] shrink-0 bg-white border-l md:border border-[#e5e2e1] md:rounded-[4px] p-[17px] 
+        fixed md:static inset-y-0 right-0 z-[61] w-[280px] md:w-[256px] shrink-0 bg-white border-l md:border border-[#e5e2e1] md:rounded-[4px] p-[17px] 
         flex flex-col gap-6 h-full md:h-max overflow-y-auto md:overflow-visible transition-transform duration-300
         ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
         ${!isOpen && 'hidden md:flex'}

@@ -22,6 +22,9 @@ export default function WithdrawPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number>(0);
+  
+  const [useSavedBank, setUseSavedBank] = useState(true);
+  const [savedBank, setSavedBank] = useState<{bank_code: string, account_number: string, account_name: string} | null>(null);
 
   const fetchBalance = useCallback(async () => {
     const res = await fetchAPI<any>('/wallet/balance');
@@ -32,11 +35,21 @@ export default function WithdrawPage() {
     }
   }, [user?.balance]);
 
+  const fetchSavedBank = useCallback(async () => {
+    const res = await fetchAPI<any>('/partners/me/bank-account');
+    if (res.success && res.data) {
+      setSavedBank(res.data);
+    } else {
+      setUseSavedBank(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAuthorized) {
       fetchBalance();
+      fetchSavedBank();
     }
-  }, [isAuthorized, fetchBalance]);
+  }, [isAuthorized, fetchBalance, fetchSavedBank]);
 
   const BANKS = [
     { code: 'BCA', name: 'BCA' },
@@ -76,7 +89,11 @@ export default function WithdrawPage() {
       setError('Saldo tidak mencukupi');
       return;
     }
-    if (!accountNumber || !accountName) {
+    if (numAmount > walletBalance) {
+      setError('Saldo tidak mencukupi');
+      return;
+    }
+    if (!useSavedBank && (!accountNumber || !accountName)) {
       setError('Mohon lengkapi data rekening');
       return;
     }
@@ -88,9 +105,10 @@ export default function WithdrawPage() {
       method: 'POST',
       body: JSON.stringify({
         amount: numAmount,
-        bank_code: bankCode,
-        account_number: accountNumber,
-        account_name: accountName,
+        use_saved_bank: useSavedBank,
+        bank_code: !useSavedBank ? bankCode : undefined,
+        account_number: !useSavedBank ? accountNumber : undefined,
+        account_name: !useSavedBank ? accountName : undefined,
       })
     });
 
@@ -183,10 +201,36 @@ export default function WithdrawPage() {
           </div>
 
           <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-4">
-            <h3 className="font-bold text-[#1c1b1b]">Rekening Tujuan</h3>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-bold text-[#1c1b1b]">Rekening Tujuan</h3>
+              {savedBank && (
+                <button 
+                  type="button" 
+                  onClick={() => setUseSavedBank(!useSavedBank)}
+                  className="text-sm font-semibold text-[#b51822] hover:underline"
+                >
+                  {useSavedBank ? 'Ganti Rekening' : 'Pakai Rekening Tersimpan'}
+                </button>
+              )}
+            </div>
             
-            <div>
-              <label className="block text-sm font-semibold text-[#5b403e] mb-1.5">Bank / E-Wallet</label>
+            {useSavedBank && savedBank ? (
+              <div className="bg-[#f7f5f4] border border-[#e5e2e1] p-4 rounded-xl">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-bold text-[#1c1b1b]">{savedBank.bank_code}</p>
+                    <p className="text-sm text-[#5b403e] font-mono mt-1">{savedBank.account_number}</p>
+                    <p className="text-sm text-[#9e8e8c] uppercase mt-0.5">{savedBank.account_name}</p>
+                  </div>
+                  <div className="bg-[#E5F3EB] text-[#38A169] text-[10px] font-bold px-2 py-1 rounded uppercase">
+                    Tersimpan
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-[#5b403e] mb-1.5">Bank / E-Wallet</label>
               <select
                 value={bankCode}
                 onChange={e => setBankCode(e.target.value)}
@@ -215,6 +259,8 @@ export default function WithdrawPage() {
                 className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
               />
             </div>
+              </>
+            )}
           </div>
 
           {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}

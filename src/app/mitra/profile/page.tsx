@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   User, ShieldCheck, CreditCard, ChevronRight, LayoutDashboard, Package,
-  Settings, LogOut, FileText, CheckCircle, RefreshCw, Image as ImageIcon
+  Settings, LogOut, FileText, CheckCircle, RefreshCw, Image as ImageIcon, MapPin
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,12 +13,11 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
-import MitraBottomNav from '@/components/layout/MitraBottomNav';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 
 
 export default function MitraProfilePage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const logout = useAuthStore(s => s.logout);
   const { switchRole } = useAuth();
   const router = useRouter();
@@ -89,6 +88,13 @@ export default function MitraProfilePage() {
             </div>
             <ChevronRight className="w-5 h-5 text-[#9e8e8c]" />
           </Link>
+          <Link href="/mitra/basecamp" className="flex items-center justify-between p-4 border-b border-[#e5e2e1] hover:bg-[#f7f5f4] transition-colors">
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-[#9e8e8c]" />
+              <span className="font-semibold text-[#1c1b1b]">Alamat Basecamp</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#9e8e8c]" />
+          </Link>
           <Link href="/mitra/bank-account" className="flex items-center justify-between p-4 border-b border-[#e5e2e1] hover:bg-[#f7f5f4] transition-colors">
             <div className="flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-[#9e8e8c]" />
@@ -135,7 +141,6 @@ export default function MitraProfilePage() {
         </div>
       </div>
 
-      <MitraBottomNav />
       <SwitchRoleModal isOpen={showSwitchModal} onClose={() => setShowSwitchModal(false)} />
     </div>
   );

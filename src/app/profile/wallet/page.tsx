@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { ROLE_PARTNER } from '@/lib/constants';
 import { Loader2 } from 'lucide-react';
 
 
@@ -27,20 +28,51 @@ export default function WalletPage() {
 
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [filterType, setFilterType] = useState<'ALL' | 'IN' | 'OUT'>('ALL');
+  const [timeFilter, setTimeFilter] = useState<'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL'>('ALL');
   const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState(0);
+  const [summary, setSummary] = useState({ total_in: 0, total_out: 0 });
 
   useEffect(() => {
-    
-    fetchData();
-  }, [isAuthenticated]);
+    if (isAuthenticated) fetchData();
+  }, [isAuthenticated, timeFilter]);
 
   const fetchData = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/wallet/transactions');
-    if (res.success && res.data) {
-      setTransactions(res.data);
+    let query = '';
+    if (timeFilter === 'THIS_MONTH') {
+      const d = new Date();
+      const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
+      query = `?start_date=${start}&end_date=${end}`;
+    } else if (timeFilter === 'LAST_3_MONTHS') {
+      const d = new Date();
+      const start = new Date(d.getFullYear(), d.getMonth() - 2, 1).toISOString().split('T')[0];
+      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
+      query = `?start_date=${start}&end_date=${end}`;
     }
-    setLoading(false);
+
+    try {
+      const [txRes, balRes] = await Promise.all([
+        fetchAPI<any>(`/wallet/transactions${query}`),
+        fetchAPI<any>('/wallet/balance')
+      ]);
+
+      if (txRes.success && txRes.data) {
+        setTransactions(txRes.data.data || []);
+        if (txRes.data.summary) {
+          setSummary(txRes.data.summary);
+        }
+      }
+      
+      if (balRes.success && balRes.data) {
+        setBalance(balRes.data.balance || 0);
+      }
+    } catch (e) {
+      console.error("Failed to fetch wallet data:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
@@ -63,16 +95,16 @@ export default function WalletPage() {
       <div className="bg-[#b51822] text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-0 lg:top-16 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-6">
-            <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-white/10 rounded">
+            <button onClick={() => user?.role === ROLE_PARTNER ? router.push('/mitra/dashboard') : router.push('/profile')} className="p-2 -ml-2 hover:bg-white/10 rounded">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-base font-bold">Dompet Posko</h1>
+            <h1 className="text-base font-bold">Dompet {user?.role === ROLE_PARTNER ? 'Mitra' : 'Posko'}</h1>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-white/80 mb-1">Total Saldo</p>
-              <h2 className="text-3xl font-bold tracking-tight">{formatPrice(user?.balance || 0)}</h2>
+              <h2 className="text-3xl font-bold tracking-tight">{formatPrice(balance)}</h2>
             </div>
             <WalletIcon className="w-10 h-10 text-white/20" />
           </div>
@@ -88,9 +120,31 @@ export default function WalletPage() {
         </Button>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-lg mx-auto px-4 mt-6 flex gap-4">
+        <div className="flex-1 bg-white rounded-xl border border-[#e5e2e1] p-3 shadow-sm">
+          <p className="text-xs text-[#5b403e] mb-1">Total Pemasukan</p>
+          <p className="font-bold text-[#38A169]">{formatPrice(summary.total_in)}</p>
+        </div>
+        <div className="flex-1 bg-white rounded-xl border border-[#e5e2e1] p-3 shadow-sm">
+          <p className="text-xs text-[#5b403e] mb-1">Total Pengeluaran</p>
+          <p className="font-bold text-[#E53E3E]">{formatPrice(summary.total_out)}</p>
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 mt-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-[#1c1b1b]">Riwayat Transaksi</h3>
+          <select 
+            value={timeFilter}
+            onChange={(e) => setTimeFilter(e.target.value as any)}
+            className="text-xs border border-[#e5e2e1] rounded-md px-2 py-1 text-[#5b403e] bg-white focus:outline-none focus:border-[#b51822]"
+          >
+            <option value="ALL">Semua Waktu</option>
+            <option value="THIS_MONTH">Bulan Ini</option>
+            <option value="LAST_3_MONTHS">3 Bulan Terakhir</option>
+          </select>
+        </div>
+        <div className="flex items-center justify-between mb-4">
           <div className="flex bg-white rounded-lg border border-[#e5e2e1] p-1 shadow-sm">
             <button 
               onClick={() => setFilterType('ALL')}

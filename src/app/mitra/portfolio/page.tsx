@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { ROLE_PARTNER } from '@/lib/constants';
+import { getErrorMessage } from '@/types/api';
 
 interface Portfolio {
   id: string;
@@ -15,7 +16,7 @@ interface Portfolio {
 }
 
 export default function MitraPortfolioPage() {
-  const { isLoading: authLoading, isAuthorized, user } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user } = useRequireAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +47,7 @@ export default function MitraPortfolioPage() {
     if (res.success) {
       setPortfolios(portfolios.filter(p => p.id !== id));
     } else {
-      alert(res.message || 'Gagal menghapus portofolio');
+      alert(getErrorMessage(res));
     }
   };
 
@@ -99,7 +100,7 @@ export default function MitraPortfolioPage() {
       if (saveRes.success && saveRes.data) {
         setPortfolios([...portfolios, saveRes.data]);
       } else {
-        throw new Error(saveRes.message || 'Gagal menyimpan portofolio');
+        throw new Error(getErrorMessage(saveRes) || 'Gagal menyimpan portofolio');
       }
 
     } catch (err: any) {
@@ -118,7 +119,7 @@ export default function MitraPortfolioPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center gap-3 px-4 py-4">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded transition-colors">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />

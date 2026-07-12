@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { ROLE_PARTNER } from '@/lib/constants';
+import { getErrorMessage } from '@/types/api';
 
 export default function EditMitraServicePage() {
-  const { isLoading: authLoading, isAuthorized } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const serviceId = params?.id as string;
@@ -23,6 +25,9 @@ export default function EditMitraServicePage() {
     included_items: '',
     excluded_items: '',
   });
+
+  const [existingPhotos, setExistingPhotos] = useState<{id: string, photo_url: string}[]>([]);
+  const [newPhotos, setNewPhotos] = useState<File[]>([]);
 
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
@@ -52,6 +57,11 @@ export default function EditMitraServicePage() {
             });
           } else {
             setError('Layanan tidak ditemukan');
+          }
+
+          const photosRes = await fetchAPI<any>(`/partners/me/services/${serviceId}/photos`);
+          if (photosRes.success && photosRes.data) {
+            setExistingPhotos(photosRes.data);
           }
         }
       } catch (err) {
@@ -98,10 +108,39 @@ export default function EditMitraServicePage() {
     });
 
     if (res.success) {
+      if (newPhotos.length > 0) {
+        for (const file of newPhotos) {
+          try {
+            const presigned = await fetchAPI<any>('/partners/upload/presigned-url', {
+              method: 'POST', body: JSON.stringify({filename: file.name, content_type: file.type})
+            });
+            if (presigned.success && presigned.data) {
+              const upload = await fetch(presigned.data.upload_url, {
+                method: 'PUT', body: file, headers: {'Content-Type': file.type}
+              });
+              if (upload.ok) {
+                await fetchAPI(`/partners/me/services/${serviceId}/photos`, {
+                  method: 'POST', body: JSON.stringify({photo_url: presigned.data.file_url})
+                });
+              }
+            }
+          } catch(e) { console.error("failed upload", e) }
+        }
+      }
       router.push('/mitra/services');
     } else {
-      setError(res.message || 'Gagal mengubah layanan');
+      setError(getErrorMessage(res));
       setLoading(false);
+    }
+  };
+
+  const handleDeletePhoto = async (photoId: string) => {
+    if (!confirm('Hapus foto ini?')) return;
+    const res = await fetchAPI(`/partners/me/services/photos/${photoId}`, { method: 'DELETE' });
+    if (res.success) {
+      setExistingPhotos(existingPhotos.filter(p => p.id !== photoId));
+    } else {
+      alert('Gagal menghapus foto');
     }
   };
 
@@ -125,7 +164,7 @@ export default function EditMitraServicePage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
           <button type="button" onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -219,6 +258,31 @@ export default function EditMitraServicePage() {
               rows={3}
               className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Foto Layanan</label>
+            <div className="flex flex-wrap gap-3 mb-3">
+              {existingPhotos.map(photo => (
+                <div key={photo.id} className="relative w-20 h-20 rounded-md border border-[#e5e2e1] overflow-hidden group">
+                  <img src={photo.photo_url} alt="Service" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePhoto(photo.id)}
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <PhotoUploader
+              value={newPhotos}
+              onChange={setNewPhotos}
+              maxPhotos={5 - existingPhotos.length}
+            />
+            <p className="text-xs text-[#9e8e8c] mt-2">Format: JPG, PNG. Maks. 5MB per foto. Maksimal 5 foto ({existingPhotos.length + newPhotos.length}/5).</p>
           </div>
 
           {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}

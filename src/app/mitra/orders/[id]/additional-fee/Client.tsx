@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { ROLE_PARTNER } from '@/lib/constants';
+import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
 
 export default function AdditionalFeeFormClient() {
-  const { isLoading: authLoading, isAuthorized } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -57,9 +58,9 @@ export default function AdditionalFeeFormClient() {
 
     if (res.success) {
       setSuccess(true);
-      setTimeout(() => router.push(`/mitra/orders/${orderId}`), 2000);
+      setTimeout(() => router.replace(`/mitra/orders/${orderId}`), 2000);
     } else {
-      setError(res.message || 'Gagal mengajukan biaya tambahan');
+      setError(getErrorMessage(res));
     }
     
     setLoading(false);
@@ -98,7 +99,7 @@ export default function AdditionalFeeFormClient() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />

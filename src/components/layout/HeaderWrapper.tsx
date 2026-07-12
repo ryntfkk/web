@@ -53,6 +53,12 @@ export default function HeaderWrapper() {
     setMounted(true);
   }, []);
 
+  // Area mitra: header pelanggan tidak boleh muncul di breakpoint mana pun
+  // (mode mitra punya navigasi sendiri — MitraBottomNav)
+  if (pathname.startsWith("/mitra")) {
+    return null;
+  }
+
   // During SSR, render header normally (will be corrected on client)
   if (!mounted) {
     return <TopNavbar />;

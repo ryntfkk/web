@@ -11,6 +11,7 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { ROLE_PARTNER } from '@/lib/constants';
+import { getErrorMessage } from '@/types/api';
 
 
 interface MitraOrderDetail {
@@ -44,7 +45,7 @@ interface MitraOrderDetail {
 }
 
 export default function MitraOrderDetailClient() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -54,9 +55,11 @@ export default function MitraOrderDetailClient() {
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const [showRejectModal, setShowRejectModal] = useState(false);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [disputeReason, setDisputeReason] = useState('');
 
   useEffect(() => {
     
@@ -85,7 +88,7 @@ export default function MitraOrderDetailClient() {
     try {
       const res = await fetchAPI<any>('/chat/rooms', {
         method: 'POST',
-        body: JSON.stringify({ partner_id: order.customer?.id }),
+        body: JSON.stringify({ customer_id: order.customer?.id }),
       });
       if (res.success && res.data?.room_id) {
         router.push(`/chat/${res.data.room_id}`);
@@ -102,14 +105,24 @@ export default function MitraOrderDetailClient() {
 
   const handleAction = async (action: string, body?: object) => {
     setActionLoading(true);
-    const res = await fetchAPI(`/orders/${orderId}/${action}`, { method: 'PUT', body: JSON.stringify(body ?? {}) });
+    let res;
+    
+    if (action === 'reject') {
+      res = await fetchAPI(`/orders/${orderId}/reject`, { method: 'PUT', body: JSON.stringify({ reason: rejectReason }) });
+    } else if (action === 'dispute') {
+      res = await fetchAPI(`/orders/${orderId}/dispute`, { method: 'PUT', body: JSON.stringify({ reason: disputeReason }) });
+    } else {
+      res = await fetchAPI(`/orders/${orderId}/${action}`, { method: 'PUT', body: JSON.stringify(body ?? {}) });
+    }
+
     if (res.success) {
       showToast('Berhasil!');
+      if (action === 'accept' || action === 'confirm') setShowAcceptModal(false);
       if (action === 'reject') setShowRejectModal(false);
-      if (action === 'confirm') setShowAcceptModal(false);
+      if (action === 'dispute') setShowDisputeModal(false);
       await fetchOrder();
     } else {
-      showToast(res.message || 'Terjadi kesalahan', 'error');
+      showToast(getErrorMessage(res), 'error');
     }
     setActionLoading(false);
   };
@@ -145,13 +158,13 @@ export default function MitraOrderDetailClient() {
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
           {toast.message}
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -295,7 +308,7 @@ export default function MitraOrderDetailClient() {
 
           {status === 'IN_PROGRESS' && (
             <div className="flex flex-col w-full gap-2">
-              <Button variant="outline" className="w-full border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded flex items-center justify-center gap-2" onClick={() => window.open(`https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mitra%20ingin%20melaporkan%20kendala%20untuk%20pesanan%20%23${order.order_number}`, '_blank')}>
+              <Button variant="outline" className="w-full border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded flex items-center justify-center gap-2" onClick={() => setShowDisputeModal(true)}>
                 <AlertTriangle className="w-4 h-4" /> Lapor Masalah
               </Button>
               <div className="flex gap-2 w-full">
@@ -339,7 +352,7 @@ export default function MitraOrderDetailClient() {
 
       {/* Accept Modal */}
       {showAcceptModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4">
           <div className="bg-white rounded-xl w-full max-w-sm p-6">
             <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Terima Pesanan?</h3>
             <p className="text-sm text-[#5b403e] mb-6">Pastikan Anda siap mengerjakan pesanan sesuai jadwal dan harga yang disepakati.</p>
@@ -353,7 +366,7 @@ export default function MitraOrderDetailClient() {
 
       {/* Reject Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center">
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
           <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-[#1c1b1b]">Tolak Pesanan</h3>
@@ -381,6 +394,39 @@ export default function MitraOrderDetailClient() {
               onClick={() => handleAction('reject', { reason: rejectReason })}
             >
               {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Konfirmasi Tolak'}
+            </Button>
+          </div>
+        </div>
+      )}
+      {/* Dispute Modal */}
+      {showDisputeModal && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
+          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-[#1c1b1b]">Lapor Masalah</h3>
+              <button onClick={() => setShowDisputeModal(false)} className="p-2 -mr-2 text-[#9e8e8c] hover:text-[#5b403e]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              <p className="text-sm text-[#5b403e]">Pesanan akan dihentikan sementara (Dispute) dan tim CS akan menengahinya. Berikan alasan masalah Anda:</p>
+              
+              <textarea 
+                className="w-full border border-[#e5e2e1] rounded-lg p-3 text-sm focus:outline-none focus:border-[#b51822]"
+                placeholder="Tuliskan kendala Anda secara detail..."
+                rows={4}
+                value={disputeReason}
+                onChange={e => setDisputeReason(e.target.value)}
+              />
+            </div>
+            
+            <Button 
+              className="w-full bg-[#E53E3E] hover:bg-[#C53030] text-white rounded-xl h-12 font-bold"
+              disabled={!disputeReason.trim() || actionLoading}
+              onClick={() => handleAction('dispute')}
+            >
+              {actionLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Kirim Laporan'}
             </Button>
           </div>
         </div>

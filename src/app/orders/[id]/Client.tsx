@@ -518,7 +518,7 @@ export default function OrderDetailClient() {
 
       {/* Cancel Dialog */}
       {showCancelDialog && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-base font-semibold text-[#1c1b1b]">Batalkan Pesanan?</h3>

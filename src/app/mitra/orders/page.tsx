@@ -10,7 +10,6 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
-import MitraBottomNav from '@/components/layout/MitraBottomNav';
 
 interface Order {
   id: string;
@@ -22,7 +21,7 @@ interface Order {
 }
 
 export default function MitraOrdersPage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [orders, setOrders] = useState<Order[]>([]);
@@ -73,7 +72,7 @@ export default function MitraOrdersPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 py-4">
             <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
@@ -159,7 +158,6 @@ export default function MitraOrdersPage() {
           ))
         )}
       </div>
-      <MitraBottomNav />
     </div>
   );
 }

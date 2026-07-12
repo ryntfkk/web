@@ -12,7 +12,7 @@ import { ROLE_PARTNER } from '@/lib/constants';
 
 
 export default function MitraVerificationStatusPage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [status, setStatus] = useState<'PENDING' | 'VERIFIED' | 'REJECTED' | null>(null);
@@ -41,7 +41,7 @@ export default function MitraVerificationStatusPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -119,7 +119,7 @@ export default function MitraVerificationStatusPage() {
                   </div>
                 )}
 
-                <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold" onClick={() => router.push('/mitra/re-verify')}>
+                <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold" onClick={() => router.push('/mitra/register?mode=reverify')}>
                   Ajukan Verifikasi Ulang
                 </Button>
               </>

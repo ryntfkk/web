@@ -22,7 +22,13 @@ export function useAuth() {
 
       if (res.success && res.data) {
         authStore.login(res.data.user, res.data.access_token);
-        router.push(redirectUrl || '/');
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else if (res.data.user.active_role === 'partner') {
+          router.push('/mitra/dashboard');
+        } else {
+          router.push('/');
+        }
         // Do not set loading false on success, keep it true during navigation
       } else {
         setError(getErrorMessage(res));

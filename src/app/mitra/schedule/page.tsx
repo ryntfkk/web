@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
 
@@ -22,7 +23,7 @@ const DAYS = [
 ];
 
 export default function MitraSchedulePage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [schedule, setSchedule] = useState<Record<string, { is_active: boolean; start_time: string; end_time: string }>>({
@@ -38,6 +39,8 @@ export default function MitraSchedulePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [activeOrderCount, setActiveOrderCount] = useState(0);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   useEffect(() => {
     
@@ -47,12 +50,29 @@ export default function MitraSchedulePage() {
 
   const fetchSchedule = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/partners/me/working-hours');
-    if (res.success && res.data) {
-      // Merge with default if partial
-      setSchedule({ ...schedule, ...res.data });
+    const [schedRes, ordersRes] = await Promise.all([
+      fetchAPI<any>('/partners/me/working-hours'),
+      fetchAPI<any>('/orders?role=partner')
+    ]);
+
+    if (schedRes.success && schedRes.data) {
+      setSchedule({ ...schedule, ...schedRes.data });
     }
+
+    if (ordersRes.success && ordersRes.data) {
+      const activeCount = ordersRes.data.filter((o: any) => ['WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS'].includes(o.status)).length;
+      setActiveOrderCount(activeCount);
+    }
+
     setLoading(false);
+  };
+
+  const confirmSave = () => {
+    if (activeOrderCount > 0) {
+      setShowWarningModal(true);
+    } else {
+      handleSave();
+    }
   };
 
   const handleSave = async () => {
@@ -63,8 +83,9 @@ export default function MitraSchedulePage() {
     });
     if (res.success) {
       showToast('Jadwal berhasil disimpan!');
+      fetchSchedule();
     } else {
-      showToast(res.message || 'Gagal menyimpan jadwal', 'error');
+      showToast(getErrorMessage(res), 'error');
     }
     setSaving(false);
   };
@@ -81,13 +102,13 @@ export default function MitraSchedulePage() {
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
           {toast.message}
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -160,16 +181,37 @@ export default function MitraSchedulePage() {
               Catatan: Perubahan jam operasional hanya akan berlaku pada pesanan yang baru masuk. Pesanan yang sudah terjadwal tidak akan terpengaruh.
             </p>
           </div>
-          <Button
-            className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
-            onClick={handleSave}
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] p-4 z-50">
+        <div className="max-w-lg mx-auto">
+          <Button 
+            className="w-full bg-[#b51822] hover:bg-[#8f131b] text-white rounded-xl h-12 text-sm font-bold shadow-sm"
+            onClick={confirmSave}
             disabled={loading || saving}
           >
-            {saving ? 'Menyimpan...' : 'Simpan Jadwal'}
+            {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Simpan Jadwal'}
           </Button>
         </div>
       </div>
+
+      {/* Warning Modal */}
+      {showWarningModal && (
+        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full animate-in zoom-in-95">
+            <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Konfirmasi Perubahan</h3>
+            <p className="text-sm text-[#5b403e] mb-6">
+              Perubahan jam operasional tidak akan memengaruhi <strong>{activeOrderCount}</strong> pesanan aktif/terjadwal yang sudah ada. Tetap simpan?
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setShowWarningModal(false)}>Batal</Button>
+              <Button className="flex-1 bg-[#b51822] text-white rounded-xl" onClick={() => { setShowWarningModal(false); handleSave(); }}>Simpan</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

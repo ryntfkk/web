@@ -22,7 +22,7 @@ interface Service {
 }
 
 export default function MitraServicesPage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [services, setServices] = useState<Service[]>([]);
@@ -71,7 +71,7 @@ export default function MitraServicesPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
@@ -146,7 +146,7 @@ export default function MitraServicesPage() {
 
       {/* Delete Dialog */}
       {deleteId && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-base font-semibold text-[#1c1b1b]">Hapus Layanan?</h3>

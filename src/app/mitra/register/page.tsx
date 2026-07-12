@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Upload, CheckCircle } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
@@ -13,6 +13,8 @@ const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false }
 
 export default function MitraRegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isReverify = searchParams?.get('mode') === 'reverify';
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,25 @@ export default function MitraRegisterPage() {
 
   const nextStep = () => setStep((s) => Math.min(s + 1, 5));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+
+  useEffect(() => {
+    if (isReverify) {
+      fetchAPI<any>('/partners/me').then(res => {
+        if (res.success && res.data) {
+          setFormData(prev => ({
+            ...prev,
+            ktp_number: res.data.ktp_number || '',
+            bio: res.data.bio || '',
+            basecamp_lat: res.data.basecamp_lat || prev.basecamp_lat,
+            basecamp_lon: res.data.basecamp_lon || prev.basecamp_lon,
+            bank_code: res.data.bank_code || '',
+            bank_account_number: res.data.bank_account_number || '',
+            bank_account_name: res.data.bank_account_name || ''
+          }));
+        }
+      });
+    }
+  }, [isReverify]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     if (e.target.files && e.target.files[0]) {
@@ -107,11 +128,11 @@ export default function MitraRegisterPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] flex flex-col">
-      <div className="bg-white px-4 py-3 flex items-center border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10 shadow-sm">
+      <div className="bg-white px-4 py-3 flex items-center border-b border-[#e5e2e1] sticky top-0 z-10 shadow-sm">
         <button onClick={() => step > 1 ? prevStep() : router.back()} className="p-2 -ml-2 text-[#8f6f6d]">
           <ChevronLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-[#32201f] font-bold text-lg flex-1 text-center pr-8">Pendaftaran Mitra</h1>
+        <h1 className="text-[#32201f] font-bold text-lg flex-1 text-center pr-8">{isReverify ? 'Verifikasi Ulang' : 'Pendaftaran Mitra'}</h1>
       </div>
 
       <div className="flex-1 p-4 max-w-md w-full mx-auto">
@@ -216,7 +237,7 @@ export default function MitraRegisterPage() {
                 <input type="number" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Contoh: 1234567890" value={formData.bank_account_number} onChange={(e) => setFormData({...formData, bank_account_number: e.target.value})} />
               </div>
               <Button className="w-full mt-4" onClick={handleSubmit} disabled={loading || !formData.bank_code || !formData.bank_account_number}>
-                {loading ? 'Mengirim Data...' : 'Kirim Pendaftaran'}
+                {loading ? 'Mengirim Data...' : isReverify ? 'Perbaiki & Kirim Ulang' : 'Kirim Pendaftaran'}
               </Button>
             </div>
           )}

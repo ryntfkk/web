@@ -42,6 +42,11 @@ export interface ApiResponse<T = unknown> {
 export function getErrorMessage(res: ApiResponse): string {
   if (typeof res.error === 'object' && res.error !== null) {
     const detail = res.error as ApiErrorDetail;
+    // Backend ErrorResponse menaruh pesan spesifik (mis. "harga minimum
+    // layanan adalah Rp 50000") di error.details — prioritaskan itu.
+    if (typeof detail.details === 'string' && detail.details.length > 0) {
+      return detail.details;
+    }
     if (detail.message) return detail.message;
   }
   if (typeof res.error === 'string' && res.error.length > 0) {

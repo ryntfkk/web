@@ -71,7 +71,7 @@ export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridPr
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center" onClick={() => setSelectedIndex(null)}>
+        <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" onClick={() => setSelectedIndex(null)}>
           <button onClick={() => setSelectedIndex(null)} className="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
             <X className="w-6 h-6" />
           </button>

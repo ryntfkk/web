@@ -14,7 +14,6 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { ROLE_PARTNER } from '@/lib/constants';
-import MitraBottomNav from '@/components/layout/MitraBottomNav';
 
 
 interface DashboardData {
@@ -36,7 +35,7 @@ interface DashboardData {
 }
 
 export default function MitraDashboardPage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth(ROLE_PARTNER);
+  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
   const [data, setData] = useState<DashboardData | null>(null);
@@ -89,7 +88,7 @@ export default function MitraDashboardPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm sticky top-0 lg:top-16 z-10">
+      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm sticky top-0 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -255,8 +254,6 @@ export default function MitraDashboardPage() {
           </div>
         </div>
       </div>
-
-      <MitraBottomNav />
     </div>
   );
 }

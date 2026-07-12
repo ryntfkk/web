@@ -509,7 +509,7 @@ function DetailContent() {
 
       {/* Schedule Modal */}
       {showSchedule && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setShowSchedule(false)}>
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setShowSchedule(false)}>
           <div className="bg-white w-full sm:max-w-md rounded-t-[12px] sm:rounded-[8px] max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="sticky top-16 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
               <h2 className="text-base font-semibold text-[#1c1b1b]">Jadwal {service.partner_name}</h2>
@@ -526,7 +526,7 @@ function DetailContent() {
 
       {/* Gallery Modal */}
       {showGallery && hasMultiplePhotos && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center" onClick={() => setShowGallery(false)}>
+        <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" onClick={() => setShowGallery(false)}>
           <button onClick={() => setShowGallery(false)} className="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
             <X className="w-6 h-6" />
           </button>
