@@ -117,7 +117,8 @@ export default function MitraSchedulePage() {
         showToast('Jadwal berhasil disimpan!');
         fetchSchedule();
       } else {
-        showToast(getErrorMessage(results.find((r: any) => !(r?.success || r?.data?.updated)) || {}), 'error');
+        const failed = results.find((r: any) => !(r?.success || r?.data?.updated));
+        showToast(getErrorMessage(failed ?? { success: false }), 'error');
       }
     } catch {
       showToast('Gagal menyimpan jadwal', 'error');
