@@ -24,6 +24,8 @@ export default function NewAddressPage() {
     label: '',
     recipient_name: '',
     recipient_phone: '',
+    city: '',
+    district: '',
     full_address: '',
     is_primary: false,
     latitude: -6.200000,
@@ -38,7 +40,7 @@ export default function NewAddressPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.label || !form.recipient_name || !form.recipient_phone || !form.full_address) {
+    if (!form.label || !form.recipient_name || !form.recipient_phone || !form.full_address || !form.city || !form.district) {
       setError('Semua kolom wajib diisi');
       return;
     }
@@ -46,14 +48,15 @@ export default function NewAddressPage() {
     setLoading(true);
     setError('');
 
-    // Backend memakai field: label, address, address_detail, lon, lat, is_default.
-    // Info penerima tidak punya kolom sendiri → simpan di address_detail agar tidak hilang.
+    // Backend memakai field: label, address, address_detail, city, district, lon, lat, is_default.
     const res = await fetchAPI('/users/me/addresses', {
       method: 'POST',
       body: JSON.stringify({
         label: form.label,
         address: form.full_address,
         address_detail: `Penerima: ${form.recipient_name} (${form.recipient_phone})`,
+        city: form.city,
+        district: form.district,
         lon: form.longitude,
         lat: form.latitude,
         is_default: form.is_primary,
@@ -125,6 +128,29 @@ export default function NewAddressPage() {
                 placeholder="08123456789"
                 value={form.recipient_phone}
                 onChange={e => setForm({ ...form, recipient_phone: e.target.value })}
+                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kota / Kabupaten</label>
+              <input
+                type="text"
+                placeholder="mis. Kota Semarang"
+                value={form.city}
+                onChange={e => setForm({ ...form, city: e.target.value })}
+                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kecamatan</label>
+              <input
+                type="text"
+                placeholder="mis. Tembalang"
+                value={form.district}
+                onChange={e => setForm({ ...form, district: e.target.value })}
                 className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
               />
             </div>

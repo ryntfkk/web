@@ -21,6 +21,8 @@ interface Address {
   label: string;
   address: string;
   address_detail?: string;
+  city?: string;
+  district?: string;
   is_default: boolean;
   lon?: number;
   lat?: number;
@@ -36,6 +38,8 @@ export default function EditAddressPage() {
     label: '',
     address: '',
     address_detail: '',
+    city: '',
+    district: '',
     is_default: false,
     lon: 106.816666,
     lat: -6.2,
@@ -57,6 +61,8 @@ export default function EditAddressPage() {
             label: a.label || '',
             address: a.address || '',
             address_detail: a.address_detail || '',
+            city: a.city || '',
+            district: a.district || '',
             is_default: Boolean(a.is_default),
             lon: a.lon ?? 106.816666,
             lat: a.lat ?? -6.2,
@@ -89,6 +95,8 @@ export default function EditAddressPage() {
         label: form.label,
         address: form.address,
         address_detail: form.address_detail,
+        city: form.city,
+        district: form.district,
         lon: form.lon,
         lat: form.lat,
         is_default: form.is_default,
@@ -136,6 +144,29 @@ export default function EditAddressPage() {
               rows={3}
               className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kota / Kabupaten</label>
+              <input
+                type="text"
+                placeholder="mis. Kota Semarang"
+                value={form.city}
+                onChange={e => setForm({ ...form, city: e.target.value })}
+                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kecamatan</label>
+              <input
+                type="text"
+                placeholder="mis. Tembalang"
+                value={form.district}
+                onChange={e => setForm({ ...form, district: e.target.value })}
+                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              />
+            </div>
           </div>
 
           <div>

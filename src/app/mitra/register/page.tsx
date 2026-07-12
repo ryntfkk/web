@@ -26,7 +26,10 @@ export default function MitraRegisterPage() {
     selfie_ktp: null as File | null,
     prof_photo: null as File | null,
     bio: '',
-    service_area: ['general'], // Default
+    service_area: ['general'], // Diisi otomatis dari kota+kecamatan saat submit
+    city: '',
+    district: '',
+    address_detail: '',
     basecamp_lat: -6.200000,
     basecamp_lon: 106.816666,
     bank_code: '',
@@ -106,7 +109,10 @@ export default function MitraRegisterPage() {
           ktp_photo_url: ktpUrl,
           selfie_ktp_url: selfieUrl,
           bio: formData.bio,
-          service_area: formData.service_area,
+          service_area: [[formData.district, formData.city].filter(Boolean).join(', ') || 'general'],
+          city: formData.city,
+          district: formData.district,
+          address_detail: formData.address_detail,
           basecamp_lat: formData.basecamp_lat,
           basecamp_lon: formData.basecamp_lon,
           bank_code: formData.bank_code,
@@ -206,24 +212,30 @@ export default function MitraRegisterPage() {
               <h2 className="text-xl font-bold text-[#32201f]">Lokasi Basecamp</h2>
               <p className="text-sm text-[#8f6f6d]">Tentukan lokasi tempat Anda bekerja (basecamp) di peta. Jarak pesanan dihitung dari lokasi ini.</p>
               
-              <div className="flex-1 min-h-[300px] border border-[#d4c8c7] rounded-xl overflow-hidden relative">
+              <div className="min-h-[240px] border border-[#d4c8c7] rounded-xl overflow-hidden relative">
                  <MapPicker
                     lat={formData.basecamp_lat}
                     lng={formData.basecamp_lon}
                     onChange={(lat, lng) => setFormData({...formData, basecamp_lat: lat, basecamp_lon: lng})}
-                    onResolveLocation={(loc) => { if (loc.area) setFormData((prev) => ({ ...prev, service_area: [loc.area] })); }}
                  />
               </div>
 
-              <div className="flex items-start gap-2 p-3 bg-[#f7f5f4] rounded-lg">
-                <MapPin className="w-4 h-4 text-[#b51822] mt-0.5 shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-[11px] text-[#8f6f6d] uppercase tracking-wide font-semibold">Lokasi terdeteksi</p>
-                  <p className="text-sm text-[#32201f] font-medium">{formData.service_area?.[0] && formData.service_area[0] !== 'general' ? formData.service_area[0] : 'Belum terdeteksi — geser pin di peta'}</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-[#5b403e] block mb-1">Kota / Kabupaten</label>
+                  <input className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="mis. Kota Semarang" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-[#5b403e] block mb-1">Kecamatan</label>
+                  <input className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="mis. Tembalang" value={formData.district} onChange={(e) => setFormData({ ...formData, district: e.target.value })} />
                 </div>
               </div>
+              <div>
+                <label className="text-sm font-medium text-[#5b403e] block mb-1">Detail Alamat (opsional)</label>
+                <input className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Nama jalan, patokan, dsb." value={formData.address_detail} onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })} />
+              </div>
 
-              <Button className="w-full mt-auto" onClick={nextStep}>Selanjutnya</Button>
+              <Button className="w-full" onClick={nextStep} disabled={!formData.city || !formData.district}>Selanjutnya</Button>
             </div>
           )}
 
