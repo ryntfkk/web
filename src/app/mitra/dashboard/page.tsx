@@ -97,8 +97,8 @@ export default function MitraDashboardPage() {
         </div>
       )}
 
-      {/* Header — z-30 > z-20 konten agar card tidak menimpa header saat scroll */}
-      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm sticky top-0 z-30">
+      {/* Header — z-10 di bawah konten (z-20) agar card overlap tampil di atas background merah */}
+      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm relative z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
