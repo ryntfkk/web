@@ -218,6 +218,11 @@
   min-height: calc(100dvh - 4rem);
 }
 
+/* Safe-area bawah (iOS home indicator) — dipakai bottom nav fixed */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Halaman room chat: BottomNav disembunyikan, jadi padding bawah body tidak diperlukan */
 body.chat-room {
   padding-bottom: 0 !important;

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { ROLE_PARTNER } from '@/lib/constants';
 import { getErrorMessage } from '@/types/api';
 
 export default function EditMitraServicePage() {
@@ -33,6 +32,7 @@ export default function EditMitraServicePage() {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deletePhotoId, setDeletePhotoId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,14 +134,15 @@ export default function EditMitraServicePage() {
     }
   };
 
-  const handleDeletePhoto = async (photoId: string) => {
-    if (!confirm('Hapus foto ini?')) return;
-    const res = await fetchAPI(`/partners/me/services/photos/${photoId}`, { method: 'DELETE' });
+  const handleDeletePhoto = async () => {
+    if (!deletePhotoId) return;
+    const res = await fetchAPI(`/partners/me/services/photos/${deletePhotoId}`, { method: 'DELETE' });
     if (res.success) {
-      setExistingPhotos(existingPhotos.filter(p => p.id !== photoId));
+      setExistingPhotos(existingPhotos.filter(p => p.id !== deletePhotoId));
     } else {
-      alert('Gagal menghapus foto');
+      setError('Gagal menghapus foto');
     }
+    setDeletePhotoId(null);
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,7 +269,7 @@ export default function EditMitraServicePage() {
                   <img src={photo.photo_url} alt="Service" className="w-full h-full object-cover" />
                   <button
                     type="button"
-                    onClick={() => handleDeletePhoto(photo.id)}
+                    onClick={() => setDeletePhotoId(photo.id)}
                     className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <Trash2 className="w-5 h-5 text-white" />
@@ -298,6 +299,31 @@ export default function EditMitraServicePage() {
           </div>
         </form>
       </div>
+
+      {/* Delete Photo Dialog */}
+      {deletePhotoId && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-base font-semibold text-[#1c1b1b]">Hapus Foto?</h3>
+              <button type="button" onClick={() => setDeletePhotoId(null)}>
+                <X className="w-5 h-5 text-[#9e8e8c]" />
+              </button>
+            </div>
+            <p className="text-sm text-[#5b403e] mb-6">
+              Foto ini akan dihapus permanen dari layanan Anda.
+            </p>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setDeletePhotoId(null)}>
+                Batal
+              </Button>
+              <Button type="button" className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded" onClick={handleDeletePhoto}>
+                Hapus
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

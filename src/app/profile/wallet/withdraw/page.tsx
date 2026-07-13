@@ -145,7 +145,7 @@ export default function WithdrawPage() {
           <p className="text-sm text-[#5b403e] mb-6">
             Dana akan masuk ke rekening Anda dalam 1-2 hari kerja.
           </p>
-          <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.push('/profile/wallet')}>
+          <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet')}>
             Kembali ke Dompet
           </Button>
         </div>

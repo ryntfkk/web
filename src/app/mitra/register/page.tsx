@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Upload, CheckCircle, MapPin } from 'lucide-react';
+import { ChevronLeft, Upload, CheckCircle, Loader2 } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
@@ -11,7 +11,7 @@ import 'leaflet/dist/leaflet.css';
 // Dynamically import Map component to avoid SSR issues with Leaflet
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
 
-export default function MitraRegisterPage() {
+function MitraRegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isReverify = searchParams?.get('mode') === 'reverify';
@@ -21,10 +21,10 @@ export default function MitraRegisterPage() {
 
   // Form State
   const [formData, setFormData] = useState({
+    ktp_name: '',
     ktp_number: '',
     ktp_photo: null as File | null,
     selfie_ktp: null as File | null,
-    prof_photo: null as File | null,
     bio: '',
     service_area: ['general'], // Diisi otomatis dari kota+kecamatan saat submit
     city: '',
@@ -98,8 +98,6 @@ export default function MitraRegisterPage() {
       // Upload files
       const ktpUrl = await uploadFileToS3(formData.ktp_photo);
       const selfieUrl = await uploadFileToS3(formData.selfie_ktp);
-      // Wait, prof_photo is not in OnboardingRequest in backend? It expects ktp and selfie.
-      // We will skip prof_photo upload to S3 if not in API payload for MVP, or we add it.
 
       // Submit Form
       const res = await fetchAPI('/partners/onboarding', {
@@ -124,7 +122,7 @@ export default function MitraRegisterPage() {
 
       if (!res.success) throw new Error(typeof res.error === 'string' ? res.error : 'Gagal mengirim form');
 
-      router.push('/profile');
+      router.push('/mitra/verification-status');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -163,13 +161,13 @@ export default function MitraRegisterPage() {
               <h2 className="text-xl font-bold text-[#32201f]">Identitas Dasar</h2>
               <div>
                 <label className="text-sm font-medium text-[#5b403e] block mb-1">Nama Sesuai KTP</label>
-                <input type="text" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Nama Lengkap" value={formData.bank_account_name} onChange={(e) => setFormData({...formData, bank_account_name: e.target.value})} />
+                <input type="text" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Nama Lengkap" value={formData.ktp_name} onChange={(e) => setFormData({...formData, ktp_name: e.target.value})} />
               </div>
               <div>
                 <label className="text-sm font-medium text-[#5b403e] block mb-1">Nomor KTP (NIK)</label>
-                <input type="number" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="16 Digit NIK" value={formData.ktp_number} onChange={(e) => setFormData({...formData, ktp_number: e.target.value})} />
+                <input type="text" inputMode="numeric" maxLength={16} className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="16 Digit NIK" value={formData.ktp_number} onChange={(e) => setFormData({...formData, ktp_number: e.target.value.replace(/\D/g, '')})} />
               </div>
-              <Button className="w-full mt-4" onClick={nextStep} disabled={formData.ktp_number.length < 16}>Selanjutnya</Button>
+              <Button className="w-full mt-4" onClick={nextStep} disabled={!formData.ktp_name.trim() || formData.ktp_number.length < 16}>Selanjutnya</Button>
             </div>
           )}
 
@@ -235,7 +233,15 @@ export default function MitraRegisterPage() {
                 <input className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Nama jalan, patokan, dsb." value={formData.address_detail} onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })} />
               </div>
 
-              <Button className="w-full" onClick={nextStep} disabled={!formData.city || !formData.district}>Selanjutnya</Button>
+              <Button
+                className="w-full"
+                onClick={() => {
+                  // Prefill nama rekening dengan nama KTP bila belum diisi.
+                  if (!formData.bank_account_name) setFormData((prev) => ({ ...prev, bank_account_name: prev.ktp_name }));
+                  nextStep();
+                }}
+                disabled={!formData.city || !formData.district}
+              >Selanjutnya</Button>
             </div>
           )}
 
@@ -255,9 +261,13 @@ export default function MitraRegisterPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-[#5b403e] block mb-1">Nomor Rekening</label>
-                <input type="number" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Contoh: 1234567890" value={formData.bank_account_number} onChange={(e) => setFormData({...formData, bank_account_number: e.target.value})} />
+                <input type="text" inputMode="numeric" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Contoh: 1234567890" value={formData.bank_account_number} onChange={(e) => setFormData({...formData, bank_account_number: e.target.value.replace(/\D/g, '')})} />
               </div>
-              <Button className="w-full mt-4" onClick={handleSubmit} disabled={loading || !formData.bank_code || !formData.bank_account_number}>
+              <div>
+                <label className="text-sm font-medium text-[#5b403e] block mb-1">Nama Pemilik Rekening</label>
+                <input type="text" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822] uppercase" placeholder="SESUAI BUKU TABUNGAN" value={formData.bank_account_name} onChange={(e) => setFormData({...formData, bank_account_name: e.target.value.toUpperCase()})} />
+              </div>
+              <Button className="w-full mt-4" onClick={handleSubmit} disabled={loading || !formData.bank_code || !formData.bank_account_number || !formData.bank_account_name.trim()}>
                 {loading ? 'Mengirim Data...' : isReverify ? 'Perbaiki & Kirim Ulang' : 'Kirim Pendaftaran'}
               </Button>
             </div>
@@ -265,6 +275,15 @@ export default function MitraRegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// useSearchParams wajib dibungkus Suspense agar tidak gagal saat prerender (Next.js App Router).
+export default function MitraRegisterPage() {
+  return (
+    <Suspense fallback={<div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <MitraRegisterForm />
+    </Suspense>
   );
 }
 

@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
-import { ROLE_PARTNER } from '@/lib/constants';
 import { getErrorMessage } from '@/types/api';
 
 
@@ -17,6 +15,7 @@ const BANKS = [
   { code: 'MANDIRI', name: 'Mandiri' },
   { code: 'BNI', name: 'BNI' },
   { code: 'BRI', name: 'BRI' },
+  { code: 'BSI', name: 'BSI' },
 ];
 
 export default function MitraBankAccountPage() {
@@ -37,8 +36,7 @@ export default function MitraBankAccountPage() {
   const [otp, setOtp] = useState('');
 
   useEffect(() => {
-    
-    
+    if (!isAuthenticated) return;
     fetchBankAccount();
   }, [isAuthenticated, user?.active_role]);
 
@@ -71,7 +69,7 @@ export default function MitraBankAccountPage() {
       setError('');
       setShowOtp(true);
       setOtp('');
-      showToast('OTP berhasil dikirim (Gunakan 123456)');
+      showToast('Kode OTP telah dikirim');
     } else {
       setError(getErrorMessage(res));
     }
@@ -206,7 +204,7 @@ export default function MitraBankAccountPage() {
           <div className="bg-white rounded-xl max-w-sm w-full p-6 text-center animate-in zoom-in-95">
             <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Verifikasi Keamanan</h3>
             <p className="text-sm text-[#5b403e] mb-6">
-              Masukkan 6 digit kode OTP (Gunakan: 123456) untuk menyetujui perubahan rekening.
+              Masukkan 6 digit kode OTP yang dikirim ke nomor Anda untuk menyetujui perubahan rekening.
             </p>
             
             <input

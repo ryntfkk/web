@@ -23,9 +23,9 @@ export default function MitraBasecampPage() {
   const [kota, setKota] = useState('');
   const [kecamatan, setKecamatan] = useState('');
   const [detail, setDetail] = useState('');
-  // Preserve field lain (PATCH /partners/me menimpa penuh).
+  // Preserve bio (dikirim ulang agar tidak tertimpa). Field bank TIDAK dikirim:
+  // backend memakai COALESCE sehingga nilai lama dipertahankan bila field kosong.
   const [bio, setBio] = useState('');
-  const [bank, setBank] = useState({ bank_code: '', account_number: '', account_name: '' });
 
   useEffect(() => {
     fetchProfile();
@@ -34,10 +34,7 @@ export default function MitraBasecampPage() {
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const [profileRes, bankRes] = await Promise.all([
-        fetchAPI<any>('/partners/me'),
-        fetchAPI<any>('/partners/me/bank-account'),
-      ]);
+      const profileRes = await fetchAPI<any>('/partners/me');
       if (profileRes.success && profileRes.data) {
         const d = profileRes.data;
         if (d.basecamp_lat && d.basecamp_lon) setBasecamp({ lat: d.basecamp_lat, lon: d.basecamp_lon });
@@ -54,13 +51,6 @@ export default function MitraBasecampPage() {
         }
       } else {
         setError(getErrorMessage(profileRes));
-      }
-      if (bankRes.success && bankRes.data) {
-        setBank({
-          bank_code: bankRes.data.bank_code || '',
-          account_number: bankRes.data.account_number || bankRes.data.bank_account_number || '',
-          account_name: bankRes.data.account_name || bankRes.data.bank_account_name || '',
-        });
       }
     } catch (e) {
       setError('Gagal mengambil profil');
@@ -89,9 +79,6 @@ export default function MitraBasecampPage() {
           address_detail: detail,
           basecamp_lat: basecamp.lat,
           basecamp_lon: basecamp.lon,
-          bank_code: bank.bank_code,
-          bank_account_number: bank.account_number,
-          bank_account_name: bank.account_name,
         }),
       });
       if (res.success) {

@@ -10,10 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
-import { ROLE_PARTNER } from '@/lib/constants';
 
 
 interface DashboardData {
@@ -42,10 +40,10 @@ export default function MitraDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [togglingStatus, setTogglingStatus] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    
-    
+    if (!isAuthenticated) return;
     fetchData();
   }, [isAuthenticated, user?.active_role]);
 
@@ -76,6 +74,9 @@ export default function MitraDashboardPage() {
     });
     if (res.success) {
       setData({ ...data, status: newStatus });
+    } else {
+      setToast('Gagal mengubah status toko. Coba lagi.');
+      setTimeout(() => setToast(null), 3000);
     }
     setTogglingStatus(false);
   };
@@ -89,8 +90,15 @@ export default function MitraDashboardPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Header */}
-      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm sticky top-0 z-10">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg bg-[#E53E3E]">
+          {toast}
+        </div>
+      )}
+
+      {/* Header — z-30 > z-20 konten agar card tidak menimpa header saat scroll */}
+      <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm sticky top-0 z-30">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -161,7 +169,6 @@ export default function MitraDashboardPage() {
                   <p className="text-xs text-[#5b403e]">{data?.stats.total_reviews || 0} Ulasan</p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-[#9e8e8c]" />
             </div>
           </div>
         )}

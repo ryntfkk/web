@@ -6,7 +6,6 @@ import { ArrowLeft, ImagePlus, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { ROLE_PARTNER } from '@/lib/constants';
 import { getErrorMessage } from '@/types/api';
 
 const MIN_PRICE = 50000; // Sesuai MinTransaction backend

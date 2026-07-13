@@ -8,9 +8,8 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { ROLE_PARTNER } from '@/lib/constants';
+import { csWhatsAppUrl } from '@/lib/constants';
 import { getErrorMessage } from '@/types/api';
 
 
@@ -62,8 +61,7 @@ export default function MitraOrderDetailClient() {
   const [disputeReason, setDisputeReason] = useState('');
 
   useEffect(() => {
-    
-    
+    if (!isAuthenticated || !orderId) return;
     fetchOrder();
   }, [isAuthenticated, user?.active_role, orderId]);
 
@@ -155,7 +153,7 @@ export default function MitraOrderDetailClient() {
   const status = order.status;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-40">
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
@@ -289,7 +287,9 @@ export default function MitraOrderDetailClient() {
         </div>
       </div>
 
-      {/* Action Bar */}
+      {/* Action Bar — hanya dirender bila ada aksi untuk status ini,
+          agar tidak muncul bar putih kosong pada pesanan selesai/batal/ditolak. */}
+      {['WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'WAITING_ADDITIONAL_PAY'].includes(status as string) && (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
         <div className="max-w-lg mx-auto flex gap-3">
           
@@ -329,7 +329,7 @@ export default function MitraOrderDetailClient() {
           )}
 
           {status === 'DISPUTED' && (
-            <Button className="w-full bg-[#25D366] hover:bg-[#128C7E] rounded flex items-center justify-center gap-2" onClick={() => window.open('https://wa.me/6281234567890?text=Halo CS', '_blank')}>
+            <Button className="w-full bg-[#25D366] hover:bg-[#128C7E] rounded flex items-center justify-center gap-2" onClick={() => window.open(csWhatsAppUrl(`Halo CS Posko Jasa. Saya mitra untuk Pesanan #${order.order_number}.`), '_blank')}>
               Hubungi CS via WhatsApp
             </Button>
           )}
@@ -349,6 +349,7 @@ export default function MitraOrderDetailClient() {
           )}
         </div>
       </div>
+      )}
 
       {/* Accept Modal */}
       {showAcceptModal && (

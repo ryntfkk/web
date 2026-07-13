@@ -3,13 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Package, ArrowLeft, Search, Filter } from 'lucide-react';
+import { Calendar, Package, ArrowLeft, Search } from 'lucide-react';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
-import { ROLE_PARTNER } from '@/lib/constants';
 
 interface Order {
   id: string;
@@ -30,6 +28,7 @@ export default function MitraOrdersPage() {
   const [activeTab, setActiveTab] = useState<'WAITING' | 'ACTIVE' | 'HISTORY'>('WAITING');
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     fetchOrders();
   }, [isAuthenticated, user?.active_role]);
 
@@ -92,9 +91,6 @@ export default function MitraOrdersPage() {
                 className="w-full bg-[#f7f5f4] border border-[#e5e2e1] rounded-lg p-2.5 pl-9 text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
               />
             </div>
-            <button className="p-2.5 bg-[#f7f5f4] border border-[#e5e2e1] rounded-lg text-[#5b403e]">
-              <Filter className="w-4 h-4" />
-            </button>
           </div>
 
           {/* Tabs */}

@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle, Clock, XCircle, FileText, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
-import { ROLE_PARTNER } from '@/lib/constants';
 
 
 export default function MitraVerificationStatusPage() {
@@ -20,8 +18,7 @@ export default function MitraVerificationStatusPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    
-    
+    if (!isAuthenticated) return;
     fetchStatus();
   }, [isAuthenticated, user?.active_role]);
 

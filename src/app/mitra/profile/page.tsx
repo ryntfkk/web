@@ -4,30 +4,28 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  User, ShieldCheck, CreditCard, ChevronRight, LayoutDashboard, Package,
-  Settings, LogOut, FileText, CheckCircle, RefreshCw, Image as ImageIcon, MapPin
+  User, ShieldCheck, CreditCard, ChevronRight,
+  LogOut, FileText, CheckCircle, RefreshCw, Image as ImageIcon, MapPin
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
-import { ROLE_PARTNER } from '@/lib/constants';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 
 
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const logout = useAuthStore(s => s.logout);
-  const { switchRole } = useAuth();
   const router = useRouter();
 
-  const [verificationStatus, setVerificationStatus] = useState<string>('VERIFIED');
+  // null = belum dimuat; jangan tampilkan badge apa pun sebelum fetch selesai
+  // agar tidak keliru menampilkan "Terverifikasi" pada akun pending/ditolak.
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [showSwitchModal, setShowSwitchModal] = useState(false);
 
   useEffect(() => {
-    
-    
+    if (!isAuthenticated) return;
     fetchProfile();
   }, [isAuthenticated, user?.active_role]);
 
@@ -63,16 +61,18 @@ export default function MitraProfilePage() {
           <div>
             <h1 className="text-xl font-bold text-[#1c1b1b]">{user?.name}</h1>
             <p className="text-sm text-[#5b403e]">{user?.phone}</p>
-            <div className="flex items-center gap-1 mt-2">
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1 ${
-                isVerified ? 'bg-[#F0FFF4] text-[#38A169]' :
-                isPending ? 'bg-[#FFFAF0] text-[#DD6B20]' :
-                'bg-[#FFF5F5] text-[#E53E3E]'
-              }`}>
-                {isVerified && <CheckCircle className="w-3 h-3" />}
-                {isVerified ? 'Terverifikasi' : isPending ? 'Menunggu Verifikasi' : 'Ditolak'}
-              </span>
-            </div>
+            {verificationStatus !== null && (
+              <div className="flex items-center gap-1 mt-2">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1 ${
+                  isVerified ? 'bg-[#F0FFF4] text-[#38A169]' :
+                  isPending ? 'bg-[#FFFAF0] text-[#DD6B20]' :
+                  'bg-[#FFF5F5] text-[#E53E3E]'
+                }`}>
+                  {isVerified && <CheckCircle className="w-3 h-3" />}
+                  {isVerified ? 'Terverifikasi' : isPending ? 'Menunggu Verifikasi' : 'Ditolak'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

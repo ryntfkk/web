@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
+import { csWhatsAppUrl } from '@/lib/constants';
 import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -494,7 +495,7 @@ export default function OrderDetailClient() {
           {status === 'DISPUTED' && (
             <Button
               className="flex-1 bg-[#25D366] hover:bg-[#128C7E] rounded"
-              onClick={() => window.open(`https://wa.me/6281234567890?text=Halo CS Posko Jasa. Saya melaporkan masalah pada Pesanan %23${order.order_number}.`, '_blank')}
+              onClick={() => window.open(csWhatsAppUrl(`Halo CS Posko Jasa. Saya melaporkan masalah pada Pesanan #${order.order_number}.`), '_blank')}
             >
               Hubungi CS via WhatsApp
             </Button>

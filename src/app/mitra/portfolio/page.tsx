@@ -2,11 +2,10 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Image as ImageIcon, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { ROLE_PARTNER } from '@/lib/constants';
 import { getErrorMessage } from '@/types/api';
 
 interface Portfolio {
@@ -24,6 +23,7 @@ export default function MitraPortfolioPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthorized) {
@@ -40,15 +40,15 @@ export default function MitraPortfolioPage() {
     setLoading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Hapus foto ini dari portofolio?')) return;
-    
-    const res = await fetchAPI(`/partners/me/portfolios/${id}`, { method: 'DELETE' });
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const res = await fetchAPI(`/partners/me/portfolios/${deleteId}`, { method: 'DELETE' });
     if (res.success) {
-      setPortfolios(portfolios.filter(p => p.id !== id));
+      setPortfolios(portfolios.filter(p => p.id !== deleteId));
     } else {
-      alert(getErrorMessage(res));
+      setError(getErrorMessage(res));
     }
+    setDeleteId(null);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,8 +147,8 @@ export default function MitraPortfolioPage() {
                 <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-[#e5e2e1] group bg-white">
                   <img src={item.photo_url} alt="Portfolio" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button 
-                      onClick={() => handleDelete(item.id)}
+                    <button
+                      onClick={() => setDeleteId(item.id)}
                       className="p-2 bg-white rounded-full text-[#E53E3E] hover:bg-[#FFF5F5] transition-colors"
                     >
                       <Trash2 className="w-5 h-5" />
@@ -186,14 +186,39 @@ export default function MitraPortfolioPage() {
           </div>
         )}
 
-        <input 
-          type="file" 
+        <input
+          type="file"
           ref={fileInputRef}
-          className="hidden" 
+          className="hidden"
           accept="image/*"
           onChange={handleFileChange}
         />
       </div>
+
+      {/* Delete Dialog */}
+      {deleteId && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-base font-semibold text-[#1c1b1b]">Hapus Foto?</h3>
+              <button onClick={() => setDeleteId(null)}>
+                <X className="w-5 h-5 text-[#9e8e8c]" />
+              </button>
+            </div>
+            <p className="text-sm text-[#5b403e] mb-6">
+              Foto ini akan dihapus permanen dari galeri portofolio Anda.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setDeleteId(null)}>
+                Batal
+              </Button>
+              <Button className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded" onClick={handleDelete}>
+                Hapus
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
-import { ROLE_PARTNER } from '@/lib/constants';
 
 
 const DAYS = [
@@ -43,8 +41,7 @@ export default function MitraSchedulePage() {
   const [showWarningModal, setShowWarningModal] = useState(false);
 
   useEffect(() => {
-    
-    
+    if (!isAuthenticated) return;
     fetchSchedule();
   }, [isAuthenticated, user?.active_role]);
 
@@ -82,6 +79,15 @@ export default function MitraSchedulePage() {
   };
 
   const confirmSave = () => {
+    // Validasi: jam buka harus lebih awal dari jam tutup untuk setiap hari aktif.
+    const invalid = DAYS.find(d => {
+      const s = schedule[d.id];
+      return s.is_active && s.start_time >= s.end_time;
+    });
+    if (invalid) {
+      showToast(`Jam ${invalid.label} tidak valid: jam buka harus sebelum jam tutup`, 'error');
+      return;
+    }
     if (activeOrderCount > 0) {
       setShowWarningModal(true);
     } else {

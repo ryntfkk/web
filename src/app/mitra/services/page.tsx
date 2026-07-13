@@ -6,10 +6,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
-import { ROLE_PARTNER } from '@/lib/constants';
 
 
 interface Service {
@@ -30,8 +28,7 @@ export default function MitraServicesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    
-    
+    if (!isAuthenticated) return;
     fetchServices();
   }, [isAuthenticated, user?.active_role]);
 

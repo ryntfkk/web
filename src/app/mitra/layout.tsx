@@ -40,8 +40,9 @@ export default function MitraLayout({ children }: { children: React.ReactNode })
     '/mitra/verification-status',
     '/mitra/services/new',
     '/mitra/wallet/withdraw',
-    '/mitra/re-verify',
     '/mitra/basecamp',
+    // Form dengan action bar fixed di bawah — sembunyikan bottom nav agar tombol tidak tertutup.
+    '/mitra/schedule',
   ];
 
   const isExcludedFlow = excludeBottomNavPatterns.includes(pathname || '') ||

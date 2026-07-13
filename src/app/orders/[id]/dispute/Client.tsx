@@ -6,6 +6,7 @@ import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
+import { csWhatsAppUrl } from '@/lib/constants';
 import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -83,7 +84,7 @@ export default function DisputeClient() {
       if (res.success) {
         router.push(`/orders/${orderId}`);
         // Buka WA di tab baru
-        window.open(`https://wa.me/6281234567890?text=Halo CS Posko Jasa. Saya melaporkan sengketa pada Pesanan %23${order?.order_number ?? ''}.`, '_blank');
+        window.open(csWhatsAppUrl(`Halo CS Posko Jasa. Saya melaporkan sengketa pada Pesanan #${order?.order_number ?? ''}.`), '_blank');
       } else {
         setError(getErrorMessage(res));
       }

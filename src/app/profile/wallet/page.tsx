@@ -114,7 +114,7 @@ export default function WalletPage() {
       <div className="max-w-lg mx-auto px-4 -mt-4 relative z-20 flex gap-3">
         <Button
           className="flex-1 bg-white hover:bg-gray-50 text-[#1c1b1b] shadow-sm border border-[#e5e2e1] h-12 rounded-xl"
-          onClick={() => router.push('/profile/wallet/withdraw')}
+          onClick={() => router.push(user?.active_role === ROLE_PARTNER ? '/mitra/wallet/withdraw' : '/profile/wallet/withdraw')}
         >
           <ArrowUpRight className="w-4 h-4 mr-2" /> Tarik Dana
         </Button>
