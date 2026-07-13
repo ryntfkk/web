@@ -94,6 +94,7 @@ export default function BookingClient() {
   
   // Slots State
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [slotsReason, setSlotsReason] = useState<string>('');
   const [slotsLoading, setSlotsLoading] = useState(false);
   
   // Refs
@@ -155,12 +156,15 @@ export default function BookingClient() {
           const data = res.success ? unwrapData<any>(res.data) : null;
           if (data && Array.isArray(data.slots)) {
             setAvailableSlots(data.slots);
+            setSlotsReason(typeof data.reason === 'string' ? data.reason : '');
           } else {
             setAvailableSlots([]);
+            setSlotsReason('');
           }
         } catch (err) {
           console.error('Failed to fetch schedule', err);
           setAvailableSlots([]);
+          setSlotsReason('');
         } finally {
           setSlotsLoading(false);
         }
@@ -303,14 +307,13 @@ export default function BookingClient() {
 
     setPreviewLoading(true);
     try {
-      const [hours, minutes] = time.split(':');
-      const scheduledAt = new Date(date);
-      scheduledAt.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
-
+      // Jadwal mitra selalu dalam WIB. Kirim offset +07:00 eksplisit —
+      // sama persis dengan submitOrder — agar preview tidak bergeser
+      // untuk pengguna di zona waktu non-WIB (WITA/WIT/luar negeri).
       const payload = {
         partner_id: partner.id,
         address_id: addressId,
-        scheduled_at: scheduledAt.toISOString(),
+        scheduled_at: `${date}T${time}:00+07:00`,
         promo_code: currentPromo || undefined,
         items
       };
@@ -582,7 +585,13 @@ export default function BookingClient() {
                     ) : !date ? (
                       <div className="text-sm text-[#9e8e8c] py-2">Pilih tanggal terlebih dahulu</div>
                     ) : availableSlots.length === 0 ? (
-                      <div className="text-sm text-red-600 py-2">Tidak ada jadwal tersedia pada tanggal ini</div>
+                      <div className="text-sm text-red-600 py-2">
+                        {slotsReason === 'day_off' && 'Mitra libur pada hari ini. Silakan pilih tanggal lain.'}
+                        {slotsReason === 'no_schedule' && 'Mitra belum mengatur jadwal untuk hari ini. Silakan pilih tanggal lain.'}
+                        {slotsReason === 'not_enough_time' && 'Total durasi layanan yang dipilih melebihi jam operasional mitra. Kurangi jumlah layanan atau pesan terpisah.'}
+                        {slotsReason === 'fully_booked' && 'Jadwal mitra pada tanggal ini sudah penuh. Silakan pilih tanggal lain.'}
+                        {!['day_off', 'no_schedule', 'not_enough_time', 'fully_booked'].includes(slotsReason) && 'Tidak ada jadwal tersedia pada tanggal ini'}
+                      </div>
                     ) : (
                       <div className="grid grid-cols-4 gap-1.5">
                         {availableSlots.map(t => (

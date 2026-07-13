@@ -24,8 +24,10 @@ const DAY_ORDER = [
 ];
 
 function formatTime(t: string): string {
-  // t is "HH:MM:SS" or "HH:MM:SS+TZ" — extract HH:MM
-  const match = t.match(/^(\d{2}):(\d{2})/);
+  // Backend menyerialisasi kolom TIME sebagai RFC3339 ("0000-01-01T08:00:00Z")
+  // atau "HH:MM:SS" — ambil komponen jam:menit di mana pun posisinya
+  // (regex tidak boleh ter-anchor di awal string).
+  const match = t.match(/(\d{2}):(\d{2})/);
   if (!match) return t;
   return `${match[1]}:${match[2]}`;
 }

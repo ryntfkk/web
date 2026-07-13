@@ -39,6 +39,9 @@ export default function MitraSchedulePage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [activeOrderCount, setActiveOrderCount] = useState(0);
   const [showWarningModal, setShowWarningModal] = useState(false);
+  // Jadwal di DB. Selama belum tersimpan, nilai di layar hanyalah default UI
+  // dan pelanggan TIDAK bisa memesan — tampilkan peringatan.
+  const [hasSavedSchedule, setHasSavedSchedule] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -55,6 +58,7 @@ export default function MitraSchedulePage() {
     if (schedRes.success && Array.isArray(schedRes.data)) {
       // Backend mengembalikan ARRAY baris { day_of_week, open_time, close_time, is_open },
       // bukan map per-hari. Petakan kembali ke bentuk state UI.
+      setHasSavedSchedule(schedRes.data.length > 0);
       const next = { ...schedule };
       const hhmm = (v: unknown) => String(v ?? '').match(/(\d{2}:\d{2})/)?.[1];
       for (const row of schedRes.data as Array<Record<string, unknown>>) {
@@ -166,6 +170,15 @@ export default function MitraSchedulePage() {
             Tentukan hari dan jam Anda bersedia menerima pesanan. Pelanggan hanya bisa memesan pada jam operasional yang aktif.
           </p>
         </div>
+
+        {!loading && !hasSavedSchedule && (
+          <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 flex gap-3 items-start mb-2">
+            <Clock className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-yellow-800 font-semibold leading-relaxed">
+              Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh — pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
+            </p>
+          </div>
+        )}
 
         {loading ? (
           <div className="space-y-3">
