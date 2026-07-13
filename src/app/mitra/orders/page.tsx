@@ -15,7 +15,31 @@ interface Order {
   status: OrderStatus;
   total_amount: number;
   scheduled_at: string;
-  customer_name: string;
+  // Backend mengirim nama pelanggan di dalam customer_info, bukan customer_name.
+  customer_info?: { id?: string; name?: string; phone?: string };
+  customer_name?: string; // fallback bila API lama
+}
+
+type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
+
+// Pemetaan status backend ke grup filter UI (identik dengan page /orders pelanggan).
+// Status backend: WAITING_CONFIRMATION, WAITING_PAYMENT, PAID, IN_PROGRESS,
+// WAITING_ADDITIONAL_PAY, WAITING_CUSTOMER_CONFIRM, COMPLETED, CANCELLED, DISPUTED
+const FILTER_GROUPS: Record<Exclude<FilterStatus, 'all'>, string[]> = {
+  pending: ['WAITING_CONFIRMATION', 'WAITING_PAYMENT', 'PENDING', 'ACCEPTED'],
+  processing: ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'PROCESSING'],
+  completed: ['COMPLETED'],
+  cancelled: ['CANCELLED'],
+};
+
+function matchesFilter(status: string, filter: FilterStatus): boolean {
+  if (filter === 'all') return true;
+  return FILTER_GROUPS[filter].includes(status);
+}
+
+// Ambil nama pelanggan apa pun bentuk payload-nya.
+function customerName(o: Order): string {
+  return o.customer_info?.name || o.customer_name || 'Pelanggan';
 }
 
 export default function MitraOrdersPage() {
@@ -25,7 +49,7 @@ export default function MitraOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState<'WAITING' | 'ACTIVE' | 'HISTORY'>('WAITING');
+  const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -34,43 +58,54 @@ export default function MitraOrdersPage() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/orders?role=partner');
+    const res = await fetchAPI<unknown>('/orders?role=partner', {
+      method: 'GET',
+      credentials: 'include',
+    });
     if (res.success && res.data) {
-      setOrders(res.data);
+      // Respons bisa berupa array langsung ATAU envelope { data: [...] }
+      const list = Array.isArray(res.data)
+        ? res.data
+        : (res.data as { data?: unknown[] })?.data;
+      if (Array.isArray(list)) {
+        setOrders(list as Order[]);
+      }
     }
     setLoading(false);
   };
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
-  const formatTime = (t: string) => new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-  const isActiveStatus = (status: OrderStatus) => 
-    !['COMPLETED', 'CANCELLED', 'DISPUTED', 'REJECTED'].includes(status as string);
+  const formatTime = (t: string) => t ? new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-';
 
   const filteredOrders = orders.filter(o => {
-    const matchSearch = o.order_number.toLowerCase().includes(search.toLowerCase()) || 
-                        o.customer_name.toLowerCase().includes(search.toLowerCase());
-    
-    let matchTab = false;
-    if (activeTab === 'WAITING') {
-      matchTab = o.status === 'WAITING_CONFIRMATION';
-    } else if (activeTab === 'ACTIVE') {
-      matchTab = isActiveStatus(o.status) && o.status !== 'WAITING_CONFIRMATION';
-    } else {
-      matchTab = !isActiveStatus(o.status) && o.status !== 'WAITING_CONFIRMATION';
-    }
-
-    return matchSearch && matchTab;
+    const q = search.toLowerCase();
+    const matchSearch = q === '' ||
+      o.order_number.toLowerCase().includes(q) ||
+      customerName(o).toLowerCase().includes(q);
+    return matchSearch && matchesFilter(o.status, activeFilter);
   });
 
-  const waitingCount = orders.filter(o => o.status === 'WAITING_CONFIRMATION').length;
+  const filterCounts = {
+    all: orders.length,
+    pending: orders.filter(o => matchesFilter(o.status, 'pending')).length,
+    processing: orders.filter(o => matchesFilter(o.status, 'processing')).length,
+    completed: orders.filter(o => matchesFilter(o.status, 'completed')).length,
+    cancelled: orders.filter(o => matchesFilter(o.status, 'cancelled')).length,
+  };
+
+  const FILTERS: { key: FilterStatus; label: string }[] = [
+    { key: 'all', label: 'Semua' },
+    { key: 'pending', label: 'Menunggu' },
+    { key: 'processing', label: 'Sedang Berlangsung' },
+    { key: 'completed', label: 'Selesai' },
+    { key: 'cancelled', label: 'Dibatalkan' },
+  ];
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Header */}
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 py-4">
@@ -79,7 +114,7 @@ export default function MitraOrdersPage() {
             </button>
             <h1 className="text-base font-bold text-[#1c1b1b]">Daftar Pesanan</h1>
           </div>
-          
+
           <div className="px-4 pb-3 flex gap-2">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-[#9e8e8c] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -93,31 +128,19 @@ export default function MitraOrdersPage() {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex px-4 border-t border-[#e5e2e1]">
-            <button
-              onClick={() => setActiveTab('WAITING')}
-              className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 flex items-center justify-center gap-2 ${activeTab === 'WAITING' ? 'border-[#b51822] text-[#b51822]' : 'border-transparent text-[#9e8e8c]'}`}
-            >
-              Masuk
-              {waitingCount > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'WAITING' ? 'bg-[#b51822] text-white' : 'bg-[#e5e2e1] text-[#5b403e]'}`}>
-                  {waitingCount}
+          <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide border-t border-[#e5e2e1] pt-3">
+            {FILTERS.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setActiveFilter(f.key)}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${activeFilter === f.key ? 'bg-[#b51822] text-white border-[#b51822]' : 'bg-white text-[#5b403e] border-[#e5e2e1]'}`}
+              >
+                {f.label}
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeFilter === f.key ? 'bg-white/25 text-white' : 'bg-[#e5e2e1] text-[#5b403e]'}`}>
+                  {filterCounts[f.key]}
                 </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('ACTIVE')}
-              className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${activeTab === 'ACTIVE' ? 'border-[#b51822] text-[#b51822]' : 'border-transparent text-[#9e8e8c]'}`}
-            >
-              Aktif
-            </button>
-            <button
-              onClick={() => setActiveTab('HISTORY')}
-              className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${activeTab === 'HISTORY' ? 'border-[#b51822] text-[#b51822]' : 'border-transparent text-[#9e8e8c]'}`}
-            >
-              Riwayat
-            </button>
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -130,19 +153,19 @@ export default function MitraOrdersPage() {
         ) : filteredOrders.length === 0 ? (
           <div className="text-center py-10">
             <Package className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
-            <p className="text-sm text-[#5b403e]">Belum ada pesanan {activeTab === 'ACTIVE' ? 'aktif' : activeTab === 'WAITING' ? 'baru' : 'di riwayat'}.</p>
+            <p className="text-sm text-[#5b403e]">Belum ada pesanan{activeFilter !== 'all' ? ' dengan status ini' : ''}.</p>
           </div>
         ) : (
           filteredOrders.map(order => (
             <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-[#e5e2e1] rounded-md p-4 hover:border-[#b51822] transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="text-xs text-[#9e8e8c] font-medium mb-0.5">#{order.order_number}</p>
-                  <p className="font-bold text-[#1c1b1b]">{order.customer_name}</p>
+                  <p className="text-xs text-[#9e8e8c] font-medium mb-0.5">No. {order.order_number}</p>
+                  <p className="font-bold text-[#1c1b1b]">{customerName(order)}</p>
                 </div>
                 <StatusBadge status={order.status} size="sm" />
               </div>
-              
+
               <div className="flex justify-between items-end border-t border-[#e5e2e1] pt-3">
                 <div className="flex items-center gap-1.5 text-sm text-[#5b403e]">
                   <Calendar className="w-4 h-4 text-[#9e8e8c]" />
@@ -157,4 +180,3 @@ export default function MitraOrdersPage() {
     </div>
   );
 }
-
