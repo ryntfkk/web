@@ -389,7 +389,7 @@ function DetailContent() {
               </Link>
 
               {/* Action Buttons */}
-              <div className="flex gap-2">
+              <div className="hidden sm:flex gap-2">
                 <Button
                   variant="outline"
                   className={`flex-1 h-11 rounded-md text-sm font-medium ${inCart ? 'border-green-500 text-green-700 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}

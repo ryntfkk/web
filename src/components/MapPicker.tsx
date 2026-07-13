@@ -15,27 +15,36 @@ interface MapPickerProps {
 let mapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
   if (typeof window === 'undefined') return Promise.reject(new Error('no window'));
-  if ((window as any).google?.maps) return Promise.resolve();
+  if ((window as any).google?.maps?.Map) return Promise.resolve();
   if (mapsPromise) return mapsPromise;
 
-  mapsPromise = new Promise<void>((resolve, reject) => {
+  const p = new Promise<void>((resolve, reject) => {
+    const done = () => {
+      // Pastikan library benar-benar siap sebelum dianggap sukses.
+      if ((window as any).google?.maps?.Map) resolve();
+      else reject(new Error('gmaps not ready'));
+    };
     const existing = document.getElementById('gmaps-sdk') as HTMLScriptElement | null;
     if (existing) {
-      existing.addEventListener('load', () => resolve());
+      existing.addEventListener('load', done);
       existing.addEventListener('error', () => reject(new Error('gmaps load error')));
       return;
     }
     const script = document.createElement('script');
     script.id = 'gmaps-sdk';
-    // loading=async → pola pemuatan yang direkomendasikan Google (hilangkan warning perf).
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&language=id&region=ID&loading=async`;
+    // Loader klasik: window.google.maps siap saat onload.
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&language=id&region=ID`;
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve();
+    script.onload = done;
     script.onerror = () => reject(new Error('gmaps load error'));
     document.head.appendChild(script);
   });
-  return mapsPromise;
+
+  // Jangan cache promise yang gagal — supaya bisa retry saat mount berikutnya.
+  mapsPromise = p;
+  p.catch(() => { if (mapsPromise === p) mapsPromise = null; });
+  return p;
 }
 
 export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
