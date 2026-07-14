@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/query-provider";
 import AuthProvider from "@/components/providers/auth-provider";
 import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
+import { DevNoticeModal } from "@/components/ui/dev-notice-modal";
 
 // Load Inter font with proper weights
 const inter = Inter({
@@ -37,6 +38,7 @@ export default function RootLayout({
             <Footer />
             <BottomNav />
             <FloatingChatWrapper />
+            <DevNoticeModal />
           </AuthProvider>
         </QueryProvider>
       </body>
