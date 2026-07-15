@@ -94,21 +94,31 @@ export default function PaymentClient() {
     const snapData = res.success ? unwrapData<any>(res.data) : null;
 
     if (snapData?.token) {
-      const snap = (window as any).snap;
-      // Cek SDK SEBELUM mencoba memanggilnya
-      if (!snap) {
-        setError('Midtrans SDK belum termuat. Tunggu sebentar lalu coba lagi.');
-        setProcessing(false);
-        return;
-      }
-      setSnapToken(snapData.token);
-      snap.pay(snapData.token, {
-        onSuccess: () => router.push(`/payment/${orderId}/status?status=success`),
-        onPending: () => router.push(`/orders/${orderId}`), // pending → lihat status di detail pesanan
-        onError: () => router.push(`/payment/${orderId}/status?status=failed`),
-        onClose: () => setProcessing(false), // user menutup popup tanpa membayar
+      // Tunggu window.snap tersedia (SDK mungkin belum selesai dimuat)
+      const waitForSnap = (): Promise<any> => new Promise((resolve, reject) => {
+        let tries = 0;
+        const check = () => {
+          const s = (window as any).snap;
+          if (s) return resolve(s);
+          if (++tries > 20) return reject(new Error('Midtrans SDK gagal dimuat. Coba muat ulang halaman.'));
+          setTimeout(check, 300);
+        };
+        check();
       });
-      // Jangan set processing=false di sini: popup Snap sedang aktif.
+
+      try {
+        const snap = await waitForSnap();
+        setSnapToken(snapData.token);
+        snap.pay(snapData.token, {
+          onSuccess: () => router.push(`/payment/${orderId}/status?status=success`),
+          onPending: () => router.push(`/orders/${orderId}`),
+          onError: () => router.push(`/payment/${orderId}/status?status=failed`),
+          onClose: () => setProcessing(false),
+        });
+      } catch (e: any) {
+        setError(e.message || 'Gagal memuat Midtrans SDK.');
+        setProcessing(false);
+      }
     } else {
       setError(getErrorMessage(res));
       setProcessing(false);
@@ -130,8 +140,8 @@ export default function PaymentClient() {
     <>
       <Script 
         src={process.env.NEXT_PUBLIC_MIDTRANS_SNAP_URL || 'https://app.sandbox.midtrans.com/snap/snap.js'}
-        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ''}
-        strategy="lazyOnload"
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || 'Mid-client-u_5fBngbQUy-8M8X'}
+        strategy="afterInteractive"
       />
       <div className="page-h bg-[#f7f5f4] pb-24">
         {/* Header */}
