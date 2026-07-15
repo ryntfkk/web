@@ -19,6 +19,11 @@ interface MitraOrderDetail {
   order_number: string;
   status: OrderStatus;
   total_amount: number;
+  // Pendapatan mitra setelah potongan platform — bukan total_amount, yang
+  // merupakan jumlah yang dibayar pelanggan.
+  partner_amount?: number;
+  platform_fee?: number;
+  partner_amount_estimated?: boolean;
   scheduled_at: string;
   confirmation_expired_at?: string;
   service_address?: string;
@@ -311,10 +316,23 @@ export default function MitraOrderDetailClient() {
               ))}
             </div>
           )}
+          {order.platform_fee !== undefined && order.platform_fee > 0 && (
+            <div className="mt-2 flex justify-between text-sm text-[#5b403e]">
+              <span>Biaya Platform</span>
+              <span>- {formatPrice(order.platform_fee)}</span>
+            </div>
+          )}
           <div className="mt-3 pt-3 border-t border-[#e5e2e1] flex justify-between font-bold text-base">
-            <span className="text-[#1c1b1b]">Total Pendapatan (estimasi)</span>
-            <span className="text-[#b51822]">{formatPrice(order.total_amount)}</span>
+            <span className="text-[#1c1b1b]">
+              Total Pendapatan{order.partner_amount_estimated ? ' (estimasi)' : ''}
+            </span>
+            <span className="text-[#b51822]">
+              {formatPrice(order.partner_amount ?? order.total_amount)}
+            </span>
           </div>
+          <p className="mt-1 text-xs text-[#9e8e8c]">
+            Dibayar pelanggan: {formatPrice(order.total_amount)}
+          </p>
         </div>
       </div>
 

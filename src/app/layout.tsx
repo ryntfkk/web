@@ -10,10 +10,12 @@ import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 import { DevNoticeModal } from "@/components/ui/dev-notice-modal";
 
 // Load Inter font with proper weights
+// Dipetakan ke --font-sans lewat @theme di globals.css. Namanya sengaja bukan
+// --font-sans agar tidak bertabrakan dengan token Tailwind pada <html>.
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {

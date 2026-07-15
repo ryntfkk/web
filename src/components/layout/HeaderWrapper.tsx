@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import TopNavbar from "@/components/layout/TopNavbar";
 
 /**
@@ -47,11 +46,6 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
 
 export default function HeaderWrapper() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Area mitra: header pelanggan tidak boleh muncul di breakpoint mana pun
   // (mode mitra punya navigasi sendiri — MitraBottomNav)
@@ -59,11 +53,11 @@ export default function HeaderWrapper() {
     return null;
   }
 
-  // During SSR, render header normally (will be corrected on client)
-  if (!mounted) {
-    return <TopNavbar />;
-  }
-
+  // Kelas diturunkan murni dari pathname, yang sudah tersedia saat SSR — jadi
+  // markup server dan client identik dan tidak ada hydration mismatch.
+  // Sebelumnya ada guard `mounted` yang merender <TopNavbar /> tanpa pembungkus
+  // saat SSR, sehingga di mobile navbar sempat tampil bersamaan dengan header
+  // milik halaman (dua header berkedip) sampai hydration selesai.
   const hideOnMobile = shouldHideHeaderOnMobile(pathname);
 
   return (
