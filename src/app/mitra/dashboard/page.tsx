@@ -54,9 +54,12 @@ export default function MitraDashboardPage() {
       fetchAPI<any>('/notifications/unread-count')
     ]);
     if (res.success && res.data) {
-      // Backend mengirim `is_online` (boolean), bukan `status`.
-      // Turunkan status ACTIVE/INACTIVE agar indikator tidak selalu "Tutup Sementara".
-      setData({ ...res.data, status: res.data.is_online ? 'ACTIVE' : 'INACTIVE' });
+      // Backend mengirim `status` ('ACTIVE'/'INACTIVE'). Fallback ke `is_online`
+      // hanya bila `status` absen, agar indikator tidak terkunci di "Tutup Sementara".
+      const status = res.data.status ?? (res.data.is_online ? 'ACTIVE' : 'INACTIVE');
+      // Go mengirim `null` untuk slice kosong; normalkan ke array agar
+      // pengecekan `.length === 0` (empty state) tetap jalan.
+      setData({ ...res.data, status, active_orders: res.data.active_orders ?? [] });
     }
     if (unreadRes.success && unreadRes.data) {
       setUnreadCount(unreadRes.data.unread_count || 0);
@@ -84,6 +87,15 @@ export default function MitraDashboardPage() {
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
   const formatTime = (t: string) => new Date(t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+  const activeOrders = data?.active_orders ?? [];
+
+  // Jadwal Mendatang = pesanan yang sudah dibayar dan menunggu dikerjakan,
+  // diurutkan dari yang paling dekat.
+  const upcomingOrders = activeOrders
+    .filter(o => o.status === 'PAID')
+    .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+    .slice(0, 3);
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
@@ -199,15 +211,12 @@ export default function MitraDashboardPage() {
           <div className="space-y-3">
             {loading ? (
               <div className="h-16 bg-[#e5e2e1] rounded-md animate-pulse" />
-            ) : data?.active_orders?.filter(o => o.status === 'PAID').length === 0 ? (
+            ) : upcomingOrders.length === 0 ? (
               <div className="text-center py-4 bg-[#f7f5f4] rounded border border-[#e5e2e1]">
                 <p className="text-sm text-[#5b403e]">Tidak ada jadwal pesanan terkonfirmasi.</p>
               </div>
             ) : (
-              data?.active_orders?.filter(o => o.status === 'PAID')
-                .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
-                .slice(0, 3)
-                .map(order => {
+              upcomingOrders.map(order => {
                   const date = new Date(order.scheduled_at);
                   const isToday = new Date().toDateString() === date.toDateString();
                   return (
@@ -240,12 +249,12 @@ export default function MitraDashboardPage() {
           <div className="space-y-3">
             {loading ? (
               <div className="h-20 bg-[#e5e2e1] rounded-md animate-pulse" />
-            ) : data?.active_orders?.length === 0 ? (
+            ) : activeOrders.length === 0 ? (
               <div className="text-center py-6">
                 <p className="text-sm text-[#5b403e]">Belum ada pesanan aktif saat ini.</p>
               </div>
             ) : (
-              data?.active_orders?.map(order => (
+              activeOrders.map(order => (
                 <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block border border-[#e5e2e1] rounded-md p-3 hover:border-[#b51822] transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <p className="text-xs font-bold text-[#1c1b1b]">{order.customer_name}</p>

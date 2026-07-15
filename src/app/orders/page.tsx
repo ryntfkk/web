@@ -117,7 +117,8 @@ export default function OrdersPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
 
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4">
+      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 lg:hidden">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
             <Link href="/profile" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-md">
@@ -129,6 +130,7 @@ export default function OrdersPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
+        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Riwayat Pesanan</h1>
         <div className="flex flex-col lg:flex-row gap-6 max-w-full">
 
           <div className="w-full lg:w-64 shrink-0 min-w-0">

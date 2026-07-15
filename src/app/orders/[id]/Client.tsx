@@ -155,7 +155,7 @@ export default function OrderDetailClient() {
   if (loading) {
     return (
       <div className="page-h bg-[#f7f5f4] pb-20">
-        <div className="bg-white border-b border-[#e5e2e1] px-4 py-4">
+        <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 lg:hidden">
           <div className="h-6 w-40 bg-[#e5e2e1] rounded animate-pulse" />
         </div>
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
@@ -193,8 +193,8 @@ export default function OrderDetailClient() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 lg:top-16 z-10">
+      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-3xl mx-auto flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -207,6 +207,10 @@ export default function OrderDetailClient() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+        <div className="hidden lg:block">
+          <h1 className="text-2xl font-bold text-[#1c1b1b]">Detail Pesanan</h1>
+          <p className="text-sm text-[#9e8e8c] mt-1">{order.order_number}</p>
+        </div>
 
         {/* Status & Countdown */}
         <div className="bg-white rounded border border-[#e5e2e1] p-4">

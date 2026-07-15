@@ -62,7 +62,8 @@ export default function SecurityPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -72,6 +73,7 @@ export default function SecurityPage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
+        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Keamanan Akun</h1>
         <div className="bg-white rounded-xl border border-[#e5e2e1] p-6 mb-6 text-center">
           <div className="w-16 h-16 bg-[#F0FFF4] rounded-full flex items-center justify-center mx-auto mb-4">
             <ShieldCheck className="w-8 h-8 text-[#38A169]" />

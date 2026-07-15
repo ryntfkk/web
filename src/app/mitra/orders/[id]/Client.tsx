@@ -13,6 +13,7 @@ import { csWhatsAppUrl } from '@/lib/constants';
 import { getErrorMessage } from '@/types/api';
 
 
+// Bentuk field mengikuti OrderDetailDTO di backend (internal/order/dto.go).
 interface MitraOrderDetail {
   id: string;
   order_number: string;
@@ -21,12 +22,13 @@ interface MitraOrderDetail {
   scheduled_at: string;
   confirmation_expired_at?: string;
   service_address?: string;
+  address_detail?: string;
   notes?: string;
   photos?: string[];
-  customer?: {
+  customer_info?: {
     id: string;
     name: string;
-    phone_masked?: string;
+    phone?: string;
   };
   items?: {
     id: string;
@@ -34,14 +36,32 @@ interface MitraOrderDetail {
     price: number;
     quantity: number;
   }[];
-  additional_fee?: {
+  additional_fees?: {
     id: string;
     type: string;
     item_name: string;
+    price: number;
+    quantity: number;
     total: number;
-  };
+    status: 'PENDING' | 'PAID' | 'REJECTED';
+  }[];
   transport_fee?: number;
 }
+
+const ADDITIONAL_FEE_LABEL: Record<string, string> = {
+  PENDING: 'Menunggu pembayaran pelanggan',
+  PAID: 'Sudah dibayar',
+  REJECTED: 'Ditolak pelanggan',
+};
+
+// Backend mengirim nomor telepon apa adanya; disamarkan di sini agar tidak
+// tampil utuh pada layar mitra (mis. 0811****333).
+const maskPhone = (phone?: string) => {
+  if (!phone) return '';
+  const digits = phone.replace(/\s+/g, '');
+  if (digits.length <= 7) return digits;
+  return `${digits.slice(0, 4)}${'*'.repeat(digits.length - 7)}${digits.slice(-3)}`;
+};
 
 export default function MitraOrderDetailClient() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
@@ -86,7 +106,7 @@ export default function MitraOrderDetailClient() {
     try {
       const res = await fetchAPI<any>('/chat/rooms', {
         method: 'POST',
-        body: JSON.stringify({ customer_id: order.customer?.id }),
+        body: JSON.stringify({ customer_id: order.customer_info?.id }),
       });
       if (res.success && res.data?.room_id) {
         router.push(`/chat/${res.data.room_id}`);
@@ -193,18 +213,18 @@ export default function MitraOrderDetailClient() {
         </div>
 
         {/* Customer Info */}
-        {order.customer && (
+        {order.customer_info && (
           <div className="bg-white rounded border border-[#e5e2e1] p-4">
             <h2 className="text-sm font-semibold text-[#9e8e8c] uppercase tracking-wide mb-3">Pemesan</h2>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#e5e2e1] flex items-center justify-center text-lg font-bold text-[#5b403e] shrink-0">
-                {order.customer.name.charAt(0).toUpperCase()}
+                {order.customer_info.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[#1c1b1b]">{order.customer.name}</p>
-                {order.customer.phone_masked && (
+                <p className="font-semibold text-[#1c1b1b]">{order.customer_info.name}</p>
+                {order.customer_info.phone && (
                   <p className="text-xs text-[#9e8e8c] flex items-center gap-1 mt-0.5">
-                    <Phone className="w-3 h-3" /> {order.customer.phone_masked}
+                    <Phone className="w-3 h-3" /> {maskPhone(order.customer_info.phone)}
                   </p>
                 )}
               </div>
@@ -272,12 +292,23 @@ export default function MitraOrderDetailClient() {
               <span>{order.transport_fee === 0 ? 'Gratis' : formatPrice(order.transport_fee)}</span>
             </div>
           )}
-          {order.additional_fee && (
-            <div className="mt-3 pt-3 border-t border-[#e5e2e1]">
-              <div className="flex justify-between text-sm text-[#DD6B20] font-medium">
-                <span>Biaya Tambahan ({order.additional_fee.item_name})</span>
-                <span>+ {formatPrice(order.additional_fee.total)}</span>
-              </div>
+          {order.additional_fees && order.additional_fees.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-[#e5e2e1] space-y-2">
+              {order.additional_fees.map(fee => (
+                <div key={fee.id} className="flex justify-between gap-3 text-sm">
+                  <div className="min-w-0">
+                    <p className="text-[#DD6B20] font-medium truncate">
+                      Biaya Tambahan ({fee.item_name})
+                    </p>
+                    <p className="text-xs text-[#9e8e8c]">
+                      {fee.quantity} x {formatPrice(fee.price)} · {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
+                    </p>
+                  </div>
+                  <span className={`font-medium shrink-0 ${fee.status === 'REJECTED' ? 'text-[#9e8e8c] line-through' : 'text-[#DD6B20]'}`}>
+                    + {formatPrice(fee.total)}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
           <div className="mt-3 pt-3 border-t border-[#e5e2e1] flex justify-between font-bold text-base">
@@ -291,13 +322,16 @@ export default function MitraOrderDetailClient() {
           agar tidak muncul bar putih kosong pada pesanan selesai/batal/ditolak. */}
       {['WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'WAITING_ADDITIONAL_PAY'].includes(status as string) && (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
-        <div className="max-w-lg mx-auto flex gap-3">
-          
+        {/* Kolom, bukan baris: tiap status menyusun barisnya sendiri sehingga
+            tombol tidak pernah berebut ruang di baris yang sama.
+            Aksi Chat tidak diulang di sini — sudah tersedia pada kartu "Pemesan". */}
+        <div className="max-w-lg mx-auto flex flex-col gap-2">
+
           {status === 'WAITING_CONFIRMATION' && (
-            <>
+            <div className="flex gap-3">
               <Button variant="outline" className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded" onClick={() => setShowRejectModal(true)} disabled={actionLoading}>Tolak</Button>
               <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => setShowAcceptModal(true)} disabled={actionLoading}>Terima</Button>
-            </>
+            </div>
           )}
 
           {status === 'PAID' && (
@@ -307,19 +341,25 @@ export default function MitraOrderDetailClient() {
           )}
 
           {status === 'IN_PROGRESS' && (
-            <div className="flex flex-col w-full gap-2">
-              <Button variant="outline" className="w-full border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded flex items-center justify-center gap-2" onClick={() => setShowDisputeModal(true)}>
-                <AlertTriangle className="w-4 h-4" /> Lapor Masalah
-              </Button>
-              <div className="flex gap-2 w-full">
-                <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded flex items-center justify-center gap-1" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)}>
+            <>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded flex items-center justify-center gap-1" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)} disabled={actionLoading}>
                   + Biaya Tambahan
                 </Button>
                 <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded" onClick={() => handleAction('complete')} disabled={actionLoading}>
                   Selesai
                 </Button>
               </div>
-            </div>
+              <Button variant="outline" className="w-full border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded flex items-center justify-center gap-2" onClick={() => setShowDisputeModal(true)} disabled={actionLoading}>
+                <AlertTriangle className="w-4 h-4" /> Lapor Masalah
+              </Button>
+            </>
+          )}
+
+          {status === 'WAITING_ADDITIONAL_PAY' && (
+            <Button variant="outline" className="w-full border-[#e5e2e1] text-[#5b403e] rounded" disabled>
+              Menunggu Pembayaran Biaya Tambahan
+            </Button>
           )}
 
           {status === 'WAITING_CUSTOMER_CONFIRM' && (
@@ -331,20 +371,6 @@ export default function MitraOrderDetailClient() {
           {status === 'DISPUTED' && (
             <Button className="w-full bg-[#25D366] hover:bg-[#128C7E] rounded flex items-center justify-center gap-2" onClick={() => window.open(csWhatsAppUrl(`Halo CS Posko Jasa. Saya mitra untuk Pesanan #${order.order_number}.`), '_blank')}>
               Hubungi CS via WhatsApp
-            </Button>
-          )}
-
-          {/* Chat always visible */}
-          {(status === 'PAID' || status === 'IN_PROGRESS' || status === 'WAITING_ADDITIONAL_PAY') && (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="gap-1 shrink-0"
-              onClick={handleChat}
-              disabled={isChatLoading}
-            >
-              {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
-              Chat
             </Button>
           )}
         </div>

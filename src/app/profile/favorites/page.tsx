@@ -36,8 +36,8 @@ export default function FavoritesPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
           <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
@@ -49,6 +49,9 @@ export default function FavoritesPage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
+      <h1 className="hidden lg:flex text-2xl font-bold text-[#1c1b1b] items-center gap-2 mb-6">
+        <Heart className="w-6 h-6 text-[#b51822]" /> Favorit Saya
+      </h1>
       {loading && <div className="text-gray-500 py-8 text-center">Memuat favorit…</div>}
 
       {empty && (

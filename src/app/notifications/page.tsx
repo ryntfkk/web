@@ -110,8 +110,8 @@ export default function NotificationsPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 lg:top-16 z-10">
+      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
@@ -125,6 +125,15 @@ export default function NotificationsPage() {
             </button>
           )}
         </div>
+      </div>
+
+      <div className="hidden lg:flex max-w-lg mx-auto px-4 pt-8 items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-[#1c1b1b]">Notifikasi</h1>
+        {unreadCount > 0 && (
+          <button onClick={handleMarkAllRead} className="text-sm font-semibold text-[#b51822] hover:underline">
+            Tandai semua dibaca
+          </button>
+        )}
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-4 space-y-2">
