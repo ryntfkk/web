@@ -194,39 +194,17 @@ export default function OrderDetailClient() {
     });
     
     const snapData = res.success ? unwrapData<any>(res.data) : null;
-    if (snapData?.redirect_url) {
-      // Bypass popup iframe constraints and redirect directly to Midtrans secure payment page
-      window.location.href = snapData.redirect_url;
-    } else if (snapData?.token) {
-      const snap = (window as any).snap;
-      if (snap) {
-        snap.pay(snapData.token, {
-          onSuccess: async () => {
-            showToast('Pembayaran berhasil!');
-            await fetchOrder();
-            setProcessingPayment(false);
-          },
-          onPending: async () => {
-            showToast('Menunggu pembayaran diselesaikan.');
-            await fetchOrder();
-            setProcessingPayment(false);
-          },
-          onError: () => {
-            showToast('Pembayaran gagal.', 'error');
-            setProcessingPayment(false);
-          },
-          onClose: () => {
-            setProcessingPayment(false);
-          }
-        });
-      } else {
-        showToast('Sistem pembayaran belum siap.', 'error');
-        setProcessingPayment(false);
-      }
+    if (snapData?.token || snapData?.redirect_url) {
+      // Always redirect to Midtrans payment page — avoids CSP iframe issues entirely.
+      // Use redirect_url from backend, or construct it from token.
+      const redirectUrl = snapData.redirect_url ||
+        `https://app.sandbox.midtrans.com/snap/v2/vtweb/${snapData.token}`;
+      window.location.href = redirectUrl;
     } else {
       showToast(getErrorMessage(res), 'error');
       setProcessingPayment(false);
     }
+
   };
 
   const handleCancel = async () => {
@@ -274,11 +252,6 @@ export default function OrderDetailClient() {
 
   return (
     <>
-      <Script 
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="Mid-client-u_5fBngbQUy-8M8X"
-        strategy="afterInteractive"
-      />
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Toast */}
       {toast && (
