@@ -275,8 +275,8 @@ export default function OrderDetailClient() {
   return (
     <>
       <Script 
-        src="https://app.midtrans.com/snap/snap.js"
-        data-client-key="Mid-client-YIpjEr3EZ2QSQcV2"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-u_5fBngbQUy-8M8X"
         strategy="afterInteractive"
       />
     <div className="page-h bg-[#f7f5f4] pb-24">
