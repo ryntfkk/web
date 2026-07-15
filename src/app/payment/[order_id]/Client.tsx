@@ -139,8 +139,8 @@ export default function PaymentClient() {
   return (
     <>
       <Script 
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="Mid-client-u_5fBngbQUy-8M8X"
+        src="https://app.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-YIpjEr3EZ2QSQcV2"
         strategy="afterInteractive"
       />
       <div className="page-h bg-[#f7f5f4] pb-24">
