@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -41,8 +42,17 @@ export default function PaymentStatusClient() {
   const orderId = params?.order_id as string;
   const status = mapStatus(searchParams.get('status'), searchParams.get('transaction_status'));
   const message = searchParams.get('message');
+  // Midtrans mengirim transaction_id kita pada parameter `order_id` saat finish-redirect.
+  const midtransTxId = searchParams.get('order_id');
 
   const [countdown, setCountdown] = useState(5);
+
+  // Rekonsiliasi aktif: verifikasi ke backend agar order ter-update walau
+  // webhook Midtrans gagal terkirim atau telat. Aman dipanggil berulang (idempoten).
+  useEffect(() => {
+    if (!isAuthorized || status !== 'success' || !midtransTxId) return;
+    fetchAPI(`/payments/${midtransTxId}/reconcile`, { method: 'POST' }).catch(() => {});
+  }, [isAuthorized, status, midtransTxId]);
 
   useEffect(() => {
     if (status === 'success') {
