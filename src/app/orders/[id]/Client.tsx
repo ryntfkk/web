@@ -15,7 +15,8 @@ import { csWhatsAppUrl } from '@/lib/constants';
 import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Wallet, QrCode } from 'lucide-react';
+import Script from 'next/script';
 
 
 interface OrderDetail {
@@ -85,6 +86,10 @@ export default function OrderDetailClient() {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'online'|'wallet'>('online');
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [isWalletDisabled, setIsWalletDisabled] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   const handleChat = async () => {
     if (!order) return;
@@ -107,11 +112,29 @@ export default function OrderDetailClient() {
     }
   };
 
+  const fetchBalance = async () => {
+    const res = await fetchAPI<{ data: { balance: number } }>('/wallet/balance');
+    if (res.success && res.data) {
+      const balance = (res.data as any).data?.balance ?? (res.data as any).balance ?? 0;
+      setWalletBalance(balance);
+    }
+  };
+
   useEffect(() => {
     if (!isAuthorized || !orderId) return;
     fetchOrder();
+    fetchBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, orderId]);
+
+  useEffect(() => {
+    if (order && walletBalance < order.total_amount) {
+      setIsWalletDisabled(true);
+      if (selectedPaymentMethod === 'wallet') setSelectedPaymentMethod('online');
+    } else {
+      setIsWalletDisabled(false);
+    }
+  }, [walletBalance, order, selectedPaymentMethod]);
 
   const fetchOrder = async () => {
     setLoading(true);
@@ -140,6 +163,68 @@ export default function OrderDetailClient() {
   };
 
   const [cancelReason, setCancelReason] = useState('');
+
+  const handlePay = async () => {
+    if (processingPayment || !order) return;
+    setProcessingPayment(true);
+
+    if (selectedPaymentMethod === 'wallet') {
+      if (isWalletDisabled) {
+        showToast('Saldo dompet tidak mencukupi.', 'error');
+        setProcessingPayment(false);
+        return;
+      }
+      const res = await fetchAPI(`/payments/initiate`, {
+        method: 'POST',
+        body: JSON.stringify({ order_id: orderId, payment_method: 'wallet_balance' })
+      });
+      if (res.success) {
+        showToast('Pembayaran berhasil!');
+        await fetchOrder();
+      } else {
+        showToast(getErrorMessage(res), 'error');
+      }
+      setProcessingPayment(false);
+      return;
+    }
+
+    const res = await fetchAPI<any>(`/payments/snap`, {
+      method: 'POST',
+      body: JSON.stringify({ order_id: orderId, payment_method: 'online' })
+    });
+    
+    const snapData = res.success ? unwrapData<any>(res.data) : null;
+    if (snapData?.token) {
+      const snap = (window as any).snap;
+      if (snap) {
+        snap.pay(snapData.token, {
+          onSuccess: async () => {
+            showToast('Pembayaran berhasil!');
+            await fetchOrder();
+            setProcessingPayment(false);
+          },
+          onPending: async () => {
+            showToast('Menunggu pembayaran diselesaikan.');
+            await fetchOrder();
+            setProcessingPayment(false);
+          },
+          onError: () => {
+            showToast('Pembayaran gagal.', 'error');
+            setProcessingPayment(false);
+          },
+          onClose: () => {
+            setProcessingPayment(false);
+          }
+        });
+      } else {
+        showToast('Sistem pembayaran belum siap.', 'error');
+        setProcessingPayment(false);
+      }
+    } else {
+      showToast(getErrorMessage(res), 'error');
+      setProcessingPayment(false);
+    }
+  };
 
   const handleCancel = async () => {
     if (!cancelReason) {
@@ -185,6 +270,12 @@ export default function OrderDetailClient() {
   const status = order.status;
 
   return (
+    <>
+      <Script 
+        src="https://app.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-YIpjEr3EZ2QSQcV2"
+        strategy="afterInteractive"
+      />
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Toast */}
       {toast && (
@@ -403,6 +494,42 @@ export default function OrderDetailClient() {
 
       </div>
 
+      {status === 'WAITING_PAYMENT' && (
+        <div className="max-w-3xl mx-auto px-4 mt-4">
+          <div className="bg-white rounded border border-[#e5e2e1] p-4">
+            <h2 className="text-sm font-semibold text-[#1c1b1b] mb-3">Pilih Metode Pembayaran</h2>
+            <div className="space-y-3">
+              <label className={`block p-3 rounded border cursor-pointer transition-colors ${selectedPaymentMethod === 'wallet' ? 'border-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1]'} ${isWalletDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className="flex items-center gap-3">
+                  <input type="radio" name="pm" checked={selectedPaymentMethod === 'wallet'} disabled={isWalletDisabled} onChange={() => setSelectedPaymentMethod('wallet')} className="hidden" />
+                  <div className={`w-4 h-4 rounded-full border flex flex-shrink-0 items-center justify-center ${selectedPaymentMethod === 'wallet' ? 'border-[#b51822] bg-[#b51822]' : 'border-[#e5e2e1]'}`}>
+                    {selectedPaymentMethod === 'wallet' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                  <Wallet className={`w-5 h-5 ${selectedPaymentMethod === 'wallet' ? 'text-[#b51822]' : 'text-[#5b403e]'}`} />
+                  <div>
+                    <p className="font-medium text-sm text-[#1c1b1b]">Saldo Dompet</p>
+                    <p className="text-xs text-[#9e8e8c]">Saldo: {formatPrice(walletBalance)}</p>
+                  </div>
+                </div>
+              </label>
+              <label className={`block p-3 rounded border cursor-pointer transition-colors ${selectedPaymentMethod === 'online' ? 'border-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1]'}`}>
+                <div className="flex items-center gap-3">
+                  <input type="radio" name="pm" checked={selectedPaymentMethod === 'online'} onChange={() => setSelectedPaymentMethod('online')} className="hidden" />
+                  <div className={`w-4 h-4 rounded-full border flex flex-shrink-0 items-center justify-center ${selectedPaymentMethod === 'online' ? 'border-[#b51822] bg-[#b51822]' : 'border-[#e5e2e1]'}`}>
+                    {selectedPaymentMethod === 'online' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                  <QrCode className={`w-5 h-5 ${selectedPaymentMethod === 'online' ? 'text-[#b51822]' : 'text-[#5b403e]'}`} />
+                  <div>
+                    <p className="font-medium text-sm text-[#1c1b1b]">Pembayaran Online (Midtrans)</p>
+                    <p className="text-xs text-[#9e8e8c]">QRIS, E-Wallet, Virtual Account</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
         <div className="max-w-3xl mx-auto flex gap-3">
@@ -422,9 +549,10 @@ export default function OrderDetailClient() {
           {status === 'WAITING_PAYMENT' && (
             <Button
               className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded"
-              onClick={() => router.push(`/payment/${order.id}`)}
+              onClick={handlePay}
+              disabled={processingPayment}
             >
-              Bayar Sekarang
+              {processingPayment ? 'Memproses...' : 'Bayar Sekarang'}
             </Button>
           )}
 
@@ -559,5 +687,6 @@ export default function OrderDetailClient() {
         </div>
       )}
     </div>
+    </>
   );
 }
