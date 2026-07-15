@@ -139,7 +139,7 @@ export default function PaymentClient() {
   return (
     <>
       <Script 
-        src={process.env.NEXT_PUBLIC_MIDTRANS_SNAP_URL || 'https://app.midtrans.com/snap/snap.js'}
+        src={process.env.NEXT_PUBLIC_MIDTRANS_SNAP_URL || 'https://app.sandbox.midtrans.com/snap/snap.js'}
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || 'Mid-client-u_5fBngbQUy-8M8X'}
         strategy="afterInteractive"
       />
