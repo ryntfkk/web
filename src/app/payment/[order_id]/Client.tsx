@@ -2,13 +2,12 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import Script from 'next/script';
 import { ArrowLeft, Wallet, CreditCard, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
-import { getErrorMessage } from '@/types/api';
+import { payOrderWithWallet, payOrderWithSnap } from '@/lib/payment';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -23,7 +22,6 @@ export default function PaymentClient() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string>('');
-  const [snapToken, setSnapToken] = useState<string>('');
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [error, setError] = useState<string>('');
 
@@ -72,57 +70,24 @@ export default function PaymentClient() {
         setProcessing(false);
         return;
       }
-      // Internal wallet payment
-      const res = await fetchAPI(`/payments/initiate`, {
-        method: 'POST',
-        body: JSON.stringify({ order_id: orderId, payment_method: 'wallet_balance' })
-      });
-      if (res.success) {
+      const result = await payOrderWithWallet(orderId);
+      if (result.status === 'wallet_success') {
         router.push(`/payment/${orderId}/status?status=success`);
       } else {
-        router.push(`/payment/${orderId}/status?status=failed&message=${encodeURIComponent(getErrorMessage(res))}`);
+        router.push(`/payment/${orderId}/status?status=failed&message=${encodeURIComponent(result.message)}`);
       }
       setProcessing(false);
       return;
     }
 
-    // Request Midtrans Snap Token
-    const res = await fetchAPI<any>(`/payments/snap`, {
-      method: 'POST',
-      body: JSON.stringify({ order_id: orderId, payment_method: selectedMethod })
-    });
-    const snapData = res.success ? unwrapData<any>(res.data) : null;
-
-    if (snapData?.token) {
-      // Tunggu window.snap tersedia (SDK mungkin belum selesai dimuat)
-      const waitForSnap = (): Promise<any> => new Promise((resolve, reject) => {
-        let tries = 0;
-        const check = () => {
-          const s = (window as any).snap;
-          if (s) return resolve(s);
-          if (++tries > 20) return reject(new Error('Midtrans SDK gagal dimuat. Coba muat ulang halaman.'));
-          setTimeout(check, 300);
-        };
-        check();
-      });
-
-      try {
-        const snap = await waitForSnap();
-        setSnapToken(snapData.token);
-        snap.pay(snapData.token, {
-          onSuccess: () => router.push(`/payment/${orderId}/status?status=success`),
-          onPending: () => router.push(`/orders/${orderId}`),
-          onError: () => router.push(`/payment/${orderId}/status?status=failed`),
-          onClose: () => setProcessing(false),
-        });
-      } catch (e: any) {
-        setError(e.message || 'Gagal memuat Midtrans SDK.');
-        setProcessing(false);
-      }
-    } else {
-      setError(getErrorMessage(res));
+    // Online → Snap: redirect penuh ke halaman Midtrans (pola seragam,
+    // menghindari isu CSP pada popup embedded). Helper melakukan navigasi.
+    const result = await payOrderWithSnap(orderId, selectedMethod);
+    if (result.status === 'error') {
+      setError(result.message);
       setProcessing(false);
     }
+    // status 'redirecting' → browser berpindah halaman; biarkan processing.
   };
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
@@ -138,11 +103,6 @@ export default function PaymentClient() {
 
   return (
     <>
-      <Script 
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="Mid-client-u_5fBngbQUy-8M8X"
-        strategy="afterInteractive"
-      />
       <div className="page-h bg-[#f7f5f4] pb-24">
         {/* Header */}
         <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 lg:top-16 z-10">

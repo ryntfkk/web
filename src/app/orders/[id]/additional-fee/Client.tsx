@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
+import { isInsufficientBalance } from '@/lib/payment';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
@@ -76,8 +77,11 @@ export default function AdditionalFeeClient() {
       body: JSON.stringify({ accept: true }),
     });
     if (res.success) {
-      showToast('Tagihan berhasil disetujui dan dibayar.');
+      // Tagihan tambahan dibayar dari SALDO DOMPET (didebit backend saat approve).
+      showToast('Tagihan berhasil disetujui dan dibayar dari saldo dompet.');
       setTimeout(() => router.push(`/orders/${orderId}`), 1500);
+    } else if (isInsufficientBalance(res)) {
+      showToast('Saldo dompet tidak mencukupi untuk membayar tagihan ini. Silakan isi saldo terlebih dahulu.', 'error');
     } else {
       showToast(getErrorMessage(res), 'error');
     }

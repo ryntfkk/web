@@ -12,11 +12,10 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { csWhatsAppUrl } from '@/lib/constants';
-import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { payOrderWithWallet, payOrderWithSnap } from '@/lib/payment';
 import { Loader2, Wallet, QrCode } from 'lucide-react';
-import Script from 'next/script';
 
 
 interface OrderDetail {
@@ -174,37 +173,24 @@ export default function OrderDetailClient() {
         setProcessingPayment(false);
         return;
       }
-      const res = await fetchAPI(`/payments/initiate`, {
-        method: 'POST',
-        body: JSON.stringify({ order_id: orderId, payment_method: 'wallet_balance' })
-      });
-      if (res.success) {
+      const result = await payOrderWithWallet(orderId);
+      if (result.status === 'wallet_success') {
         showToast('Pembayaran berhasil!');
         await fetchOrder();
       } else {
-        showToast(getErrorMessage(res), 'error');
+        showToast(result.message, 'error');
       }
       setProcessingPayment(false);
       return;
     }
 
-    const res = await fetchAPI<any>(`/payments/snap`, {
-      method: 'POST',
-      body: JSON.stringify({ order_id: orderId, payment_method: 'online' })
-    });
-    
-    const snapData = res.success ? unwrapData<any>(res.data) : null;
-    if (snapData?.token || snapData?.redirect_url) {
-      // Always redirect to Midtrans payment page — avoids CSP iframe issues entirely.
-      // Use redirect_url from backend, or construct it from token.
-      const redirectUrl = snapData.redirect_url ||
-        `https://app.sandbox.midtrans.com/snap/v2/vtweb/${snapData.token}`;
-      window.location.href = redirectUrl;
-    } else {
-      showToast(getErrorMessage(res), 'error');
+    // Online → Snap: redirect penuh ke halaman Midtrans (pola seragam
+    // dengan halaman /payment; helper melakukan navigasi).
+    const result = await payOrderWithSnap(orderId, 'online');
+    if (result.status === 'error') {
+      showToast(result.message, 'error');
       setProcessingPayment(false);
     }
-
   };
 
   const handleCancel = async () => {
