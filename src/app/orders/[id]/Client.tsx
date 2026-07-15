@@ -194,7 +194,10 @@ export default function OrderDetailClient() {
     });
     
     const snapData = res.success ? unwrapData<any>(res.data) : null;
-    if (snapData?.token) {
+    if (snapData?.redirect_url) {
+      // Bypass popup iframe constraints and redirect directly to Midtrans secure payment page
+      window.location.href = snapData.redirect_url;
+    } else if (snapData?.token) {
       const snap = (window as any).snap;
       if (snap) {
         snap.pay(snapData.token, {
