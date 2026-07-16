@@ -11,7 +11,10 @@ interface ServiceCardProps {
   unit: string;
   imageUrl: string;
   isPro?: boolean;
-  location?: string;
+  /** Kota basecamp mitra (selalu tampil bila ada). */
+  city?: string;
+  /** Jarak terformat (mis. "2.3 km"); tampil bila lokasi user tersedia. */
+  distance?: string;
   vendorAvatar?: string;
   className?: string;
 }
@@ -25,12 +28,13 @@ export function ServiceCard({
   unit,
   imageUrl,
   isPro = false,
-  location,
+  city,
+  distance,
   vendorAvatar,
   className,
 }: ServiceCardProps) {
-  // Only show the location row when real coordinates were used (not a fallback).
-  const showLocation = location && location !== '0.0 km' && !location.startsWith('0.0');
+  // Tampilkan kota dan/atau jarak (mis. "Kota Semarang · 2.3 km").
+  const meta = [city, distance].filter(Boolean).join(' · ');
   return (
     <div
       className={cn(
@@ -85,17 +89,17 @@ export function ServiceCard({
         </div>
 
         {/* Rating + Location Row */}
-        <div className="flex items-center justify-between mt-0.5 sm:mt-1">
-          <div className="flex items-center gap-0.5 sm:gap-1">
+        <div className="flex items-center justify-between gap-1 mt-0.5 sm:mt-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
             {/* Gold filled star */}
             <Star className="w-3 h-3 fill-[#D69E2E] text-[#D69E2E]" />
             <span className="text-[12px] font-medium text-[#1c1b1b]">{Number(rating).toFixed(1)}</span>
             <span className="text-[11px] sm:text-[12px] font-normal text-[#5b403e] hidden sm:inline">({reviewCount})</span>
           </div>
-          {showLocation && (
-            <div className="flex items-center gap-0.5 text-[#5b403e]">
-              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-              <span className="text-[11px] sm:text-[12px] font-normal">{location}</span>
+          {meta && (
+            <div className="flex items-center gap-0.5 text-[#5b403e] min-w-0">
+              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+              <span className="text-[11px] sm:text-[12px] font-normal truncate">{meta}</span>
             </div>
           )}
         </div>

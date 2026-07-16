@@ -72,8 +72,10 @@ export default function PartnerProfileClient({ username }: { username: string })
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-20 sm:pb-12">
-      {/* Universal sticky header with back button */}
-      <div className="bg-white px-4 py-3 sticky top-16 z-10 border-b border-[#e5e2e1] flex items-center gap-3">
+      {/* Header kontekstual (tombol kembali) — hanya mobile. Di desktop TopNavbar
+          sudah jadi satu-satunya header; menampilkannya di desktop membuat header
+          ganda yang sticky dan menutup konten saat scroll. */}
+      <div className="bg-white px-4 py-3 sticky top-16 z-10 border-b border-[#e5e2e1] flex items-center gap-3 lg:hidden">
         <button
           onClick={() => router.back()}
           className="p-1.5 -ml-1 hover:bg-[#f7f5f4] rounded-md transition-colors"

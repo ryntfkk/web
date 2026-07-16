@@ -10,6 +10,7 @@ import Pagination from '@/components/search/Pagination';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import { usePublicServices } from '@/hooks/usePublicServices';
 import { useCityFilter } from '@/lib/store/cityFilterStore';
+import { useUserLocation } from '@/hooks/useUserLocation';
 
 interface SearchContentProps {
   query?: string;
@@ -18,12 +19,15 @@ interface SearchContentProps {
 export default function SearchContent({ query }: SearchContentProps) {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const { city, setCity } = useCityFilter();
+  const { latitude, longitude, hasLocation } = useUserLocation();
   const [minRating, setMinRating] = useState(0);
 
   const { data: services, isLoading, isError, refetch } = usePublicServices({
     q: query,
     city: city || undefined,
     limit: 24,
+    latitude: hasLocation ? latitude ?? undefined : undefined,
+    longitude: hasLocation ? longitude ?? undefined : undefined,
   });
 
   // Filter rating (rating mitra) diterapkan di sisi klien atas hasil.

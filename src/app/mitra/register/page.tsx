@@ -7,7 +7,7 @@ import { ChevronLeft, Upload, CheckCircle, Loader2 } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
-import 'leaflet/dist/leaflet.css';
+// Leaflet CSS kini di-import global di app/globals.css (lihat catatan di sana).
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });

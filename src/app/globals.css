@@ -5,6 +5,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Leaflet di-import global (bukan per-route) agar: (1) urutan CSS deterministik
+   di semua halaman → tidak memicu reorder saat navigasi, dan (2) peta ber-CSS
+   di SEMUA halaman yang memakai MapPicker (alamat, basecamp), bukan hanya register. */
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 

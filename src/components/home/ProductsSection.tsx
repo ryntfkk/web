@@ -3,11 +3,18 @@
 import Link from 'next/link';
 import { usePublicServices } from '@/hooks/usePublicServices';
 import { useCityFilter } from '@/lib/store/cityFilterStore';
+import { useUserLocation } from '@/hooks/useUserLocation';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 
 export default function ProductsSection() {
   const { city } = useCityFilter();
-  const { data: services, isLoading, isError } = usePublicServices({ limit: 12, city: city || undefined });
+  const { latitude, longitude, hasLocation } = useUserLocation();
+  const { data: services, isLoading, isError } = usePublicServices({
+    limit: 12,
+    city: city || undefined,
+    latitude: hasLocation ? latitude ?? undefined : undefined,
+    longitude: hasLocation ? longitude ?? undefined : undefined,
+  });
 
   return (
     <section className="mb-6 sm:mb-10 md:mb-12">

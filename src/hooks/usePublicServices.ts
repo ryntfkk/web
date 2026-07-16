@@ -20,6 +20,8 @@ export interface PublicService {
   partner_total_reviews: number;
   partner_city?: string;
   partner_district?: string;
+  /** Jarak (meter) dari lokasi user ke basecamp mitra; 0 bila lokasi tak dikirim. */
+  distance_meters?: number;
 }
 
 interface PublicServicesParams {
@@ -29,6 +31,9 @@ interface PublicServicesParams {
   q?: string;
   /** Filter kota (nama kanonik). '' / undefined = semua kota. */
   city?: string;
+  /** Lokasi user untuk menghitung jarak ke basecamp mitra. */
+  latitude?: number;
+  longitude?: number;
 }
 
 export function usePublicServices(params: PublicServicesParams = {}) {
@@ -40,6 +45,8 @@ export function usePublicServices(params: PublicServicesParams = {}) {
   if (params.limit) queryParams.append('limit', params.limit.toString());
   if (params.offset) queryParams.append('offset', params.offset.toString());
   if (params.city) queryParams.append('city', params.city);
+  if (params.latitude !== undefined) queryParams.append('lat', params.latitude.toString());
+  if (params.longitude !== undefined) queryParams.append('lon', params.longitude.toString());
 
   const base = isSearch ? '/services/search' : '/services';
   const queryString = queryParams.toString();

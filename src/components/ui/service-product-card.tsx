@@ -3,10 +3,12 @@ import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
 import type { PublicService } from '@/hooks/usePublicServices';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
+import { formatDistanceMeters } from '@/lib/distance';
 
 // Kartu satu produk jasa (dipakai di Home "Produk & Layanan" dan hasil pencarian).
 // Menautkan ke detail jasa /services?id=...
 export function ServiceProductCard({ service }: { service: PublicService }) {
+  const distance = formatDistanceMeters(service.distance_meters);
   return (
     <Link href={`/services?id=${service.id}`} className="block">
       <div className="bg-white border border-[#e5e2e1] rounded-[4px] overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
@@ -61,10 +63,12 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
                 ({service.partner_total_reviews || 0})
               </span>
             </div>
-            {service.partner_city && (
+            {(service.partner_city || distance) && (
               <div className="flex items-center gap-0.5 text-[#5b403e] min-w-0">
                 <MapPin className="w-3 h-3 flex-shrink-0" />
-                <span className="text-[11px] sm:text-[12px] truncate">{service.partner_city}</span>
+                <span className="text-[11px] sm:text-[12px] truncate">
+                  {[service.partner_city, distance].filter(Boolean).join(' · ')}
+                </span>
               </div>
             )}
           </div>

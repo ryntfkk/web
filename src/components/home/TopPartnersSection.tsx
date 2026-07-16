@@ -84,7 +84,8 @@ export default function TopPartnersSection() {
                 price={partner.starting_price}
                 unit="Jasa"
                 imageUrl={partner.avatar_url || PLACEHOLDER_IMG}
-                location={formatDistance(partner.distance_meters) ?? partner.city ?? undefined}
+                city={partner.city ?? undefined}
+                distance={formatDistance(partner.distance_meters)}
               />
             </Link>
           ))}

@@ -2,6 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Tailwind v4 + App Router: default cssChunking me-reorder chunk CSS saat
+  // navigasi klien sehingga presedensi utility (cascade layer) berubah —
+  // gaya/teks "berubah sendiri" & md:hidden kalah (bottom nav muncul di desktop).
+  // 'strict' memaksa urutan CSS mengikuti urutan import → deterministik.
+  experimental: {
+    cssChunking: 'strict',
+  },
   // @ts-ignore
   allowedDevOrigins: ['192.168.0.127', 'localhost'],
   // Proxy API di dev: request same-origin (localhost:3000/api/v1/*) diteruskan
