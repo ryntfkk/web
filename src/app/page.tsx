@@ -35,8 +35,8 @@ export default function Home() {
       <HeroCarousel />
 
       {/* Main Content Area - Better mobile padding */}
-      <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-6 sm:py-8 md:py-12 flex-1">
-        <div className="flex justify-end mb-4 sm:mb-6">
+      <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-8 md:py-12 flex-1">
+        <div className="flex justify-end mb-1 sm:mb-3">
           <CitySelector />
         </div>
         <CategorySection />
