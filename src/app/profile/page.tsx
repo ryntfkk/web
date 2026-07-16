@@ -1,25 +1,18 @@
 "use client";
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Briefcase, Phone, Mail, Star, Clock, TrendingUp, Package, Calendar, Heart } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
+import PartnerStatusCard, { type PartnerProfile } from '@/components/profile/PartnerStatusCard';
 
-
-interface PartnerProfile {
-  id: string;
-  verification_status: 'pending' | 'approved' | 'rejected';
-  rejection_reason?: string;
-  is_online: boolean;
-}
 
 interface OrderItem {
   id: string;
@@ -61,7 +54,10 @@ function matchesFilter(status: string, filter: FilterStatus): boolean {
 }
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, logout, switchRole, loading } = useAuth();
+  const { logout, loading } = useAuth();
+  // useRequireAuth menunggu isInitializing (silent refresh) selesai sebelum
+  // redirect ke /login — mencegah hard-load mental ke login saat sesi masih ada.
+  const { isLoading: authLoading, isAuthorized, isAuthenticated, user } = useRequireAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ActiveTab>('profile');
   const [partnerStatus, setPartnerStatus] = useState<PartnerProfile | null>(null);
@@ -72,13 +68,11 @@ export default function ProfilePage() {
   const [showSwitchModal, setShowSwitchModal] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else {
+    if (isAuthenticated) {
       checkPartnerStatus();
       fetchOrders();
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   const checkPartnerStatus = async () => {
     setStatusLoading(true);
@@ -130,7 +124,8 @@ export default function ProfilePage() {
     }).format(price);
   };
 
-  if (!user || !isAuthenticated) return null;
+  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!isAuthorized || !user) return null;
 
   const tabs = [
     { key: 'profile' as ActiveTab, label: 'Profil', icon: User },
@@ -138,9 +133,31 @@ export default function ProfilePage() {
     { key: 'settings' as ActiveTab, label: 'Pengaturan', icon: Settings },
   ];
 
+  const partnerCard = (
+    <PartnerStatusCard
+      user={user}
+      partnerStatus={partnerStatus}
+      statusLoading={statusLoading}
+      switching={loading}
+      onSwitchRole={() => setShowSwitchModal(true)}
+    />
+  );
+
+  const logoutButton = (
+    <Button
+      variant="secondary"
+      className="w-full py-4 text-[#b51822] border-[#b51822] hover:bg-[#fdf2f2]"
+      onClick={logout}
+      disabled={loading}
+    >
+      <LogOut className="w-5 h-5 mr-2" />
+      Keluar dari Akun
+    </Button>
+  );
+
   return (
     <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
-      {/* Header - Full Width */}
+      {/* Header - Full Width (shared mobile & desktop) */}
       <div className="bg-[#b51822] text-white px-4 py-6 md:py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4">
@@ -159,129 +176,53 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Main Content - Two Column Layout */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+      {/* Mobile Hub (< lg) — tiap menu navigasi ke halamannya sendiri */}
+      <div className="lg:hidden max-w-lg mx-auto px-4 py-6 space-y-4">
+        {partnerCard}
 
-          {/* Left Sidebar - Partner Info */}
-          <div className="w-full lg:w-72 shrink-0">
-            {/* Partner Stats Card (if partner) */}
-            {partnerStatus?.verification_status === 'approved' && (
-              <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden mb-4">
-                <div className="p-4 border-b border-[#e5e2e1] bg-[#fdf2f2]">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-[#b51822]/10 rounded mr-3">
-                      <Briefcase className="w-5 h-5 text-[#b51822]" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-[#32201f] text-sm">Status Partner</p>
-                      <p className="text-xs text-[#8f6f6d]">Terverifikasi</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 grid grid-cols-3 gap-3 text-center">
-                  <div>
-                    <Star className="w-4 h-4 text-[#D69E2E] mx-auto mb-1" />
-                    <p className="text-lg font-bold text-[#32201f]">{partnerStatus && 'rating' in partnerStatus ? (partnerStatus as any).rating?.toFixed(1) ?? '—' : '—'}</p>
-                    <p className="text-xs text-[#8f6f6d]">Rating</p>
-                  </div>
-                  <div>
-                    <Clock className="w-4 h-4 text-[#3182CE] mx-auto mb-1" />
-                    <p className="text-lg font-bold text-[#32201f]">{partnerStatus && 'total_orders' in partnerStatus ? (partnerStatus as any).total_orders ?? 0 : 0}</p>
-                    <p className="text-xs text-[#8f6f6d]">Order</p>
-                  </div>
-                  <div>
-                    <TrendingUp className="w-4 h-4 text-[#38A169] mx-auto mb-1" />
-                    <p className="text-lg font-bold text-[#32201f]">{partnerStatus && 'acceptance_rate' in partnerStatus ? `${(partnerStatus as any).acceptance_rate ?? 0}%` : '—'}</p>
-                    <p className="text-xs text-[#8f6f6d]">Acc Rate</p>
-                  </div>
-                </div>
-                <div className="p-4 border-t border-[#e5e2e1]">
-                  <Button
-                    size="sm"
-                    variant={user.active_role === 'partner' ? 'secondary' : 'primary'}
-                    className="w-full"
-                    onClick={() => setShowSwitchModal(true)}
-                    disabled={loading}
-                  >
-                    {user.active_role === 'partner' ? 'Ke Pelanggan' : 'Ke Mitra'}
-                  </Button>
-                </div>
-              </div>
-            )}
+        <MenuCard title="Akun">
+          <MenuListItem icon={User} label="Informasi Akun" subtitle="Nama, nomor HP, email" href="/profile/account" />
+          <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
+          <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
+        </MenuCard>
 
-            {/* Partner Registration / Verification Card (belum approved) */}
-            {!statusLoading && partnerStatus?.verification_status !== 'approved' && (
-              <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden mb-4">
-                <div className="p-4 text-center">
-                  <Briefcase className="w-12 h-12 text-[#8f6f6d]/50 mx-auto mb-3" />
-                  <p className="font-semibold text-[#32201f] mb-1">
-                    {partnerStatus?.verification_status === 'pending' ? 'Pendaftaran Mitra' : 'Jadilah Mitra Kami'}
-                  </p>
-                  <p className="text-xs text-[#8f6f6d] mb-4">
-                    {partnerStatus?.verification_status === 'pending'
-                      ? 'Dokumen Anda sedang kami tinjau.'
-                      : 'Daftar sebagai mitra dan mulai hasilkan uang tambahan.'}
-                  </p>
-                  {!partnerStatus ? (
-                    <Button className="w-full" onClick={() => router.push('/mitra/register')}>
-                      Daftar Jadi Mitra
-                    </Button>
-                  ) : partnerStatus.verification_status === 'pending' ? (
-                    <div className="bg-yellow-50 rounded p-3 border border-yellow-200">
-                      <p className="text-xs text-yellow-800 font-medium">Verifikasi Diproses</p>
-                      <p className="text-xs text-yellow-700 mt-1">Maks. 24 jam</p>
-                    </div>
-                  ) : partnerStatus.verification_status === 'rejected' ? (
-                    <div className="space-y-2">
-                      {partnerStatus.rejection_reason && (
-                        <div className="bg-red-50 rounded p-3 border border-red-200 text-left">
-                          <p className="text-xs font-medium text-[#b51822]">Pendaftaran ditolak:</p>
-                          <p className="text-xs text-[#5b403e] mt-1">{partnerStatus.rejection_reason}</p>
-                        </div>
-                      )}
-                      <Button size="sm" variant="danger" className="w-full border-[#b51822]" onClick={() => router.push('/mitra/register')}>
-                        Perbaiki & Kirim Ulang
-                      </Button>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            )}
+        <MenuCard title="Aktivitas">
+          <MenuListItem icon={Package} label="Pesanan" subtitle="Riwayat & status pesanan" badge={orders.length} href="/orders" />
+          <MenuListItem icon={Heart} label="Favorit" subtitle="Mitra & layanan tersimpan" href="/profile/favorites" />
+          <MenuListItem icon={Mail} label="Notifikasi" subtitle="Email, push notification" href="/profile/notifications" />
+        </MenuCard>
 
-            {/* Navigation Menu */}
-            <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
-              <div className="p-4 border-b border-[#e5e2e1]">
-                <h3 className="font-semibold text-[#32201f]">Menu</h3>
-              </div>
-              <div className="divide-y divide-[#e5e2e1]">
-                {tabs.map(tab => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.key;
-                  const count = tab.key === 'orders' ? orders.length : null;
-                  return (
-                    <button
-                      key={tab.key}
-                      onClick={() => setActiveTab(tab.key)}
-                      className={`w-full flex items-center p-4 transition-colors text-left ${
-                        isActive ? 'bg-[#fdf2f2]' : 'hover:bg-[#f7f5f4]'
-                      }`}
-                    >
-                      <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-[#b51822]' : 'text-[#8f6f6d]'}`} />
-                      <span className={`text-sm font-medium flex-1 ${isActive ? 'text-[#b51822]' : 'text-[#32201f]'}`}>
-                        {tab.label}
-                      </span>
-                      {count !== null && count > 0 && (
-                        <span className={`text-xs px-2 py-0.5 rounded ${isActive ? 'bg-[#b51822] text-white' : 'bg-[#e5e2e1] text-[#5b403e]'}`}>
-                          {count}
-                        </span>
-                      )}
-                      {!isActive && <ChevronRight className="w-4 h-4 text-[#d4c8c7]" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+        <MenuCard title="Bantuan & Legal">
+          <MenuListItem icon={Phone} label="Hubungi Kami" subtitle="FAQ, bantuan" href="/help" />
+          <MenuListItem icon={FileText} label="Syarat & Ketentuan" href="/terms" />
+          <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
+        </MenuCard>
+
+        {logoutButton}
+
+        <p className="text-center text-xs text-[#8f6f6d]">Versi 1.0.0</p>
+      </div>
+
+      {/* Desktop (lg+) — Two Column Layout dengan tab */}
+      <div className="hidden lg:block max-w-6xl mx-auto px-4 py-6">
+        <div className="flex gap-6">
+
+          {/* Left Sidebar - Partner Info + Menu */}
+          <div className="w-72 shrink-0">
+            {partnerCard}
+
+            <MenuCard title="Menu">
+              {tabs.map(tab => (
+                <MenuListItem
+                  key={tab.key}
+                  icon={tab.icon}
+                  label={tab.label}
+                  onClick={() => setActiveTab(tab.key)}
+                  active={activeTab === tab.key}
+                  badge={tab.key === 'orders' ? orders.length : undefined}
+                />
+              ))}
+            </MenuCard>
           </div>
 
           {/* Right Content - Tab Content */}
@@ -290,61 +231,33 @@ export default function ProfilePage() {
             {activeTab === 'profile' && (
               <div className="space-y-4">
                 {/* Account Settings */}
-                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
-                  <div className="p-4 border-b border-[#e5e2e1]">
-                    <h3 className="font-semibold text-[#32201f]">Informasi Akun</h3>
+                <MenuCard title="Informasi Akun">
+                  <div className="w-full flex items-center p-4 text-left">
+                    <User className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                    <div className="flex-1">
+                      <span className="text-[#32201f] font-medium block text-sm">Nama</span>
+                      <span className="text-xs text-[#8f6f6d]">{user.name}</span>
+                    </div>
                   </div>
-                  <div className="divide-y divide-[#e5e2e1]">
-                    <div className="w-full flex items-center p-4 text-left">
-                      <User className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Nama</span>
-                        <span className="text-xs text-[#8f6f6d]">{user.name}</span>
-                      </div>
+                  <div className="w-full flex items-center p-4 text-left">
+                    <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                    <div className="flex-1">
+                      <span className="text-[#32201f] font-medium block text-sm">Nomor HP</span>
+                      <span className="text-xs text-[#8f6f6d]">{user.phone}</span>
                     </div>
-                    <div className="w-full flex items-center p-4 text-left">
-                      <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Nomor HP</span>
-                        <span className="text-xs text-[#8f6f6d]">{user.phone}</span>
-                      </div>
-                    </div>
-                    <div className="w-full flex items-center p-4 text-left">
-                      <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Email</span>
-                        <span className="text-xs text-[#8f6f6d]">{user.email || 'Belum diisi'}</span>
-                      </div>
-                    </div>
-                    <Link href="/profile/security" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <ShieldCheck className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Keamanan Akun</span>
-                        <span className="text-xs text-[#8f6f6d]">Ubah kata sandi &amp; keamanan</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </Link>
-                    <Link href="/profile/addresses" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <MapPin className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Buku Alamat</span>
-                        <span className="text-xs text-[#8f6f6d]">Kelola alamat pengiriman</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </Link>
                   </div>
-                </div>
+                  <div className="w-full flex items-center p-4 text-left">
+                    <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                    <div className="flex-1">
+                      <span className="text-[#32201f] font-medium block text-sm">Email</span>
+                      <span className="text-xs text-[#8f6f6d]">{user.email || 'Belum diisi'}</span>
+                    </div>
+                  </div>
+                  <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
+                  <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
+                </MenuCard>
 
-                {/* Logout Button */}
-                <Button
-                  variant="secondary"
-                  className="w-full py-4 text-[#b51822] border-[#b51822] hover:bg-[#fdf2f2]"
-                  onClick={logout}
-                  disabled={loading}
-                >
-                  <LogOut className="w-5 h-5 mr-2" />
-                  Keluar dari Akun
-                </Button>
+                {logoutButton}
 
                 <p className="text-center text-xs text-[#8f6f6d]">Versi 1.0.0</p>
               </div>
@@ -475,7 +388,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-[#8f6f6d]">Total</p>
                                 <p className="text-lg font-bold text-[#b51822]">{formatPrice(order.total_amount)}</p>
                               </div>
-                              <Button size="sm" className="bg-[#b51822] hover:bg-[#90121a]">
+                              <Button size="sm" className="bg-[#b51822] hover:bg-[#90121a]" onClick={() => router.push(`/orders/${order.id}`)}>
                                 Detail
                                 <ChevronRight className="w-4 h-4 ml-1" />
                               </Button>
@@ -493,68 +406,18 @@ export default function ProfilePage() {
             {activeTab === 'settings' && (
               <div className="space-y-4">
                 {/* Account Settings */}
-                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
-                  <div className="p-4 border-b border-[#e5e2e1]">
-                    <h3 className="font-semibold text-[#32201f]">Pengaturan Akun</h3>
-                  </div>
-                  <div className="divide-y divide-[#e5e2e1]">
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <Settings className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Pengaturan Keamanan</span>
-                        <span className="text-xs text-[#8f6f6d]">Password, PIN, autentikasi</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
-                    <Link href="/profile/favorites" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <Heart className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Favorit</span>
-                        <span className="text-xs text-[#8f6f6d]">Mitra & layanan tersimpan</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </Link>
-                    <Link href="/profile/notifications" className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Notifikasi</span>
-                        <span className="text-xs text-[#8f6f6d]">Email, push notification</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </Link>
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Hubungi Kami</span>
-                        <span className="text-xs text-[#8f6f6d]">FAQ, bantuan</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
-                  </div>
-                </div>
+                <MenuCard title="Pengaturan Akun">
+                  <MenuListItem icon={Settings} label="Pengaturan Keamanan" subtitle="Password, PIN, autentikasi" href="/profile/security" />
+                  <MenuListItem icon={Heart} label="Favorit" subtitle="Mitra & layanan tersimpan" href="/profile/favorites" />
+                  <MenuListItem icon={Mail} label="Notifikasi" subtitle="Email, push notification" href="/profile/notifications" />
+                  <MenuListItem icon={Phone} label="Hubungi Kami" subtitle="FAQ, bantuan" href="/help" />
+                </MenuCard>
 
                 {/* Legal & Support */}
-                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
-                  <div className="p-4 border-b border-[#e5e2e1]">
-                    <h3 className="font-semibold text-[#32201f]">Bantuan & Legal</h3>
-                  </div>
-                  <div className="divide-y divide-[#e5e2e1]">
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <FileText className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Syarat & Ketentuan</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
-                    <button className="w-full flex items-center p-4 hover:bg-[#f7f5f4] transition-colors text-left">
-                      <ShieldCheck className="w-5 h-5 text-[#8f6f6d] mr-3" />
-                      <div className="flex-1">
-                        <span className="text-[#32201f] font-medium block text-sm">Kebijakan Privasi</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-[#d4c8c7]" />
-                    </button>
-                  </div>
-                </div>
+                <MenuCard title="Bantuan & Legal">
+                  <MenuListItem icon={FileText} label="Syarat & Ketentuan" href="/terms" />
+                  <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
+                </MenuCard>
               </div>
             )}
           </div>
@@ -565,4 +428,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

@@ -29,7 +29,7 @@ export default function BottomNav() {
       p.startsWith('/payment') ||
       p.startsWith('/orders/') ||
       p.startsWith('/services') ||
-      p.startsWith('/profile/addresses');
+      p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
     if (hideForPartner) return null;
     // Tanpa md:hidden — area mitra memakai MitraBottomNav di semua ukuran layar
     // (header pelanggan tidak ada di mode mitra).
@@ -43,7 +43,7 @@ export default function BottomNav() {
     p.startsWith('/payment') ||
     p.startsWith('/orders/') ||
     p.startsWith('/services') ||
-    p.startsWith('/profile/addresses');
+    p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
   if (hideNav) return null;
 
   const navItems = [

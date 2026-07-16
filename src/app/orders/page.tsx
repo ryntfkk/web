@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
@@ -56,19 +56,19 @@ function matchesFilter(status: string, filter: FilterStatus): boolean {
 }
 
 export default function OrdersPage() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  // useRequireAuth menunggu isInitializing (silent refresh) selesai sebelum
+  // redirect ke /login — mencegah hard-load mental ke login saat sesi masih ada.
+  const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    } else if (isAuthenticated) {
+    if (isAuthenticated) {
       fetchOrders();
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, [isAuthenticated]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -114,7 +114,10 @@ export default function OrdersPage() {
     }).format(price);
   };
 
-  if (authLoading || !isAuthenticated) {
+  if (authLoading) {
+    return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+  if (!isAuthorized) {
     return null;
   }
 
