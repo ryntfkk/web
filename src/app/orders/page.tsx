@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
@@ -13,8 +14,11 @@ import { StatusBadge } from '@/components/ui/status-badge';
 interface OrderItem {
   id: string;
   service_name: string;
+  name?: string;
   quantity: number;
   price: number;
+  photo_url?: string;
+  service_photo_url?: string;
 }
 
 interface Order {
@@ -226,14 +230,26 @@ export default function OrdersPage() {
 
                     <div className="p-4">
                       <div className="space-y-2 mb-4">
-                        {order.items?.slice(0, 2).map(item => (
+                        {order.items?.slice(0, 2).map(item => {
+                          const thumb = item.photo_url || item.service_photo_url;
+                          return (
                           <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 shrink-0 bg-[#f7f5f4] rounded-md flex items-center justify-center">
-                                <Package className="w-4 h-4 text-[#8f6f6d]" />
+                              <div className="w-10 h-10 shrink-0 bg-[#f7f5f4] rounded-md overflow-hidden relative flex items-center justify-center">
+                                {thumb ? (
+                                  <Image
+                                    src={thumb}
+                                    alt={item.service_name || item.name || 'Layanan'}
+                                    fill
+                                    className="object-cover"
+                                    sizes="40px"
+                                  />
+                                ) : (
+                                  <Package className="w-4 h-4 text-[#8f6f6d]" />
+                                )}
                               </div>
                               <div className="min-w-0">
-                                <p className="text-sm font-medium text-[#32201f] truncate">{item.service_name || (item as any).name}</p>
+                                <p className="text-sm font-medium text-[#32201f] truncate">{item.service_name || item.name}</p>
                                 <p className="text-xs text-[#8f6f6d]">x{item.quantity}</p>
                               </div>
                             </div>
@@ -241,7 +257,8 @@ export default function OrdersPage() {
                               {formatPrice(item.price * item.quantity)}
                             </p>
                           </div>
-                        ))}
+                          );
+                        })}
                         {order.items && order.items.length > 2 && (
                           <p className="text-xs text-[#8f6f6d] pl-10">
                             +{order.items.length - 2} layanan lainnya
