@@ -180,6 +180,23 @@ export default function MitraOrderDetailClient() {
 
   const status = order.status;
 
+  // Pendapatan mitra dihitung defensif: bila backend lama tidak mengirim
+  // platform_fee / partner_amount, nilainya diestimasi dengan rumus yang sama
+  // seperti backend (utils.CalculateCompensation). Prinsip utama: JANGAN PERNAH
+  // menampilkan total_amount (bruto yang dibayar pelanggan) sebagai pendapatan mitra.
+  const paidServiceFee = (order.additional_fees ?? [])
+    .filter(f => f.status === 'PAID' && f.type === 'service')
+    .reduce((sum, f) => sum + f.total, 0);
+  const paidMaterialFee = (order.additional_fees ?? [])
+    .filter(f => f.status === 'PAID' && f.type === 'material')
+    .reduce((sum, f) => sum + f.total, 0);
+  const platformFee = order.platform_fee ??
+    Math.round(((order.total_service_price ?? 0) + paidServiceFee) * 0.12);
+  const partnerNet = order.partner_amount ?? Math.max(
+    (order.total_service_price ?? 0) + paidServiceFee - platformFee + paidMaterialFee + (order.transport_fee ?? 0),
+    0,
+  );
+
   return (
     <div className="page-h bg-[#f7f5f4] pb-40">
       {/* Toast */}
@@ -379,21 +396,43 @@ export default function MitraOrderDetailClient() {
               Rincian Pendapatan Mitra
             </p>
             
-            {/* Komisi Platform */}
-            {order.platform_fee !== undefined && order.platform_fee > 0 && (
-              <div className="flex justify-between text-sm text-[#E53E3E]">
-                <span>Komisi Platform (12%)</span>
-                <span>- {formatPrice(order.platform_fee)}</span>
+            {/* Dasar komisi = nilai jasa (termasuk biaya jasa tambahan yang sudah dibayar) */}
+            {order.total_service_price !== undefined && (
+              <div className="flex justify-between text-sm text-[#5b403e]">
+                <span>Nilai Jasa (dasar komisi)</span>
+                <span>{formatPrice(order.total_service_price + paidServiceFee)}</span>
               </div>
             )}
-            
+
+            {/* Komisi Platform — SELALU ditampilkan agar potongan mitra jelas */}
+            <div className="mt-1 flex justify-between text-sm text-[#E53E3E]">
+              <span>Komisi Platform (12%)</span>
+              <span>- {formatPrice(platformFee)}</span>
+            </div>
+
+            {/* Biaya material (dibayar penuh ke mitra) */}
+            {paidMaterialFee > 0 && (
+              <div className="mt-1 flex justify-between text-sm text-[#5b403e]">
+                <span>Biaya Material</span>
+                <span>+ {formatPrice(paidMaterialFee)}</span>
+              </div>
+            )}
+
+            {/* Transport (dibayar penuh ke mitra) */}
+            {order.transport_fee !== undefined && order.transport_fee > 0 && (
+              <div className="mt-1 flex justify-between text-sm text-[#5b403e]">
+                <span>Biaya Transport</span>
+                <span>+ {formatPrice(order.transport_fee)}</span>
+              </div>
+            )}
+
             {/* TOTAL PENDAPATAN MITRA — BOLD, merah */}
-            <div className="mt-2 flex justify-between font-bold text-base">
+            <div className="mt-2 pt-2 border-t border-dashed border-[#e5e2e1] flex justify-between font-bold text-base">
               <span className="text-[#1c1b1b]">
                 {order.status === 'COMPLETED' ? 'Pendapatan Bersih' : 'Estimasi Pendapatan'}
               </span>
               <span className="text-[#b51822]">
-                {formatPrice(order.partner_amount ?? order.total_amount)}
+                {formatPrice(partnerNet)}
               </span>
             </div>
             

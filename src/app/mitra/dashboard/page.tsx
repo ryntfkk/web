@@ -28,6 +28,10 @@ interface DashboardData {
     customer_name: string;
     status: OrderStatus;
     total_amount: number;
+    // Pendapatan bersih mitra (setelah komisi platform) — tampilkan ini, bukan
+    // total_amount (bruto yang dibayar pelanggan).
+    partner_amount?: number;
+    partner_amount_estimated?: boolean;
     scheduled_at: string;
   }[];
 }
@@ -264,7 +268,12 @@ export default function MitraDashboardPage() {
                     <p className="text-[#5b403e] flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-[#9e8e8c]" /> {formatTime(order.scheduled_at)}
                     </p>
-                    <p className="font-bold text-[#b51822]">{formatPrice(order.total_amount)}</p>
+                    <p className="font-bold text-[#b51822]">
+                      {formatPrice(order.partner_amount ?? 0)}
+                      {order.partner_amount_estimated && (
+                        <span className="ml-1 text-[10px] font-normal text-[#9e8e8c]">est.</span>
+                      )}
+                    </p>
                   </div>
                 </Link>
               ))

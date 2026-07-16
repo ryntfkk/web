@@ -14,6 +14,10 @@ interface Order {
   order_number: string;
   status: OrderStatus;
   total_amount: number;
+  // Pendapatan bersih mitra (setelah komisi platform). Ini yang ditampilkan
+  // sebagai penghasilan — bukan total_amount (bruto yang dibayar pelanggan).
+  partner_amount?: number;
+  partner_amount_estimated?: boolean;
   scheduled_at: string;
   // Backend mengirim nama pelanggan di dalam customer_info, bukan customer_name.
   customer_info?: { id?: string; name?: string; phone?: string };
@@ -171,7 +175,15 @@ export default function MitraOrdersPage() {
                   <Calendar className="w-4 h-4 text-[#9e8e8c]" />
                   <span>{formatTime(order.scheduled_at)}</span>
                 </div>
-                <p className="font-bold text-[#b51822]">{formatPrice(order.total_amount)}</p>
+                <div className="text-right">
+                  <p className="font-bold text-[#b51822]">
+                    {formatPrice(order.partner_amount ?? 0)}
+                    {order.partner_amount_estimated && (
+                      <span className="ml-1 text-[10px] font-normal text-[#9e8e8c]">est.</span>
+                    )}
+                  </p>
+                  <p className="text-[10px] text-[#9e8e8c] mt-0.5">Pendapatan mitra</p>
+                </div>
               </div>
             </Link>
           ))
