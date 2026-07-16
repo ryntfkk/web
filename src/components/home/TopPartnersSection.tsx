@@ -6,16 +6,19 @@ import { Button } from '@/components/ui/button';
 import { ServiceCard } from '@/components/ui/service-card';
 import { usePartners } from '@/hooks/usePartners';
 import { useUserLocation } from '@/hooks/useUserLocation';
+import { useCityFilter } from '@/lib/store/cityFilterStore';
 import type { Partner } from '@/types/partner';
 
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 
 export default function TopPartnersSection() {
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
+  const { city } = useCityFilter();
 
   const { data: partners, isLoading, isError, refetch } = usePartners({
     per_page: 6,
     sort_by: 'rating',
+    city: city || undefined,
     latitude: hasLocation ? latitude ?? undefined : undefined,
     longitude: hasLocation ? longitude ?? undefined : undefined,
   });
@@ -65,6 +68,10 @@ export default function TopPartnersSection() {
             Coba Lagi
           </Button>
         </div>
+      ) : partners?.length === 0 ? (
+        <div className="text-center text-[13px] sm:text-[14px] text-[#5b403e] py-8">
+          {city ? `Belum ada mitra di ${city}.` : 'Belum ada mitra.'}
+        </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
           {partners?.map((partner: Partner) => (
@@ -77,7 +84,7 @@ export default function TopPartnersSection() {
                 price={partner.starting_price}
                 unit="Jasa"
                 imageUrl={partner.avatar_url || PLACEHOLDER_IMG}
-                location={formatDistance(partner.distance_meters)}
+                location={formatDistance(partner.distance_meters) ?? partner.city ?? undefined}
               />
             </Link>
           ))}

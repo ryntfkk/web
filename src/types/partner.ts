@@ -22,6 +22,10 @@ export interface Partner {
   starting_price: number;
   distance_meters: number;
   distance_km: number;
+  /** Lokasi kanonik (dari kolom partners.city/district/province). */
+  city?: string | null;
+  district?: string | null;
+  province?: string | null;
   /** True when the partner is currently available / accepting orders. */
   is_available?: boolean;
 }
@@ -57,6 +61,9 @@ export function normalizePartner(raw: Record<string, unknown>): Partner {
     starting_price: Number(raw.starting_price ?? 0),
     distance_meters: Number(raw.distance_meters ?? 0),
     distance_km: Number(raw.distance_km ?? 0),
+    city: normalizeNullString(raw.city),
+    district: normalizeNullString(raw.district),
+    province: normalizeNullString(raw.province),
     is_available: Boolean(raw.is_available ?? false),
   };
 }

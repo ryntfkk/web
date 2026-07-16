@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Upload, CheckCircle, Loader2 } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
+import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
@@ -27,6 +28,7 @@ function MitraRegisterForm() {
     selfie_ktp: null as File | null,
     bio: '',
     service_area: ['general'], // Diisi otomatis dari kota+kecamatan saat submit
+    province: '',
     city: '',
     district: '',
     address_detail: '',
@@ -108,6 +110,7 @@ function MitraRegisterForm() {
           selfie_ktp_url: selfieUrl,
           bio: formData.bio,
           service_area: [[formData.district, formData.city].filter(Boolean).join(', ') || 'general'],
+          province: formData.province,
           city: formData.city,
           district: formData.district,
           address_detail: formData.address_detail,
@@ -218,16 +221,12 @@ function MitraRegisterForm() {
                  />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-sm font-medium text-[#5b403e] block mb-1">Kota / Kabupaten</label>
-                  <input className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="mis. Kota Semarang" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-[#5b403e] block mb-1">Kecamatan</label>
-                  <input className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="mis. Tembalang" value={formData.district} onChange={(e) => setFormData({ ...formData, district: e.target.value })} />
-                </div>
-              </div>
+              <RegionSelect
+                value={{ province: formData.province, city: formData.city, district: formData.district }}
+                onChange={(v) => setFormData({ ...formData, ...v })}
+                selectClassName="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]"
+                labelClassName="text-sm font-medium text-[#5b403e] block mb-1"
+              />
               <div>
                 <label className="text-sm font-medium text-[#5b403e] block mb-1">Detail Alamat (opsional)</label>
                 <input className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Nama jalan, patokan, dsb." value={formData.address_detail} onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })} />
@@ -240,7 +239,7 @@ function MitraRegisterForm() {
                   if (!formData.bank_account_name) setFormData((prev) => ({ ...prev, bank_account_name: prev.ktp_name }));
                   nextStep();
                 }}
-                disabled={!formData.city || !formData.district}
+                disabled={!formData.province || !formData.city || !formData.district}
               >Selanjutnya</Button>
             </div>
           )}

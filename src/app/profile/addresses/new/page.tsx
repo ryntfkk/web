@@ -6,6 +6,7 @@ import { ArrowLeft, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 
@@ -24,6 +25,7 @@ export default function NewAddressPage() {
     label: '',
     recipient_name: '',
     recipient_phone: '',
+    province: '',
     city: '',
     district: '',
     full_address: '',
@@ -40,7 +42,7 @@ export default function NewAddressPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.label || !form.recipient_name || !form.recipient_phone || !form.full_address || !form.city || !form.district) {
+    if (!form.label || !form.recipient_name || !form.recipient_phone || !form.full_address || !form.province || !form.city || !form.district) {
       setError('Semua kolom wajib diisi');
       return;
     }
@@ -55,6 +57,7 @@ export default function NewAddressPage() {
         label: form.label,
         address: form.full_address,
         address_detail: `Penerima: ${form.recipient_name} (${form.recipient_phone})`,
+        province: form.province,
         city: form.city,
         district: form.district,
         lon: form.longitude,
@@ -135,28 +138,10 @@ export default function NewAddressPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kota / Kabupaten</label>
-              <input
-                type="text"
-                placeholder="mis. Kota Semarang"
-                value={form.city}
-                onChange={e => setForm({ ...form, city: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kecamatan</label>
-              <input
-                type="text"
-                placeholder="mis. Tembalang"
-                value={form.district}
-                onChange={e => setForm({ ...form, district: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-          </div>
+          <RegionSelect
+            value={{ province: form.province, city: form.city, district: form.district }}
+            onChange={(v) => setForm({ ...form, ...v })}
+          />
 
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Alamat Lengkap</label>

@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, MapPin, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 import { getErrorMessage } from '@/types/api';
 
@@ -20,6 +21,7 @@ export default function MitraBasecampPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [basecamp, setBasecamp] = useState({ lat: -6.2088, lon: 106.8456 });
+  const [provinsi, setProvinsi] = useState('');
   const [kota, setKota] = useState('');
   const [kecamatan, setKecamatan] = useState('');
   const [detail, setDetail] = useState('');
@@ -40,8 +42,9 @@ export default function MitraBasecampPage() {
         if (d.basecamp_lat && d.basecamp_lon) setBasecamp({ lat: d.basecamp_lat, lon: d.basecamp_lon });
         setBio(d.bio || '');
         setDetail(d.address_detail || '');
-        // Kolom city/district (setelah backend deploy) ATAU fallback parse service_area "Kecamatan, Kota".
+        // Kolom province/city/district (setelah backend deploy) ATAU fallback parse service_area "Kecamatan, Kota".
         if (d.city || d.district) {
+          setProvinsi(d.province || '');
           setKota(d.city || '');
           setKecamatan(d.district || '');
         } else if (d.service_area && d.service_area !== 'general') {
@@ -60,8 +63,8 @@ export default function MitraBasecampPage() {
   };
 
   const handleSave = async () => {
-    if (!kota || !kecamatan) {
-      setError('Kota dan Kecamatan wajib diisi');
+    if (!provinsi || !kota || !kecamatan) {
+      setError('Provinsi, Kota, dan Kecamatan wajib diisi');
       return;
     }
     setSubmitting(true);
@@ -74,6 +77,7 @@ export default function MitraBasecampPage() {
           bio,
           // service_area tetap dikirim agar profil tampil benar sebelum kolom baru dideploy.
           service_area: areaLabel ? [areaLabel] : undefined,
+          province: provinsi,
           city: kota,
           district: kecamatan,
           address_detail: detail,
@@ -126,16 +130,11 @@ export default function MitraBasecampPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kota / Kabupaten</label>
-              <input className={inputCls} placeholder="mis. Kota Semarang" value={kota} onChange={(e) => setKota(e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kecamatan</label>
-              <input className={inputCls} placeholder="mis. Tembalang" value={kecamatan} onChange={(e) => setKecamatan(e.target.value)} />
-            </div>
-          </div>
+          <RegionSelect
+            value={{ province: provinsi, city: kota, district: kecamatan }}
+            onChange={(v) => { setProvinsi(v.province); setKota(v.city); setKecamatan(v.district); }}
+            selectClassName={inputCls + ' bg-white'}
+          />
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Detail Alamat (opsional)</label>
             <input className={inputCls} placeholder="Nama jalan, patokan, dsb." value={detail} onChange={(e) => setDetail(e.target.value)} />

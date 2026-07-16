@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { RefreshCw, MapPinOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import Pagination from '@/components/search/Pagination';
 import { ServiceCard } from '@/components/ui/service-card';
 import { usePartners } from '@/hooks/usePartners';
 import { useUserLocation } from '@/hooks/useUserLocation';
+import { useCityFilter } from '@/lib/store/cityFilterStore';
 import type { Partner } from '@/types/partner';
 
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
@@ -22,13 +23,22 @@ interface SearchContentProps {
 export default function SearchContent({ query }: SearchContentProps) {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
+  const { city, setCity } = useCityFilter();
+  const [minRating, setMinRating] = useState(0);
 
   const { data: partners, isLoading, isError, refetch } = usePartners({
     q: query,
     per_page: 12,
+    city: city || undefined,
     latitude: hasLocation ? latitude ?? undefined : undefined,
     longitude: hasLocation ? longitude ?? undefined : undefined,
   });
+
+  // Filter rating diterapkan di sisi klien atas hasil (halaman ini).
+  const visiblePartners = useMemo(
+    () => (partners ?? []).filter((p) => p.avg_rating >= minRating),
+    [partners, minRating],
+  );
 
   const formatDistance = (km: number): string | undefined => {
     if (!hasLocation || km <= 0) return undefined;
@@ -42,7 +52,14 @@ export default function SearchContent({ query }: SearchContentProps) {
 
       {/* Container (Filter + Results) */}
       <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
-        <FilterPanel isOpen={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)} />
+        <FilterPanel
+          isOpen={isMobileFilterOpen}
+          onClose={() => setIsMobileFilterOpen(false)}
+          city={city}
+          onCityChange={setCity}
+          minRating={minRating}
+          onMinRatingChange={setMinRating}
+        />
 
         {/* Main Results Area */}
         <div className="flex-1 flex flex-col w-full min-w-0">
@@ -75,11 +92,13 @@ export default function SearchContent({ query }: SearchContentProps) {
                 Coba Lagi
               </Button>
             </div>
-          ) : partners?.length === 0 ? (
-            <div className="mt-6 text-center text-[#5b403e] py-10">Belum ada mitra di area ini.</div>
+          ) : visiblePartners.length === 0 ? (
+            <div className="mt-6 text-center text-[#5b403e] py-10">
+              {city ? `Belum ada mitra di ${city}.` : 'Belum ada mitra di area ini.'}
+            </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
-              {partners?.map((partner: Partner) => (
+              {visiblePartners.map((partner: Partner) => (
                 <Link key={partner.id} href={`/${partner.username}`} className="block">
                   <ServiceCard
                     vendorName={partner.name}
@@ -89,7 +108,7 @@ export default function SearchContent({ query }: SearchContentProps) {
                     price={partner.starting_price}
                     unit="Jasa"
                     imageUrl={partner.avatar_url || PLACEHOLDER_IMG}
-                    location={formatDistance(partner.distance_km)}
+                    location={formatDistance(partner.distance_km) ?? partner.city ?? undefined}
                   />
                 </Link>
               ))}

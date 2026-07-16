@@ -8,6 +8,8 @@ interface PartnersParams {
   radius?: number;
   category_id?: string;
   min_rating?: number;
+  /** Filter kota (nama kanonik, mis. "Kota Semarang"). '' / undefined = semua kota. */
+  city?: string;
   q?: string;
   sort_by?: string;
   page?: number;
@@ -31,6 +33,7 @@ export function usePartners(params: PartnersParams = {}) {
   if (params.radius) queryParams.append('radius', params.radius.toString());
   if (params.category_id) queryParams.append('category_id', params.category_id);
   if (params.min_rating) queryParams.append('min_rating', params.min_rating.toString());
+  if (params.city) queryParams.append('city', params.city);
   if (params.q) queryParams.append('q', params.q);
   if (params.sort_by) queryParams.append('sort_by', params.sort_by);
   if (params.page) queryParams.append('page', params.page.toString());

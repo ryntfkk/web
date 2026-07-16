@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { unwrapData } from '@/lib/order-utils';
+import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 
@@ -21,6 +22,7 @@ interface Address {
   label: string;
   address: string;
   address_detail?: string;
+  province?: string;
   city?: string;
   district?: string;
   is_default: boolean;
@@ -38,6 +40,7 @@ export default function EditAddressPage() {
     label: '',
     address: '',
     address_detail: '',
+    province: '',
     city: '',
     district: '',
     is_default: false,
@@ -61,6 +64,7 @@ export default function EditAddressPage() {
             label: a.label || '',
             address: a.address || '',
             address_detail: a.address_detail || '',
+            province: a.province || '',
             city: a.city || '',
             district: a.district || '',
             is_default: Boolean(a.is_default),
@@ -95,6 +99,7 @@ export default function EditAddressPage() {
         label: form.label,
         address: form.address,
         address_detail: form.address_detail,
+        province: form.province,
         city: form.city,
         district: form.district,
         lon: form.lon,
@@ -148,28 +153,10 @@ export default function EditAddressPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kota / Kabupaten</label>
-              <input
-                type="text"
-                placeholder="mis. Kota Semarang"
-                value={form.city}
-                onChange={e => setForm({ ...form, city: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kecamatan</label>
-              <input
-                type="text"
-                placeholder="mis. Tembalang"
-                value={form.district}
-                onChange={e => setForm({ ...form, district: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-          </div>
+          <RegionSelect
+            value={{ province: form.province, city: form.city, district: form.district }}
+            onChange={(v) => setForm({ ...form, ...v })}
+          />
 
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Detail / Catatan (opsional)</label>
