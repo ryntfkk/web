@@ -12,7 +12,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="flex flex-col min-h-[calc(100dvh-4rem)] bg-[#f7f5f4]">
       {/* Sticky Page Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:relative lg:z-auto">
         <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6">
           <div className="flex items-center gap-3 py-4">
             <Link href="/" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-md transition-colors">

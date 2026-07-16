@@ -11,15 +11,15 @@ export default function CitySelector() {
   const { city, setCity } = useCityFilter();
 
   return (
-    <div className="flex items-center gap-2">
-      <MapPin className="w-4 h-4 text-[#b51822] shrink-0" />
-      <span className="text-[13px] sm:text-[14px] text-[#5b403e] shrink-0">Kota:</span>
+    <div className="flex items-center gap-1.5 sm:gap-2">
+      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b51822] shrink-0" />
+      <span className="text-[12px] sm:text-[13px] text-[#5b403e] shrink-0">Kota:</span>
       <div className="relative">
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
           disabled={isLoading}
-          className="appearance-none bg-white border border-[#e5e2e1] rounded-full pl-3 pr-8 py-1.5 text-[13px] sm:text-[14px] font-semibold text-[#1c1b1b] focus:outline-none focus:border-[#b51822] cursor-pointer"
+          className="appearance-none bg-white border border-[#e5e2e1] rounded-full pl-2.5 pr-7 py-1 sm:pl-3 sm:pr-8 sm:py-1.5 text-[12px] sm:text-[13px] font-semibold text-[#1c1b1b] focus:outline-none focus:border-[#b51822] cursor-pointer"
         >
           <option value="">Semua Kota</option>
           {cities?.map((c) => (
@@ -28,7 +28,7 @@ export default function CitySelector() {
             </option>
           ))}
         </select>
-        <ChevronDown className="w-4 h-4 text-[#8f6f6d] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#8f6f6d] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
       </div>
     </div>
   );

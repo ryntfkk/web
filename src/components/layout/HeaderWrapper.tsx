@@ -13,6 +13,10 @@ const MOBILE_HIDE_PATHS = [
   "/profile",
   "/payment",
   "/notifications",
+  "/book",
+  "/cart",
+  "/search",
+  "/promos",
 ];
 
 function shouldHideHeaderOnMobile(pathname: string): boolean {
@@ -24,6 +28,8 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
   if (pathname.startsWith("/chat/")) return true;
   if (pathname.startsWith("/profile/")) return true;
   if (pathname.startsWith("/payment/")) return true;
+  if (pathname.startsWith("/book/")) return true;
+  if (pathname.startsWith("/search/")) return true;
 
   // Auth pages - header handled by their own layouts
   if (pathname.startsWith("/login")) return true;

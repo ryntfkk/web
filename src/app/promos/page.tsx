@@ -6,7 +6,7 @@ export default function PromosPage() {
   return (
     <div className="page-h bg-[#f7f5f4]">
       {/* Sticky Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-16 z-10">
+      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:relative lg:z-auto">
         <div className="max-w-3xl mx-auto flex items-center gap-3 px-4 py-4">
           <Link href="/" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-md transition-colors">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />

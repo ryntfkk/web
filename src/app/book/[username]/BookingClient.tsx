@@ -454,7 +454,7 @@ export default function BookingClient() {
   return (
     <div className={`page-h bg-[#f7f5f4] ${step === 2 ? 'pb-28 lg:pb-10' : 'pb-28'}`}>
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 relative lg:sticky lg:top-16 z-30">
+      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:relative lg:z-auto">
         <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto flex items-center gap-3`}>
           <button onClick={() => step === 2 ? handlePrev() : router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
