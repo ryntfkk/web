@@ -1,20 +1,15 @@
 "use client";
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { RefreshCw, MapPinOff } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Breadcrumbs from '@/components/search/Breadcrumbs';
 import FilterPanel from '@/components/search/FilterPanel';
 import SortBar from '@/components/search/SortBar';
 import Pagination from '@/components/search/Pagination';
-import { ServiceCard } from '@/components/ui/service-card';
-import { usePartners } from '@/hooks/usePartners';
-import { useUserLocation } from '@/hooks/useUserLocation';
+import { ServiceProductCard } from '@/components/ui/service-product-card';
+import { usePublicServices } from '@/hooks/usePublicServices';
 import { useCityFilter } from '@/lib/store/cityFilterStore';
-import type { Partner } from '@/types/partner';
-
-import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 
 interface SearchContentProps {
   query?: string;
@@ -22,29 +17,20 @@ interface SearchContentProps {
 
 export default function SearchContent({ query }: SearchContentProps) {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
   const { city, setCity } = useCityFilter();
   const [minRating, setMinRating] = useState(0);
 
-  const { data: partners, isLoading, isError, refetch } = usePartners({
+  const { data: services, isLoading, isError, refetch } = usePublicServices({
     q: query,
-    per_page: 12,
     city: city || undefined,
-    latitude: hasLocation ? latitude ?? undefined : undefined,
-    longitude: hasLocation ? longitude ?? undefined : undefined,
+    limit: 24,
   });
 
-  // Filter rating diterapkan di sisi klien atas hasil (halaman ini).
-  const visiblePartners = useMemo(
-    () => (partners ?? []).filter((p) => p.avg_rating >= minRating),
-    [partners, minRating],
+  // Filter rating (rating mitra) diterapkan di sisi klien atas hasil.
+  const visibleServices = useMemo(
+    () => (services ?? []).filter((s) => (s.partner_avg_rating ?? 0) >= minRating),
+    [services, minRating],
   );
-
-  const formatDistance = (km: number): string | undefined => {
-    if (!hasLocation || km <= 0) return undefined;
-    if (km < 1) return `${Math.round(km * 1000)} m`;
-    return `${km.toFixed(1)} km`;
-  };
 
   return (
     <>
@@ -65,14 +51,7 @@ export default function SearchContent({ query }: SearchContentProps) {
         <div className="flex-1 flex flex-col w-full min-w-0">
           <SortBar onOpenFilter={() => setIsMobileFilterOpen(true)} />
 
-          {permissionStatus === 'denied' && (
-            <div className="mt-4 flex items-center gap-2 text-[12px] sm:text-[13px] text-[#5b403e] bg-[#fcf9f8] border border-[#e5e2e1] rounded-[4px] px-3 py-2">
-              <MapPinOff className="w-4 h-4 flex-shrink-0" />
-              <span>Aktifkan lokasi untuk melihat rekomendasi mitra terdekat di sekitar Anda.</span>
-            </div>
-          )}
-
-          {/* Service Card Grid */}
+          {/* Service Grid */}
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -92,25 +71,18 @@ export default function SearchContent({ query }: SearchContentProps) {
                 Coba Lagi
               </Button>
             </div>
-          ) : visiblePartners.length === 0 ? (
+          ) : visibleServices.length === 0 ? (
             <div className="mt-6 text-center text-[#5b403e] py-10">
-              {city ? `Belum ada mitra di ${city}.` : 'Belum ada mitra di area ini.'}
+              {query
+                ? `Tidak ada jasa yang cocok dengan "${query}"${city ? ` di ${city}` : ''}.`
+                : city
+                  ? `Belum ada jasa di ${city}.`
+                  : 'Belum ada jasa tersedia.'}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
-              {visiblePartners.map((partner: Partner) => (
-                <Link key={partner.id} href={`/${partner.username}`} className="block">
-                  <ServiceCard
-                    vendorName={partner.name}
-                    category={partner.categories?.[0]?.name || 'Umum'}
-                    rating={partner.avg_rating}
-                    reviewCount={partner.total_reviews}
-                    price={partner.starting_price}
-                    unit="Jasa"
-                    imageUrl={partner.avatar_url || PLACEHOLDER_IMG}
-                    location={formatDistance(partner.distance_km) ?? partner.city ?? undefined}
-                  />
-                </Link>
+              {visibleServices.map((service) => (
+                <ServiceProductCard key={service.id} service={service} />
               ))}
             </div>
           )}
