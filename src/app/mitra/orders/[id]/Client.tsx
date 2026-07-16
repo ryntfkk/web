@@ -26,6 +26,9 @@ interface MitraOrderDetail {
   partner_amount_estimated?: boolean;
   scheduled_at: string;
   confirmation_expired_at?: string;
+  total_service_price?: number;
+  promo_discount?: number;
+  admin_fee?: number;
   service_address?: string;
   address_detail?: string;
   notes?: string;
@@ -283,56 +286,124 @@ export default function MitraOrderDetailClient() {
         {/* Services & Price */}
         <div className="bg-white rounded border border-[#e5e2e1] p-4">
           <h2 className="text-sm font-semibold text-[#9e8e8c] uppercase tracking-wide mb-3">Detail Biaya</h2>
+          
+          {/* === Item Layanan === */}
           <div className="space-y-2">
             {order.items?.map(item => (
               <div key={item.id} className="flex justify-between text-sm">
-                <span className="text-[#1c1b1b]">{item.service_name}</span>
-                <span className="font-semibold text-[#1c1b1b]">{formatPrice(item.price)}</span>
+                <span className="text-[#1c1b1b]">
+                  {item.service_name}
+                  {item.quantity > 1 && (
+                    <span className="text-[#9e8e8c] ml-1">× {item.quantity}</span>
+                  )}
+                </span>
+                <span className="font-semibold text-[#1c1b1b]">
+                  {formatPrice(item.price * item.quantity)}
+                </span>
               </div>
             ))}
           </div>
+          
+          {/* === Subtotal Jasa === */}
+          {order.total_service_price !== undefined && (
+            <div className="mt-2 flex justify-between text-sm text-[#5b403e] border-t border-dashed border-[#e5e2e1] pt-2">
+              <span>Subtotal Jasa</span>
+              <span>{formatPrice(order.total_service_price)}</span>
+            </div>
+          )}
+          
+          {/* === Diskon Promo === */}
+          {order.promo_discount !== undefined && order.promo_discount > 0 && (
+            <div className="mt-1 flex justify-between text-sm text-[#38A169]">
+              <span>Diskon Promo</span>
+              <span>- {formatPrice(order.promo_discount)}</span>
+            </div>
+          )}
+          
+          {/* === Transport Fee === */}
           {order.transport_fee !== undefined && (
-            <div className="mt-2 flex justify-between text-sm text-[#5b403e]">
+            <div className="mt-1 flex justify-between text-sm text-[#5b403e]">
               <span>Biaya Transport</span>
               <span>{order.transport_fee === 0 ? 'Gratis' : formatPrice(order.transport_fee)}</span>
             </div>
           )}
+          
+          {/* === Admin Fee (informasi saja, bukan pendapatan mitra) === */}
+          {order.admin_fee !== undefined && order.admin_fee > 0 && (
+            <div className="mt-1 flex justify-between text-sm text-[#9e8e8c]">
+              <span className="italic">Biaya Admin (ditanggung pelanggan)</span>
+              <span className="italic">{formatPrice(order.admin_fee)}</span>
+            </div>
+          )}
+          
+          {/* === Total Dibayar Pelanggan === */}
+          <div className="mt-2 pt-2 border-t border-[#e5e2e1] flex justify-between text-sm font-medium text-[#5b403e]">
+            <span>Total Dibayar Pelanggan</span>
+            <span>{formatPrice(order.total_amount)}</span>
+          </div>
+          
+          {/* === Biaya Tambahan (dipisah per status) === */}
           {order.additional_fees && order.additional_fees.length > 0 && (
             <div className="mt-3 pt-3 border-t border-[#e5e2e1] space-y-2">
+              <p className="text-xs font-semibold text-[#9e8e8c] uppercase tracking-wide">Biaya Tambahan</p>
               {order.additional_fees.map(fee => (
                 <div key={fee.id} className="flex justify-between gap-3 text-sm">
                   <div className="min-w-0">
-                    <p className="text-[#DD6B20] font-medium truncate">
-                      Biaya Tambahan ({fee.item_name})
+                    <p className={`font-medium truncate ${
+                      fee.status === 'REJECTED' ? 'text-[#9e8e8c] line-through' :
+                      fee.status === 'PENDING' ? 'text-[#DD6B20]' : 'text-[#1c1b1b]'
+                    }`}>
+                      {fee.item_name}
+                      <span className="ml-1 text-xs font-normal">
+                        ({fee.quantity}× {formatPrice(fee.price)})
+                      </span>
                     </p>
                     <p className="text-xs text-[#9e8e8c]">
-                      {fee.quantity} x {formatPrice(fee.price)} · {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
+                      {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
                     </p>
                   </div>
-                  <span className={`font-medium shrink-0 ${fee.status === 'REJECTED' ? 'text-[#9e8e8c] line-through' : 'text-[#DD6B20]'}`}>
+                  <span className={`font-medium shrink-0 ${
+                    fee.status === 'REJECTED' ? 'text-[#9e8e8c] line-through' :
+                    fee.status === 'PENDING' ? 'text-[#DD6B20]' : 'text-[#1c1b1b]'
+                  }`}>
                     + {formatPrice(fee.total)}
                   </span>
                 </div>
               ))}
             </div>
           )}
-          {order.platform_fee !== undefined && order.platform_fee > 0 && (
-            <div className="mt-2 flex justify-between text-sm text-[#5b403e]">
-              <span>Biaya Platform</span>
-              <span>- {formatPrice(order.platform_fee)}</span>
+          
+          {/* === SEPARATOR: Breakdown Pendapatan Mitra === */}
+          <div className="mt-3 pt-3 border-t-2 border-[#e5e2e1]">
+            <p className="text-xs font-semibold text-[#9e8e8c] uppercase tracking-wide mb-2">
+              Rincian Pendapatan Mitra
+            </p>
+            
+            {/* Komisi Platform */}
+            {order.platform_fee !== undefined && order.platform_fee > 0 && (
+              <div className="flex justify-between text-sm text-[#E53E3E]">
+                <span>Komisi Platform (12%)</span>
+                <span>- {formatPrice(order.platform_fee)}</span>
+              </div>
+            )}
+            
+            {/* TOTAL PENDAPATAN MITRA — BOLD, merah */}
+            <div className="mt-2 flex justify-between font-bold text-base">
+              <span className="text-[#1c1b1b]">
+                {order.status === 'COMPLETED' ? 'Pendapatan Bersih' : 'Estimasi Pendapatan'}
+              </span>
+              <span className="text-[#b51822]">
+                {formatPrice(order.partner_amount ?? order.total_amount)}
+              </span>
             </div>
-          )}
-          <div className="mt-3 pt-3 border-t border-[#e5e2e1] flex justify-between font-bold text-base">
-            <span className="text-[#1c1b1b]">
-              Total Pendapatan{order.partner_amount_estimated ? ' (estimasi)' : ''}
-            </span>
-            <span className="text-[#b51822]">
-              {formatPrice(order.partner_amount ?? order.total_amount)}
-            </span>
+            
+            {/* Info estimasi */}
+            {order.partner_amount_estimated && (
+              <p className="mt-1 text-xs text-[#9e8e8c]">
+                ⓘ Angka estimasi — akan dikonfirmasi saat pesanan selesai.
+              </p>
+            )}
           </div>
-          <p className="mt-1 text-xs text-[#9e8e8c]">
-            Dibayar pelanggan: {formatPrice(order.total_amount)}
-          </p>
         </div>
       </div>
 
