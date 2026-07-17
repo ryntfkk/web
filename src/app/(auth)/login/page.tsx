@@ -6,12 +6,14 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { safeRedirect } from '@/lib/utils';
 
 function LoginContent() {
   const { login, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/';
+  // Sanitasi untuk cegah open-redirect (?redirect=https://evil.com).
+  const redirectUrl = safeRedirect(searchParams.get('redirect'));
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');

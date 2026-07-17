@@ -22,7 +22,6 @@ function MitraRegisterForm() {
 
   // Form State
   const [formData, setFormData] = useState({
-    ktp_name: '',
     ktp_number: '',
     ktp_photo: null as File | null,
     selfie_ktp: null as File | null,
@@ -163,14 +162,10 @@ function MitraRegisterForm() {
             <div className="space-y-4 animate-in fade-in">
               <h2 className="text-xl font-bold text-[#32201f]">Identitas Dasar</h2>
               <div>
-                <label className="text-sm font-medium text-[#5b403e] block mb-1">Nama Sesuai KTP</label>
-                <input type="text" className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="Nama Lengkap" value={formData.ktp_name} onChange={(e) => setFormData({...formData, ktp_name: e.target.value})} />
-              </div>
-              <div>
                 <label className="text-sm font-medium text-[#5b403e] block mb-1">Nomor KTP (NIK)</label>
                 <input type="text" inputMode="numeric" maxLength={16} className="w-full bg-[#f7f5f4] border border-[#d4c8c7] rounded-xl px-4 py-3 text-[#32201f] focus:outline-none focus:border-[#b51822]" placeholder="16 Digit NIK" value={formData.ktp_number} onChange={(e) => setFormData({...formData, ktp_number: e.target.value.replace(/\D/g, '')})} />
               </div>
-              <Button className="w-full mt-4" onClick={nextStep} disabled={!formData.ktp_name.trim() || formData.ktp_number.length < 16}>Selanjutnya</Button>
+              <Button className="w-full mt-4" onClick={nextStep} disabled={formData.ktp_number.length < 16}>Selanjutnya</Button>
             </div>
           )}
 
@@ -234,11 +229,7 @@ function MitraRegisterForm() {
 
               <Button
                 className="w-full"
-                onClick={() => {
-                  // Prefill nama rekening dengan nama KTP bila belum diisi.
-                  if (!formData.bank_account_name) setFormData((prev) => ({ ...prev, bank_account_name: prev.ktp_name }));
-                  nextStep();
-                }}
+                onClick={() => nextStep()}
                 disabled={!formData.province || !formData.city || !formData.district}
               >Selanjutnya</Button>
             </div>

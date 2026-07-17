@@ -139,7 +139,7 @@ export default function WalletPage() {
             <div>
               <p className="text-xs font-semibold text-[#2A6296] mb-0.5">Info Penarikan Dana</p>
               <p className="text-xs text-[#3182CE] leading-snug">
-                Batas penarikan: <strong>Rp 10.000.000 per hari</strong>. Dana masuk ke rekening dalam <strong>1 hari kerja</strong> setelah pengajuan disetujui.
+                Batas penarikan: <strong>Rp 10.000.000 per pengajuan</strong>. Dana masuk ke rekening dalam <strong>1-2 hari kerja</strong> setelah pengajuan disetujui.
               </p>
             </div>
           </div>
@@ -149,7 +149,9 @@ export default function WalletPage() {
       <div className="max-w-lg mx-auto px-4 mt-6 flex gap-4">
         <div className="flex-1 bg-white rounded-xl border border-[#e5e2e1] p-3 shadow-sm">
           <p className="text-xs text-[#5b403e] mb-1">Total Pemasukan</p>
-          <p className="font-bold text-[#38A169]">{formatPrice(summary.total_earnings + summary.total_refunds)}</p>
+          {/* Mitra: pemasukan = earnings saja (refund adalah dana yang dikembalikan
+              ke pelanggan, bukan pendapatan mitra). Pelanggan: refund = dana masuk. */}
+          <p className="font-bold text-[#38A169]">{formatPrice(user?.active_role === ROLE_PARTNER ? summary.total_earnings : summary.total_earnings + summary.total_refunds)}</p>
         </div>
         <div className="flex-1 bg-white rounded-xl border border-[#e5e2e1] p-3 shadow-sm">
           <p className="text-xs text-[#5b403e] mb-1">Total Pengeluaran</p>

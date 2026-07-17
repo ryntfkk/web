@@ -1,3 +1,4 @@
+import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MapPin, ShieldCheck } from 'lucide-react';
@@ -63,7 +64,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[8px] sm:text-[10px] font-medium text-[#5b403e]">
-                  {service.partner_name?.charAt(0).toUpperCase()}
+                  {getInitial(service.partner_name || '')}
                 </div>
               )}
             </div>

@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 interface SearchPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
-  const query = typeof searchParams.q === 'string' ? searchParams.q : undefined;
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const params = await searchParams;
+  const query = typeof params.q === 'string' ? params.q : undefined;
 
   return (
     <div className="flex flex-col min-h-[calc(100dvh-4rem)] bg-[#f7f5f4]">

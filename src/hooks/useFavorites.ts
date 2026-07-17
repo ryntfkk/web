@@ -63,26 +63,30 @@ export function useFavoritesActions() {
 
   return {
     addService: async (serviceId: string) => {
-      await fetchAPI('/favorites', {
+      const res = await fetchAPI('/favorites', {
         method: 'POST',
         body: JSON.stringify({ service_id: serviceId }),
       });
-      invalidate('services');
+      if (res.success) invalidate('services');
+      return res;
     },
     removeService: async (serviceId: string) => {
-      await fetchAPI(`/favorites/services/${serviceId}`, { method: 'DELETE' });
-      invalidate('services');
+      const res = await fetchAPI(`/favorites/services/${serviceId}`, { method: 'DELETE' });
+      if (res.success) invalidate('services');
+      return res;
     },
     addPartner: async (partnerId: string) => {
-      await fetchAPI('/favorites', {
+      const res = await fetchAPI('/favorites', {
         method: 'POST',
         body: JSON.stringify({ partner_id: partnerId }),
       });
-      invalidate('partners');
+      if (res.success) invalidate('partners');
+      return res;
     },
     removePartner: async (partnerId: string) => {
-      await fetchAPI(`/favorites/partners/${partnerId}`, { method: 'DELETE' });
-      invalidate('partners');
+      const res = await fetchAPI(`/favorites/partners/${partnerId}`, { method: 'DELETE' });
+      if (res.success) invalidate('partners');
+      return res;
     },
   };
 }

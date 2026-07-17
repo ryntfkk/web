@@ -110,7 +110,10 @@ export default function BookingClient() {
   const totalPayment = Math.max(0, subtotal - promoDiscount);
 
   useEffect(() => {
-    setIdempotencyKey(crypto.randomUUID());
+    const uuid = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    setIdempotencyKey(uuid);
   }, [selectedServices, date, time, addressId, notes, photos.length, promoCode]);
 
   // Diskon promo divalidasi terhadap subtotal — jika pilihan layanan
@@ -229,6 +232,25 @@ export default function BookingClient() {
     if (selectedIds.length === 0) {
       setErrorMsg('Pilih minimal satu layanan.');
       return;
+    }
+
+    if (!time || !availableSlots.includes(time)) {
+      setErrorMsg('Waktu yang dipilih tidak tersedia pada tanggal ini.');
+      return;
+    }
+
+    // Lead time validation for today
+    const isToday = date === new Date().toISOString().split('T')[0];
+    if (isToday) {
+      const [hour, minute] = time.split(':').map(Number);
+      const slotTime = new Date();
+      slotTime.setHours(hour, minute, 0, 0);
+      const minLeadTime = new Date();
+      minLeadTime.setHours(minLeadTime.getHours() + 2);
+      if (slotTime < minLeadTime) {
+        setErrorMsg('Waktu pengerjaan untuk hari ini minimal 2 jam dari sekarang.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -425,9 +447,9 @@ export default function BookingClient() {
           </div>
           <div className="flex items-start gap-2 text-sm">
             <span className="text-[#b51822] font-bold shrink-0 mt-0.5">✗</span>
-            <span className="text-[#5b403e]"><strong>Tidak konfirmasi dalam 48 jam</strong> setelah selesai → Dana cair ke mitra</span>
+            <span className="text-[#5b403e]"><strong>Tidak konfirmasi dalam 24 jam</strong> setelah selesai → Dana cair ke mitra</span>
           </div>
-          <p className="text-xs text-[#9e8e8c] mt-2 pt-2 border-t border-[#e5e2e1]">Biaya admin (platform) tidak dikembalikan pada pembatalan.</p>
+          <p className="text-xs text-[#9e8e8c] mt-2 pt-2 border-t border-[#e5e2e1]">Biaya layanan platform tidak dikembalikan pada pembatalan.</p>
         </div>
       )}
     </div>
@@ -643,7 +665,7 @@ export default function BookingClient() {
                 <div className="p-3 sm:p-4 grid gap-3 sm:grid-cols-[170px_minmax(0,1fr)]">
                   <div>
                     <label className="block text-xs font-semibold text-[#5b403e] mb-1.5">Tanggal</label>
-                    <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full p-2.5 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]" min={new Date().toISOString().split('T')[0]} />
+                    <input type="date" value={date} onChange={e => { setDate(e.target.value); setTime(''); }} className="w-full p-2.5 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]" min={new Date().toISOString().split('T')[0]} />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[#5b403e] mb-1.5">Waktu</label>
@@ -661,11 +683,21 @@ export default function BookingClient() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-4 gap-1.5">
-                        {availableSlots.map(t => (
-                          <button key={t} onClick={() => setTime(t)} className={`py-1.5 rounded border text-sm font-medium transition-colors ${time === t ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}>
-                            {t}
-                          </button>
-                        ))}
+                        {availableSlots.map(t => {
+                          const isToday = date === new Date().toISOString().split('T')[0];
+                          const [hour, minute] = t.split(':').map(Number);
+                          const slotTime = new Date();
+                          slotTime.setHours(hour, minute, 0, 0);
+                          const minLeadTime = new Date();
+                          minLeadTime.setHours(minLeadTime.getHours() + 2);
+                          const isDisabled = isToday && slotTime < minLeadTime;
+                          
+                          return (
+                            <button key={t} onClick={() => setTime(t)} disabled={isDisabled} className={`py-1.5 rounded border text-sm font-medium transition-colors ${isDisabled ? 'border-[#e5e2e1] text-[#9e8e8c] bg-[#f7f5f4] opacity-50 cursor-not-allowed' : time === t ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}>
+                              {t}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -747,7 +779,7 @@ export default function BookingClient() {
           {step === 1 ? (
             <>
               <div className="flex-1">
-                <p className="text-xs text-[#9e8e8c]">Subtotal</p>
+                <p className="text-xs text-[#9e8e8c]">Subtotal <span className="text-[10px] italic">(belum term. ongkos & admin)</span></p>
                 <p className="text-lg font-bold text-[#b51822]">{formatPrice(subtotal)}</p>
               </div>
               <Button

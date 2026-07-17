@@ -38,6 +38,7 @@ interface PublicServicesParams {
   /** Lokasi user untuk menghitung jarak ke basecamp mitra. */
   latitude?: number;
   longitude?: number;
+  sort?: string;
 }
 
 export function usePublicServices(params: PublicServicesParams = {}) {

@@ -3,11 +3,13 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore, User } from '@/lib/store/authStore';
 import { useRouter } from 'next/navigation';
 import { getErrorMessage } from '@/types/api';
+import { safeRedirect } from '@/lib/utils';
 
 export function useAuth() {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const authStore = useAuthStore();
+  const loading = authStore.isAuthLoading;
+  const setLoading = authStore.setAuthLoading;
   const router = useRouter();
 
   const login = async (identifier: string, password: string, rememberMe: boolean = false, redirectUrl?: string) => {
@@ -23,13 +25,13 @@ export function useAuth() {
       if (res.success && res.data) {
         authStore.login(res.data.user, res.data.access_token);
         if (redirectUrl) {
-          router.push(redirectUrl);
+          router.push(safeRedirect(redirectUrl));
         } else if (res.data.user.active_role === 'partner') {
           router.push('/mitra/dashboard');
         } else {
           router.push('/');
         }
-        // Do not set loading false on success, keep it true during navigation
+        setLoading(false);
       } else {
         setError(getErrorMessage(res));
         setLoading(false);
@@ -72,7 +74,7 @@ export function useAuth() {
       if (res.success && res.data) {
         authStore.login(res.data.user, res.data.access_token);
         router.push('/');
-        // Do not set loading false on success, keep it true during navigation
+        setLoading(false);
       } else {
         setError(getErrorMessage(res));
         setLoading(false);

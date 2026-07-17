@@ -32,7 +32,7 @@ export default function CategorySection() {
           {displayCategories.map((cat: Category) => (
             <Link
               key={cat.id}
-              href={`/search?q=${cat.name}`}
+              href={`/search?q=${encodeURIComponent(cat.name)}`}
               className="group flex-shrink-0 w-[72px] sm:w-[84px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
               <div className="w-14 h-14 sm:w-16 sm:h-16 mb-2 flex items-center justify-center bg-[#fcf9f8] border border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:shadow-md transition-all relative overflow-hidden">

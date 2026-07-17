@@ -1,5 +1,6 @@
 'use client';
 
+import { getInitial } from '@/lib/utils';
 import { Suspense, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -53,6 +54,13 @@ function DetailContent() {
   const { data: favServices } = useFavoriteServices();
   const { addService, removeService } = useFavoritesActions();
   const [favBusy, setFavBusy] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const isFav = !!(service && favServices?.some((f) => f.service_id === service.id));
 
   const handleFavToggle = async () => {
@@ -62,11 +70,15 @@ function DetailContent() {
     }
     if (!service || favBusy) return;
     setFavBusy(true);
+    let res;
     try {
       if (isFav) {
-        await removeService(service.id);
+        res = await removeService(service.id);
       } else {
-        await addService(service.id);
+        res = await addService(service.id);
+      }
+      if (!res.success) {
+        showToast(res.message || 'Gagal mengubah favorit', 'error');
       }
     } finally {
       setFavBusy(false);
@@ -378,7 +390,7 @@ function DetailContent() {
                     <Image src={service.partner_avatar_url} alt={service.partner_name} width={48} height={48} className="object-cover w-full h-full" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-[#5b403e]">
-                      {service.partner_name.charAt(0).toUpperCase()}
+                      {getInitial(service.partner_name)}
                     </div>
                   )}
                 </div>
@@ -524,6 +536,13 @@ function DetailContent() {
               <ScheduleView workingHours={workingHours} isLoading={hoursLoading} />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
+          {toast.message}
         </div>
       )}
 

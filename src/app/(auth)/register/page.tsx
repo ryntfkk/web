@@ -125,10 +125,12 @@ export default function RegisterPage() {
                     id="otp"
                     name="otp"
                     type="text"
+                    inputMode="numeric"
+                    pattern="\d{6}"
                     required
                     maxLength={6}
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                     className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-300 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
                     placeholder="••••••"
                   />
@@ -204,6 +206,7 @@ export default function RegisterPage() {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
+                    minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"

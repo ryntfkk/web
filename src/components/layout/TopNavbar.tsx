@@ -9,9 +9,12 @@ import { Search, ShoppingCart, Bell, User, X, ChevronDown } from 'lucide-react';
 
 import { useAuthStore } from '@/lib/store/authStore';
 import { useCartStore } from '@/lib/store/cartStore';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function TopNavbar() {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, isInitializing, user } = useAuthStore();
+  // Logout HARUS lewat useAuth agar sesi server (cookie refresh) benar-benar dicabut.
+  const { logout } = useAuth();
   const itemCount = useCartStore((s) => s.itemCount);
   const userName = user?.name || "Pengguna";
   const userAvatar = user?.avatar_url;
@@ -33,8 +36,8 @@ export default function TopNavbar() {
   }, []);
 
   const handleLogout = () => {
+    // useAuth.logout: POST /auth/logout → bersihkan store → router.push('/login')
     logout();
-    router.push('/login');
   };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -123,7 +126,13 @@ export default function TopNavbar() {
                   <Search className="h-5 w-5" />
                 </Button>
 
-                {isAuthenticated ? (
+                {isInitializing ? (
+                  <div className="flex items-center gap-2 lg:gap-4 animate-pulse">
+                    <div className="hidden lg:block w-8 h-8 bg-[#e5e2e1] rounded-full" />
+                    <div className="hidden lg:block w-8 h-8 bg-[#e5e2e1] rounded-full" />
+                    <div className="w-8 h-8 bg-[#e5e2e1] rounded-[12px]" />
+                  </div>
+                ) : isAuthenticated ? (
                   <>
                     {/* Desktop: Cart & Bell */}
                     <div className="hidden lg:flex items-center gap-4">

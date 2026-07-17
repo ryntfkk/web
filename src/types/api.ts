@@ -110,16 +110,16 @@ export interface OrderDetail {
   status: string;
   scheduled_at: string;
   address_id?: string;
-  address: string;
+  service_address: string;
   address_detail?: string;
   notes?: string;
-  photo_urls: string[];
+  photos: string[];
   total_service_price: number;
   transport_fee: number;
   admin_fee: number;
   promo_id?: string;
-  discount_amount: number;
-  agreed_price: number;
+  promo_discount: number;
+  total_amount: number;
   cancellation_reason?: string;
   cancelled_by?: string;
   refunded_amount: number;
@@ -127,11 +127,13 @@ export interface OrderDetail {
   created_at: string;
   updated_at: string;
 
+  confirmation_expired_at?: string;
   confirmed_at?: string;
-  payment_expires_at?: string;
+  payment_expired_at?: string;
   paid_at?: string;
   started_at?: string;
   completed_at?: string;
+  review_deadline_at?: string;
 
   items: OrderItem[];
   additional_fees: AdditionalFee[];

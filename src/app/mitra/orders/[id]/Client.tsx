@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
@@ -425,7 +426,9 @@ export default function MitraOrderDetailClient() {
       )}
 
       <div className="mt-1 flex justify-between text-sm text-[#E53E3E]">
-        <span>Komisi Platform (12%)</span>
+        {/* Nilai komisi diambil dari backend (order.platform_fee); persentase tidak
+            di-hardcode di label agar tetap benar bila rate platform berubah. */}
+        <span>Komisi Platform</span>
         <span>− {formatPrice(platformFee)}</span>
       </div>
 
@@ -593,7 +596,7 @@ export default function MitraOrderDetailClient() {
                   <div className="w-12 h-12 rounded-full bg-[#e5e2e1] flex items-center justify-center text-lg font-bold text-[#5b403e] shrink-0 overflow-hidden">
                     {order.customer_info.avatar_url
                       ? <img src={order.customer_info.avatar_url} alt={order.customer_info.name} className="w-full h-full object-cover" />
-                      : order.customer_info.name.charAt(0).toUpperCase()}
+                      : getInitial(order.customer_info.name)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[#1c1b1b] truncate">{order.customer_info.name}</p>
@@ -754,9 +757,9 @@ export default function MitraOrderDetailClient() {
                   </div>
                 )}
                 {order.admin_fee !== undefined && order.admin_fee > 0 && (
-                  <div className="flex justify-between text-[#9e8e8c]">
-                    <span className="italic">Biaya Admin (ditanggung pelanggan)</span>
-                    <span className="italic">{formatPrice(order.admin_fee)}</span>
+                  <div className="flex justify-between text-[#9e8e8c] text-sm">
+                    <span className="italic">Biaya Layanan (ditanggung pelanggan)</span>
+                    <span>{formatPrice(order.admin_fee)}</span>
                   </div>
                 )}
                 <div className="mt-2 pt-2 border-t border-[#e5e2e1] flex justify-between font-semibold">
@@ -939,7 +942,7 @@ export default function MitraOrderDetailClient() {
             </div>
 
             <p className="text-sm text-[#5b403e] mb-4">
-              Setelah ditandai selesai, pelanggan akan diminta mengkonfirmasi hasil pekerjaan. Dana akan cair setelah pelanggan mengkonfirmasi (atau otomatis dalam 48 jam).
+              Setelah ditandai selesai, pelanggan akan diminta mengkonfirmasi hasil pekerjaan. Dana akan cair setelah pelanggan mengkonfirmasi (atau otomatis dalam 24 jam).
             </p>
 
             <div className="p-3 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg mb-4">

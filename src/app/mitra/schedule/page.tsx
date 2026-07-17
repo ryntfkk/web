@@ -8,6 +8,7 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
+import { unwrapData } from '@/lib/order-utils';
 
 
 const DAYS = [
@@ -50,36 +51,42 @@ export default function MitraSchedulePage() {
 
   const fetchSchedule = async () => {
     setLoading(true);
-    const [schedRes, ordersRes] = await Promise.all([
-      fetchAPI<any>('/partners/me/working-hours'),
-      fetchAPI<any>('/orders?role=partner')
-    ]);
+    try {
+      const [schedRes, ordersRes] = await Promise.all([
+        fetchAPI<any>('/partners/me/working-hours'),
+        fetchAPI<any>('/orders?role=partner')
+      ]);
 
-    if (schedRes.success && Array.isArray(schedRes.data)) {
-      // Backend mengembalikan ARRAY baris { day_of_week, open_time, close_time, is_open },
-      // bukan map per-hari. Petakan kembali ke bentuk state UI.
-      setHasSavedSchedule(schedRes.data.length > 0);
-      const next = { ...schedule };
-      const hhmm = (v: unknown) => String(v ?? '').match(/(\d{2}:\d{2})/)?.[1];
-      for (const row of schedRes.data as Array<Record<string, unknown>>) {
-        const day = String(row.day_of_week || '');
-        if (next[day]) {
-          next[day] = {
-            is_active: Boolean(row.is_open),
-            start_time: hhmm(row.open_time) || next[day].start_time,
-            end_time: hhmm(row.close_time) || next[day].end_time,
-          };
+      if (schedRes.success && schedRes.data) {
+        const schedData = unwrapData<any>(schedRes.data);
+        if (Array.isArray(schedData)) {
+          setHasSavedSchedule(schedData.length > 0);
+          const next = { ...schedule };
+          const hhmm = (v: unknown) => String(v ?? '').match(/(\d{2}:\d{2})/)?.[1];
+          for (const row of schedData) {
+            const day = String(row.day_of_week || '');
+            if (next[day]) {
+              next[day] = {
+                is_active: Boolean(row.is_open),
+                start_time: hhmm(row.open_time) || next[day].start_time,
+                end_time: hhmm(row.close_time) || next[day].end_time,
+              };
+            }
+          }
+          setSchedule(next);
         }
       }
-      setSchedule(next);
-    }
 
-    if (ordersRes.success && ordersRes.data) {
-      const activeCount = ordersRes.data.filter((o: any) => ['WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS'].includes(o.status)).length;
-      setActiveOrderCount(activeCount);
+      if (ordersRes.success && ordersRes.data) {
+        const ordersData = unwrapData<any>(ordersRes.data);
+        if (Array.isArray(ordersData)) {
+          const activeCount = ordersData.filter((o: any) => ['WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS'].includes(o.status)).length;
+          setActiveOrderCount(activeCount);
+        }
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const confirmSave = () => {
@@ -122,16 +129,20 @@ export default function MitraSchedulePage() {
       );
       // Endpoint ini memakai envelope non-standar (tanpa `success`),
       // jadi anggap berhasil bila status HTTP 2xx atau data.updated true.
-      const ok = results.every((r: any) => r?.success || r?.data?.updated || (r?.status >= 200 && r?.status < 300));
-      if (ok) {
+      const failed = results.filter((r: any) => !(r?.success || r?.data?.updated || (r?.status >= 200 && r?.status < 300)));
+      
+      // Always fetch schedule to sync with backend even if there are partial failures
+      await fetchSchedule();
+
+      if (failed.length === 0) {
         showToast('Jadwal berhasil disimpan!');
-        fetchSchedule();
       } else {
-        const failed = results.find((r: any) => !(r?.success || r?.data?.updated));
-        showToast(getErrorMessage(failed ?? { success: false }), 'error');
+        const firstFailed = failed[0];
+        showToast(getErrorMessage(firstFailed ?? { success: false }) || `Gagal menyimpan ${failed.length} hari`, 'error');
       }
     } catch {
       showToast('Gagal menyimpan jadwal', 'error');
+      await fetchSchedule();
     }
     setSaving(false);
   };

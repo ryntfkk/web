@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
+import { unwrapData } from '@/lib/order-utils';
 
 const MIN_PRICE = 50000; // Sesuai MinTransaction backend
 const MAX_PHOTOS = 5;
@@ -37,7 +38,8 @@ export default function NewMitraServicePage() {
       try {
         const res = await fetchAPI<any>('/categories');
         if (res.success && res.data) {
-          setCategories(Array.isArray(res.data) ? res.data : res.data.categories ?? []);
+          const data = unwrapData<any>(res.data);
+          setCategories(Array.isArray(data) ? data : data.categories ?? []);
         }
       } catch (err) {
         console.error("Failed to fetch categories");
@@ -138,7 +140,7 @@ export default function NewMitraServicePage() {
       }
 
       // 2. Upload & lampirkan foto (jika ada)
-      const serviceId = (res.data as any).id ?? (res.data as any).data?.id;
+      const serviceId = unwrapData<any>(res.data).id;
       if (photos.length > 0 && serviceId) {
         for (let i = 0; i < photos.length; i++) {
           setProgress(`Mengunggah foto ${i + 1}/${photos.length}...`);

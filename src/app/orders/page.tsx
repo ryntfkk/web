@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
@@ -8,7 +9,7 @@ import Image from 'next/image';
 import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
+import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { StatusBadge } from '@/components/ui/status-badge';
 
 interface OrderItem {
@@ -38,23 +39,6 @@ interface Order {
   agreed_price?: number;
 }
 
-type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
-
-// Pemetaan status backend → grup filter UI.
-// Status backend: WAITING_CONFIRMATION, WAITING_PAYMENT, PAID, IN_PROGRESS,
-// WAITING_ADDITIONAL_PAY, WAITING_CUSTOMER_CONFIRM, COMPLETED, CANCELLED, DISPUTED
-const FILTER_GROUPS: Record<Exclude<FilterStatus, 'all'>, string[]> = {
-  pending: ['WAITING_CONFIRMATION', 'WAITING_PAYMENT', 'PENDING', 'ACCEPTED'],
-  processing: ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'PROCESSING'],
-  completed: ['COMPLETED'],
-  cancelled: ['CANCELLED'],
-};
-
-function matchesFilter(status: string, filter: FilterStatus): boolean {
-  if (filter === 'all') return true;
-  return FILTER_GROUPS[filter].includes(status);
-}
-
 export default function OrdersPage() {
   // useRequireAuth menunggu isInitializing (silent refresh) selesai sebelum
   // redirect ke /login — mencegah hard-load mental ke login saat sesi masih ada.
@@ -72,20 +56,20 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const res = await fetchAPI<unknown>('/orders', {
-      method: 'GET',
-      credentials: 'include',
-    });
-    if (res.success && res.data) {
-      // Respons bisa berupa array langsung ATAU envelope { data: [...] }
-      const list = Array.isArray(res.data)
-        ? res.data
-        : (res.data as { data?: unknown[] })?.data;
-      if (Array.isArray(list)) {
-        setOrders(list as Order[]);
+    try {
+      const res = await fetchAPI<unknown>('/orders', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (res.success && res.data) {
+        const unwrapped = unwrapData<unknown>(res.data);
+        if (Array.isArray(unwrapped)) {
+          setOrders(unwrapped as Order[]);
+        }
       }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const filteredOrders = orders.filter(order => matchesFilter(order.status, activeFilter));
@@ -273,7 +257,7 @@ export default function OrdersPage() {
                       {order.partner_name && (
                         <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded-md mb-4">
                           <div className="w-10 h-10 shrink-0 bg-[#e5e2e1] rounded-md flex items-center justify-center text-sm font-bold text-[#5b403e]">
-                            {order.partner_name.charAt(0).toUpperCase()}
+                            {getInitial(order.partner_name)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-[#32201f] truncate">{order.partner_name}</p>

@@ -146,11 +146,14 @@ export default function ForgotPasswordPage() {
                     id="token"
                     name="token"
                     type="text"
+                    inputMode="numeric"
+                    pattern="\d{6}"
                     required
+                    maxLength={6}
                     value={token}
-                    onChange={(e) => setToken(e.target.value)}
+                    onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
                     className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm tracking-widest text-center"
-                    placeholder="Masukkan kode dari email/SMS"
+                    placeholder="Masukkan kode 6 digit dari email/SMS"
                   />
                 </div>
               </div>
@@ -165,6 +168,7 @@ export default function ForgotPasswordPage() {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
+                    minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"

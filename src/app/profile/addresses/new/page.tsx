@@ -36,6 +36,10 @@ export default function NewAddressPage() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Koordinat awal hanya PUSAT peta (Jakarta); pin dianggap valid hanya setelah
+  // user benar-benar mengetuk peta. Mencegah alamat luar-Jakarta tersimpan dengan
+  // koordinat Jakarta → ongkos transport ke basecamp mitra jadi salah.
+  const [pinSet, setPinSet] = useState(false);
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
@@ -44,6 +48,15 @@ export default function NewAddressPage() {
     e.preventDefault();
     if (!form.label || !form.recipient_name || !form.recipient_phone || !form.full_address || !form.province || !form.city || !form.district) {
       setError('Semua kolom wajib diisi');
+      return;
+    }
+    const phoneDigits = form.recipient_phone.replace(/\D/g, '');
+    if (!/^(0|62)\d{8,13}$/.test(phoneDigits)) {
+      setError('Nomor HP penerima tidak valid (contoh: 08123456789)');
+      return;
+    }
+    if (!pinSet) {
+      setError('Tandai titik lokasi alamat pada peta terlebih dahulu');
       return;
     }
 
@@ -99,9 +112,13 @@ export default function NewAddressPage() {
               <MapPicker
                 lat={form.latitude}
                 lng={form.longitude}
-                onChange={(lat, lng) => setForm({ ...form, latitude: lat, longitude: lng })}
+                onChange={(lat, lng) => { setForm({ ...form, latitude: lat, longitude: lng }); setPinSet(true); }}
               />
             </div>
+            <p className={`text-xs mt-1.5 flex items-center gap-1 ${pinSet ? 'text-[#38A169]' : 'text-[#DD6B20]'}`}>
+              <MapPin className="w-3.5 h-3.5" />
+              {pinSet ? 'Titik lokasi sudah ditandai.' : 'Titik lokasi belum ditandai — ketuk peta.'}
+            </p>
           </div>
 
           <div>

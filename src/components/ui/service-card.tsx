@@ -1,3 +1,4 @@
+import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import { Star, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -84,7 +85,7 @@ export function ServiceCard({
               />
             ) : (
               <span className="text-[8px] sm:text-[10px] font-medium text-[#5b403e]">
-                {vendorName.charAt(0).toUpperCase()}
+                {getInitial(vendorName)}
               </span>
             )}
           </div>

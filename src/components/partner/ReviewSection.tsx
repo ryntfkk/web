@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react';
+import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import { PartnerReview, ReviewSummary } from '@/hooks/usePartnerProfile';
 import { formatDistanceToNow } from 'date-fns';
@@ -93,7 +94,7 @@ export default function ReviewSection({ reviews, summary }: ReviewSectionProps) 
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-medium">
-                  {(typeof review.customer_name === 'string' ? review.customer_name.charAt(0) : '?').toUpperCase()}
+                  {getInitial(typeof review.customer_name === 'string' ? review.customer_name : undefined)}
                 </div>
               )}
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { getInitial } from '@/lib/utils';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -136,7 +137,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   WAITING_CUSTOMER_CONFIRM: {
     tone: 'from-[#5A67D8] to-[#434190]',
     title: 'Pekerjaan selesai — mohon konfirmasi',
-    desc: 'Mitra menyatakan pekerjaan sudah selesai. Periksa hasilnya, lalu tekan Konfirmasi Selesai untuk mencairkan dana. Tanpa konfirmasi dalam 48 jam, dana cair otomatis ke mitra.',
+    desc: 'Mitra menyatakan pekerjaan sudah selesai. Periksa hasilnya, lalu tekan Konfirmasi Selesai untuk mencairkan dana. Tanpa konfirmasi dalam 24 jam, dana cair otomatis ke mitra.',
   },
   COMPLETED: {
     tone: 'from-[#38A169] to-[#276749]',
@@ -207,6 +208,8 @@ export default function OrderDetailClient() {
   const [copied, setCopied] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [finishChecked, setFinishChecked] = useState(false);
+  
+  const isSubmittingRef = React.useRef(false);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -251,18 +254,24 @@ export default function OrderDetailClient() {
   };
 
   const handleAction = async (action: string, body?: object) => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setActionLoading(true);
-    const res = await fetchAPI(`/orders/${orderId}/${action}`, {
-      method: 'PUT',
-      body: JSON.stringify(body ?? {}),
-    });
-    if (res.success) {
-      showToast('Berhasil!');
-      await fetchOrder();
-    } else {
-      showToast(getErrorMessage(res), 'error');
+    try {
+      const res = await fetchAPI(`/orders/${orderId}/${action}`, {
+        method: 'PUT',
+        body: JSON.stringify(body ?? {}),
+      });
+      if (res.success) {
+        showToast('Berhasil!');
+        await fetchOrder();
+      } else {
+        showToast(getErrorMessage(res), 'error');
+      }
+    } finally {
+      setActionLoading(false);
+      isSubmittingRef.current = false;
     }
-    setActionLoading(false);
   };
 
   const handleCancel = async () => {
@@ -449,7 +458,7 @@ export default function OrderDetailClient() {
           </span>
         </div>
         <div className="flex justify-between text-[#5b403e]">
-          <span>Biaya Admin</span>
+          <span>Biaya Layanan (Platform)</span>
           <span className="text-[#1c1b1b]">{formatPrice(order.admin_fee)}</span>
         </div>
 
@@ -641,7 +650,7 @@ export default function OrderDetailClient() {
                     <div className="w-14 h-14 rounded-full bg-[#e5e2e1] flex items-center justify-center text-xl font-bold text-[#5b403e] overflow-hidden">
                       {order.partner.avatar_url
                         ? <img src={order.partner.avatar_url} alt={order.partner.name} className="w-full h-full object-cover" />
-                        : order.partner.name.charAt(0).toUpperCase()}
+                        : getInitial(order.partner.name)}
                     </div>
                     {order.partner.is_online && (
                       <span
@@ -934,7 +943,7 @@ export default function OrderDetailClient() {
                   <span className="text-[#DD6B20] font-bold shrink-0">!</span>
                   <span className="text-[#5b403e]"><strong>Batalkan &lt;24 jam sebelum jadwal</strong> → Refund 50% biaya jasa ke dompet</span>
                 </div>
-                <p className="text-[#9e8e8c] pt-1 border-t border-[#F6E05E]">Biaya admin platform tidak dikembalikan.</p>
+                <p className="text-[#9e8e8c] pt-1 border-t border-[#F6E05E]">Biaya layanan platform tidak dikembalikan.</p>
               </div>
             ) : (
               <p className="text-sm text-[#5b403e] mb-4">

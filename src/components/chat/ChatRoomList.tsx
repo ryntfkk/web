@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
 import { Search, MessageSquare } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
@@ -150,7 +151,7 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={displayAvatar} alt={displayName} className="w-full h-full object-cover" />
                     ) : (
-                      displayName.charAt(0).toUpperCase()
+                      getInitial(displayName)
                     )}
                   </div>
 

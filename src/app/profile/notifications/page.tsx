@@ -50,6 +50,12 @@ export default function NotificationSettingsPage() {
   const { data: prefs, isLoading } = useNotificationPreferences();
   const upsert = useUpsertPreference();
   const [busy, setBusy] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   if (authLoading || !isAuthorized) {
     return <div className="p-6 text-center text-gray-500">Memuat…</div>;
@@ -69,7 +75,8 @@ export default function NotificationSettingsPage() {
     const next = { ...cur, [field]: !cur[field] };
     setBusy(`${cat}:${field}`);
     try {
-      await upsert(cat, next.push, next.email);
+      const res = await upsert(cat, next.push, next.email);
+      if (!res.success) showToast(res.message || 'Gagal mengubah preferensi', 'error');
     } finally {
       setBusy(null);
     }
@@ -77,6 +84,13 @@ export default function NotificationSettingsPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
+          {toast.message}
+        </div>
+      )}
+
       {/* Header */}
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">

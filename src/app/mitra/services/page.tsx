@@ -14,7 +14,7 @@ interface Service {
   id: string;
   name: string;
   price: number;
-  duration_minutes: number;
+  estimated_duration?: number;
   description?: string;
   is_active: boolean;
 }
@@ -26,6 +26,12 @@ export default function MitraServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -46,6 +52,9 @@ export default function MitraServicesPage() {
     const res = await fetchAPI(`/partners/me/services/${deleteId}`, { method: 'DELETE' });
     if (res.success) {
       setServices(services.filter(s => s.id !== deleteId));
+      showToast('Layanan berhasil dihapus');
+    } else {
+      showToast(res.message || 'Gagal menghapus layanan', 'error');
     }
     setDeleteId(null);
   };
@@ -57,6 +66,9 @@ export default function MitraServicesPage() {
     });
     if (res.success) {
       setServices(prev => prev.map(s => s.id === id ? { ...s, is_active: !currentStatus } : s));
+      showToast('Status layanan berhasil diubah');
+    } else {
+      showToast(res.message || 'Gagal mengubah status layanan', 'error');
     }
   };
 
@@ -67,6 +79,13 @@ export default function MitraServicesPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
+          {toast.message}
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-4">
@@ -103,7 +122,7 @@ export default function MitraServicesPage() {
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h3 className="font-bold text-[#1c1b1b]">{s.name}</h3>
-                  <p className="text-xs text-[#9e8e8c] mt-0.5">{s.duration_minutes} Menit</p>
+                  <p className="text-xs text-[#9e8e8c] mt-0.5">{s.estimated_duration} Menit</p>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-[#b51822]">{formatPrice(s.price)}</p>

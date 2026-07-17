@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -119,7 +120,7 @@ export default function MitraDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white text-[#b51822] flex items-center justify-center font-bold overflow-hidden shrink-0">
-                {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.name.charAt(0).toUpperCase()}
+                {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
               </div>
               <div>
                 <p className="text-xs text-white/80">Halo Mitra,</p>

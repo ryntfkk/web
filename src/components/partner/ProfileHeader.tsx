@@ -68,9 +68,9 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-xl sm:text-2xl font-bold text-[#1c1b1b]">{profile.name}</h1>
-              <span className="bg-[#f0eded] text-[#b51822] text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+              {/* <span className="bg-[#f0eded] text-[#b51822] text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
                 <CheckCircle className="w-3 h-3" /> Terverifikasi
-              </span>
+              </span> */}
             </div>
 
             {/* Bio — inline di bawah nama */}
@@ -98,11 +98,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                 <span className="font-medium text-[#1c1b1b]">{profile.total_orders}</span>
                 <span className="text-[#8f6f6d] text-xs">Pesanan</span>
               </div>
-              <div className="w-px h-8 bg-[#e5e2e1]" />
+              {/* <div className="w-px h-8 bg-[#e5e2e1]" />
               <div className="flex flex-col">
                 <span className="font-medium text-[#1c1b1b]">Aktif</span>
                 <span className="text-[#8f6f6d] text-xs">2 Tahun</span>
-              </div>
+              </div> */}
             </div>
 
           </div>

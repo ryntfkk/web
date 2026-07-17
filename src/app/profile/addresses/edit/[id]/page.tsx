@@ -50,6 +50,9 @@ export default function EditAddressPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  // true bila alamat sudah punya koordinat asli, atau user mengetuk peta.
+  // Mencegah menyimpan koordinat default Jakarta untuk alamat lama yang lat/lon-nya null.
+  const [hasCoords, setHasCoords] = useState(false);
 
   useEffect(() => {
     if (!isAuthorized) return;
@@ -71,6 +74,7 @@ export default function EditAddressPage() {
             lon: a.lon ?? 106.816666,
             lat: a.lat ?? -6.2,
           });
+          setHasCoords(a.lat != null && a.lon != null);
         } else {
           setError('Alamat tidak ditemukan');
         }
@@ -89,6 +93,10 @@ export default function EditAddressPage() {
     e.preventDefault();
     if (!form.label || !form.address) {
       setError('Label dan alamat lengkap wajib diisi');
+      return;
+    }
+    if (!hasCoords) {
+      setError('Tandai titik lokasi alamat pada peta terlebih dahulu');
       return;
     }
     setSaving(true);
@@ -176,9 +184,15 @@ export default function EditAddressPage() {
               <MapPicker
                 lat={form.lat}
                 lng={form.lon}
-                onChange={(lat, lng) => setForm({ ...form, lat, lon: lng })}
+                onChange={(lat, lng) => { setForm({ ...form, lat, lon: lng }); setHasCoords(true); }}
               />
             </div>
+            {!hasCoords && (
+              <p className="text-xs mt-1.5 flex items-center gap-1 text-[#DD6B20]">
+                <MapPin className="w-3.5 h-3.5" />
+                Titik lokasi belum ada — ketuk peta untuk menandai.
+              </p>
+            )}
           </div>
 
           <label className="flex items-center gap-3 p-4 border border-[#e5e2e1] rounded-lg cursor-pointer hover:bg-[#f7f5f4] transition-colors">

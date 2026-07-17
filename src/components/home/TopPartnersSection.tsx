@@ -36,9 +36,9 @@ export default function TopPartnersSection() {
         <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-[#1c1b1b]">
           Mitra Terpopuler
         </h2>
-        <Button variant="ghost" className="text-[12px] sm:text-[14px] h-auto py-1">
+        <Link href="/search" className="text-[#b51822] font-bold text-[12px] sm:text-[14px] hover:bg-[#f0eded] px-3 py-1 rounded transition-colors">
           Lihat Semua
-        </Button>
+        </Link>
       </div>
 
       {/* Location notice — shown when user denied or hasn't responded yet */}

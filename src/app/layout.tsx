@@ -6,6 +6,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/query-provider";
 import AuthProvider from "@/components/providers/auth-provider";
+import { ChatProvider } from "@/components/providers/chat-provider";
 import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 import { DevNoticeModal } from "@/components/ui/dev-notice-modal";
 
@@ -33,14 +34,16 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground pb-16 md:pb-0">
         <QueryProvider>
           <AuthProvider>
-            <HeaderWrapper />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-            <BottomNav />
-            <FloatingChatWrapper />
-            <DevNoticeModal />
+            <ChatProvider>
+              <HeaderWrapper />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+              <BottomNav />
+              <FloatingChatWrapper />
+              <DevNoticeModal />
+            </ChatProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

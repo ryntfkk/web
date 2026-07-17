@@ -28,7 +28,7 @@ export function useNotificationPreferences() {
 export function useUpsertPreference() {
   const qc = useQueryClient();
   return async (category: string, pushEnabled: boolean, emailEnabled: boolean) => {
-    await fetchAPI('/notifications/preferences', {
+    const res = await fetchAPI('/notifications/preferences', {
       method: 'PUT',
       body: JSON.stringify({
         category,
@@ -36,6 +36,9 @@ export function useUpsertPreference() {
         email_enabled: emailEnabled,
       }),
     });
-    qc.invalidateQueries({ queryKey: ['notification-preferences'] });
+    if (res.success) {
+      qc.invalidateQueries({ queryKey: ['notification-preferences'] });
+    }
+    return res;
   };
 }

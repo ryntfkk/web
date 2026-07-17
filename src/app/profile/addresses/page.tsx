@@ -9,6 +9,7 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
+import { unwrapData } from '@/lib/order-utils';
 
 
 interface Address {
@@ -27,6 +28,12 @@ export default function AddressesPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     
@@ -35,11 +42,14 @@ export default function AddressesPage() {
 
   const fetchAddresses = async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/users/me/addresses');
-    if (res.success && res.data) {
-      setAddresses(res.data);
+    try {
+      const res = await fetchAPI<any>('/users/me/addresses');
+      if (res.success && res.data) {
+        setAddresses(unwrapData(res.data));
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleDelete = async () => {
@@ -47,8 +57,9 @@ export default function AddressesPage() {
     const res = await fetchAPI(`/users/me/addresses/${deleteId}`, { method: 'DELETE' });
     if (res.success) {
       setAddresses(prev => prev.filter(a => a.id !== deleteId));
+      showToast('Alamat berhasil dihapus');
     } else {
-      alert(res.message || 'Gagal menghapus alamat');
+      showToast(res.message || 'Gagal menghapus alamat', 'error');
     }
     setDeleteId(null);
   };
@@ -57,6 +68,9 @@ export default function AddressesPage() {
     const res = await fetchAPI(`/users/me/addresses/${id}/primary`, { method: 'PUT' });
     if (res.success) {
       setAddresses(prev => prev.map(a => ({ ...a, is_default: a.id === id })));
+      showToast('Berhasil mengatur alamat utama');
+    } else {
+      showToast(res.message || 'Gagal mengatur alamat utama', 'error');
     }
   };
 
@@ -65,6 +79,13 @@ export default function AddressesPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
+          {toast.message}
+        </div>
+      )}
+
       {/* Header */}
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">

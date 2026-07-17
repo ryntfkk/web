@@ -8,6 +8,9 @@ import { fetchAPI } from '@/lib/api';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
+import { unwrapData } from '@/lib/order-utils';
+
+const MIN_PRICE = 50000; // Sesuai MinTransaction backend
 
 export default function EditMitraServicePage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -39,29 +42,32 @@ export default function EditMitraServicePage() {
       try {
         const catRes = await fetchAPI<any>('/categories');
         if (catRes.success && catRes.data) {
-          setCategories(catRes.data);
+          setCategories(unwrapData(catRes.data));
         }
 
         const svcsRes = await fetchAPI<any>('/partners/me/services');
         if (svcsRes.success && svcsRes.data) {
-          const service = svcsRes.data.find((s: any) => s.id === serviceId);
-          if (service) {
-            setForm({
-              name: service.name || '',
-              category_id: service.category_id || '',
-              price: service.price ? new Intl.NumberFormat('id-ID').format(service.price) : '',
-              duration_minutes: service.estimated_duration ? String(service.estimated_duration) : '60',
-              description: service.description || '',
-              included_items: service.included_items ? service.included_items.join('\n') : '',
-              excluded_items: service.excluded_items ? service.excluded_items.join('\n') : '',
-            });
-          } else {
-            setError('Layanan tidak ditemukan');
+          const svcsData = unwrapData<any>(svcsRes.data);
+          if (Array.isArray(svcsData)) {
+            const service = svcsData.find((s: any) => s.id === serviceId);
+            if (service) {
+              setForm({
+                name: service.name || '',
+                category_id: service.category_id || '',
+                price: service.price ? new Intl.NumberFormat('id-ID').format(service.price) : '',
+                duration_minutes: service.estimated_duration ? String(service.estimated_duration) : '60',
+                description: service.description || '',
+                included_items: service.included_items ? service.included_items.join('\n') : '',
+                excluded_items: service.excluded_items ? service.excluded_items.join('\n') : '',
+              });
+            } else {
+              setError('Layanan tidak ditemukan');
+            }
           }
 
           const photosRes = await fetchAPI<any>(`/partners/me/services/${serviceId}/photos`);
           if (photosRes.success && photosRes.data) {
-            setExistingPhotos(photosRes.data);
+            setExistingPhotos(unwrapData(photosRes.data));
           }
         }
       } catch (err) {
@@ -88,6 +94,14 @@ export default function EditMitraServicePage() {
 
     if (!form.name || !form.category_id || !numPrice || !numDuration || included.length === 0 || excluded.length === 0) {
       setError('Semua field wajib diisi, termasuk minimal 1 include dan 1 exclude');
+      return;
+    }
+    if (numPrice < MIN_PRICE) {
+      setError(`Harga minimum layanan adalah Rp ${new Intl.NumberFormat('id-ID').format(MIN_PRICE)}`);
+      return;
+    }
+    if (numDuration < 15) {
+      setError('Durasi minimum layanan adalah 15 menit');
       return;
     }
 

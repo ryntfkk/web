@@ -23,6 +23,11 @@ export default function MitraLayout({ children }: { children: React.ReactNode })
       if (user?.active_role !== 'partner' && !isException) {
         router.replace('/');
       }
+
+      // Mitra yang di-suspend hanya boleh mengakses halaman status verifikasi.
+      if (user?.active_role === 'partner' && user?.is_suspended && pathname !== '/mitra/verification-status') {
+        router.replace('/mitra/verification-status');
+      }
     }
   }, [mounted, isLoading, isAuthenticated, user, pathname, router]);
 
@@ -32,7 +37,12 @@ export default function MitraLayout({ children }: { children: React.ReactNode })
 
   const isException = pathname === '/mitra/register' || pathname === '/mitra/verification-status';
   if (!isAuthenticated || (user?.active_role !== 'partner' && !isException)) {
-    return null; 
+    return null;
+  }
+
+  // Blok render konten mitra untuk akun ter-suspend (kecuali halaman status verifikasi).
+  if (user?.active_role === 'partner' && user?.is_suspended && pathname !== '/mitra/verification-status') {
+    return null;
   }
 
   const excludeBottomNavPatterns = [

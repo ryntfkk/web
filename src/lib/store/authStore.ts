@@ -21,6 +21,8 @@ interface AuthState {
   isAuthenticated: boolean;
   /** True while the initial silent refresh is still pending (app just loaded) */
   isInitializing: boolean;
+  isAuthLoading: boolean;
+  setAuthLoading: (loading: boolean) => void;
   login: (user: User, accessToken: string) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
@@ -35,6 +37,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   accessToken: null,
   isAuthenticated: false,
   isInitializing: true, // starts true — AuthProvider flips it after silent refresh
+  isAuthLoading: false,
+
+  setAuthLoading: (loading) => set({ isAuthLoading: loading }),
 
   login: (user, accessToken) =>
     set({ user, accessToken, isAuthenticated: true, isInitializing: false }),

@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -243,7 +244,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                   {partner.avatar_url ? (
                     <img src={partner.avatar_url} alt={partner.name} className="w-full h-full object-cover" />
                   ) : (
-                    partner.name.charAt(0).toUpperCase()
+                    getInitial(partner.name)
                   )}
                 </div>
                 <div>

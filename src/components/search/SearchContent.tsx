@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Breadcrumbs from '@/components/search/Breadcrumbs';
 import FilterPanel from '@/components/search/FilterPanel';
 import SortBar from '@/components/search/SortBar';
-import Pagination from '@/components/search/Pagination';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
-import { usePublicServices } from '@/hooks/usePublicServices';
+import { usePublicServices, PublicService } from '@/hooks/usePublicServices';
 import { useCityFilter } from '@/lib/store/cityFilterStore';
 import { useUserLocation } from '@/hooks/useUserLocation';
 
@@ -21,19 +20,50 @@ export default function SearchContent({ query }: SearchContentProps) {
   const { city, setCity } = useCityFilter();
   const { latitude, longitude, hasLocation } = useUserLocation();
   const [minRating, setMinRating] = useState(0);
+  const [sort, setSort] = useState('terpopuler');
+  const [page, setPage] = useState(1);
+  const limit = 24;
+  const [allServices, setAllServices] = useState<PublicService[]>([]);
 
   const { data: services, isLoading, isError, refetch } = usePublicServices({
     q: query,
     city: city || undefined,
-    limit: 24,
+    limit,
+    offset: (page - 1) * limit,
+    sort, // akan digunakan jika backend support
     latitude: hasLocation ? latitude ?? undefined : undefined,
     longitude: hasLocation ? longitude ?? undefined : undefined,
   });
 
+  // Note: we can't import inside component body, I will move import to top.
+  // Oh wait I can just use React.useEffect.
+
+  React.useEffect(() => {
+    // Reset page and list when filters change
+    setPage(1);
+    setAllServices([]);
+  }, [query, city, sort]);
+
+  React.useEffect(() => {
+    if (services) {
+      if (page === 1) {
+        setAllServices(services);
+      } else {
+        // avoid duplicates by checking IDs
+        setAllServices(prev => {
+          const newServices = services.filter(s => !prev.some(p => p.id === s.id));
+          return [...prev, ...newServices];
+        });
+      }
+    }
+  }, [services, page]);
+
+  const hasNextPage = services ? services.length >= limit : false;
+
   // Filter rating (rating mitra) diterapkan di sisi klien atas hasil.
   const visibleServices = useMemo(
-    () => (services ?? []).filter((s) => (s.partner_avg_rating ?? 0) >= minRating),
-    [services, minRating],
+    () => allServices.filter((s) => (s.partner_avg_rating ?? 0) >= minRating),
+    [allServices, minRating],
   );
 
   return (
@@ -53,10 +83,14 @@ export default function SearchContent({ query }: SearchContentProps) {
 
         {/* Main Results Area */}
         <div className="flex-1 flex flex-col w-full min-w-0">
-          <SortBar onOpenFilter={() => setIsMobileFilterOpen(true)} />
+          <SortBar 
+            onOpenFilter={() => setIsMobileFilterOpen(true)} 
+            sort={sort}
+            onSortChange={setSort}
+          />
 
           {/* Service Grid */}
-          {isLoading ? (
+          {isLoading && page === 1 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="h-[250px] bg-[#e5e2e1] animate-pulse rounded-md" />
@@ -119,7 +153,19 @@ export default function SearchContent({ query }: SearchContentProps) {
             </div>
           )}
 
-          <Pagination />
+          {/* Muat Lebih Banyak */}
+          {hasNextPage && (
+            <div className="flex justify-center mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setPage(p => p + 1)}
+                disabled={isLoading}
+                className="w-full sm:w-auto px-8"
+              >
+                {isLoading ? 'Memuat...' : 'Muat Lebih Banyak'}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>

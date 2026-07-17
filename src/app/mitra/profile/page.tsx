@@ -1,13 +1,13 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   User, ShieldCheck, CreditCard, ChevronRight,
   LogOut, FileText, CheckCircle, RefreshCw, Image as ImageIcon, MapPin
 } from 'lucide-react';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
@@ -16,8 +16,8 @@ import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
-  const logout = useAuthStore(s => s.logout);
-  const router = useRouter();
+  // Logout HARUS lewat useAuth agar sesi server (cookie refresh) benar-benar dicabut.
+  const { logout } = useAuth();
 
   // null = belum dimuat; jangan tampilkan badge apa pun sebelum fetch selesai
   // agar tidak keliru menampilkan "Terverifikasi" pada akun pending/ditolak.
@@ -37,8 +37,8 @@ export default function MitraProfilePage() {
   };
 
   const handleLogout = () => {
+    // useAuth.logout: POST /auth/logout → bersihkan store → router.push('/login')
     logout();
-    router.push('/login');
   };
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -56,7 +56,7 @@ export default function MitraProfilePage() {
       <div className="bg-white border-b border-[#e5e2e1] pt-12 pb-6 px-4 mb-4">
         <div className="max-w-lg mx-auto flex items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-[#f7f5f4] flex items-center justify-center text-3xl font-bold text-[#b51822] overflow-hidden shrink-0 border-2 border-[#e5e2e1]">
-            {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.name.charAt(0).toUpperCase()}
+            {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
           </div>
           <div>
             <h1 className="text-xl font-bold text-[#1c1b1b]">{user?.name}</h1>

@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
+import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import PartnerStatusCard, { type PartnerProfile } from '@/components/profile/PartnerStatusCard';
@@ -36,22 +37,6 @@ interface Order {
 }
 
 type ActiveTab = 'profile' | 'orders' | 'settings';
-type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
-
-// Canonical backend statuses grouped into UI filters (mirrors /orders page).
-// Backend: WAITING_CONFIRMATION, WAITING_PAYMENT, PAID, IN_PROGRESS,
-// WAITING_ADDITIONAL_PAY, WAITING_CUSTOMER_CONFIRM, COMPLETED, CANCELLED, DISPUTED
-const FILTER_GROUPS: Record<Exclude<FilterStatus, 'all'>, string[]> = {
-  pending: ['WAITING_CONFIRMATION', 'WAITING_PAYMENT'],
-  processing: ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED'],
-  completed: ['COMPLETED'],
-  cancelled: ['CANCELLED'],
-};
-
-function matchesFilter(status: string, filter: FilterStatus): boolean {
-  if (filter === 'all') return true;
-  return FILTER_GROUPS[filter].includes(status);
-}
 
 export default function ProfilePage() {
   const { logout, loading } = useAuth();
@@ -88,14 +73,18 @@ export default function ProfilePage() {
 
   const fetchOrders = async () => {
     setOrdersLoading(true);
-    const res = await fetchAPI<Order[]>('/orders', {
-      method: 'GET',
-      credentials: 'include',
-    });
-    if (res.success && res.data) {
-      setOrders(Array.isArray(res.data) ? res.data as Order[] : []);
+    try {
+      const res = await fetchAPI<Order[]>('/orders', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (res.success && res.data) {
+        const unwrapped = unwrapData<unknown>(res.data);
+        setOrders(Array.isArray(unwrapped) ? unwrapped as Order[] : []);
+      }
+    } finally {
+      setOrdersLoading(false);
     }
-    setOrdersLoading(false);
   };
 
   const filteredOrders = orders.filter(order => matchesFilter(order.status, activeFilter));
@@ -162,7 +151,7 @@ export default function ProfilePage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 md:h-20 md:w-20 bg-white/20 rounded flex items-center justify-center text-2xl md:text-3xl font-bold text-white border-2 border-white/50">
-              {user.name.charAt(0).toUpperCase()}
+              {getInitial(user?.name || '')}
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold">{user.name}</h1>

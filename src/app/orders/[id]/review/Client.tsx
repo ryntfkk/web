@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
@@ -42,6 +43,10 @@ export default function ReviewClient() {
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
       const data = (res.data as any).data ?? res.data;
+      if (data.status !== 'COMPLETED') {
+        router.replace(`/orders/${orderId}`);
+        return;
+      }
       setOrder(data);
       if (data.review) {
         // Already reviewed, redirect
@@ -64,7 +69,7 @@ export default function ReviewClient() {
     if (res.success) {
       setSubmitted(true);
     } else {
-      if (res.message?.toLowerCase().includes('already reviewed') || (res as any).status === 400) {
+      if (res.message?.toLowerCase().includes('already reviewed')) {
         router.replace(`/orders/${orderId}`);
       } else {
         setError(res.message || 'Gagal mengirim ulasan.');
@@ -145,7 +150,7 @@ export default function ReviewClient() {
               <div className="w-12 h-12 rounded-full bg-[#e5e2e1] flex items-center justify-center text-lg font-bold text-[#5b403e] shrink-0 overflow-hidden">
                 {order.partner.avatar_url
                   ? <img src={order.partner.avatar_url} alt={order.partner.name} className="w-full h-full object-cover" />
-                  : order.partner.name.charAt(0).toUpperCase()
+                  : getInitial(order.partner.name)
                 }
               </div>
               <div>

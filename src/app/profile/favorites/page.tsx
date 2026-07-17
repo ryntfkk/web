@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Heart, Star, Trash2 } from 'lucide-react';
@@ -31,11 +32,35 @@ export default function FavoritesPage() {
     return <div className="p-6 text-center text-gray-500">Memuat…</div>;
   }
 
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleRemoveService = async (id: string) => {
+    const res = await removeService(id);
+    if (!res.success) showToast(res.message || 'Gagal menghapus favorit', 'error');
+  };
+
+  const handleRemovePartner = async (id: string) => {
+    const res = await removePartner(id);
+    if (!res.success) showToast(res.message || 'Gagal menghapus favorit', 'error');
+  };
+
   const loading = sLoading || pLoading;
   const empty = !loading && (services?.length ?? 0) === 0 && (partners?.length ?? 0) === 0;
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
+          {toast.message}
+        </div>
+      )}
+
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
@@ -82,7 +107,7 @@ export default function FavoritesPage() {
                   </div>
                 </Link>
                 <button
-                  onClick={() => removeService(f.service_id)}
+                  onClick={() => handleRemoveService(f.service_id)}
                   className="text-[#9e8e8c] hover:text-[#b51822] p-1"
                   aria-label="Hapus favorit"
                 >
@@ -119,7 +144,7 @@ export default function FavoritesPage() {
                   </div>
                 </Link>
                 <button
-                  onClick={() => removePartner(f.partner_id)}
+                  onClick={() => handleRemovePartner(f.partner_id)}
                   className="text-[#9e8e8c] hover:text-[#b51822] p-1"
                   aria-label="Hapus favorit"
                 >

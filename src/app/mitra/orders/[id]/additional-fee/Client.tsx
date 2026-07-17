@@ -32,13 +32,19 @@ export default function AdditionalFeeFormClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const unitPrice = parseInt(form.unit_price.replace(/\D/g, ''), 10);
-    
-    if (!form.item_name || !unitPrice || !form.quantity) {
-      setError('Semua kolom wajib diisi');
+    const qty = Number(form.quantity);
+
+    if (!form.item_name.trim() || !unitPrice || !qty || qty < 1) {
+      setError('Semua kolom wajib diisi; kuantitas minimal 1');
       return;
     }
     if (unitPrice < 5000) {
       setError('Harga satuan minimal Rp 5.000');
+      return;
+    }
+    // Selaras batas backend (AddAdditionalFees: total per item maksimal Rp 10.000.000).
+    if (unitPrice * qty > 10000000) {
+      setError('Total tagihan tidak boleh melebihi Rp 10.000.000');
       return;
     }
 
@@ -166,8 +172,13 @@ export default function AdditionalFeeFormClient() {
               <input
                 type="number"
                 min="1"
+                max="100"
                 value={form.quantity}
-                onChange={e => setForm({ ...form, quantity: parseInt(e.target.value) || 1 })}
+                onChange={e => {
+                  const q = parseInt(e.target.value, 10);
+                  // Clamp minimal 1 (cegah 0/negatif via ketik) & maksimal 100.
+                  setForm({ ...form, quantity: Number.isNaN(q) ? 1 : Math.min(100, Math.max(1, q)) });
+                }}
                 className="w-full p-3 border border-[#e5e2e1] rounded text-sm font-bold text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
               />
             </div>

@@ -36,7 +36,12 @@ export default function DisputeClient() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      setOrder(unwrapData<any>(res.data));
+      const unwrappedOrder = unwrapData<any>(res.data);
+      if (unwrappedOrder.status !== 'WAITING_CUSTOMER_CONFIRM' && unwrappedOrder.status !== 'IN_PROGRESS') {
+        router.replace(`/orders/${orderId}`);
+        return;
+      }
+      setOrder(unwrappedOrder);
     }
     setLoading(false);
   };

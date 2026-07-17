@@ -79,9 +79,11 @@ export default function AdditionalFeeClient() {
       body: JSON.stringify({ accept: true }),
     });
     if (res.success) {
-      // Tagihan tambahan dibayar dari SALDO DOMPET (didebit backend saat approve).
       showToast('Tagihan berhasil disetujui dan dibayar dari saldo dompet.');
-      setTimeout(() => router.replace(`/orders/${orderId}`), 1500);
+      const updatedOrder = await fetchOrderData();
+      if (!updatedOrder?.additional_fees?.some((f: any) => f.status === 'PENDING')) {
+        setTimeout(() => router.replace(`/orders/${orderId}`), 1000);
+      }
     } else if (isInsufficientBalance(res)) {
       showToast('Saldo dompet tidak mencukupi. Gunakan tombol "Bayar via Midtrans" di bawah.', 'error');
     } else {
@@ -113,11 +115,24 @@ export default function AdditionalFeeClient() {
     });
     if (res.success) {
       showToast('Tagihan ditolak.');
-      setTimeout(() => router.replace(`/orders/${orderId}`), 1500);
+      const updatedOrder = await fetchOrderData();
+      if (!updatedOrder?.additional_fees?.some((f: any) => f.status === 'PENDING')) {
+        setTimeout(() => router.replace(`/orders/${orderId}`), 1000);
+      }
     } else {
       showToast(getErrorMessage(res), 'error');
     }
     setActionLoading(false);
+  };
+
+  const fetchOrderData = async () => {
+    const res = await fetchAPI<any>(`/orders/${orderId}`);
+    if (res.success && res.data) {
+      const data = unwrapData<any>(res.data);
+      setOrder(data);
+      return data;
+    }
+    return null;
   };
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -131,8 +146,9 @@ export default function AdditionalFeeClient() {
     );
   }
 
-  const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
-  if (!fee || fee.status !== 'PENDING') {
+  const pendingFees = order?.additional_fees?.filter(f => f.status === 'PENDING') || [];
+  const fee = pendingFees[0];
+  if (!fee) {
     return (
       <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
         <div className="text-center">
@@ -143,7 +159,11 @@ export default function AdditionalFeeClient() {
     );
   }
 
-  const baseAmount = Math.max(0, (order?.total_amount ?? 0) - fee.total);
+  // total_amount = harga pesanan asal yang SUDAH dibayar saat status PAID
+  // (backend TIDAK menambahkan fee PENDING ke total_amount). Yang ditagih
+  // sekarang hanyalah biaya tambahan (fee.total), dibayar via saldo/Midtrans.
+  const originalPaid = order?.total_amount ?? 0;
+  const amountDue = fee.total;
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
@@ -161,7 +181,9 @@ export default function AdditionalFeeClient() {
             <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
               <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
             </button>
-            <h1 className="text-base font-bold text-[#1c1b1b]">Tagihan Tambahan</h1>
+            <h1 className="text-base font-bold text-[#1c1b1b]">
+              Tagihan Tambahan {pendingFees.length > 1 ? `(1/${pendingFees.length})` : ''}
+            </h1>
           </div>
           {fee.expired_at && (
             <CountdownTimer targetDate={fee.expired_at} format="hh:mm:ss" criticalThresholdSeconds={3600} warningThresholdSeconds={10800} />
@@ -172,7 +194,9 @@ export default function AdditionalFeeClient() {
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {/* Judul desktop — countdown ikut dipindah agar tidak hilang saat header mobile disembunyikan. */}
         <div className="hidden lg:flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-[#1c1b1b]">Tagihan Tambahan</h1>
+          <h1 className="text-2xl font-bold text-[#1c1b1b]">
+            Tagihan Tambahan {pendingFees.length > 1 ? `(1 dari ${pendingFees.length})` : ''}
+          </h1>
           {fee.expired_at && (
             <CountdownTimer targetDate={fee.expired_at} format="hh:mm:ss" criticalThresholdSeconds={3600} warningThresholdSeconds={10800} />
           )}
@@ -215,16 +239,16 @@ export default function AdditionalFeeClient() {
         {/* Summary */}
         <div className="bg-white rounded border border-[#e5e2e1] p-4 space-y-2 text-sm">
           <div className="flex justify-between text-[#5b403e]">
-            <span>Pesanan asal</span>
-            <span>{formatPrice(baseAmount)}</span>
+            <span>Pesanan asal (sudah dibayar)</span>
+            <span>{formatPrice(originalPaid)}</span>
           </div>
           <div className="flex justify-between text-[#DD6B20]">
             <span>Biaya tambahan</span>
-            <span>+ {formatPrice(fee.total)}</span>
+            <span>+ {formatPrice(amountDue)}</span>
           </div>
           <div className="border-t border-[#e5e2e1] pt-2 flex justify-between font-bold text-base">
-            <span className="text-[#1c1b1b]">Total yang harus dibayar</span>
-            <span className="text-[#b51822]">{formatPrice(order?.total_amount ?? 0)}</span>
+            <span className="text-[#1c1b1b]">Yang harus dibayar sekarang</span>
+            <span className="text-[#b51822]">{formatPrice(amountDue)}</span>
           </div>
         </div>
       </div>
