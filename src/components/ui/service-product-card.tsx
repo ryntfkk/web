@@ -21,6 +21,13 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             className="object-cover"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
           />
+          {/* Distance Badge - top right */}
+          {distance && (
+            <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded flex items-center gap-0.5">
+              <MapPin className="w-2.5 h-2.5" />
+              <span className="text-[10px] sm:text-[11px] font-medium leading-none">{distance}</span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -54,20 +61,17 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
 
           {/* Rating + City */}
           <div className="flex items-center gap-2 mb-2">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Star className="w-3 h-3 fill-[#D69E2E] text-[#D69E2E]" />
               <span className="text-[12px] sm:text-[13px] font-medium text-[#1c1b1b]">
                 {service.partner_avg_rating?.toFixed(1) || '0.0'}
               </span>
-              <span className="text-[11px] sm:text-[12px] text-[#5b403e]">
-                ({service.partner_total_reviews || 0})
-              </span>
             </div>
-            {(service.partner_city || distance) && (
+            {service.partner_city && (
               <div className="flex items-center gap-0.5 text-[#5b403e] min-w-0">
                 <MapPin className="w-3 h-3 flex-shrink-0" />
                 <span className="text-[11px] sm:text-[12px] truncate">
-                  {[service.partner_city, distance].filter(Boolean).join(' · ')}
+                  {service.partner_city}
                 </span>
               </div>
             )}
