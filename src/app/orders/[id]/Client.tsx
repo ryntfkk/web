@@ -479,10 +479,18 @@ export default function OrderDetailClient() {
         )}
 
         {order.refunded_amount !== undefined && order.refunded_amount > 0 && (
-          <div className="flex justify-between text-[#38A169] font-medium border-t border-[#e5e2e1] pt-2 mt-2">
-            <span>Dana Dikembalikan</span>
-            <span>{formatPrice(order.refunded_amount)}</span>
-          </div>
+          <>
+            <div className="flex justify-between text-[#38A169] font-medium border-t border-[#e5e2e1] pt-2 mt-2">
+              <span>Dana Dikembalikan</span>
+              <span>{formatPrice(order.refunded_amount)}</span>
+            </div>
+            <button
+              onClick={() => router.push('/profile/wallet')}
+              className="w-full mt-1 text-left text-xs text-[#3182CE] hover:underline"
+            >
+              Dana masuk ke saldo dompetmu — lihat di Dompet →
+            </button>
+          </>
         )}
       </div>
     </Section>
@@ -499,7 +507,10 @@ export default function OrderDetailClient() {
       {/* Header mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-3 sticky top-0 z-30 lg:hidden">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-lg" aria-label="Kembali">
+          {/* Tujuan tetap (bukan router.back): pengguna bisa tiba di sini dari
+              halaman transien (status pembayaran sukses, form booking) — back
+              berbasis history akan memantulkan mereka ke halaman itu lagi. */}
+          <button onClick={() => router.push('/orders')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-lg" aria-label="Kembali">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
           </button>
           <div className="min-w-0">
@@ -909,9 +920,9 @@ export default function OrderDetailClient() {
               </button>
             </div>
             <p className="text-sm text-[#5b403e] mb-4">
-              {status === 'WAITING_CONFIRMATION'
+              {status === 'WAITING_CONFIRMATION' || status === 'WAITING_PAYMENT'
                 ? 'Pesanan akan dibatalkan. Kamu belum dikenakan biaya apapun.'
-                : 'Pesanan akan dibatalkan dan tidak dapat dikembalikan. Biaya layanan yang sudah dibayar akan dikembalikan ke saldo dompetmu.'}
+                : 'Pesanan akan dibatalkan dan tidak dapat dikembalikan. Sesuai kebijakan, kamu menerima refund 80% biaya jasa (setelah diskon) + biaya transportasi ke saldo dompet. Biaya admin tidak dikembalikan.'}
             </p>
             <div className="mb-6">
               <label htmlFor="cancel-reason" className="block text-sm font-medium text-[#1c1b1b] mb-1">

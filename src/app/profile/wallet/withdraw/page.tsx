@@ -77,16 +77,13 @@ export default function WithdrawPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmittingRef.current) return;
-    
-    isSubmittingRef.current = true;
-    
+
+    // Validasi dulu, baru kunci submit — mengunci sebelum validasi membuat
+    // form mati permanen setelah satu kali error validasi (ref tidak pernah
+    // di-reset di jalur early-return).
     const numAmount = parseInt(amount.replace(/\D/g, ''), 10);
     if (!numAmount || numAmount < 50000) {
       setError('Minimal penarikan Rp 50.000');
-      return;
-    }
-    if (numAmount > walletBalance) {
-      setError('Saldo tidak mencukupi');
       return;
     }
     if (numAmount > walletBalance) {
@@ -98,17 +95,20 @@ export default function WithdrawPage() {
       return;
     }
 
+    isSubmittingRef.current = true;
     setLoading(true);
     setError('');
 
+    // Nama field harus persis sama dengan WithdrawRequest di backend
+    // (bank_account_number / bank_account_name) — bukan account_number.
     const res = await fetchAPI('/wallet/withdraw', {
       method: 'POST',
       body: JSON.stringify({
         amount: numAmount,
         use_saved_bank: useSavedBank,
         bank_code: !useSavedBank ? bankCode : undefined,
-        account_number: !useSavedBank ? accountNumber : undefined,
-        account_name: !useSavedBank ? accountName : undefined,
+        bank_account_number: !useSavedBank ? accountNumber : undefined,
+        bank_account_name: !useSavedBank ? accountName : undefined,
       })
     });
 
@@ -145,7 +145,9 @@ export default function WithdrawPage() {
           <p className="text-sm text-[#5b403e] mb-6">
             Dana akan masuk ke rekening Anda dalam 1-2 hari kerja.
           </p>
-          <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet')}>
+          {/* replace: layar sukses ini transien — back dari dompet tidak boleh
+              memantulkan pengguna kembali ke "Penarikan Berhasil" yang basi. */}
+          <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.replace(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet')}>
             Kembali ke Dompet
           </Button>
         </div>
@@ -159,7 +161,7 @@ export default function WithdrawPage() {
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
+          <button onClick={() => router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
           </button>
           <h1 className="text-base font-bold text-[#1c1b1b]">Tarik Dana</h1>

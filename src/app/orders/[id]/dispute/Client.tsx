@@ -109,7 +109,7 @@ export default function DisputeClient() {
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
+          <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
           </button>
           <h1 className="text-base font-bold text-[#1c1b1b]">Lapor Masalah</h1>

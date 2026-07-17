@@ -68,7 +68,8 @@ export default function NotificationsPage() {
     const t = (n.type || '').toLowerCase();
 
     if (t === 'withdrawal') {
-      router.push('/mitra/wallet');
+      // Route dompet sesuai peran aktif — pelanggan jangan dilempar ke rute mitra.
+      router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet');
       return;
     }
     if (ref) {

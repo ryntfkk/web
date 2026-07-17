@@ -31,7 +31,9 @@ export default function WalletPage() {
   const [timeFilter, setTimeFilter] = useState<'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL'>('ALL');
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState(0);
-  const [summary, setSummary] = useState({ total_in: 0, total_out: 0 });
+  // Bentuk field mengikuti TransactionSummary backend:
+  // total_earnings / total_withdrawals / total_refunds.
+  const [summary, setSummary] = useState({ total_earnings: 0, total_withdrawals: 0, total_refunds: 0 });
 
   useEffect(() => {
     if (isAuthenticated) fetchData();
@@ -61,7 +63,11 @@ export default function WalletPage() {
       if (txRes.success && txRes.data) {
         setTransactions(txRes.data.data || []);
         if (txRes.data.summary) {
-          setSummary(txRes.data.summary);
+          setSummary({
+            total_earnings: txRes.data.summary.total_earnings || 0,
+            total_withdrawals: txRes.data.summary.total_withdrawals || 0,
+            total_refunds: txRes.data.summary.total_refunds || 0,
+          });
         }
       }
       
@@ -111,23 +117,28 @@ export default function WalletPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 -mt-4 relative z-20 flex gap-3">
-        <Button
-          className="flex-1 bg-white hover:bg-gray-50 text-[#1c1b1b] shadow-sm border border-[#e5e2e1] h-12 rounded-xl"
-          onClick={() => router.push(user?.active_role === ROLE_PARTNER ? '/mitra/wallet/withdraw' : '/profile/wallet/withdraw')}
-        >
-          <ArrowUpRight className="w-4 h-4 mr-2" /> Tarik Dana
-        </Button>
-      </div>
+      {/* Penarikan bank khusus mitra (keputusan produk) — backend menolak
+          non-partner dengan 403, jadi jangan tampilkan jalan buntu ke pelanggan.
+          Saldo refund pelanggan dipakai untuk pembayaran pesanan berikutnya. */}
+      {user?.active_role === ROLE_PARTNER && (
+        <div className="max-w-lg mx-auto px-4 -mt-4 relative z-20 flex gap-3">
+          <Button
+            className="flex-1 bg-white hover:bg-gray-50 text-[#1c1b1b] shadow-sm border border-[#e5e2e1] h-12 rounded-xl"
+            onClick={() => router.push('/mitra/wallet/withdraw')}
+          >
+            <ArrowUpRight className="w-4 h-4 mr-2" /> Tarik Dana
+          </Button>
+        </div>
+      )}
 
       <div className="max-w-lg mx-auto px-4 mt-6 flex gap-4">
         <div className="flex-1 bg-white rounded-xl border border-[#e5e2e1] p-3 shadow-sm">
           <p className="text-xs text-[#5b403e] mb-1">Total Pemasukan</p>
-          <p className="font-bold text-[#38A169]">{formatPrice(summary.total_in)}</p>
+          <p className="font-bold text-[#38A169]">{formatPrice(summary.total_earnings + summary.total_refunds)}</p>
         </div>
         <div className="flex-1 bg-white rounded-xl border border-[#e5e2e1] p-3 shadow-sm">
           <p className="text-xs text-[#5b403e] mb-1">Total Pengeluaran</p>
-          <p className="font-bold text-[#E53E3E]">{formatPrice(summary.total_out)}</p>
+          <p className="font-bold text-[#E53E3E]">{formatPrice(summary.total_withdrawals)}</p>
         </div>
       </div>
 

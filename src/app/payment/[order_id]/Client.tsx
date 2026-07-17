@@ -71,10 +71,12 @@ export default function PaymentClient() {
         return;
       }
       const result = await payOrderWithWallet(orderId);
+      // replace: halaman pilih-metode ini transien — setelah hasil keluar,
+      // back tidak boleh kembali ke form pembayaran yang sudah tidak berlaku.
       if (result.status === 'wallet_success') {
-        router.push(`/payment/${orderId}/status?status=success`);
+        router.replace(`/payment/${orderId}/status?status=success`);
       } else {
-        router.push(`/payment/${orderId}/status?status=failed&message=${encodeURIComponent(result.message)}`);
+        router.replace(`/payment/${orderId}/status?status=failed&message=${encodeURIComponent(result.message)}`);
       }
       setProcessing(false);
       return;
@@ -109,7 +111,7 @@ export default function PaymentClient() {
         <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
+            <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
               <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
             </button>
             <h1 className="text-base font-bold text-[#1c1b1b]">Pembayaran Pesanan</h1>
@@ -119,7 +121,7 @@ export default function PaymentClient() {
               targetDate={order.payment_expired_at} 
               format="mm:ss" 
               criticalThresholdSeconds={300} 
-              onExpire={() => router.push(`/payment/${orderId}/status?status=timeout`)}
+              onExpire={() => router.replace(`/payment/${orderId}/status?status=timeout`)}
             />
           )}
         </div>
@@ -134,7 +136,7 @@ export default function PaymentClient() {
               targetDate={order.payment_expired_at}
               format="mm:ss"
               criticalThresholdSeconds={300}
-              onExpire={() => router.push(`/payment/${orderId}/status?status=timeout`)}
+              onExpire={() => router.replace(`/payment/${orderId}/status?status=timeout`)}
             />
           )}
         </div>

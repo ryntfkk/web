@@ -267,7 +267,11 @@ export default function BookingClient() {
         scheduled_at: `${date}T${time}:00+07:00`,
         address_id: addressId,
         notes: notes || undefined,
-        promo_code: promoCode || undefined,
+        // Kirim promo HANYA bila sudah tervalidasi (promoDiscount > 0 dari
+        // preview). Mengirim kode mentah membuat total yang ditampilkan beda
+        // dari yang ditagih: backend tetap menerapkan promo yang tidak pernah
+        // muncul di ringkasan (atau menolak order dengan PROMO_NOT_FOUND).
+        promo_code: promoDiscount > 0 && promoCode ? promoCode : undefined,
         items,
         photo_urls: photoUrls,
         idempotency_key: idempotencyKey,
@@ -285,7 +289,9 @@ export default function BookingClient() {
         // Bersihkan layanan yang sudah dipesan dari keranjang
         for (const id of selectedIds) removeCartItem(id);
         setSuccessMsg('Pesanan berhasil dibuat!');
-        router.push(`/orders/${order.id}`);
+        // replace: back dari detail pesanan tidak boleh kembali ke form
+        // booking yang sudah ter-submit (membingungkan + rawan submit ulang).
+        router.replace(`/orders/${order.id}`);
         return;
       }
       setErrorMsg(getErrorMessage(res));
@@ -378,6 +384,11 @@ export default function BookingClient() {
             <span className="flex items-center gap-1.5"><Tag className="w-4 h-4" /> Promo digunakan</span>
             <span className="font-semibold">- {formatPrice(promoDiscount)}</span>
           </div>
+        )}
+        {promoCode && promoDiscount === 0 && (
+          <p className="mt-2 text-xs text-[#9e8e8c]">
+            Kode promo belum diterapkan — klik &quot;Gunakan&quot; untuk memvalidasi dan menerapkannya.
+          </p>
         )}
       </div>
     </div>

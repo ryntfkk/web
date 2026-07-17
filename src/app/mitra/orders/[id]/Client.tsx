@@ -467,7 +467,7 @@ export default function MitraOrderDetailClient() {
 
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-3 sticky top-0 z-30 lg:hidden">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-lg" aria-label="Kembali">
+          <button onClick={() => router.push('/mitra/orders')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-lg" aria-label="Kembali">
             <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
           </button>
           <div className="min-w-0">

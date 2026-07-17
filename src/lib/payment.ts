@@ -69,6 +69,23 @@ export async function payOrderWithSnap(
     method: 'POST',
     body: JSON.stringify({ order_id: orderId, payment_method: paymentMethod }),
   });
+  return redirectToSnap(res);
+}
+
+/**
+ * Bayar biaya tambahan (additional fee) via Midtrans Snap — jalur untuk
+ * pelanggan yang saldo dompetnya tidak cukup. Backend menagih fee PENDING
+ * tertua dan mengikatnya ke transaksi (fee_id di metadata).
+ */
+export async function payAdditionalFeeWithSnap(orderId: string): Promise<SnapPayResult> {
+  const res = await fetchAPI<any>(`/payments/snap/additional`, {
+    method: 'POST',
+    body: JSON.stringify({ order_id: orderId }),
+  });
+  return redirectToSnap(res);
+}
+
+function redirectToSnap(res: { success?: boolean; data?: unknown }): SnapPayResult {
   const snapData = res.success ? unwrapData<any>(res.data) : null;
   const redirectUrl =
     snapData?.redirect_url ||
@@ -78,5 +95,5 @@ export async function payOrderWithSnap(
     if (typeof window !== 'undefined') window.location.href = redirectUrl;
     return { status: 'redirecting' };
   }
-  return { status: 'error', message: getErrorMessage(res) };
+  return { status: 'error', message: getErrorMessage(res as any) };
 }

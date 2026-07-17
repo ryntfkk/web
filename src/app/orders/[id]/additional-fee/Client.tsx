@@ -7,17 +7,19 @@ import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
-import { isInsufficientBalance } from '@/lib/payment';
+import { isInsufficientBalance, payAdditionalFeeWithSnap } from '@/lib/payment';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
 
+// Bentuk field mengikuti AdditionalFeeDTO backend: type = 'service' | 'material',
+// harga satuan di field `price` (bukan unit_price).
 interface AdditionalFee {
   id: string;
-  type: 'extra_service' | 'material';
+  type: 'service' | 'material';
   item_name: string;
-  unit_price: number;
+  price: number;
   quantity: number;
   total: number;
   expired_at?: string;
@@ -79,13 +81,25 @@ export default function AdditionalFeeClient() {
     if (res.success) {
       // Tagihan tambahan dibayar dari SALDO DOMPET (didebit backend saat approve).
       showToast('Tagihan berhasil disetujui dan dibayar dari saldo dompet.');
-      setTimeout(() => router.push(`/orders/${orderId}`), 1500);
+      setTimeout(() => router.replace(`/orders/${orderId}`), 1500);
     } else if (isInsufficientBalance(res)) {
-      showToast('Saldo dompet tidak mencukupi untuk membayar tagihan ini. Silakan isi saldo terlebih dahulu.', 'error');
+      showToast('Saldo dompet tidak mencukupi. Gunakan tombol "Bayar via Midtrans" di bawah.', 'error');
     } else {
       showToast(getErrorMessage(res), 'error');
     }
     setActionLoading(false);
+  };
+
+  // Jalur Midtrans: untuk pelanggan yang saldo dompetnya tidak cukup.
+  // Backend menagih fee PENDING tertua; sukses → redirect ke halaman Snap.
+  const handlePayWithSnap = async () => {
+    setActionLoading(true);
+    const result = await payAdditionalFeeWithSnap(orderId);
+    if (result.status === 'error') {
+      showToast(result.message, 'error');
+      setActionLoading(false);
+    }
+    // status 'redirecting' → browser berpindah halaman; biarkan loading.
   };
 
   const handleReject = async () => {
@@ -99,7 +113,7 @@ export default function AdditionalFeeClient() {
     });
     if (res.success) {
       showToast('Tagihan ditolak.');
-      setTimeout(() => router.push(`/orders/${orderId}`), 1500);
+      setTimeout(() => router.replace(`/orders/${orderId}`), 1500);
     } else {
       showToast(getErrorMessage(res), 'error');
     }
@@ -144,13 +158,13 @@ export default function AdditionalFeeClient() {
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
+            <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
               <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
             </button>
             <h1 className="text-base font-bold text-[#1c1b1b]">Tagihan Tambahan</h1>
           </div>
           {fee.expired_at && (
-            <CountdownTimer targetDate={fee.expired_at} format="mm:ss" criticalThresholdSeconds={300} />
+            <CountdownTimer targetDate={fee.expired_at} format="hh:mm:ss" criticalThresholdSeconds={3600} warningThresholdSeconds={10800} />
           )}
         </div>
       </div>
@@ -160,19 +174,24 @@ export default function AdditionalFeeClient() {
         <div className="hidden lg:flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold text-[#1c1b1b]">Tagihan Tambahan</h1>
           {fee.expired_at && (
-            <CountdownTimer targetDate={fee.expired_at} format="mm:ss" criticalThresholdSeconds={300} />
+            <CountdownTimer targetDate={fee.expired_at} format="hh:mm:ss" criticalThresholdSeconds={3600} warningThresholdSeconds={10800} />
           )}
         </div>
         <p className="text-sm text-[#5b403e]">
           <span className="font-semibold text-[#1c1b1b]">{order?.partner_name ?? 'Mitra'}</span> mengajukan biaya tambahan:
         </p>
+        {fee.expired_at && (
+          <p className="text-xs text-[#9e8e8c]">
+            Tagihan yang tidak direspon dalam 24 jam akan otomatis ditolak dan pengerjaan dilanjutkan tanpa biaya tambahan ini.
+          </p>
+        )}
 
         {/* Fee Detail Card */}
         <div className="bg-[#f4f0ef] rounded-xl p-4 space-y-2.5">
           <div className="flex justify-between text-sm">
             <span className="text-[#9e8e8c]">Tipe</span>
             <span className="font-medium text-[#1c1b1b]">
-              {fee.type === 'extra_service' ? 'Jasa Ekstra' : 'Material'}
+              {fee.type === 'material' ? 'Material' : 'Jasa Ekstra'}
             </span>
           </div>
           <div className="flex justify-between text-sm">
@@ -181,7 +200,7 @@ export default function AdditionalFeeClient() {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#9e8e8c]">Harga Satuan</span>
-            <span className="font-medium text-[#1c1b1b]">{formatPrice(fee.unit_price)}</span>
+            <span className="font-medium text-[#1c1b1b]">{formatPrice(fee.price)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#9e8e8c]">Qty</span>
@@ -212,21 +231,31 @@ export default function AdditionalFeeClient() {
 
       {/* Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
-        <div className="max-w-lg mx-auto flex gap-3">
+        <div className="max-w-lg mx-auto space-y-2">
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 rounded border-[#5b403e] text-[#5b403e]"
+              onClick={() => setShowRejectDialog(true)}
+              disabled={actionLoading}
+            >
+              Tolak
+            </Button>
+            <Button
+              className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded"
+              onClick={handleApprove}
+              disabled={actionLoading}
+            >
+              {actionLoading ? 'Memproses...' : `Setujui (Potong Saldo ${formatPrice(fee.total)})`}
+            </Button>
+          </div>
           <Button
             variant="outline"
-            className="flex-1 rounded border-[#5b403e] text-[#5b403e]"
-            onClick={() => setShowRejectDialog(true)}
+            className="w-full rounded border-[#DD6B20] text-[#DD6B20] hover:bg-[#FFFAF0]"
+            onClick={handlePayWithSnap}
             disabled={actionLoading}
           >
-            Tolak
-          </Button>
-          <Button
-            className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded"
-            onClick={handleApprove}
-            disabled={actionLoading}
-          >
-            {actionLoading ? 'Memproses...' : `Setujui (Potong Saldo ${formatPrice(fee.total)})`}
+            Bayar via Midtrans (QRIS / VA / E-Wallet)
           </Button>
         </div>
       </div>
