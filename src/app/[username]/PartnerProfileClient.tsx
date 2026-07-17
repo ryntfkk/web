@@ -126,7 +126,6 @@ export default function PartnerProfileClient({ username }: { username: string })
                 )}
               </div>
             </div>
-            </div>
 
             {/* Trust signals — pricing transparency + off-platform warning */}
             <div className="bg-white rounded-md shadow-sm p-4 sm:p-5 space-y-3">
