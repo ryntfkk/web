@@ -22,6 +22,10 @@ export interface PublicService {
   partner_district?: string;
   /** Jarak (meter) dari lokasi user ke basecamp mitra; 0 bila lokasi tak dikirim. */
   distance_meters?: number;
+  /** Apakah mitra sedang online/aktif hari ini. */
+  partner_is_online?: boolean;
+  /** Apakah mitra sudah terverifikasi oleh platform. */
+  partner_is_verified?: boolean;
 }
 
 interface PublicServicesParams {

@@ -136,7 +136,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   WAITING_CUSTOMER_CONFIRM: {
     tone: 'from-[#5A67D8] to-[#434190]',
     title: 'Pekerjaan selesai — mohon konfirmasi',
-    desc: 'Konfirmasi bila hasilnya sudah sesuai. Tanpa konfirmasi, dana cair otomatis ke mitra dalam 24 jam.',
+    desc: 'Mitra menyatakan pekerjaan sudah selesai. Periksa hasilnya, lalu tekan Konfirmasi Selesai untuk mencairkan dana. Tanpa konfirmasi dalam 48 jam, dana cair otomatis ke mitra.',
   },
   COMPLETED: {
     tone: 'from-[#38A169] to-[#276749]',
@@ -205,6 +205,8 @@ export default function OrderDetailClient() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+  const [finishChecked, setFinishChecked] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -373,7 +375,7 @@ export default function OrderDetailClient() {
           </Button>
           <Button
             className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg"
-            onClick={() => handleAction('finish')}
+            onClick={() => { setFinishChecked(false); setShowFinishConfirm(true); }}
             disabled={actionLoading}
           >
             <CheckCircle2 className="w-4 h-4 mr-1.5" /> Konfirmasi Selesai
@@ -919,11 +921,27 @@ export default function OrderDetailClient() {
                 <X className="w-5 h-5 text-[#9e8e8c]" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-4">
-              {status === 'WAITING_CONFIRMATION' || status === 'WAITING_PAYMENT'
-                ? 'Pesanan akan dibatalkan. Kamu belum dikenakan biaya apapun.'
-                : 'Pesanan akan dibatalkan dan tidak dapat dikembalikan. Sesuai kebijakan, kamu menerima refund 80% biaya jasa (setelah diskon) + biaya transportasi ke saldo dompet. Biaya admin tidak dikembalikan.'}
-            </p>
+
+            {/* Refund policy per scenario */}
+            {status === 'PAID' ? (
+              <div className="mb-4 p-3 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg space-y-1.5 text-xs">
+                <p className="font-semibold text-[#744210] mb-1">Kebijakan Refund:</p>
+                <div className="flex items-start gap-1.5">
+                  <span className="text-[#38A169] font-bold shrink-0">✓</span>
+                  <span className="text-[#5b403e]"><strong>Batalkan ≥24 jam sebelum jadwal</strong> → Refund 80% biaya jasa + biaya transport ke dompet</span>
+                </div>
+                <div className="flex items-start gap-1.5">
+                  <span className="text-[#DD6B20] font-bold shrink-0">!</span>
+                  <span className="text-[#5b403e]"><strong>Batalkan &lt;24 jam sebelum jadwal</strong> → Refund 50% biaya jasa ke dompet</span>
+                </div>
+                <p className="text-[#9e8e8c] pt-1 border-t border-[#F6E05E]">Biaya admin platform tidak dikembalikan.</p>
+              </div>
+            ) : (
+              <p className="text-sm text-[#5b403e] mb-4">
+                Pesanan masih menunggu konfirmasi. Pembatalan gratis — kamu belum dikenakan biaya apapun.
+              </p>
+            )}
+
             <div className="mb-6">
               <label htmlFor="cancel-reason" className="block text-sm font-medium text-[#1c1b1b] mb-1">
                 Alasan Pembatalan
@@ -948,6 +966,52 @@ export default function OrderDetailClient() {
               </Button>
               <Button className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded-lg" onClick={handleCancel} disabled={actionLoading}>
                 {actionLoading ? 'Memproses...' : 'Ya, Batalkan'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal konfirmasi selesai (dual-confirmation) */}
+      {showFinishConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-sm w-full p-6">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-base font-semibold text-[#1c1b1b]">Konfirmasi Pekerjaan Selesai</h3>
+              <button onClick={() => setShowFinishConfirm(false)} aria-label="Tutup">
+                <X className="w-5 h-5 text-[#9e8e8c]" />
+              </button>
+            </div>
+            <p className="text-sm text-[#5b403e] mb-4">
+              Setelah dikonfirmasi, <strong>dana akan segera dicairkan ke mitra</strong> dan tidak dapat ditarik kembali.
+            </p>
+            <div className="space-y-2.5 mb-5">
+              <p className="text-xs font-semibold text-[#1c1b1b] uppercase tracking-wide">Checklist sebelum konfirmasi:</p>
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={finishChecked}
+                  onChange={e => setFinishChecked(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-[#38A169] shrink-0"
+                />
+                <span className="text-sm text-[#5b403e]">
+                  Saya sudah memeriksa hasil pekerjaan dan semuanya sesuai dengan yang dijanjikan.
+                </span>
+              </label>
+            </div>
+            <div className="p-2.5 bg-[#F0FFF4] border border-[#9AE6B4] rounded-lg mb-4 text-xs text-[#276749]">
+              Jika ada masalah yang baru terlihat setelah konfirmasi, kamu masih dapat menghubungi CS kami dalam <strong>3 hari</strong> ke depan.
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 rounded-lg border-[#e5e2e1]" onClick={() => setShowFinishConfirm(false)}>
+                Periksa Lagi
+              </Button>
+              <Button
+                className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg"
+                onClick={() => { setShowFinishConfirm(false); handleAction('finish'); }}
+                disabled={!finishChecked || actionLoading}
+              >
+                {actionLoading ? 'Memproses...' : 'Konfirmasi & Cairkan Dana'}
               </Button>
             </div>
           </div>

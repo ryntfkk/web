@@ -263,6 +263,21 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         </div>
       </div>
 
+      {/* Anti-disintermediation warning bar */}
+      <div className="bg-[#FFFBEB] border-b border-[#F6E05E] px-4 py-2 flex items-center gap-2 shrink-0">
+        <span className="text-xs text-[#744210] flex-1">
+          ⚠️ <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
+        </span>
+        <a
+          href="https://wa.me/6281234567890?text=Halo+CS+Posko+Jasa.+Ada+mitra+yang+meminta+pembayaran+di+luar+platform."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] font-semibold text-[#b51822] hover:underline shrink-0 whitespace-nowrap"
+        >
+          Laporkan
+        </a>
+      </div>
+
       {/* Messages */}
       <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${embedded ? '' : 'max-w-lg mx-auto w-full'}`}>
         {loading ? (

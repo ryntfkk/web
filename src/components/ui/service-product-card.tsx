@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, ShieldCheck } from 'lucide-react';
 import type { PublicService } from '@/hooks/usePublicServices';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
 import { formatDistanceMeters } from '@/lib/distance';
@@ -26,6 +26,19 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded flex items-center gap-0.5">
               <MapPin className="w-2.5 h-2.5" />
               <span className="text-[10px] sm:text-[11px] font-medium leading-none">{distance}</span>
+            </div>
+          )}
+          {/* Availability badge - top left */}
+          {service.partner_is_online && (
+            <div className="absolute top-1.5 left-1.5 bg-[#38A169]/90 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-semibold leading-none">
+              Tersedia Hari Ini
+            </div>
+          )}
+          {/* Verified badge - bottom left (only if no availability badge overlaps) */}
+          {service.partner_is_verified && !service.partner_is_online && (
+            <div className="absolute top-1.5 left-1.5 bg-[#3182CE]/90 backdrop-blur-sm text-white px-1.5 py-0.5 rounded flex items-center gap-0.5">
+              <ShieldCheck className="w-2.5 h-2.5" />
+              <span className="text-[9px] sm:text-[10px] font-semibold leading-none">Terverifikasi</span>
             </div>
           )}
         </div>

@@ -12,7 +12,7 @@ import ServicesList from '@/components/partner/ServicesList';
 import PortfolioGrid from '@/components/partner/PortfolioGrid';
 import ReviewSection from '@/components/partner/ReviewSection';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, WifiOff, RefreshCw } from 'lucide-react';
+import { ArrowLeft, WifiOff, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function PartnerProfileClient({ username }: { username: string }) {
@@ -126,6 +126,27 @@ export default function PartnerProfileClient({ username }: { username: string })
                 )}
               </div>
             </div>
+            </div>
+
+            {/* Trust signals — pricing transparency + off-platform warning */}
+            <div className="bg-white rounded-md shadow-sm p-4 sm:p-5 space-y-3">
+              <div className="flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-[#3182CE] mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-semibold text-[#2A6296] mb-0.5">Pembayaran Dilindungi Escrow</p>
+                  <p className="text-xs text-[#5b403e] leading-snug">
+                    Harga yang tertera adalah biaya jasa dasar. Biaya material atau peralatan tambahan, jika dibutuhkan, akan diajukan secara terpisah oleh mitra dan <strong>harus kamu setujui sebelum dibayar</strong>.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5 pt-3 border-t border-[#e5e2e1]">
+                <AlertTriangle className="w-4 h-4 text-[#D69E2E] mt-0.5 shrink-0" />
+                <p className="text-xs text-[#744210] leading-snug">
+                  <strong>Jangan bayar di luar platform.</strong> Semua transaksi harus melalui Posko Jasa untuk mendapat perlindungan escrow dan garansi layanan.
+                </p>
+              </div>
+            </div>
+
             <ReviewSection reviews={reviewData?.reviews || []} summary={reviewData?.summary || { total_reviews: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 }} />
           </div>
         </div>

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, MapPin, Calendar, Tag, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Tag, AlertTriangle, ShieldCheck, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
@@ -91,6 +91,7 @@ export default function BookingClient() {
   const [previewQuote, setPreviewQuote] = useState<any>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [showAddressList, setShowAddressList] = useState(false);
+  const [showCancelPolicy, setShowCancelPolicy] = useState(false);
   
   // Slots State
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
@@ -394,6 +395,44 @@ export default function BookingClient() {
     </div>
   );
 
+  // Section Kebijakan Pembatalan — ditampilkan di step 2 sebelum submit
+  const cancelPolicySection = (
+    <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
+      <button
+        className="w-full px-4 py-2.5 flex items-center justify-between gap-2 text-left"
+        onClick={() => setShowCancelPolicy(v => !v)}
+        aria-expanded={showCancelPolicy}
+      >
+        <div className="flex items-center gap-2">
+          <Info className="w-4 h-4 text-[#5b403e] shrink-0" />
+          <span className="text-sm font-semibold text-[#1c1b1b]">Kebijakan Pembatalan & Refund</span>
+        </div>
+        {showCancelPolicy ? <ChevronUp className="w-4 h-4 text-[#9e8e8c]" /> : <ChevronDown className="w-4 h-4 text-[#9e8e8c]" />}
+      </button>
+      {showCancelPolicy && (
+        <div className="px-4 pb-4 space-y-2 border-t border-[#e5e2e1] pt-3">
+          <div className="flex items-start gap-2 text-sm">
+            <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
+            <span className="text-[#5b403e]"><strong>Batalkan ≥24 jam sebelum jadwal</strong> → Refund 80% ke dompetmu</span>
+          </div>
+          <div className="flex items-start gap-2 text-sm">
+            <span className="text-[#DD6B20] font-bold shrink-0 mt-0.5">!</span>
+            <span className="text-[#5b403e]"><strong>Batalkan &lt;24 jam sebelum jadwal</strong> → Refund 50% ke dompetmu</span>
+          </div>
+          <div className="flex items-start gap-2 text-sm">
+            <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
+            <span className="text-[#5b403e]"><strong>Mitra tidak datang (no-show)</strong> → Refund 100% otomatis</span>
+          </div>
+          <div className="flex items-start gap-2 text-sm">
+            <span className="text-[#b51822] font-bold shrink-0 mt-0.5">✗</span>
+            <span className="text-[#5b403e]"><strong>Tidak konfirmasi dalam 48 jam</strong> setelah selesai → Dana cair ke mitra</span>
+          </div>
+          <p className="text-xs text-[#9e8e8c] mt-2 pt-2 border-t border-[#e5e2e1]">Biaya admin (platform) tidak dikembalikan pada pembatalan.</p>
+        </div>
+      )}
+    </div>
+  );
+
   // Section Rincian Pembayaran — withAction=true menampilkan tombol submit (desktop)
   const summarySection = (withAction: boolean) => (
     <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-3 shadow-sm">
@@ -441,6 +480,23 @@ export default function BookingClient() {
 
       {withAction && (
         <div className="pt-1 space-y-2">
+          {/* Escrow education banner */}
+          <div className="p-3 bg-[#EBF8FF] border border-[#BEE3F8] rounded-lg flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#3182CE] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-[#2A6296]">Pembayaran 100% Aman — Escrow Posko Jasa</p>
+              <p className="text-[11px] text-[#3182CE] mt-0.5 leading-snug">
+                Uangmu <strong>ditahan oleh Posko Jasa</strong>, bukan langsung ke mitra. Dana baru cair setelah kamu konfirmasi pekerjaan selesai.
+              </p>
+            </div>
+          </div>
+          {/* No off-platform payment warning */}
+          <div className="p-2.5 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg flex items-center gap-2">
+            <AlertTriangle className="w-3.5 h-3.5 text-[#D69E2E] shrink-0" />
+            <p className="text-[11px] text-[#744210]">
+              Selalu bayar melalui platform. <strong>Jangan bayar cash/transfer langsung</strong> ke mitra — tidak ada perlindungan escrow.
+            </p>
+          </div>
           {errorMsg && (
             <div className="p-2.5 bg-[#FFF5F5] border border-[#FEB2B2] rounded text-xs text-[#E53E3E] flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -658,6 +714,7 @@ export default function BookingClient() {
 
               {/* Mobile & tablet: promo + rincian di alur konten */}
               <div className="space-y-3 lg:hidden">
+                {cancelPolicySection}
                 {promoSection}
                 {summarySection(false)}
               </div>
@@ -665,6 +722,7 @@ export default function BookingClient() {
 
             {/* Kolom kanan (desktop): promo + ringkasan sticky + tombol submit */}
             <aside className="hidden lg:block lg:sticky lg:top-44 space-y-4">
+              {cancelPolicySection}
               {promoSection}
               {summarySection(true)}
             </aside>

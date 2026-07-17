@@ -76,12 +76,40 @@ export default function SearchContent({ query }: SearchContentProps) {
               </Button>
             </div>
           ) : visibleServices.length === 0 ? (
-            <div className="mt-6 text-center text-[#5b403e] py-10">
-              {query
-                ? `Tidak ada jasa yang cocok dengan "${query}"${city ? ` di ${city}` : ''}.`
-                : city
-                  ? `Belum ada jasa di ${city}.`
-                  : 'Belum ada jasa tersedia.'}
+            <div className="mt-8 flex flex-col items-center justify-center text-center py-12 px-4">
+              <div className="w-16 h-16 rounded-full bg-[#f0eded] flex items-center justify-center mb-4">
+                <RefreshCw className="w-7 h-7 text-[#9e8e8c]" />
+              </div>
+              <h3 className="text-base font-semibold text-[#1c1b1b] mb-1">
+                {query ? `Tidak ada hasil untuk "${query}"` : 'Tidak ada mitra tersedia'}
+              </h3>
+              <p className="text-sm text-[#5b403e] mb-5 max-w-xs">
+                {city
+                  ? `Belum ada mitra di ${city} yang cocok dengan filter kamu. Coba kota lain atau ubah filter rating.`
+                  : 'Coba ubah filter atau kata kunci pencarian.'}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                {minRating > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setMinRating(0)}
+                    className="text-xs border-[#e5e2e1] text-[#5b403e]"
+                  >
+                    Hapus Filter Rating
+                  </Button>
+                )}
+                {city && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCity('')}
+                    className="text-xs border-[#e5e2e1] text-[#5b403e]"
+                  >
+                    Semua Kota
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">

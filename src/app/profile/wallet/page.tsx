@@ -131,6 +131,21 @@ export default function WalletPage() {
         </div>
       )}
 
+      {/* Withdrawal limit disclosure — only for partners */}
+      {user?.active_role === ROLE_PARTNER && (
+        <div className="max-w-lg mx-auto px-4 mt-3">
+          <div className="bg-[#EBF8FF] border border-[#BEE3F8] rounded-xl px-4 py-3 flex items-start gap-2.5">
+            <Clock className="w-4 h-4 text-[#3182CE] mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-[#2A6296] mb-0.5">Info Penarikan Dana</p>
+              <p className="text-xs text-[#3182CE] leading-snug">
+                Batas penarikan: <strong>Rp 10.000.000 per hari</strong>. Dana masuk ke rekening dalam <strong>1 hari kerja</strong> setelah pengajuan disetujui.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-lg mx-auto px-4 mt-6 flex gap-4">
         <div className="flex-1 bg-white rounded-xl border border-[#e5e2e1] p-3 shadow-sm">
           <p className="text-xs text-[#5b403e] mb-1">Total Pemasukan</p>

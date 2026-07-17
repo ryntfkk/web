@@ -205,6 +205,8 @@ export default function MitraOrderDetailClient() {
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completeAttestation, setCompleteAttestation] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
 
@@ -381,7 +383,7 @@ export default function MitraOrderDetailClient() {
             <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded-lg" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)} disabled={actionLoading}>
               + Biaya Tambahan
             </Button>
-            <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg" onClick={() => handleAction('complete')} disabled={actionLoading}>
+            <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg" onClick={() => { setCompleteAttestation(false); setShowCompleteModal(true); }} disabled={actionLoading}>
               Selesai
             </Button>
           </div>
@@ -921,6 +923,54 @@ export default function MitraOrderDetailClient() {
             >
               {actionLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Kirim Laporan'}
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Selesai — mitra harus beratestasi sebelum complete */}
+      {showCompleteModal && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
+          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-xl p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base font-bold text-[#1c1b1b]">Tandai Pekerjaan Selesai</h3>
+              <button onClick={() => setShowCompleteModal(false)} className="p-2 -mr-2 text-[#9e8e8c] hover:text-[#5b403e]" aria-label="Tutup">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-sm text-[#5b403e] mb-4">
+              Setelah ditandai selesai, pelanggan akan diminta mengkonfirmasi hasil pekerjaan. Dana akan cair setelah pelanggan mengkonfirmasi (atau otomatis dalam 48 jam).
+            </p>
+
+            <div className="p-3 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg mb-4">
+              <p className="text-xs text-[#744210] font-medium mb-1">💡 Tips:</p>
+              <p className="text-xs text-[#5b403e]">Pastikan kamu sudah mengambil foto hasil pekerjaan sebagai bukti. Upload di bagian foto pesanan jika diperlukan.</p>
+            </div>
+
+            <label className="flex items-start gap-2.5 cursor-pointer mb-5">
+              <input
+                type="checkbox"
+                checked={completeAttestation}
+                onChange={e => setCompleteAttestation(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-[#38A169] shrink-0"
+              />
+              <span className="text-sm text-[#5b403e]">
+                Saya menyatakan pekerjaan sudah <strong>selesai sepenuhnya</strong> sesuai permintaan pelanggan.
+              </span>
+            </label>
+
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 rounded-lg border-[#e5e2e1]" onClick={() => setShowCompleteModal(false)}>
+                Batal
+              </Button>
+              <Button
+                className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg"
+                disabled={!completeAttestation || actionLoading}
+                onClick={() => { setShowCompleteModal(false); handleAction('complete'); }}
+              >
+                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Selesai'}
+              </Button>
+            </div>
           </div>
         </div>
       )}
