@@ -15,15 +15,12 @@ export default function WithdrawPage() {
   const router = useRouter();
 
   const [amount, setAmount] = useState('');
-  const [bankCode, setBankCode] = useState('BCA');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [accountName, setAccountName] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
+  const [platformConfig, setPlatformConfig] = useState<{min_transaction: number, withdrawal_fee: number} | null>(null);
   
-  const [useSavedBank, setUseSavedBank] = useState(true);
   const [savedBank, setSavedBank] = useState<{bank_code: string, account_number: string, account_name: string} | null>(null);
 
   const fetchBalance = useCallback(async () => {
@@ -39,8 +36,13 @@ export default function WithdrawPage() {
     const res = await fetchAPI<any>('/partners/me/bank-account');
     if (res.success && res.data) {
       setSavedBank(res.data);
-    } else {
-      setUseSavedBank(false);
+    }
+  }, []);
+
+  const fetchConfig = useCallback(async () => {
+    const res = await fetchAPI<any>('/config');
+    if (res.success && res.data) {
+      setPlatformConfig(res.data);
     }
   }, []);
 
@@ -48,8 +50,9 @@ export default function WithdrawPage() {
     if (isAuthorized) {
       fetchBalance();
       fetchSavedBank();
+      fetchConfig();
     }
-  }, [isAuthorized, fetchBalance, fetchSavedBank]);
+  }, [isAuthorized, fetchBalance, fetchSavedBank, fetchConfig]);
 
   const BANKS = [
     { code: 'BCA', name: 'BCA' },
@@ -81,17 +84,19 @@ export default function WithdrawPage() {
     // Validasi dulu, baru kunci submit — mengunci sebelum validasi membuat
     // form mati permanen setelah satu kali error validasi (ref tidak pernah
     // di-reset di jalur early-return).
+    const minWithdrawal = platformConfig?.min_transaction || 50000;
     const numAmount = parseInt(amount.replace(/\D/g, ''), 10);
-    if (!numAmount || numAmount < 50000) {
-      setError('Minimal penarikan Rp 50.000');
+    
+    if (!numAmount || numAmount < minWithdrawal) {
+      setError(`Minimal penarikan ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(minWithdrawal)}`);
       return;
     }
     if (numAmount > walletBalance) {
       setError('Saldo tidak mencukupi');
       return;
     }
-    if (!useSavedBank && (!accountNumber || !accountName)) {
-      setError('Mohon lengkapi data rekening');
+    if (!savedBank) {
+      setError('Silakan tambahkan rekening bank terlebih dahulu');
       return;
     }
 
@@ -105,10 +110,6 @@ export default function WithdrawPage() {
       method: 'POST',
       body: JSON.stringify({
         amount: numAmount,
-        use_saved_bank: useSavedBank,
-        bank_code: !useSavedBank ? bankCode : undefined,
-        bank_account_number: !useSavedBank ? accountNumber : undefined,
-        bank_account_name: !useSavedBank ? accountName : undefined,
       })
     });
 
@@ -189,17 +190,17 @@ export default function WithdrawPage() {
               />
             </div>
             <p className="text-xs text-[#9e8e8c] mt-2 flex items-center gap-1 mb-4">
-              <AlertCircle className="w-3.5 h-3.5" /> Minimal Rp 50.000
+              <AlertCircle className="w-3.5 h-3.5" /> Minimal {formatPrice(platformConfig?.min_transaction || 50000)}
             </p>
             
             <div className="border-t border-[#e5e2e1] pt-3 space-y-2">
               <div className="flex justify-between text-sm text-[#5b403e]">
                 <span>Biaya Admin</span>
-                <span>Rp 3.000</span>
+                <span>{formatPrice(platformConfig?.withdrawal_fee || 3000)}</span>
               </div>
               <div className="flex justify-between text-sm font-bold text-[#1c1b1b]">
                 <span>Total Diterima</span>
-                <span>{amount ? formatPrice(Math.max(0, parseInt(amount.replace(/\D/g, ''), 10) - 3000)) : 'Rp 0'}</span>
+                <span>{amount ? formatPrice(Math.max(0, parseInt(amount.replace(/\D/g, ''), 10) - (platformConfig?.withdrawal_fee || 3000))) : 'Rp 0'}</span>
               </div>
             </div>
           </div>
@@ -207,18 +208,16 @@ export default function WithdrawPage() {
           <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-bold text-[#1c1b1b]">Rekening Tujuan</h3>
-              {savedBank && (
-                <button 
-                  type="button" 
-                  onClick={() => setUseSavedBank(!useSavedBank)}
-                  className="text-sm font-semibold text-[#b51822] hover:underline"
-                >
-                  {useSavedBank ? 'Ganti Rekening' : 'Pakai Rekening Tersimpan'}
-                </button>
-              )}
+              <button 
+                type="button" 
+                onClick={() => router.push(user?.active_role === 'partner' ? '/mitra/dashboard' : '/profile/bank-account')}
+                className="text-sm font-semibold text-[#b51822] hover:underline"
+              >
+                Ubah Rekening
+              </button>
             </div>
             
-            {useSavedBank && savedBank ? (
+            {savedBank ? (
               <div className="bg-[#f7f5f4] border border-[#e5e2e1] p-4 rounded-xl">
                 <div className="flex items-start justify-between">
                   <div>
@@ -232,38 +231,17 @@ export default function WithdrawPage() {
                 </div>
               </div>
             ) : (
-              <>
-                <div>
-                  <label className="block text-sm font-semibold text-[#5b403e] mb-1.5">Bank / E-Wallet</label>
-              <select
-                value={bankCode}
-                onChange={e => setBankCode(e.target.value)}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white"
-              >
-                {BANKS.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-[#5b403e] mb-1.5">Nomor Rekening / HP</label>
-              <input
-                type="text"
-                value={accountNumber}
-                onChange={e => setAccountNumber(e.target.value.replace(/\D/g, ''))}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-[#5b403e] mb-1.5">Nama Pemilik Rekening</label>
-              <input
-                type="text"
-                value={accountName}
-                onChange={e => setAccountName(e.target.value)}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-              />
-            </div>
-              </>
+              <div className="bg-[#FFF5F5] border border-[#FEB2B2] p-4 rounded-xl text-center">
+                <p className="text-sm text-[#E53E3E] font-medium mb-2">Rekening belum ditambahkan.</p>
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push(user?.active_role === 'partner' ? '/mitra/dashboard' : '/profile/bank-account')}
+                  className="w-full text-sm border-[#E53E3E] text-[#E53E3E] hover:bg-[#FFF5F5]"
+                >
+                  Tambah Rekening (Butuh OTP)
+                </Button>
+              </div>
             )}
           </div>
 

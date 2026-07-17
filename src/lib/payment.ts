@@ -18,9 +18,10 @@ import { getErrorMessage } from '@/types/api';
 // Set via env agar tidak ada URL yang di-hardcode di komponen.
 // Sandbox : https://app.sandbox.midtrans.com/snap/v2/vtweb
 // Produksi: https://app.midtrans.com/snap/v2/vtweb
+const isProd = process.env.NODE_ENV === 'production';
 const SNAP_REDIRECT_BASE =
   process.env.NEXT_PUBLIC_MIDTRANS_SNAP_REDIRECT_BASE ||
-  'https://app.sandbox.midtrans.com/snap/v2/vtweb';
+  (isProd ? 'https://app.midtrans.com/snap/v2/vtweb' : 'https://app.sandbox.midtrans.com/snap/v2/vtweb');
 
 export type PayError = { status: 'error'; message: string; insufficientBalance?: boolean };
 export type WalletPayResult = { status: 'wallet_success' } | PayError;
