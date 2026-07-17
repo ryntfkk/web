@@ -73,9 +73,12 @@ export default function PartnerProfileClient({ username }: { username: string })
   return (
     <div className="page-h bg-[#f7f5f4] pb-20 sm:pb-12">
       {/* Header kontekstual (tombol kembali) — hanya mobile. Di desktop TopNavbar
-          sudah jadi satu-satunya header; menampilkannya di desktop membuat header
-          ganda yang sticky dan menutup konten saat scroll. */}
-      <div className="bg-white px-4 py-3 sticky top-16 z-10 border-b border-[#e5e2e1] flex items-center gap-3 lg:hidden">
+          sudah jadi satu-satunya header.
+          top-0, bukan top-16: HeaderWrapper menyembunyikan TopNavbar di mobile
+          untuk rute profil mitra, jadi tidak ada apa pun di atas header ini.
+          Sebelumnya top-16 menggeser header ini ke bawah TopNavbar — menambal
+          tampilan dua header, bukan menghapusnya. */}
+      <div className="bg-white px-4 py-3 sticky top-0 z-10 border-b border-[#e5e2e1] flex items-center gap-3 lg:hidden">
         <button
           onClick={() => router.back()}
           className="p-1.5 -ml-1 hover:bg-[#f7f5f4] rounded-md transition-colors"

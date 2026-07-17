@@ -511,7 +511,10 @@ function DetailContent() {
       {showSchedule && (
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setShowSchedule(false)}>
           <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-xl max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-16 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
+            {/* top-0: sticky di sini relatif terhadap modal (max-h-[80vh]
+                overflow-auto), bukan terhadap viewport — top-16 membuat judulnya
+                mengambang 64px dari tepi atas modal saat isinya di-scroll. */}
+            <div className="sticky top-0 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
               <h2 className="text-base font-semibold text-[#1c1b1b]">Jadwal {service.partner_name}</h2>
               <button onClick={() => setShowSchedule(false)} className="p-1 hover:bg-[#f0eded] rounded-full">
                 <X className="w-5 h-5 text-[#5b403e]" />

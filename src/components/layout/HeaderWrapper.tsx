@@ -19,9 +19,56 @@ const MOBILE_HIDE_PATHS = [
   "/promos",
 ];
 
+/**
+ * Segmen root yang merupakan halaman betulan — BUKAN username mitra.
+ *
+ * Profil mitra publik ada di rute dinamis `/[username]`, yang menangkap segmen
+ * tunggal apa pun di root. Daftar ini yang membedakan `/budi` (profil mitra)
+ * dari `/promos` (halaman).
+ *
+ * WAJIB diperbarui bila ada folder baru di src/app/. Bila terlewat, rute baru
+ * itu akan dikira profil mitra dan TopNavbar-nya hilang di mobile.
+ */
+const RESERVED_ROOT_SEGMENTS = new Set([
+  "about",
+  "book",
+  "cart",
+  "categories",
+  "chat",
+  "help",
+  "mitra",
+  "notifications",
+  "orders",
+  "payment",
+  "privacy",
+  "profile",
+  "promos",
+  "search",
+  "services",
+  "terms",
+  // Route group (auth)
+  "login",
+  "register",
+  "forgot-password",
+]);
+
+/**
+ * Profil mitra publik: segmen tunggal yang bukan halaman terpesan.
+ * `/budi` → true, `/promos` → false, `/orders/123` → false.
+ */
+function isPartnerProfilePath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  return segments.length === 1 && !RESERVED_ROOT_SEGMENTS.has(segments[0]);
+}
+
 function shouldHideHeaderOnMobile(pathname: string): boolean {
   // Exact matches
   if (MOBILE_HIDE_PATHS.some((p) => pathname === p)) return true;
+
+  // Profil mitra publik punya header kontekstualnya sendiri (tombol kembali +
+  // nama mitra), jadi TopNavbar harus mundur di mobile — kalau tidak, dua
+  // header sticky bertumpuk dan memakan 8rem dari viewport.
+  if (isPartnerProfilePath(pathname)) return true;
 
   // Prefixed matches (sub-pages)
   if (pathname.startsWith("/orders/")) return true;
