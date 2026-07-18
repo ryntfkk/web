@@ -8,7 +8,7 @@ export default function Footer() {
   if (pathname.startsWith('/chat')) return null;
 
   return (
-    <footer className="w-full bg-[#e5e2e1] py-6 mt-auto">
+    <footer className="hidden md:block w-full bg-[#e5e2e1] py-6 mt-auto">
       <div className="container mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col items-center md:items-start gap-1">
           {/* Copyright Footer - 14sp Medium 0.7px tracking */}
