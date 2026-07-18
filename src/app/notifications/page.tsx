@@ -29,9 +29,9 @@ export default function NotificationsPage() {
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   useEffect(() => {
-    
     fetchNotifications();
   }, [isAuthenticated]);
 
@@ -39,7 +39,6 @@ export default function NotificationsPage() {
     setLoading(true);
     const res = await fetchAPI<any>('/notifications');
     if (res.success && res.data) {
-      // Backend may return array directly OR envelope { data: [...] }
       const list = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data?.data)
@@ -48,7 +47,6 @@ export default function NotificationsPage() {
       setNotifications(list);
     }
     setLoading(false);
-
   };
 
   const handleMarkAllRead = async () => {
@@ -58,17 +56,14 @@ export default function NotificationsPage() {
 
   const handleNotificationClick = async (n: Notification) => {
     if (!n.is_read) {
-      // Mark as read locally and API
       setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, is_read: true } : item));
       await fetchAPI(`/notifications/${n.id}/read`, { method: 'PUT' });
     }
     
-    // Referensi bisa datang sebagai reference_id ATAU metadata.order_id (backend memakai metadata).
     const ref = n.reference_id || n.metadata?.order_id;
     const t = (n.type || '').toLowerCase();
 
     if (t === 'withdrawal') {
-      // Route dompet sesuai peran aktif — pelanggan jangan dilempar ke rute mitra.
       router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet');
       return;
     }
@@ -76,7 +71,6 @@ export default function NotificationsPage() {
       if (t.includes('payment')) {
         router.push(`/payment/${ref}`);
       } else {
-        // order_update, review_reminder, dispute, dll. → detail pesanan
         router.push(`/orders/${ref}`);
       }
     }
@@ -97,7 +91,6 @@ export default function NotificationsPage() {
     const date = new Date(time);
     const now = new Date();
     
-    // If today, show time. Otherwise show date
     if (date.toDateString() === now.toDateString()) {
       return 'Hari ini, ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     }
@@ -106,6 +99,13 @@ export default function NotificationsPage() {
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
+
+  const filteredNotifications = notifications.filter(n => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'transaction') return n.type.toLowerCase().includes('order') || n.type.toLowerCase().includes('payment');
+    if (activeFilter === 'system') return n.type.toLowerCase() === 'system' || n.type.toLowerCase().includes('review');
+    return true;
+  });
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
@@ -137,7 +137,30 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-4 space-y-2">
+      <div className="max-w-lg mx-auto px-4 py-4">
+        {/* Filters */}
+        <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar">
+          <button 
+            onClick={() => setActiveFilter('all')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'all' ? 'bg-[#b51822] text-white' : 'bg-white border border-[#e5e2e1] text-[#5b403e] hover:bg-[#f7f5f4]'}`}
+          >
+            Semua
+          </button>
+          <button 
+            onClick={() => setActiveFilter('transaction')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'transaction' ? 'bg-[#b51822] text-white' : 'bg-white border border-[#e5e2e1] text-[#5b403e] hover:bg-[#f7f5f4]'}`}
+          >
+            Transaksi
+          </button>
+          <button 
+            onClick={() => setActiveFilter('system')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'system' ? 'bg-[#b51822] text-white' : 'bg-white border border-[#e5e2e1] text-[#5b403e] hover:bg-[#f7f5f4]'}`}
+          >
+            Sistem
+          </button>
+        </div>
+        
+        <div className="space-y-2">
         {loading ? (
           [1, 2, 3, 4].map(i => (
             <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 flex gap-4 animate-pulse">
@@ -149,13 +172,13 @@ export default function NotificationsPage() {
               </div>
             </div>
           ))
-        ) : notifications.length === 0 ? (
+        ) : filteredNotifications.length === 0 ? (
           <div className="text-center py-10">
             <Bell className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
             <p className="text-sm text-[#5b403e]">Belum ada notifikasi.</p>
           </div>
         ) : (
-          notifications.map(n => (
+          filteredNotifications.map(n => (
             <div
               key={n.id}
               onClick={() => handleNotificationClick(n)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Lock, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -142,7 +142,71 @@ export default function SecurityPage() {
             </Button>
           </div>
         </form>
+
+        {/* Login History */}
+        <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden mt-6">
+          <div className="p-4 border-b border-[#e5e2e1]">
+            <h3 className="font-semibold text-[#32201f]">Riwayat Login Terbaru</h3>
+          </div>
+          <LoginHistoryList />
+        </div>
       </div>
+    </div>
+  );
+}
+
+function LoginHistoryList() {
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    setLoading(true);
+    const res = await fetchAPI<any>('/users/me/login-history');
+    if (res.success && res.data) {
+      setHistory(res.data);
+    }
+    setLoading(false);
+  };
+
+  const formatDate = (dateString: string) => {
+    const d = new Date(dateString);
+    return d.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) {
+    return <div className="p-4 text-center text-sm text-[#9e8e8c]">Memuat riwayat...</div>;
+  }
+
+  if (history.length === 0) {
+    return <div className="p-4 text-center text-sm text-[#9e8e8c]">Belum ada riwayat login.</div>;
+  }
+
+  return (
+    <div className="divide-y divide-[#e5e2e1]">
+      {history.map((h, i) => (
+        <div key={h.id || i} className="p-4 flex flex-col gap-1">
+          <div className="flex justify-between items-start">
+            <span className="font-medium text-sm text-[#1c1b1b]">
+              {h.event_type === 'LOGIN' ? 'Login Berhasil' : h.event_type}
+            </span>
+            <span className="text-xs text-[#9e8e8c]">{formatDate(h.created_at)}</span>
+          </div>
+          <div className="text-xs text-[#5b403e] flex gap-2 mt-1">
+            <span className="bg-[#f7f5f4] px-1.5 py-0.5 rounded border border-[#e5e2e1]">IP: {h.ip_address}</span>
+          </div>
+          <p className="text-xs text-[#9e8e8c] mt-1 truncate">{h.user_agent}</p>
+        </div>
+      ))}
     </div>
   );
 }
