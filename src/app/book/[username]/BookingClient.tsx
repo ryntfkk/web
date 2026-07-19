@@ -11,7 +11,7 @@ import { PLACEHOLDER_AVATAR } from '@/lib/images';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useCartStore } from '@/lib/store/cartStore';
-import { unwrapData } from '@/lib/order-utils';
+import { unwrapData, unitLabel } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 
 // Types
@@ -27,6 +27,7 @@ interface PartnerService {
   price: number;
   duration_minutes?: number;
   estimated_duration?: number;
+  unit?: string;
   photos?: ServicePhoto[];
   photo_url?: string;
 }
@@ -78,6 +79,8 @@ export default function BookingClient() {
 
   // Form State
   const [selectedServices, setSelectedServices] = useState<Record<string, boolean>>({});
+  // Kuantitas per layanan (jumlah jam / unit / jasa). Default 1 bila belum di-set.
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
   const [addressId, setAddressId] = useState<string>('');
@@ -103,9 +106,13 @@ export default function BookingClient() {
 
   // Derived values (dihitung sebelum efek agar bisa jadi dependency)
   const selectedCount = Object.values(selectedServices).filter(Boolean).length;
+  const qtyOf = (id: string) => Math.max(1, quantities[id] ?? 1);
+  const setQty = (id: string, qty: number) =>
+    setQuantities(prev => ({ ...prev, [id]: Math.max(1, Math.min(100, qty)) }));
   const subtotal = useMemo(
-    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? s.price : 0), 0),
-    [services, selectedServices],
+    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? s.price * qtyOf(s.id) : 0), 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [services, selectedServices, quantities],
   );
   const totalPayment = Math.max(0, subtotal - promoDiscount);
 
@@ -147,8 +154,9 @@ export default function BookingClient() {
   }, [preselectedIds, services]);
 
   const totalDuration = useMemo(
-    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? (serviceDuration(s) || 0) : 0), 0),
-    [services, selectedServices],
+    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? (serviceDuration(s) || 0) * qtyOf(s.id) : 0), 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [services, selectedServices, quantities],
   );
 
   useEffect(() => {
@@ -284,7 +292,7 @@ export default function BookingClient() {
 
       // 2. Prepare JSON body — pakai idempotencyKey yang stabil selama
       //    form tidak berubah, agar retry tidak membuat pesanan ganda.
-      const items = selectedIds.map(id => ({ service_id: id, quantity: 1 }));
+      const items = selectedIds.map(id => ({ service_id: id, quantity: qtyOf(id) }));
       const payload = {
         partner_id: partner.id,
         scheduled_at: `${date}T${time}:00+07:00`,
@@ -330,7 +338,7 @@ export default function BookingClient() {
     
     const items = Object.keys(selectedServices)
       .filter(id => selectedServices[id])
-      .map(id => ({ service_id: id, quantity: 1 }));
+      .map(id => ({ service_id: id, quantity: qtyOf(id) }));
 
     if (items.length === 0) return;
 
@@ -375,7 +383,7 @@ export default function BookingClient() {
       fetchPreview(promoDiscount > 0 ? promoCode : undefined);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, addressId, date, time, selectedServices]);
+  }, [step, addressId, date, time, selectedServices, quantities]);
 
   const validatePromo = async () => {
     if (!promoCode) return;
@@ -463,8 +471,8 @@ export default function BookingClient() {
       <div className="space-y-1.5">
         {selectedServiceList.map(s => (
           <div key={s.id} className="flex justify-between gap-3 text-sm">
-            <span className="text-[#5b403e] truncate">{s.name}</span>
-            <span className="font-medium text-[#1c1b1b] shrink-0">{formatPrice(s.price)}</span>
+            <span className="text-[#5b403e] truncate">{s.name} <span className="text-[#9e8e8c]">× {qtyOf(s.id)} {unitLabel(s.unit)}</span></span>
+            <span className="font-medium text-[#1c1b1b] shrink-0">{formatPrice(s.price * qtyOf(s.id))}</span>
           </div>
         ))}
       </div>
@@ -711,7 +719,10 @@ export default function BookingClient() {
                   <button onClick={handlePrev} className="text-xs font-semibold text-[#b51822] hover:underline">Ubah</button>
                 </div>
                 <div className="divide-y divide-[#f0eded]">
-                  {selectedServiceList.map(s => (
+                  {selectedServiceList.map(s => {
+                    const qty = qtyOf(s.id);
+                    const dur = serviceDuration(s) || 0;
+                    return (
                     <div key={s.id} className="flex items-center gap-3 px-3 sm:px-4 py-2.5">
                       <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#f0eded] shrink-0">
                         {servicePhoto(s) ? (
@@ -722,11 +733,20 @@ export default function BookingClient() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-[#1c1b1b] truncate">{s.name}</p>
-                        {serviceDuration(s) ? <p className="text-xs text-[#9e8e8c]">± {serviceDuration(s)} menit</p> : null}
+                        {dur ? <p className="text-xs text-[#9e8e8c]">± {dur * qty} menit</p> : null}
+                        {/* Stepper kuantitas (jumlah jam / unit / jasa) */}
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <button type="button" aria-label="Kurangi" onClick={() => setQty(s.id, qty - 1)} disabled={qty <= 1}
+                            className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">−</button>
+                          <span className="text-xs font-semibold text-[#1c1b1b] min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
+                          <button type="button" aria-label="Tambah" onClick={() => setQty(s.id, qty + 1)} disabled={qty >= 100}
+                            className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
+                        </div>
                       </div>
-                      <p className="text-sm font-bold text-[#1c1b1b] shrink-0">{formatPrice(s.price)}</p>
+                      <p className="text-sm font-bold text-[#1c1b1b] shrink-0">{formatPrice(s.price * qty)}</p>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

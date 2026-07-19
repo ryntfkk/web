@@ -34,6 +34,7 @@ export interface PartnerService {
   included_items: string[] | null;
   excluded_items: string[] | null;
   estimated_duration: number;
+  unit: string;
   photos: PartnerServicePhoto[];
 }
 

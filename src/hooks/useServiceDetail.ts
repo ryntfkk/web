@@ -26,6 +26,7 @@ export interface ServiceDetail {
   included_items: string[];
   excluded_items: string[];
   estimated_duration: number;
+  unit: string;
   photo_url: string;
   photos: ServicePhoto[];
 }

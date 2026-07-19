@@ -1,5 +1,6 @@
 import { PartnerService, PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { ServiceCard } from '@/components/ui/service-card';
+import { unitLabel } from '@/lib/order-utils';
 import Link from 'next/link';
 
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
@@ -50,7 +51,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
               rating={profile.avg_rating}
               reviewCount={profile.total_reviews}
               price={service.price}
-              unit="Jasa"
+              unit={unitLabel(service.unit)}
               imageUrl={primaryPhoto}
               vendorAvatar={profile.avatar_url || undefined}
               className="h-full"

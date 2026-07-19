@@ -26,6 +26,7 @@ import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import ScheduleView from '@/components/service/ScheduleView';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
+import { unitLabel } from '@/lib/order-utils';
 
 
 
@@ -370,6 +371,7 @@ function DetailContent() {
                   <span className="text-2xl sm:text-3xl font-bold text-[#b51822]">
                     Rp {service.price.toLocaleString('id-ID')}
                   </span>
+                  <span className="text-sm font-normal text-[#5b403e]">/{unitLabel(service.unit)}</span>
                 </div>
               </div>
 
@@ -436,7 +438,7 @@ function DetailContent() {
                 </div>
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-[#5b403e]">Harga</span>
-                  <span className="text-[#1c1b1b]">Rp {service.price.toLocaleString('id-ID')}</span>
+                  <span className="text-[#1c1b1b]">Rp {service.price.toLocaleString('id-ID')} <span className="text-[#5b403e]">/{unitLabel(service.unit)}</span></span>
                 </div>
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-[#5b403e]">Mitra</span>
@@ -511,7 +513,7 @@ function DetailContent() {
             {inCart ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
           </Button>
           <div className="flex-1">
-            <p className="text-base font-bold text-[#b51822]">Rp {service.price.toLocaleString('id-ID')}</p>
+            <p className="text-base font-bold text-[#b51822]">Rp {service.price.toLocaleString('id-ID')}<span className="text-xs font-normal text-[#5b403e]">/{unitLabel(service.unit)}</span></p>
           </div>
           <Button className="h-10 px-5 bg-[#b51822] hover:bg-[#90121a] text-white font-bold rounded-md text-sm" onClick={handleOrderNow}>
             <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan

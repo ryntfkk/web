@@ -22,6 +22,7 @@ export default function EditMitraServicePage() {
     name: '',
     category_id: '',
     price: '',
+    unit: 'per_service',
     duration_minutes: '60',
     description: '',
     included_items: '',
@@ -55,6 +56,7 @@ export default function EditMitraServicePage() {
                 name: service.name || '',
                 category_id: service.category_id || '',
                 price: service.price ? new Intl.NumberFormat('id-ID').format(service.price) : '',
+                unit: service.unit || 'per_service',
                 duration_minutes: service.estimated_duration ? String(service.estimated_duration) : '60',
                 description: service.description || '',
                 included_items: service.included_items ? service.included_items.join('\n') : '',
@@ -88,7 +90,9 @@ export default function EditMitraServicePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const numPrice = parseInt(form.price.replace(/\D/g, ''), 10);
-    const numDuration = parseInt(form.duration_minutes, 10);
+    const isPerHour = form.unit === 'per_hour';
+    // per_hour: estimasi otomatis 1 jam (60 menit); selain itu dari input mitra.
+    const numDuration = isPerHour ? 60 : parseInt(form.duration_minutes, 10);
     const included = form.included_items.split('\n').map(i => i.trim()).filter(Boolean);
     const excluded = form.excluded_items.split('\n').map(i => i.trim()).filter(Boolean);
 
@@ -100,7 +104,7 @@ export default function EditMitraServicePage() {
       setError(`Harga minimum layanan adalah Rp ${new Intl.NumberFormat('id-ID').format(MIN_PRICE)}`);
       return;
     }
-    if (numDuration < 15) {
+    if (!isPerHour && numDuration < 15) {
       setError('Durasi minimum layanan adalah 15 menit');
       return;
     }
@@ -114,6 +118,7 @@ export default function EditMitraServicePage() {
         name: form.name,
         category_id: form.category_id,
         price: numPrice,
+        unit: form.unit,
         estimated_duration: numDuration,
         description: form.description,
         included_items: included,
@@ -215,6 +220,23 @@ export default function EditMitraServicePage() {
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Satuan Harga</label>
+            <select
+              value={form.unit}
+              onChange={e => {
+                const unit = e.target.value;
+                setForm(f => ({ ...f, unit, duration_minutes: unit === 'per_hour' ? '60' : f.duration_minutes }));
+              }}
+              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white"
+            >
+              <option value="per_service">Per Jasa (borongan)</option>
+              <option value="per_hour">Per Jam</option>
+              <option value="per_unit">Per Unit</option>
+            </select>
+            <p className="text-xs text-[#9e8e8c] mt-1">Harga ditagih per {form.unit === 'per_hour' ? 'jam' : form.unit === 'per_unit' ? 'unit' : 'jasa'}. Pelanggan memilih jumlah saat memesan.</p>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
@@ -235,10 +257,14 @@ export default function EditMitraServicePage() {
                 type="number"
                 min="15"
                 step="15"
-                value={form.duration_minutes}
+                value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
+                disabled={form.unit === 'per_hour'}
                 onChange={e => setForm({ ...form, duration_minutes: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] disabled:bg-[#f7f5f4] disabled:text-[#9e8e8c]"
               />
+              <p className="text-xs text-[#9e8e8c] mt-1">
+                {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
+              </p>
             </div>
           </div>
 
