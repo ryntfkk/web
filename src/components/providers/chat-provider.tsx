@@ -49,7 +49,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     socket.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.type === 'message') {
+        if (msg.type === 'message' && msg.data) {
           // Notify specific room listeners
           messageListeners.current.forEach((listener) => {
             if (!listener.roomId || listener.roomId === msg.data.room_id) {
@@ -58,7 +58,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           });
           // Invalidate chat rooms list query so it re-fetches latest messages and unread counts!
           queryClient.invalidateQueries({ queryKey: ['chat-rooms'] });
-        } else if (msg.type === 'typing') {
+        } else if (msg.type === 'typing' && msg.data) {
           typingListeners.current.forEach((listener) => {
             if (!listener.roomId || listener.roomId === msg.data.room_id) {
               listener.cb(msg.data);
