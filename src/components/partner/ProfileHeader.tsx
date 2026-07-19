@@ -17,6 +17,10 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const router = useRouter();
   const [isChatLoading, setIsChatLoading] = useState(false);
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const currentUser = useAuthStore(state => state.user);
+  // Mitra yang membuka profilnya sendiri tidak boleh chat/lapor/pesan ke diri
+  // sendiri — backend menolaknya (SELF_ORDER / cannot chat with yourself).
+  const isOwnProfile = !!currentUser?.id && currentUser.id === profile.user_id;
 
   // Provide a proper fallback for avatar - handle any non-string value safely
   const avatarUrl = typeof profile.avatar_url === 'string' && profile.avatar_url.length > 0
@@ -108,19 +112,31 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           </div>
 
           <div className="flex gap-2 w-full sm:w-auto sm:shrink-0">
-            <Button
-              className="flex-1 sm:flex-none bg-[#b51822] hover:bg-[#90121a] text-white"
-              onClick={handleChat}
-              disabled={isChatLoading}
-            >
-              {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
-            </Button>
+            {isOwnProfile ? (
+              <Button
+                variant="secondary"
+                className="flex-1 sm:flex-none bg-[#f0eded] text-[#5b403e] hover:bg-[#e5e2e1]"
+                onClick={() => router.push('/mitra/dashboard')}
+              >
+                Kelola Profil
+              </Button>
+            ) : (
+              <Button
+                className="flex-1 sm:flex-none bg-[#b51822] hover:bg-[#90121a] text-white"
+                onClick={handleChat}
+                disabled={isChatLoading}
+              >
+                {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
+              </Button>
+            )}
           </div>
         </div>
 
-        <div className="mt-3 flex justify-end">
-          <ReportDialog targetType="partner" targetId={profile.id} />
-        </div>
+        {!isOwnProfile && (
+          <div className="mt-3 flex justify-end">
+            <ReportDialog targetType="partner" targetId={profile.id} />
+          </div>
+        )}
       </div>
     </div>
   );

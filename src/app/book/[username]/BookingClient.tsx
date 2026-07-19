@@ -55,7 +55,7 @@ interface Address {
 }
 
 export default function BookingClient() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -115,6 +115,13 @@ export default function BookingClient() {
     [services, selectedServices, quantities],
   );
   const totalPayment = Math.max(0, subtotal - promoDiscount);
+
+  // Mitra tidak boleh memesan layanan miliknya sendiri (uang berputar ke diri
+  // sendiri dikurangi komisi + room chat gagal dibuat). Backend juga menolak
+  // dengan SELF_ORDER; guard ini agar UX tidak menabrak error di akhir alur.
+  const isOwnPartner =
+    (!!user?.id && !!partner?.user_id && user.id === partner.user_id) ||
+    (!!user?.partner_id && !!partner?.id && user.partner_id === partner.id);
 
   useEffect(() => {
     const uuid = typeof crypto !== 'undefined' && crypto.randomUUID
@@ -233,6 +240,12 @@ export default function BookingClient() {
     // Guard: data partner wajib ada sebelum submit
     if (!partner?.id) {
       setErrorMsg('Data mitra belum termuat. Silakan muat ulang halaman.');
+      return;
+    }
+
+    // Guard: tidak boleh memesan layanan milik sendiri
+    if (isOwnPartner) {
+      setErrorMsg('Kamu tidak dapat memesan layanan milik sendiri.');
       return;
     }
 
@@ -539,7 +552,7 @@ export default function BookingClient() {
           <Button
             className="w-full bg-[#b51822] hover:bg-[#90121a] rounded py-5"
             onClick={submitOrder}
-            disabled={loading || !date || !time || !addressId}
+            disabled={loading || !date || !time || !addressId || isOwnPartner}
           >
             {loading ? 'Memproses...' : 'Buat Pesanan'}
           </Button>
@@ -586,6 +599,15 @@ export default function BookingClient() {
                 <p className="text-xs text-[#9e8e8c]">Pilih satu atau lebih layanan di bawah ini</p>
               </div>
             </div>
+
+            {isOwnPartner && (
+              <div className="p-3 bg-[#FFF5F5] border border-[#FEB2B2] rounded-xl flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-[#E53E3E] shrink-0 mt-0.5" />
+                <p className="text-xs text-[#742A2A] leading-snug">
+                  <strong>Ini profil mitra kamu sendiri.</strong> Kamu tidak dapat memesan layanan milikmu sendiri.
+                </p>
+              </div>
+            )}
 
             {/* Kartu layanan horizontal (selectable) */}
             <div className="space-y-3">
@@ -805,7 +827,7 @@ export default function BookingClient() {
               <Button
                 className="bg-[#b51822] hover:bg-[#90121a] rounded px-8"
                 onClick={handleNext}
-                disabled={selectedCount === 0}
+                disabled={selectedCount === 0 || isOwnPartner}
               >
                 Lanjut
               </Button>
@@ -821,7 +843,7 @@ export default function BookingClient() {
               <Button
                 className="bg-[#b51822] hover:bg-[#90121a] rounded px-8"
                 onClick={submitOrder}
-                disabled={loading || !date || !time || !addressId}
+                disabled={loading || !date || !time || !addressId || isOwnPartner}
               >
                 {loading ? 'Memproses...' : 'Buat Pesanan'}
               </Button>

@@ -13,7 +13,7 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { csWhatsAppUrl } from '@/lib/constants';
+import { createSupportThread } from '@/lib/support';
 import { getErrorMessage } from '@/types/api';
 
 // Bentuk field mengikuti OrderDetailDTO di backend (internal/order/dto.go).
@@ -404,8 +404,17 @@ export default function MitraOrderDetailClient() {
       )}
 
       {status === 'DISPUTED' && (
-        <Button className="w-full bg-[#25D366] hover:bg-[#128C7E] rounded-lg flex items-center justify-center gap-2" onClick={() => window.open(csWhatsAppUrl(`Halo CS Posko Jasa. Saya mitra untuk Pesanan #${order.order_number}.`), '_blank')}>
-          Hubungi CS via WhatsApp
+        <Button
+          className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-lg flex items-center justify-center gap-2"
+          onClick={async () => {
+            const id = await createSupportThread({
+              category: 'other',
+              description: `Halo CS Posko Jasa, saya mitra dan melaporkan masalah pada Pesanan #${order.order_number}.`,
+            });
+            if (id) router.push(`/bantuan/${id}`);
+          }}
+        >
+          Hubungi CS
         </Button>
       )}
     </>

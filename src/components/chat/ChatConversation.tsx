@@ -10,6 +10,7 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { ROLE_PARTNER } from '@/lib/constants';
+import { createSupportThread } from '@/lib/support';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -70,7 +71,14 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         const rooms = roomRes.data;
         const currentRoom = rooms.find((r: any) => r.room_id === roomId);
         if (currentRoom) {
-          if (user?.active_role === ROLE_PARTNER) {
+          // Tentukan lawan bicara PER-room via user.id — bukan active_role global,
+          // yang keliru untuk user dual-role (mitra yang juga jadi pelanggan) pada
+          // room di sisi lain. Fallback ke active_role bila backend belum kirim id.
+          const hasIds = user?.id && currentRoom.partner_id && currentRoom.customer_id;
+          const iAmPartner = hasIds
+            ? currentRoom.partner_id === user?.id
+            : user?.active_role === ROLE_PARTNER;
+          if (iAmPartner) {
             setPartner({
               name: currentRoom.customer_name || 'Customer',
               avatar_url: currentRoom.customer_avatar_url,
@@ -93,7 +101,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       console.error(e);
     }
     setLoading(false);
-  }, [roomId, user?.active_role]);
+  }, [roomId, user?.id, user?.active_role]);
 
   useEffect(() => {
     if (!isAuthorized) return;
@@ -269,14 +277,19 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         <span className="text-xs text-[#744210] flex-1">
           ⚠️ <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
         </span>
-        <a
-          href="https://wa.me/6281234567890?text=Halo+CS+Posko+Jasa.+Ada+mitra+yang+meminta+pembayaran+di+luar+platform."
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={async () => {
+            const id = await createSupportThread({
+              category: 'fraud',
+              description: 'Halo CS Posko Jasa, ada pihak yang meminta pembayaran di luar platform.',
+            });
+            if (id) router.push(`/bantuan/${id}`);
+          }}
           className="text-[10px] font-semibold text-[#b51822] hover:underline shrink-0 whitespace-nowrap"
         >
           Laporkan
-        </a>
+        </button>
       </div>
 
       {/* Messages */}

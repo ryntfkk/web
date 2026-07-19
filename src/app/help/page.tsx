@@ -5,9 +5,6 @@ import Link from 'next/link';
 import { Search, ChevronDown, MessageCircle, LifeBuoy } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 
-// TODO: ganti dengan nomor WhatsApp support resmi POSKO Jasa.
-const SUPPORT_WA = '6281234567890';
-
 interface Faq {
   q: string;
   a: string;
@@ -141,14 +138,12 @@ export default function HelpPage() {
         <div className="bg-white rounded-lg border border-[#e5e2e1] p-5 text-center">
           <h3 className="text-base font-bold text-[#1c1b1b]">Masih butuh bantuan?</h3>
           <p className="text-sm text-[#5b403e] mt-1 mb-4">Tim dukungan kami siap membantu Anda.</p>
-          <a
-            href={`https://wa.me/${SUPPORT_WA}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/bantuan"
             className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#b51822] text-white text-sm font-bold rounded-md hover:bg-[#90121a] transition-colors"
           >
-            <MessageCircle className="w-4 h-4" /> Hubungi via WhatsApp
-          </a>
+            <MessageCircle className="w-4 h-4" /> Chat dengan Customer Service
+          </Link>
           <div className="mt-3">
             <Link href="/" className="text-sm font-medium text-[#8f6f6d] hover:text-[#5b403e]">
               Kembali ke Beranda

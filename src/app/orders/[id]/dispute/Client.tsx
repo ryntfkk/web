@@ -6,7 +6,6 @@ import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
-import { csWhatsAppUrl } from '@/lib/constants';
 import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -87,9 +86,9 @@ export default function DisputeClient() {
       });
 
       if (res.success) {
+        // Sengketa tercatat & admin ternotifikasi. Untuk berbalas dgn CS,
+        // pengguna dapat memakai tombol "Hubungi CS" (chat) di halaman pesanan.
         router.push(`/orders/${orderId}`);
-        // Buka WA di tab baru
-        window.open(csWhatsAppUrl(`Halo CS Posko Jasa. Saya melaporkan sengketa pada Pesanan #${order?.order_number ?? ''}.`), '_blank');
       } else {
         setError(getErrorMessage(res));
       }
@@ -168,7 +167,7 @@ export default function DisputeClient() {
             onClick={handleSubmit}
             disabled={submitting || reason.length < 20}
           >
-            {submitting ? 'Mengirim...' : 'Kirim Laporan & Hubungi CS'}
+            {submitting ? 'Mengirim...' : 'Kirim Laporan Sengketa'}
           </Button>
         </div>
       </div>

@@ -9,6 +9,8 @@ import { ROLE_PARTNER } from '@/lib/constants';
 
 export interface ChatRoom {
   room_id: string;
+  customer_id?: string;
+  partner_id?: string;
   partner_name?: string;
   customer_name?: string;
   partner_avatar_url?: string;
@@ -74,11 +76,27 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
 
   const isMitra = user?.active_role === ROLE_PARTNER;
 
+  // Tentukan lawan bicara PER-room dengan membandingkan user.id, bukan menebak
+  // dari active_role global. Untuk user dual-role (mitra yang juga jadi pelanggan)
+  // active_role keliru pada room di "sisi lain" — menampilkan nama/foto diri
+  // sendiri. Fallback ke active_role hanya bila backend belum mengirim id peserta.
+  const counterpartyOf = (c: ChatRoom): { name?: string; avatar?: string } => {
+    if (user?.id && c.partner_id && c.customer_id) {
+      const iAmPartner = c.partner_id === user.id;
+      return iAmPartner
+        ? { name: c.customer_name, avatar: c.customer_avatar_url }
+        : { name: c.partner_name, avatar: c.partner_avatar_url };
+    }
+    return isMitra
+      ? { name: c.customer_name, avatar: c.customer_avatar_url }
+      : { name: c.partner_name, avatar: c.partner_avatar_url };
+  };
+
   const filteredChats = chats
     .filter((c) => {
       if (!search) return true;
       const q = search.toLowerCase();
-      const name = (isMitra ? c.customer_name : c.partner_name) || '';
+      const name = counterpartyOf(c).name || '';
       return name.toLowerCase().includes(q) || (c.last_message || '').toLowerCase().includes(q);
     })
     .sort((a, b) => {
@@ -130,8 +148,9 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
         ) : (
           <div>
             {filteredChats.map((chat) => {
-              const displayName = (isMitra ? chat.customer_name : chat.partner_name) || '?';
-              const displayAvatar = isMitra ? chat.customer_avatar_url : chat.partner_avatar_url;
+              const counterparty = counterpartyOf(chat);
+              const displayName = counterparty.name || '?';
+              const displayAvatar = counterparty.avatar;
               const isSelected = selectedRoomId === chat.room_id;
               const hasUnread = (chat.unread_count ?? 0) > 0;
 

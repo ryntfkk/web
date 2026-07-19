@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { csWhatsAppUrl } from '@/lib/constants';
+import { createSupportThread } from '@/lib/support';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 
@@ -421,10 +421,16 @@ export default function OrderDetailClient() {
 
       {status === 'DISPUTED' && (
         <Button
-          className="flex-1 bg-[#25D366] hover:bg-[#128C7E] rounded-lg"
-          onClick={() => window.open(csWhatsAppUrl(`Halo CS Posko Jasa. Saya melaporkan masalah pada Pesanan #${order.order_number}.`), '_blank')}
+          className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded-lg"
+          onClick={async () => {
+            const id = await createSupportThread({
+              category: 'other',
+              description: `Halo CS Posko Jasa, saya melaporkan masalah pada Pesanan #${order.order_number}.`,
+            });
+            if (id) router.push(`/bantuan/${id}`);
+          }}
         >
-          Hubungi CS via WhatsApp
+          Hubungi CS
         </Button>
       )}
     </>
