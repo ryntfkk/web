@@ -15,6 +15,10 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { createSupportThread } from '@/lib/support';
 import { getErrorMessage } from '@/types/api';
+import dynamic from 'next/dynamic';
+
+// Peta hanya di klien (butuh window/Google Maps) → hindari SSR.
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 // Bentuk field mengikuti OrderDetailDTO di backend (internal/order/dto.go).
 interface MitraOrderDetail {
@@ -43,6 +47,8 @@ interface MitraOrderDetail {
   confirmation_expired_at?: string;
   service_address?: string;
   address_detail?: string;
+  service_lat?: number;
+  service_lon?: number;
   notes?: string;
   photos?: string[];
   cancellation_reason?: string;
@@ -645,6 +651,16 @@ export default function MitraOrderDetailClient() {
                       )}
                     </div>
                   </div>
+                )}
+                {/* Peta koordinat alamat pelanggan (snapshot saat order dibuat). */}
+                {typeof order.service_lat === 'number' && typeof order.service_lon === 'number' &&
+                  !(order.service_lat === 0 && order.service_lon === 0) && (
+                  <MapView
+                    lat={order.service_lat}
+                    lng={order.service_lon}
+                    label={order.service_address}
+                    className="h-48"
+                  />
                 )}
               </div>
 

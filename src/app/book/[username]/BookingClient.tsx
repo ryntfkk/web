@@ -13,6 +13,10 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { useCartStore } from '@/lib/store/cartStore';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
+import dynamic from 'next/dynamic';
+
+// Peta hanya di klien (butuh window/Google Maps) → hindari SSR.
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 // Types
 interface ServicePhoto {
@@ -52,6 +56,9 @@ interface Address {
   address: string;
   address_detail?: string;
   is_default: boolean;
+  // Koordinat alamat (null untuk alamat lama yang belum di-pin di peta).
+  lat?: number | null;
+  lon?: number | null;
 }
 
 export default function BookingClient() {
@@ -103,6 +110,11 @@ export default function BookingClient() {
   
   // Refs
   const preselectedRef = useRef(false);
+  // Ditandai saat pelanggan menekan "Edit" alamat (buka tab baru). Saat tab
+  // order kembali fokus, kita refresh alamat + preview agar koordinat & biaya
+  // transport ikut ter-update tanpa perlu reload manual.
+  const addressEditedRef = useRef(false);
+  const refreshOnReturnRef = useRef<() => void>(() => {});
 
   // Derived values (dihitung sebelum efek agar bisa jadi dependency)
   const selectedCount = Object.values(selectedServices).filter(Boolean).length;
@@ -228,6 +240,21 @@ export default function BookingClient() {
       console.error('Failed to fetch booking data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Muat ulang HANYA daftar alamat (mis. setelah pelanggan mengedit koordinat
+  // di tab lain), mempertahankan alamat terpilih. Tidak ikut memuat mitra/
+  // layanan agar ringan.
+  const refreshAddresses = async () => {
+    try {
+      const aRes = await fetchAPI<any>('/users/me/addresses');
+      if (aRes.success && aRes.data) {
+        const addrList = unwrapData<Address[]>(aRes.data);
+        if (Array.isArray(addrList)) setAddresses(addrList);
+      }
+    } catch (e) {
+      console.error('Failed to refresh addresses', e);
     }
   };
 
@@ -400,8 +427,42 @@ export default function BookingClient() {
 
   const validatePromo = async () => {
     if (!promoCode) return;
+    // fetchPreview mensyaratkan alamat + jadwal (butuh koordinat & waktu untuk
+    // menghitung transport/diskon). Tanpa ini ia return diam-diam sehingga tombol
+    // "Gunakan" terkesan tidak berfungsi — beri pesan yang jelas.
+    if (!addressId || !date || !time) {
+      setErrorMsg('Pilih alamat, tanggal, dan waktu terlebih dahulu sebelum memakai promo.');
+      return;
+    }
     await fetchPreview(promoCode);
   };
+
+  // Jaga ref refresh selalu memakai closure terbaru (pola ref agar listener di
+  // bawah tidak menangkap state basi).
+  useEffect(() => {
+    refreshOnReturnRef.current = () => {
+      refreshAddresses().then(() => {
+        if (step === 2) fetchPreview(promoDiscount > 0 ? promoCode : undefined);
+      });
+    };
+  });
+
+  // Saat pelanggan kembali ke tab order setelah mengedit alamat, refresh alamat
+  // (peta) + preview (biaya transport) secara otomatis.
+  useEffect(() => {
+    const onReturn = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible' && addressEditedRef.current) {
+        addressEditedRef.current = false;
+        refreshOnReturnRef.current();
+      }
+    };
+    document.addEventListener('visibilitychange', onReturn);
+    window.addEventListener('focus', onReturn);
+    return () => {
+      document.removeEventListener('visibilitychange', onReturn);
+      window.removeEventListener('focus', onReturn);
+    };
+  }, []);
 
   if (!isAuthenticated) return null;
   if (loading && step === 1) return <div className="page-h bg-[#f7f5f4] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" /></div>;
@@ -456,21 +517,17 @@ export default function BookingClient() {
         <div className="px-4 pb-4 space-y-2 border-t border-[#e5e2e1] pt-3">
           <div className="flex items-start gap-2 text-sm">
             <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
-            <span className="text-[#5b403e]"><strong>Batalkan ≥24 jam sebelum jadwal</strong> → Refund 80% ke dompetmu</span>
-          </div>
-          <div className="flex items-start gap-2 text-sm">
-            <span className="text-[#DD6B20] font-bold shrink-0 mt-0.5">!</span>
-            <span className="text-[#5b403e]"><strong>Batalkan &lt;24 jam sebelum jadwal</strong> → Refund 50% ke dompetmu</span>
+            <span className="text-[#5b403e]"><strong>Kamu batalkan setelah membayar</strong> → Refund 80% biaya jasa + 100% biaya transport ke dompetmu</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
             <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
-            <span className="text-[#5b403e]"><strong>Mitra tidak datang (no-show)</strong> → Refund 100% otomatis</span>
+            <span className="text-[#5b403e]"><strong>Mitra membatalkan / tidak datang (no-show)</strong> → Refund 100% biaya jasa + transport ke dompetmu</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
             <span className="text-[#b51822] font-bold shrink-0 mt-0.5">✗</span>
             <span className="text-[#5b403e]"><strong>Tidak konfirmasi dalam 24 jam</strong> setelah selesai → Dana cair ke mitra</span>
           </div>
-          <p className="text-xs text-[#9e8e8c] mt-2 pt-2 border-t border-[#e5e2e1]">Biaya layanan platform tidak dikembalikan pada pembatalan.</p>
+          <p className="text-xs text-[#9e8e8c] mt-2 pt-2 border-t border-[#e5e2e1]">Biaya admin/layanan platform tidak dikembalikan pada pembatalan.</p>
         </div>
       )}
     </div>
@@ -647,12 +704,49 @@ export default function BookingClient() {
                 <div className="p-3 sm:p-4">
                   {!showAddressList ? (
                     selectedAddress ? (
-                      <div>
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-[#1c1b1b] text-sm">{selectedAddress.label}</span>
-                          {selectedAddress.is_default && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                      <div className="space-y-2.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className="font-semibold text-[#1c1b1b] text-sm">{selectedAddress.label}</span>
+                              {selectedAddress.is_default && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                            </div>
+                            <p className="text-xs text-[#5b403e] leading-snug">{selectedAddress.address}</p>
+                          </div>
+                          {/* Edit koordinat/alamat — buka di tab baru agar isian pesanan tidak hilang. */}
+                          <a
+                            href={`/profile/addresses/edit/${selectedAddress.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => { addressEditedRef.current = true; }}
+                            className="text-xs font-semibold text-[#b51822] hover:underline shrink-0"
+                          >
+                            Edit
+                          </a>
                         </div>
-                        <p className="text-xs text-[#5b403e] leading-snug">{selectedAddress.address}</p>
+                        {/* Peta verifikasi koordinat alamat yang dipilih. */}
+                        {typeof selectedAddress.lat === 'number' && typeof selectedAddress.lon === 'number' &&
+                        !(selectedAddress.lat === 0 && selectedAddress.lon === 0) ? (
+                          <>
+                            <MapView
+                              lat={selectedAddress.lat}
+                              lng={selectedAddress.lon}
+                              label={selectedAddress.address}
+                              className="h-40"
+                              linkLabel="Buka di Google Maps"
+                            />
+                            <p className="text-[11px] text-[#9e8e8c] leading-snug">
+                              Pastikan pin sudah tepat di lokasi pengerjaan — biaya transport dihitung dari titik ini. Jika kurang tepat, tekan <span className="font-semibold text-[#b51822]">Edit</span> untuk memindahkan pin.
+                            </p>
+                          </>
+                        ) : (
+                          <div className="p-2.5 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg flex items-start gap-2">
+                            <AlertTriangle className="w-3.5 h-3.5 text-[#D69E2E] shrink-0 mt-0.5" />
+                            <p className="text-[11px] text-[#744210] leading-snug">
+                              Alamat ini belum memiliki titik koordinat di peta. Tekan <span className="font-semibold">Edit</span> untuk menandai lokasi agar biaya transport akurat.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <Button variant="outline" className="w-full border-dashed border-2 border-[#e5e2e1] text-[#b51822] hover:bg-[#FFF5F5] hover:border-[#b51822]/50 rounded-xl" onClick={() => router.push('/profile/addresses/new')}>

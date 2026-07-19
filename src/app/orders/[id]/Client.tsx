@@ -934,13 +934,13 @@ export default function OrderDetailClient() {
                 <p className="font-semibold text-[#744210] mb-1">Kebijakan Refund:</p>
                 <div className="flex items-start gap-1.5">
                   <span className="text-[#38A169] font-bold shrink-0">✓</span>
-                  <span className="text-[#5b403e]"><strong>Batalkan ≥24 jam sebelum jadwal</strong> → Refund 80% biaya jasa + biaya transport ke dompet</span>
+                  <span className="text-[#5b403e]"><strong>Kamu batalkan pesanan ini</strong> → Refund 80% biaya jasa + 100% biaya transport ke dompet</span>
                 </div>
                 <div className="flex items-start gap-1.5">
-                  <span className="text-[#DD6B20] font-bold shrink-0">!</span>
-                  <span className="text-[#5b403e]"><strong>Batalkan &lt;24 jam sebelum jadwal</strong> → Refund 50% biaya jasa ke dompet</span>
+                  <span className="text-[#38A169] font-bold shrink-0">✓</span>
+                  <span className="text-[#5b403e]"><strong>Mitra membatalkan / tidak datang</strong> → Refund 100% biaya jasa + transport ke dompet</span>
                 </div>
-                <p className="text-[#9e8e8c] pt-1 border-t border-[#F6E05E]">Biaya layanan platform tidak dikembalikan.</p>
+                <p className="text-[#9e8e8c] pt-1 border-t border-[#F6E05E]">Biaya admin/layanan platform tidak dikembalikan.</p>
               </div>
             ) : (
               <p className="text-sm text-[#5b403e] mb-4">
