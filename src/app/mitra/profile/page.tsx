@@ -53,8 +53,7 @@ export default function MitraProfilePage() {
       });
       
       if (res.success) {
-        const { fetchUser } = useAuthStore.getState();
-        await fetchUser();
+        useAuthStore.getState().updateUser({ avatar_url: fileUrl });
       } else {
         alert(res.message || 'Gagal memperbarui foto profil');
       }

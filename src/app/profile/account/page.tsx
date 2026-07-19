@@ -58,9 +58,8 @@ export default function AccountPage() {
     if (res.success) {
       showToast('Profil berhasil diperbarui');
       setIsEditing(false);
-      // PENTING: Refresh user object in authStore
-      const { fetchUser } = useAuthStore.getState();
-      await fetchUser();
+      // Update user object di authStore (nama/email berubah)
+      useAuthStore.getState().updateUser({ name, email });
     } else {
       setError(res.message || 'Gagal memperbarui profil');
     }
@@ -85,8 +84,7 @@ export default function AccountPage() {
       
       if (res.success) {
         showToast('Foto profil berhasil diperbarui');
-        const { fetchUser } = useAuthStore.getState();
-        await fetchUser();
+        useAuthStore.getState().updateUser({ avatar_url: fileUrl });
       } else {
         showToast(res.message || 'Gagal memperbarui foto profil', 'error');
       }
