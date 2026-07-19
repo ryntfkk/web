@@ -1,18 +1,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Lock, ShieldCheck } from 'lucide-react';
+import { Lock, ShieldCheck, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 
 export default function SecurityPage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
-  const router = useRouter();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -61,16 +58,7 @@ export default function SecurityPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Header */}
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Keamanan Akun</h1>
-        </div>
-      </div>
+      <MobilePageHeader title="Keamanan Akun" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Keamanan Akun</h1>

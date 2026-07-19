@@ -43,7 +43,7 @@ export default function ScheduleView({
 }: ScheduleViewProps) {
   if (isLoading) {
     return (
-      <div className="rounded-[4px] border border-[#e5e2e1] bg-white p-4">
+      <div className="rounded-xs border border-[#e5e2e1] bg-white p-4">
         <div className="flex items-center gap-2 mb-3">
           <Clock className="w-4 h-4 text-[#5b403e]" />
           <h3 className="text-[14px] sm:text-[15px] font-semibold text-[#1c1b1b]">
@@ -64,7 +64,7 @@ export default function ScheduleView({
 
   if (!workingHours || workingHours.length === 0) {
     return (
-      <div className="rounded-[4px] border border-[#e5e2e1] bg-white p-4">
+      <div className="rounded-xs border border-[#e5e2e1] bg-white p-4">
         <div className="flex items-center gap-2 mb-2">
           <CalendarOff className="w-4 h-4 text-[#8f6f6d]" />
           <h3 className="text-[14px] sm:text-[15px] font-semibold text-[#1c1b1b]">
@@ -84,7 +84,7 @@ export default function ScheduleView({
   );
 
   return (
-    <div className="rounded-[4px] border border-[#e5e2e1] bg-white p-4">
+    <div className="rounded-xs border border-[#e5e2e1] bg-white p-4">
       <div className="flex items-center gap-2 mb-3">
         <Clock className="w-4 h-4 text-[#5b403e]" />
         <h3 className="text-[14px] sm:text-[15px] font-semibold text-[#1c1b1b]">

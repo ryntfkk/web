@@ -1,13 +1,14 @@
 "use client";
+import { useToast } from '@/components/ui/toast';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Pencil, Trash2, X } from 'lucide-react';
+import { MapPin, Pencil, Trash2, X, Home, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Loader2 } from 'lucide-react';
 import { unwrapData } from '@/lib/order-utils';
 
@@ -28,12 +29,8 @@ export default function AddressesPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   useEffect(() => {
     
@@ -79,25 +76,8 @@ export default function AddressesPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
 
-      {/* Header */}
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-            </button>
-            <h1 className="text-base font-bold text-[#1c1b1b]">Buku Alamat</h1>
-          </div>
-        </div>
-      </div>
+      <MobilePageHeader title="Buku Alamat" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b]">Buku Alamat</h1>
@@ -119,7 +99,18 @@ export default function AddressesPage() {
             <div key={a.id} className={`bg-white rounded-xl border p-4 transition-colors ${a.is_default ? 'border-[#b51822]' : 'border-[#e5e2e1]'}`}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-[#1c1b1b]">{a.label}</h3>
+                  <h3 className="font-bold text-[#1c1b1b] flex items-center gap-1.5">
+                    {(() => {
+                      const l = a.label.toLowerCase();
+                      const Icon = l.includes('rumah') || l.includes('home')
+                        ? Home
+                        : l.includes('kantor') || l.includes('kerja') || l.includes('office')
+                          ? Briefcase
+                          : MapPin;
+                      return <Icon className="w-4 h-4 text-[#b51822] shrink-0" />;
+                    })()}
+                    {a.label}
+                  </h3>
                   {a.is_default && (
                     <span className="bg-[#b51822] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
                       Utama

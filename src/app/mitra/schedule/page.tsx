@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from '@/components/ui/toast';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -37,7 +38,7 @@ export default function MitraSchedulePage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
   const [activeOrderCount, setActiveOrderCount] = useState(0);
   const [showWarningModal, setShowWarningModal] = useState(false);
   // Jadwal di DB. Selama belum tersimpan, nilai di layar hanyalah default UI
@@ -147,22 +148,12 @@ export default function MitraSchedulePage() {
     setSaving(false);
   };
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
 
       {/* Header */}
       <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">

@@ -37,7 +37,7 @@ export function ServiceCard({
   return (
     <div
       className={cn(
-        "flex flex-col bg-white border border-[#e5e2e1] rounded-[4px] overflow-hidden cursor-pointer hover:shadow-md transition-all",
+        "flex flex-col bg-white border border-[#e5e2e1] rounded-xs overflow-hidden cursor-pointer hover:shadow-md transition-all",
         className
       )}
     >
@@ -74,7 +74,7 @@ export function ServiceCard({
 
         {/* Vendor Row - Avatar + Category */}
         <div className="flex items-center gap-1 mt-0.5 sm:mt-1">
-          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-[10px] sm:rounded-[12px] bg-[#e5e2e1] flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg sm:rounded-xl bg-[#e5e2e1] flex items-center justify-center overflow-hidden flex-shrink-0">
             {vendorAvatar ? (
               <Image
                 src={vendorAvatar}

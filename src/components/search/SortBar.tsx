@@ -10,16 +10,16 @@ export default function SortBar({ onOpenFilter, sort, onSortChange }: SortBarPro
   const getButtonClass = (value: string) => {
     const isActive = sort === value;
     return isActive
-      ? "bg-[#b51822] text-white text-[12px] md:text-[14px] font-medium py-1 px-2.5 md:py-[6px] md:px-[16px] rounded-[4px] whitespace-nowrap transition-colors"
-      : "bg-white border border-[#e5e2e1] text-[#1c1b1b] text-[12px] md:text-[14px] py-1 px-2.5 md:py-[7px] md:px-[17px] rounded-[4px] hover:border-[#b51822] whitespace-nowrap transition-all";
+      ? "bg-[#b51822] text-white text-[12px] md:text-[14px] font-medium py-1 px-2.5 md:py-[6px] md:px-[16px] rounded-xs whitespace-nowrap transition-colors"
+      : "bg-white border border-[#e5e2e1] text-[#1c1b1b] text-[12px] md:text-[14px] py-1 px-2.5 md:py-[7px] md:px-[17px] rounded-xs hover:border-[#b51822] whitespace-nowrap transition-all";
   };
   return (
-    <div className="flex items-center gap-1.5 md:gap-4 bg-[#f6f3f2] border border-[#e5e2e1] rounded-[4px] p-1.5 md:p-[9px] w-full overflow-x-auto scrollbar-hide">
+    <div className="flex items-center gap-1.5 md:gap-4 bg-[#f6f3f2] border border-[#e5e2e1] rounded-xs p-1.5 md:p-[9px] w-full overflow-x-auto scrollbar-hide">
       
       {/* Mobile Filter Button */}
       <button 
         onClick={onOpenFilter}
-        className="md:hidden flex items-center gap-1 bg-white border border-[#e5e2e1] text-[#1c1b1b] text-[12px] md:text-[14px] font-medium py-1 px-2 md:py-[7px] md:px-3 rounded-[4px] whitespace-nowrap transition-all shadow-sm"
+        className="md:hidden flex items-center gap-1 bg-white border border-[#e5e2e1] text-[#1c1b1b] text-[12px] md:text-[14px] font-medium py-1 px-2 md:py-[7px] md:px-3 rounded-xs whitespace-nowrap transition-all shadow-sm"
       >
         <SlidersHorizontal className="w-3 h-3 md:w-4 md:h-4" />
         Filter

@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from '@/components/ui/toast';
 
 import { getInitial } from '@/lib/utils';
 import { useEffect, useState, useCallback } from 'react';
@@ -199,7 +200,7 @@ export default function MitraOrderDetailClient() {
   const [order, setOrder] = useState<MitraOrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -211,10 +212,6 @@ export default function MitraOrderDetailClient() {
   const [rejectReason, setRejectReason] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   const fetchOrder = useCallback(async () => {
     const res = await fetchAPI<MitraOrderDetail | { data: MitraOrderDetail }>(`/orders/${orderId}`);
@@ -464,11 +461,6 @@ export default function MitraOrderDetailClient() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-40 lg:pb-10">
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg text-white text-sm font-medium shadow-lg ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
 
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-3 sticky top-0 z-30 lg:hidden">
         <div className="flex items-center gap-3">

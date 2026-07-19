@@ -18,6 +18,7 @@ export interface ServiceDetail {
   partner_avatar_url: string;
   partner_avg_rating: number;
   partner_total_reviews: number;
+  partner_city: string;
   category_id: string;
   category_name: string;
   name: string;

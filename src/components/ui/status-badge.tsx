@@ -24,23 +24,27 @@ interface StatusConfig {
   icon: React.ElementType;
 }
 
+// Warna status di-anchor ke palet brand (globals.css @theme) untuk status
+// semantik: warning/orange/info/success/error. Purple & indigo dipertahankan
+// (tidak ada padanan token) agar 9 status tetap mudah dibedakan sekilas.
+// Teks memakai shade .800 senada agar kontras memenuhi WCAG di atas bg -light.
 const STATUS_MAP: Record<OrderStatus, StatusConfig> = {
   WAITING_CONFIRMATION: {
     label: 'Menunggu Konfirmasi',
-    color: 'text-yellow-800',
-    bg: 'bg-yellow-100 border-yellow-200',
+    color: 'text-[#744210]',
+    bg: 'bg-brand-warning-light border-[#FAF089]',
     icon: Clock,
   },
   WAITING_PAYMENT: {
     label: 'Menunggu Pembayaran',
-    color: 'text-orange-800',
-    bg: 'bg-orange-100 border-orange-200',
+    color: 'text-[#7B341E]',
+    bg: 'bg-brand-orange-light border-[#FBD38D]',
     icon: CreditCard,
   },
   PAID: {
     label: 'Dibayar',
-    color: 'text-blue-800',
-    bg: 'bg-blue-100 border-blue-200',
+    color: 'text-[#2A4365]',
+    bg: 'bg-brand-info-light border-[#90CDF4]',
     icon: CheckCircle,
   },
   IN_PROGRESS: {
@@ -63,20 +67,20 @@ const STATUS_MAP: Record<OrderStatus, StatusConfig> = {
   },
   COMPLETED: {
     label: 'Selesai',
-    color: 'text-green-800',
-    bg: 'bg-green-100 border-green-200',
+    color: 'text-[#22543D]',
+    bg: 'bg-brand-success-light border-[#9AE6B4]',
     icon: CheckCircle,
   },
   CANCELLED: {
     label: 'Dibatalkan',
-    color: 'text-red-800',
-    bg: 'bg-red-100 border-red-200',
+    color: 'text-[#822727]',
+    bg: 'bg-brand-error-light border-[#FEB2B2]',
     icon: XCircle,
   },
   DISPUTED: {
     label: 'Sengketa',
-    color: 'text-red-900',
-    bg: 'bg-red-200 border-red-300',
+    color: 'text-[#822727]',
+    bg: 'bg-[#FEB2B2] border-[#FC8181]',
     icon: AlertTriangle,
   },
 };

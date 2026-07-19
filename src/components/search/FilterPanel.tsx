@@ -38,7 +38,7 @@ export default function FilterPanel({
       {/* Panel */}
       <aside
         className={`
-        fixed md:static inset-y-0 right-0 z-[61] w-[280px] md:w-[256px] shrink-0 bg-white border-l md:border border-[#e5e2e1] md:rounded-[4px] p-[17px]
+        fixed md:static inset-y-0 right-0 z-[61] w-[280px] md:w-[256px] shrink-0 bg-white border-l md:border border-[#e5e2e1] md:rounded-xs p-[17px]
         flex flex-col gap-6 h-full md:h-max overflow-y-auto md:overflow-visible transition-transform duration-300
         ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
         ${!isOpen && 'hidden md:flex'}
@@ -61,7 +61,7 @@ export default function FilterPanel({
           <select
             value={city}
             onChange={(e) => onCityChange(e.target.value)}
-            className="w-full p-2.5 border border-[#e5e2e1] rounded-[4px] text-[14px] text-[#1c1b1b] bg-white focus:outline-none focus:border-[#b51822]"
+            className="w-full p-2.5 border border-[#e5e2e1] rounded-xs text-[14px] text-[#1c1b1b] bg-white focus:outline-none focus:border-[#b51822]"
           >
             <option value="">Semua Kota</option>
             {cities?.map((c) => (
@@ -107,7 +107,7 @@ export default function FilterPanel({
         {/* Reset */}
         <Button
           variant="secondary"
-          className="w-full mt-2 rounded-[4px] py-[9px] h-auto text-[14px] font-bold disabled:opacity-50"
+          className="w-full mt-2 rounded-xs py-[9px] h-auto text-[14px] font-bold disabled:opacity-50"
           disabled={!hasActiveFilter}
           onClick={() => {
             onCityChange('');

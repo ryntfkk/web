@@ -1,7 +1,8 @@
 'use client';
 
+import { useToast } from '@/components/ui/toast';
 import { getInitial } from '@/lib/utils';
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -18,15 +19,18 @@ import {
   Heart,
   Share2,
   X,
+  MapPin,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDetail';
 import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRecentlyViewedStore } from '@/lib/store/recentlyViewedStore';
 import ScheduleView from '@/components/service/ScheduleView';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
 import { unitLabel } from '@/lib/order-utils';
+import { formatDistanceMeters } from '@/lib/distance';
 
 
 
@@ -35,6 +39,9 @@ function DetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const serviceId = searchParams.get('id') || '';
+  const distanceStr = searchParams.get('distance');
+  const distance = distanceStr ? formatDistanceMeters(Number(distanceStr)) : null;
+
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
@@ -51,16 +58,27 @@ function DetailContent() {
 
   const inCart = service ? isInCart(service.id) : false;
 
+  // Catat ke "Baru Dilihat" (localStorage) tiap kali detail layanan dibuka.
+  const recordView = useRecentlyViewedStore((s) => s.record);
+  useEffect(() => {
+    if (!service) return;
+    recordView({
+      service_id: service.id,
+      service_name: service.name,
+      price: service.price,
+      photo_url: service.photo_url || PLACEHOLDER_SERVICE,
+      partner_username: service.partner_username,
+      category_name: service.category_name,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [service?.id]);
+
   // Favorit
   const { data: favServices } = useFavoriteServices();
   const { addService, removeService } = useFavoritesActions();
   const [favBusy, setFavBusy] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   const isFav = !!(service && favServices?.some((f) => f.service_id === service.id));
 
@@ -241,6 +259,14 @@ function DetailContent() {
             <div className="w-full md:w-[42%] p-3 sm:p-4">
               {/* Main Image — swipeable carousel (all photos) */}
               <div className="relative w-full aspect-square bg-[#fafafa] rounded-md overflow-hidden group">
+                {/* Distance Badge */}
+                {distance && (
+                  <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded flex items-center gap-1 z-10">
+                    <MapPin className="w-3 h-3" />
+                    <span className="text-[11px] sm:text-[12px] font-medium leading-none">{distance}</span>
+                  </div>
+                )}
+                
                 <div
                   ref={carouselRef}
                   onScroll={handleCarouselScroll}
@@ -386,19 +412,29 @@ function DetailContent() {
 
               {/* Partner */}
               <Link href={`/${service.partner_username}`}
-                className="flex items-center gap-3 p-3 bg-[#fafafa] rounded-md hover:bg-[#f0eded] transition-colors mb-4">
-                <div className="w-12 h-12 rounded-full bg-[#e5e2e1] overflow-hidden flex-shrink-0">
-                  {service.partner_avatar_url ? (
-                    <Image src={service.partner_avatar_url} alt={service.partner_name} width={48} height={48} className="object-cover w-full h-full" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-[#5b403e]">
-                      {getInitial(service.partner_name)}
-                    </div>
-                  )}
+                className="flex items-center justify-between p-3 bg-[#fafafa] rounded-md hover:bg-[#f0eded] transition-colors mb-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-[#e5e2e1] overflow-hidden flex-shrink-0">
+                    {service.partner_avatar_url ? (
+                      <Image src={service.partner_avatar_url} alt={service.partner_name} width={48} height={48} className="object-cover w-full h-full" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-[#5b403e]">
+                        {getInitial(service.partner_name)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1c1b1b] truncate">{service.partner_name}</p>
+                    {service.partner_city && (
+                      <div className="flex items-center gap-1 text-xs text-[#5b403e] mt-0.5">
+                        <MapPin className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">{service.partner_city}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#1c1b1b]">{service.partner_name}</p>
-                  <p className="text-xs text-[#5b403e]">Lihat profil →</p>
+                <div className="flex-shrink-0 ml-2">
+                  <span className="text-[11px] font-medium text-[#b51822] bg-white border border-[#b51822] px-2.5 py-1.5 rounded-md">Lihat Profil</span>
                 </div>
               </Link>
 
@@ -541,12 +577,6 @@ function DetailContent() {
         </div>
       )}
 
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
 
       {/* Gallery Modal */}
       {showGallery && hasMultiplePhotos && (

@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from '@/components/ui/toast';
 
 import { useState, useRef } from 'react';
 import { User, Phone, Mail, Loader2, Camera } from 'lucide-react';
@@ -19,7 +20,7 @@ export default function AccountPage() {
   const [email, setEmail] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,10 +34,6 @@ export default function AccountPage() {
     }
   };
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,12 +95,6 @@ export default function AccountPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24 relative">
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
 
       <MobilePageHeader title="Informasi Akun" backHref="/profile" />
 

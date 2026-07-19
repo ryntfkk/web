@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from '@/components/ui/toast';
 
 import { getInitial } from '@/lib/utils';
 import React, { useEffect, useState, useCallback } from 'react';
@@ -203,7 +204,7 @@ export default function OrderDetailClient() {
   const [actionLoading, setActionLoading] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
@@ -211,10 +212,6 @@ export default function OrderDetailClient() {
   
   const isSubmittingRef = React.useRef(false);
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   const fetchOrder = useCallback(async () => {
     // Beberapa endpoint membungkus payload dua kali ({ data: { data } }),
@@ -509,12 +506,6 @@ export default function OrderDetailClient() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-28 lg:pb-10">
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg text-white text-sm font-medium shadow-lg ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
-
       {/* Header mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-[#e5e2e1] px-4 py-3 sticky top-0 z-30 lg:hidden">
         <div className="flex items-center gap-3">

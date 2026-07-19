@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from '@/components/ui/toast';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -48,7 +49,7 @@ export default function AdditionalFeeClient() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!isAuthorized || !orderId) return;
@@ -65,10 +66,6 @@ export default function AdditionalFeeClient() {
     setLoading(false);
   };
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   const handleApprove = async () => {
     const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
@@ -167,11 +164,6 @@ export default function AdditionalFeeClient() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
 
       {/* Header */}
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}

@@ -130,7 +130,7 @@ export default function TopNavbar() {
                   <div className="flex items-center gap-2 lg:gap-4 animate-pulse">
                     <div className="hidden lg:block w-8 h-8 bg-[#e5e2e1] rounded-full" />
                     <div className="hidden lg:block w-8 h-8 bg-[#e5e2e1] rounded-full" />
-                    <div className="w-8 h-8 bg-[#e5e2e1] rounded-[12px]" />
+                    <div className="w-8 h-8 bg-[#e5e2e1] rounded-xl" />
                   </div>
                 ) : isAuthenticated ? (
                   <>
@@ -167,7 +167,7 @@ export default function TopNavbar() {
                           aria-expanded={isDropdownOpen}
                           aria-haspopup="true"
                         >
-                          <div className="w-8 h-8 rounded-[12px] border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
+                          <div className="w-8 h-8 rounded-xl border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
                             {userAvatar ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />

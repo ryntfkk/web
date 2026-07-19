@@ -5,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import { Stepper } from '@/components/ui/stepper';
+import { PasswordStrength } from '@/components/ui/password-strength';
 
 export default function RegisterPage() {
   const { sendOTP, verifyOTPAndRegister, loading, error, isAuthenticated } = useAuth();
@@ -52,15 +54,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="page-h bg-neutral-50 flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
+    <div className="page-h bg-[#f7f5f4] flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <h2 className="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-neutral-900">
+        <Stepper steps={['Nomor HP', 'Verifikasi', 'Profil']} current={step} className="mb-6 max-w-xs mx-auto" />
+        <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-[#1c1b1b]">
           {step === 1 && 'Daftar Akun Baru'}
           {step === 2 && 'Verifikasi OTP'}
           {step === 3 && 'Lengkapi Profil Anda'}
         </h2>
         {step === 1 && (
-          <p className="mt-2 text-center text-sm text-neutral-600">
+          <p className="mt-2 text-center text-sm text-[#5b403e]">
             Sudah punya akun?{' '}
             <Link href="/login" className="font-medium text-[#b51822] hover:text-[#90121a]">
               Masuk di sini
@@ -68,7 +71,7 @@ export default function RegisterPage() {
           </p>
         )}
         {step === 2 && (
-          <p className="mt-2 text-center text-sm text-neutral-600">
+          <p className="mt-2 text-center text-sm text-[#5b403e]">
             Masukkan kode 6 digit yang dikirim ke {phone}
           </p>
         )}
@@ -85,7 +88,7 @@ export default function RegisterPage() {
           {step === 1 && (
             <form className="space-y-6" onSubmit={handleSendOTP}>
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="phone" className="block text-sm font-medium text-[#1c1b1b]">
                   Nomor Handphone
                 </label>
                 <div className="mt-1">
@@ -96,7 +99,7 @@ export default function RegisterPage() {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2.5 border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                     placeholder="081234567890"
                   />
                 </div>
@@ -117,7 +120,7 @@ export default function RegisterPage() {
           {step === 2 && (
             <form className="space-y-6" onSubmit={handleVerifyOTPLocal}>
               <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="otp" className="block text-sm font-medium text-[#1c1b1b]">
                   Kode OTP
                 </label>
                 <div className="mt-1">
@@ -131,7 +134,7 @@ export default function RegisterPage() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-300 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
+                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
                     placeholder="••••••"
                   />
                 </div>
@@ -149,7 +152,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-md shadow-sm text-sm font-bold text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-[#e5e2e1] rounded-md shadow-sm text-sm font-bold text-[#1c1b1b] bg-white hover:bg-[#f7f5f4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Ganti Nomor HP
@@ -161,7 +164,7 @@ export default function RegisterPage() {
           {step === 3 && (
             <form className="space-y-6" onSubmit={handleRegister}>
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="username" className="block text-sm font-medium text-[#1c1b1b]">
                   Username
                 </label>
                 <div className="mt-1">
@@ -172,14 +175,14 @@ export default function RegisterPage() {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2.5 border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                     placeholder="username123"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="name" className="block text-sm font-medium text-[#1c1b1b]">
                   Nama Lengkap
                 </label>
                 <div className="mt-1">
@@ -190,14 +193,14 @@ export default function RegisterPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2.5 border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                     placeholder="Budi Santoso"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="password" className="block text-sm font-medium text-[#1c1b1b]">
                   Buat Password
                 </label>
                 <div className="mt-1 relative">
@@ -209,7 +212,7 @@ export default function RegisterPage() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
+                    className="appearance-none block w-full px-3 py-2.5 border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
                     placeholder="Minimal 8 karakter"
                   />
                   <button
@@ -218,12 +221,13 @@ export default function RegisterPage() {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-neutral-400" />
+                      <EyeOff className="h-5 w-5 text-[#8f6f6d]" />
                     ) : (
-                      <Eye className="h-5 w-5 text-neutral-400" />
+                      <Eye className="h-5 w-5 text-[#8f6f6d]" />
                     )}
                   </button>
                 </div>
+                <PasswordStrength password={password} />
               </div>
 
               <div className="flex flex-col space-y-4">
@@ -238,7 +242,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-md shadow-sm text-sm font-bold text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-[#e5e2e1] rounded-md shadow-sm text-sm font-bold text-[#1c1b1b] bg-white hover:bg-[#f7f5f4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Kembali

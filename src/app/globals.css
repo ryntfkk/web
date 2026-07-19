@@ -10,8 +10,6 @@
    di SEMUA halaman yang memakai MapPicker (alamat, basecamp), bukan hanya register. */
 @import "leaflet/dist/leaflet.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -150,39 +148,9 @@
   --sidebar-ring: #b51822;
 }
 
-.dark {
-  --background: #1c1b1b;
-  --foreground: #ffffff;
-  --card: #1c1b1b;
-  --card-foreground: #ffffff;
-  --popover: #1c1b1b;
-  --popover-foreground: #ffffff;
-  --primary: #b51822;
-  --primary-foreground: #ffffff;
-  --secondary: #5b403e;
-  --secondary-foreground: #ffffff;
-  --muted: #5b403e;
-  --muted-foreground: #e5e2e1;
-  --accent: #5b403e;
-  --accent-foreground: #ffffff;
-  --destructive: #E53E3E;
-  --border: #5b403e;
-  --input: #5b403e;
-  --ring: #b51822;
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: #1c1b1b;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #b51822;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #5b403e;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #5b403e;
-  --sidebar-ring: #b51822;
-}
+/* Catatan: tema .dark dihapus 2026-07-19 — dead code (tidak ada toggle & tidak
+   ada utility `dark:`; warna di-hardcode hex di seluruh halaman). Dark mode yang
+   sebenarnya adalah proyek terpisah: perlu migrasi hex → token semantik dulu. */
 
 @layer base {
   * {

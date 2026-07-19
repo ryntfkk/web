@@ -11,8 +11,8 @@ import { formatDistanceMeters } from '@/lib/distance';
 export function ServiceProductCard({ service }: { service: PublicService }) {
   const distance = formatDistanceMeters(service.distance_meters);
   return (
-    <Link href={`/services?id=${service.id}`} className="block">
-      <div className="bg-white border border-[#e5e2e1] rounded-[4px] overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
+    <Link href={`/services?id=${service.id}&distance=${service.distance_meters || 0}`} className="block">
+      <div className="bg-white border border-[#e5e2e1] rounded-xs overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
         {/* Image */}
         <div className="relative w-full aspect-square bg-[#e5e2e1] flex-shrink-0">
           <Image

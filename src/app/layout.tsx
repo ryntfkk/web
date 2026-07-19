@@ -9,6 +9,7 @@ import AuthProvider from "@/components/providers/auth-provider";
 import { ChatProvider } from "@/components/providers/chat-provider";
 import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 import { DevNoticeModal } from "@/components/ui/dev-notice-modal";
+import { Toaster } from "@/components/ui/toast";
 
 // Load Inter font with proper weights
 // Dipetakan ke --font-sans lewat @theme di globals.css. Namanya sengaja bukan
@@ -43,6 +44,7 @@ export default function RootLayout({
               <BottomNav />
               <FloatingChatWrapper />
               <DevNoticeModal />
+              <Toaster />
             </ChatProvider>
           </AuthProvider>
         </QueryProvider>

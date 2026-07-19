@@ -9,6 +9,7 @@ import CitySelector from '@/components/home/CitySelector';
 import TopPartnersSection from '@/components/home/TopPartnersSection';
 import FeaturedServicesSection from '@/components/home/FeaturedServicesSection';
 import ProductsSection from '@/components/home/ProductsSection';
+import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
 
 export default function Home() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function Home() {
         <div className="flex justify-center mb-4 sm:mb-6">
           <CitySelector />
         </div>
+        <RecentlyViewedSection />
         <ProductsSection />
         <TopPartnersSection />
         <FeaturedServicesSection />

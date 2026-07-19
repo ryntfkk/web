@@ -6,20 +6,42 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2 } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { useCartStore } from '@/lib/store/cartStore';
+import { useToast } from '@/components/ui/toast';
+import { PLACEHOLDER_SERVICE } from '@/lib/images';
 
 interface OrderItem {
   id: string;
+  service_id?: string;
   service_name: string;
   name?: string;
   quantity: number;
   price: number;
   photo_url?: string;
   service_photo_url?: string;
+}
+
+// Respons GET /orders/:id/reorder
+interface ReorderItem {
+  service_id: string;
+  service_name: string;
+  quantity: number;
+  photo_url?: string;
+  original_price: number;
+  current_price: number;
+  available: boolean;
+  price_changed: boolean;
+}
+interface ReorderResponse {
+  partner_id: string;
+  partner_username: string;
+  partner_name: string;
+  items: ReorderItem[];
 }
 
 interface Order {
@@ -34,6 +56,8 @@ interface Order {
   address?: string;
   partner_name?: string;
   partner_avatar?: string;
+  // API mengembalikan info mitra ter-nest di `partner` (bukan partner_name di root).
+  partner?: { id: string; username: string; name: string; avatar_url?: string };
   items: OrderItem[];
   notes?: string;
   agreed_price?: number;
@@ -47,6 +71,10 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
+  const [search, setSearch] = useState('');
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
+  const { addItem } = useCartStore();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -72,7 +100,57 @@ export default function OrdersPage() {
     }
   };
 
-  const filteredOrders = orders.filter(order => matchesFilter(order.status, activeFilter));
+  const handleReorder = async (orderId: string) => {
+    setReorderingId(orderId);
+    try {
+      const res = await fetchAPI<ReorderResponse>(`/orders/${orderId}/reorder`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!res.success || !res.data) {
+        showToast('Gagal memuat pesanan ulang', 'error');
+        return;
+      }
+      const data = unwrapData<ReorderResponse>(res.data);
+      const available = data.items.filter((i) => i.available);
+      if (available.length === 0) {
+        showToast('Layanan pada pesanan ini sudah tidak tersedia', 'error');
+        return;
+      }
+      available.forEach((i) =>
+        addItem({
+          service_id: i.service_id,
+          partner_id: data.partner_id,
+          partner_username: data.partner_username,
+          service_name: i.service_name,
+          price: i.current_price,
+          photo_url: i.photo_url || PLACEHOLDER_SERVICE,
+        }),
+      );
+      const unavailable = data.items.length - available.length;
+      const priceChanged = available.some((i) => i.price_changed);
+      let msg = `${available.length} layanan ditambahkan ke keranjang`;
+      if (unavailable > 0) msg += ` · ${unavailable} tak tersedia`;
+      if (priceChanged) msg += ' · harga diperbarui';
+      showToast(msg, unavailable > 0 || priceChanged ? 'info' : 'success');
+      router.push('/cart');
+    } finally {
+      setReorderingId(null);
+    }
+  };
+
+  const searchQuery = search.trim().toLowerCase();
+  const filteredOrders = orders
+    .filter(order => matchesFilter(order.status, activeFilter))
+    .filter(order => {
+      if (!searchQuery) return true;
+      const inNumber = order.order_number?.toLowerCase().includes(searchQuery);
+      const inPartner = order.partner_name?.toLowerCase().includes(searchQuery);
+      const inItems = order.items?.some(it =>
+        (it.service_name || it.name || '').toLowerCase().includes(searchQuery),
+      );
+      return Boolean(inNumber || inPartner || inItems);
+    });
 
   const filterCounts = {
     all: orders.length,
@@ -164,6 +242,18 @@ export default function OrdersPage() {
           </div>
 
           <div className="flex-1 space-y-4 min-w-0">
+            {/* Search */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-[#8f6f6d] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cari no. pesanan, mitra, atau layanan…"
+                className="w-full pl-9 pr-3 py-2.5 rounded-md text-sm bg-white border border-[#e5e2e1] text-[#1c1b1b] focus:outline-none focus:border-[#b51822] focus:ring-1 focus:ring-[#b51822]"
+              />
+            </div>
+
             {loading ? (
               <>
                 {[1, 2, 3].map(i => (
@@ -186,14 +276,16 @@ export default function OrdersPage() {
               <div className="bg-white rounded-md border border-[#e5e2e1] p-8 text-center">
                 <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-[#32201f] mb-2">
-                  {activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
+                  {searchQuery ? 'Tidak Ada Hasil' : activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
                 </h3>
                 <p className="text-sm text-[#8f6f6d] mb-6">
-                  {activeFilter === 'all'
-                    ? 'Anda belum memiliki pesanan. Mulai pesan jasa sekarang!'
-                    : 'Tidak ada pesanan dengan status ini.'}
+                  {searchQuery
+                    ? `Tidak ada pesanan yang cocok dengan "${search}".`
+                    : activeFilter === 'all'
+                      ? 'Anda belum memiliki pesanan. Mulai pesan jasa sekarang!'
+                      : 'Tidak ada pesanan dengan status ini.'}
                 </p>
-                {activeFilter === 'all' && (
+                {activeFilter === 'all' && !searchQuery && (
                   <Button onClick={() => router.push('/')} className="rounded-md">
                     Cari Jasa
                   </Button>
@@ -253,18 +345,22 @@ export default function OrdersPage() {
                         )}
                       </div>
 
-                      {/* Partner Info */}
-                      {order.partner_name && (
-                        <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded-md mb-4">
-                          <div className="w-10 h-10 shrink-0 bg-[#e5e2e1] rounded-md flex items-center justify-center text-sm font-bold text-[#5b403e]">
-                            {getInitial(order.partner_name)}
+                      {/* Partner Info — API mengembalikan `partner.name` ter-nest; fallback ke root untuk klien lama. */}
+                      {(() => {
+                        const partnerName = order.partner?.name || order.partner_name;
+                        if (!partnerName) return null;
+                        return (
+                          <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded-md mb-4">
+                            <div className="w-10 h-10 shrink-0 bg-[#e5e2e1] rounded-md flex items-center justify-center text-sm font-bold text-[#5b403e]">
+                              {getInitial(partnerName)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-[#32201f] truncate">{partnerName}</p>
+                              <p className="text-xs text-[#8f6f6d]">Mitra</p>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[#32201f] truncate">{order.partner_name}</p>
-                            <p className="text-xs text-[#8f6f6d]">Mitra</p>
-                          </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {/* Service Info */}
                       {order.service_date || order.scheduled_at ? (
@@ -302,6 +398,21 @@ export default function OrdersPage() {
                                 Ulasan
                               </Button>
                             </Link>
+                          )}
+                          {(order.status === 'COMPLETED' || order.status === 'CANCELLED') && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="flex-1 sm:flex-none border-[#e5e2e1] text-[#5b403e] rounded-md"
+                              disabled={reorderingId === order.id}
+                              onClick={() => handleReorder(order.id)}
+                            >
+                              {reorderingId === order.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <><RotateCcw className="w-4 h-4 mr-1" /> Pesan Lagi</>
+                              )}
+                            </Button>
                           )}
                           <Link href={`/orders/${order.id}`} className="flex-1 sm:flex-none">
                             <Button size="sm" className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-md">

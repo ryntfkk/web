@@ -2,6 +2,9 @@
 
 Reviewed against `DESIGN_GUIDELINES.md` and `globals.css`. Scope: `web/src/app` + shared layout/components. Two problem classes: **[C]** consistency, **[F]** feature/UX.
 
+> [!NOTE]
+> **Status 2026-07-19:** Semua temuan konsistensi **[C]** di bawah sudah diselesaikan (lihat CHANGELOG). Yang tersisa di dokumen ini adalah backlog **[F]** (feature/UX) — belum dikerjakan. Ringkasan penyelesaian ada di bagian [Resolved](#resolved-2026-07-19).
+
 ---
 
 ## Systemic findings (fix once, benefits all pages)
@@ -69,9 +72,19 @@ Reviewed against `DESIGN_GUIDELINES.md` and `globals.css`. Scope: `web/src/app` 
 
 ---
 
-## Priority fixes
-1. **[C1]** Add standard sticky back-header to `profile/favorites` + `profile/notifications`.
-2. **[C3]** Replace all `rounded-[4px]` in `ServiceDetailClient.tsx` with `rounded-md`.
-3. **[C4]** Route `profile/page` status badges through shared `StatusBadge`; unify the status vocabulary; wire `StatusBadge` to brand semantic tokens.
-4. **[C2]** Normalize `favorites`/`notifications` widths to `max-w-lg`.
-5. **[C5]** Fix the three duplicate `/profile/security` links.
+## Resolved (2026-07-19)
+
+Consistency pass shipped — see CHANGELOG `[2026-07-19]`.
+
+- **[C1]** ✅ Back-header standardized. `MobilePageHeader` (now with a `right` action slot) adopted by all 8 pages that hand-rolled it; `favorites`/`notifications` back-buttons restored.
+- **[C2]** ✅ Off-standard widths (`max-w-[900px]`/`[700px]`) normalized to `max-w-lg`. Home/Search keep an intentional, *consistent* `max-w-[1200px]`.
+- **[C3]** ✅ All `rounded-[4px]` → `rounded-xs` (exact 4px token); `[12px]`→`xl`, `[10px]`→`lg`.
+- **[C4]** ✅ `profile` status goes through shared `StatusBadge`; badge wired to brand semantic tokens (`bg-brand-*-light`).
+- **[F0]** ✅ Global `<Toaster/>`/`useToast()`, `<EmptyState/>`, `<Skeleton/>`, `<Stepper/>` created; 12 local toasts migrated; text loaders standardized.
+- **+ Auth:** `login` back-button (mobile); `register` visual `Stepper` + brand recolor.
+- **+ Infra:** `app/loading.tsx`, `app/not-found.tsx` added.
+
+**Deferred (decisions, not misses):** dark-mode `.dark` block is dead code — kept pending a call to implement vs remove (app hardcodes hex, so real dark mode is a large refactor).
+
+## Remaining backlog
+The **[F]** feature/UX items in the page-by-page section above are the open work — none are shipped yet.

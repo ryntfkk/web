@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { safeRedirect } from '@/lib/utils';
 
 function LoginContent() {
@@ -41,6 +41,14 @@ function LoginContent() {
     // Mobile: rata atas dengan padding ringkas agar form langsung terlihat tanpa scroll.
     // Desktop (sm+): tetap terpusat vertikal; 4rem = tinggi TopNavbar (h-16).
     <div className="min-h-[calc(100dvh-4rem)] bg-[#f7f5f4] flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
+      {/* Back button khusus mobile — di mobile TopNavbar disembunyikan di halaman login. */}
+      <Link
+        href="/"
+        aria-label="Kembali ke beranda"
+        className="lg:hidden absolute top-4 left-4 p-2 -ml-1 rounded hover:bg-black/5 text-[#5b403e]"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </Link>
       <div className="mx-auto w-full max-w-md">
         {/* Brand Logo */}
         <div className="flex justify-center mb-4">

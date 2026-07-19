@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign } from 'lucide-react';
+import { Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign, Loader2 } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { EmptyState } from '@/components/ui/empty-state';
 
 
 interface Notification {
@@ -109,24 +108,59 @@ export default function NotificationsPage() {
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
+  const dateBucket = (iso: string): string => {
+    const d = new Date(iso);
+    const now = new Date();
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startYesterday = new Date(startToday); startYesterday.setDate(startToday.getDate() - 1);
+    const startWeek = new Date(startToday); startWeek.setDate(startToday.getDate() - 7);
+    if (d >= startToday) return 'Hari Ini';
+    if (d >= startYesterday) return 'Kemarin';
+    if (d >= startWeek) return 'Minggu Ini';
+    return 'Lebih Lama';
+  };
+  const groupedNotifications = ['Hari Ini', 'Kemarin', 'Minggu Ini', 'Lebih Lama']
+    .map((label) => ({ label, items: filteredNotifications.filter((n) => dateBucket(n.created_at) === label) }))
+    .filter((g) => g.items.length > 0);
+
+  const renderCard = (n: Notification) => (
+    <div
+      key={n.id}
+      onClick={() => handleNotificationClick(n)}
+      className={`bg-white rounded border border-[#e5e2e1] p-4 flex gap-4 cursor-pointer transition-colors ${!n.is_read ? 'bg-[#FFF5F5] border-[#FEB2B2]' : 'hover:bg-[#f7f5f4]'}`}
+    >
+      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-white' : 'bg-[#f7f5f4]'}`}>
+        {getIcon(n.type)}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className={`text-sm mb-1 ${!n.is_read ? 'font-bold text-[#1c1b1b]' : 'font-semibold text-[#5b403e]'}`}>
+          {n.title}
+        </h3>
+        <p className={`text-sm mb-2 leading-snug ${!n.is_read ? 'text-[#32201f]' : 'text-[#9e8e8c]'}`}>
+          {n.body}
+        </p>
+        <p className="text-[10px] text-[#9e8e8c] font-medium uppercase tracking-wide">
+          {formatTime(n.created_at)}
+        </p>
+      </div>
+      {!n.is_read && (
+        <div className="shrink-0 pt-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#b51822]" />
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-            </Link>
-            <h1 className="text-base font-bold text-[#1c1b1b]">Notifikasi</h1>
-          </div>
-          {unreadCount > 0 && (
-            <button onClick={handleMarkAllRead} className="text-sm font-semibold text-[#b51822] hover:underline">
-              Tandai semua dibaca
-            </button>
-          )}
-        </div>
-      </div>
+      <MobilePageHeader
+        title="Notifikasi"
+        right={unreadCount > 0 ? (
+          <button onClick={handleMarkAllRead} className="text-sm font-semibold text-[#b51822] hover:underline">
+            Tandai semua dibaca
+          </button>
+        ) : undefined}
+      />
 
       <div className="hidden lg:flex max-w-lg mx-auto px-4 pt-8 items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-[#1c1b1b]">Notifikasi</h1>
@@ -160,53 +194,33 @@ export default function NotificationsPage() {
           </button>
         </div>
         
-        <div className="space-y-2">
         {loading ? (
-          [1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 flex gap-4 animate-pulse">
-              <div className="w-10 h-10 rounded-full bg-[#e5e2e1] shrink-0" />
-              <div className="flex-1 space-y-2 py-1">
-                <div className="h-4 bg-[#e5e2e1] rounded w-3/4" />
-                <div className="h-3 bg-[#e5e2e1] rounded w-full" />
-                <div className="h-3 bg-[#e5e2e1] rounded w-1/4 mt-2" />
-              </div>
-            </div>
-          ))
-        ) : filteredNotifications.length === 0 ? (
-          <div className="text-center py-10">
-            <Bell className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
-            <p className="text-sm text-[#5b403e]">Belum ada notifikasi.</p>
-          </div>
-        ) : (
-          filteredNotifications.map(n => (
-            <div
-              key={n.id}
-              onClick={() => handleNotificationClick(n)}
-              className={`bg-white rounded border border-[#e5e2e1] p-4 flex gap-4 cursor-pointer transition-colors ${!n.is_read ? 'bg-[#FFF5F5] border-[#FEB2B2]' : 'hover:bg-[#f7f5f4]'}`}
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-white' : 'bg-[#f7f5f4]'}`}>
-                {getIcon(n.type)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className={`text-sm mb-1 ${!n.is_read ? 'font-bold text-[#1c1b1b]' : 'font-semibold text-[#5b403e]'}`}>
-                  {n.title}
-                </h3>
-                <p className={`text-sm mb-2 leading-snug ${!n.is_read ? 'text-[#32201f]' : 'text-[#9e8e8c]'}`}>
-                  {n.body}
-                </p>
-                <p className="text-[10px] text-[#9e8e8c] font-medium uppercase tracking-wide">
-                  {formatTime(n.created_at)}
-                </p>
-              </div>
-              {!n.is_read && (
-                <div className="shrink-0 pt-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#b51822]" />
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 flex gap-4 animate-pulse">
+                <div className="w-10 h-10 rounded-full bg-[#e5e2e1] shrink-0" />
+                <div className="flex-1 space-y-2 py-1">
+                  <div className="h-4 bg-[#e5e2e1] rounded w-3/4" />
+                  <div className="h-3 bg-[#e5e2e1] rounded w-full" />
+                  <div className="h-3 bg-[#e5e2e1] rounded w-1/4 mt-2" />
                 </div>
-              )}
-            </div>
-          ))
+              </div>
+            ))}
+          </div>
+        ) : filteredNotifications.length === 0 ? (
+          <EmptyState icon={Bell} title="Belum Ada Notifikasi" description="Notifikasi pesanan, pembayaran, dan info penting akan muncul di sini." />
+        ) : (
+          <div className="space-y-5">
+            {groupedNotifications.map((group) => (
+              <div key={group.label}>
+                <h2 className="text-xs font-semibold text-[#8f6f6d] uppercase tracking-wide px-1 mb-2">{group.label}</h2>
+                <div className="space-y-2">
+                  {group.items.map(renderCard)}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-        </div>
       </div>
     </div>
   );

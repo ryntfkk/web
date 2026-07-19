@@ -77,8 +77,9 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
   const filteredChats = chats
     .filter((c) => {
       if (!search) return true;
-      const nameToSearch = isMitra ? c.customer_name : c.partner_name;
-      return nameToSearch?.toLowerCase().includes(search.toLowerCase());
+      const q = search.toLowerCase();
+      const name = (isMitra ? c.customer_name : c.partner_name) || '';
+      return name.toLowerCase().includes(q) || (c.last_message || '').toLowerCase().includes(q);
     })
     .sort((a, b) => {
       const timeA = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
@@ -97,7 +98,7 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9e8e8c]" />
           <input
             type="text"
-            placeholder="Cari nama"
+            placeholder="Cari nama atau pesan"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-[#f7f5f4] rounded-lg p-2.5 pl-9 text-sm text-[#1c1b1b] placeholder:text-[#9e8e8c] focus:outline-none focus:ring-1 focus:ring-[#b51822] border-none"

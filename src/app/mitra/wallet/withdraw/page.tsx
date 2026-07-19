@@ -2,10 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Landmark, AlertCircle } from 'lucide-react';
+import { Landmark, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
 
@@ -172,16 +173,7 @@ export default function WithdrawPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Header */}
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button onClick={() => router.push('/mitra/wallet')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Tarik Dana</h1>
-        </div>
-      </div>
+      <MobilePageHeader title="Tarik Dana" backHref="/mitra/wallet" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Tarik Dana</h1>

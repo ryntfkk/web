@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { RefreshCw, Clock, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Breadcrumbs from '@/components/search/Breadcrumbs';
 import FilterPanel from '@/components/search/FilterPanel';
@@ -10,12 +11,25 @@ import { ServiceProductCard } from '@/components/ui/service-product-card';
 import { usePublicServices, PublicService } from '@/hooks/usePublicServices';
 import { useCityFilter } from '@/lib/store/cityFilterStore';
 import { useUserLocation } from '@/hooks/useUserLocation';
+import { useRecentSearchesStore } from '@/lib/store/recentSearchesStore';
 
 interface SearchContentProps {
   query?: string;
 }
 
 export default function SearchContent({ query }: SearchContentProps) {
+  const router = useRouter();
+  const recentTerms = useRecentSearchesStore((s) => s.terms);
+  const recordSearch = useRecentSearchesStore((s) => s.record);
+  const removeSearch = useRecentSearchesStore((s) => s.remove);
+  const clearSearches = useRecentSearchesStore((s) => s.clear);
+  const [mounted, setMounted] = useState(false);
+  React.useEffect(() => setMounted(true), []);
+  React.useEffect(() => {
+    if (query) recordSearch(query);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const { city, setCity } = useCityFilter();
   const { latitude, longitude, hasLocation } = useUserLocation();
@@ -69,6 +83,39 @@ export default function SearchContent({ query }: SearchContentProps) {
   return (
     <>
       <Breadcrumbs query={query} />
+
+      {/* Pencarian terakhir — hanya saat menjelajah tanpa kata kunci */}
+      {mounted && !query && recentTerms.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="flex items-center gap-1.5 text-sm font-semibold text-[#5b403e]">
+              <Clock className="w-4 h-4" /> Pencarian Terakhir
+            </span>
+            <button onClick={clearSearches} className="text-xs font-medium text-[#8f6f6d] hover:text-[#b51822]">
+              Hapus semua
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {recentTerms.map((term) => (
+              <span
+                key={term}
+                className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 bg-white border border-[#e5e2e1] rounded-full text-sm text-[#1c1b1b] hover:border-[#b51822] transition-colors"
+              >
+                <button onClick={() => router.push(`/search?q=${encodeURIComponent(term)}`)} className="truncate max-w-[160px]">
+                  {term}
+                </button>
+                <button
+                  onClick={() => removeSearch(term)}
+                  aria-label={`Hapus ${term}`}
+                  className="p-0.5 rounded-full text-[#8f6f6d] hover:bg-[#f0eded] hover:text-[#b51822]"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Container (Filter + Results) */}
       <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start">

@@ -16,7 +16,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
     return (
       <div className="grid grid-cols-2 gap-2 sm:gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-[260px] bg-gray-100 animate-pulse rounded-[4px]" />
+          <div key={i} className="h-[260px] bg-gray-100 animate-pulse rounded-xs" />
         ))}
       </div>
     );

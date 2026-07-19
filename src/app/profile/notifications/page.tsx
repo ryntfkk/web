@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Bell } from 'lucide-react';
+import { Bell, Loader2 } from 'lucide-react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { useToast } from '@/components/ui/toast';
 import {
   useNotificationPreferences,
   useUpsertPreference,
@@ -45,20 +46,14 @@ function Toggle({
 }
 
 export default function NotificationSettingsPage() {
-  const router = useRouter();
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const { data: prefs, isLoading } = useNotificationPreferences();
   const upsert = useUpsertPreference();
+  const { showToast } = useToast();
   const [busy, setBusy] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   if (authLoading || !isAuthorized) {
-    return <div className="p-6 text-center text-gray-500">Memuat…</div>;
+    return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
   // Default: push ON, email OFF (sesuai default DB) bila belum ada baris preferensi.
@@ -84,25 +79,7 @@ export default function NotificationSettingsPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg transition-all ${toast.type === 'success' ? 'bg-[#38A169]' : 'bg-[#E53E3E]'}`}>
-          {toast.message}
-        </div>
-      )}
-
-      {/* Header */}
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </button>
-          <h1 className="text-base font-bold text-[#1c1b1b] flex items-center gap-2">
-            <Bell className="w-5 h-5 text-[#b51822]" /> Pengaturan Notifikasi
-          </h1>
-        </div>
-      </div>
+      <MobilePageHeader title="Pengaturan Notifikasi" icon={<Bell className="w-5 h-5 text-[#b51822]" />} />
 
       <div className="max-w-lg mx-auto px-4 py-6">
       <h1 className="hidden lg:flex text-2xl font-bold text-[#1c1b1b] items-center gap-2 mb-4">
@@ -111,7 +88,7 @@ export default function NotificationSettingsPage() {
       <p className="text-sm text-[#9e8e8c] mb-5">Atur bagaimana Anda ingin menerima notifikasi.</p>
 
       {isLoading ? (
-        <div className="text-gray-500 py-8 text-center">Memuat preferensi…</div>
+        <div className="flex items-center justify-center py-12"><Loader2 className="w-7 h-7 animate-spin text-primary" /></div>
       ) : (
         <div className="divide-y divide-[#e5e2e1] border border-[#e5e2e1] rounded-lg bg-white">
           <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-4 py-2 text-xs font-semibold text-[#9e8e8c]">

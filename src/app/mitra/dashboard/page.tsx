@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useToast } from '@/components/ui/toast';
 import { Loader2 } from 'lucide-react';
 
 
@@ -45,7 +46,7 @@ export default function MitraDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [togglingStatus, setTogglingStatus] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -83,8 +84,7 @@ export default function MitraDashboardPage() {
     if (res.success) {
       setData({ ...data, status: newStatus });
     } else {
-      setToast('Gagal mengubah status toko. Coba lagi.');
-      setTimeout(() => setToast(null), 3000);
+      showToast('Gagal mengubah status toko. Coba lagi.', 'error');
     }
     setTogglingStatus(false);
   };
@@ -107,12 +107,6 @@ export default function MitraDashboardPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-md text-white text-sm font-medium shadow-lg bg-[#E53E3E]">
-          {toast}
-        </div>
-      )}
 
       {/* Header — z-10 di bawah konten (z-20) agar card overlap tampil di atas background merah */}
       <div className="bg-[#b51822] text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm relative z-10">
