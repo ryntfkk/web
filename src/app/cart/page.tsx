@@ -57,7 +57,10 @@ export default function CartPage() {
       return;
     }
     const ids = group.items.map((i) => i.service_id).join(',');
-    router.push(`/book/${group.partner_username}?service_ids=${ids}`);
+    // Sejajarkan variation_ids dengan service_ids (slot kosong = tanpa variasi).
+    const varIds = group.items.map((i) => i.variation_id ?? '').join(',');
+    const varParam = group.items.some((i) => i.variation_id) ? `&variation_ids=${varIds}` : '';
+    router.push(`/book/${group.partner_username}?service_ids=${ids}${varParam}`);
   };
 
   if (!mounted) {
@@ -122,7 +125,7 @@ export default function CartPage() {
                   {group.items.map((item) => (
                     <ServiceItemCard
                       key={item.service_id}
-                      name={item.service_name}
+                      name={item.variation_name ? `${item.service_name} - ${item.variation_name}` : item.service_name}
                       price={item.price}
                       photoUrl={item.photo_url || undefined}
                       action={

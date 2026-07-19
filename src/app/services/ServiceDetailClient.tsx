@@ -46,6 +46,8 @@ function DetailContent() {
   const [showGallery, setShowGallery] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  // Variasi terpilih (Shopee-style). Kosong = belum memilih.
+  const [selectedVariationId, setSelectedVariationId] = useState<string>('');
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // Halaman ini publik — auth hanya dicek saat user melakukan aksi
@@ -114,13 +116,21 @@ function DetailContent() {
     if (inCart) {
       removeItem(service.id);
     } else {
+      const vars = service.variations ?? [];
+      if (vars.length > 0 && !selectedVariationId) {
+        showToast('Silakan pilih variasi terlebih dahulu', 'error');
+        return;
+      }
+      const v = vars.find((x) => x.id === selectedVariationId);
       addItem({
         service_id: service.id,
         partner_id: service.partner_id,
         partner_username: service.partner_username,
         service_name: service.name,
-        price: service.price,
+        price: v?.price ?? service.price,
         photo_url: service.photo_url || PLACEHOLDER_SERVICE,
+        variation_id: v?.id,
+        variation_name: v?.name,
       });
     }
   };
@@ -131,7 +141,13 @@ function DetailContent() {
       return;
     }
     if (!service) return;
-    router.push(`/book/${service.partner_username}?service_id=${service.id}`);
+    const vars = service.variations ?? [];
+    if (vars.length > 0 && !selectedVariationId) {
+      showToast('Silakan pilih variasi terlebih dahulu', 'error');
+      return;
+    }
+    const q = selectedVariationId ? `&variation_id=${selectedVariationId}` : '';
+    router.push(`/book/${service.partner_username}?service_id=${service.id}${q}`);
   };
 
   const photoCount = service?.photos?.length ?? 0;
@@ -239,6 +255,14 @@ function DetailContent() {
   const allPhotos = hasMultiplePhotos ? service.photos : [{ id: 'main', photo_url: mainPhoto }];
   const includedItems = service.included_items ?? [];
   const excludedItems = service.excluded_items ?? [];
+
+  // Variasi (Shopee-style). Harga besar mengikuti variasi terpilih; sebelum
+  // memilih, tampilkan harga termurah (= service.price dari backend).
+  const variations = service.variations ?? [];
+  const hasVariations = variations.length > 0;
+  const selectedVariation = variations.find((v) => v.id === selectedVariationId) ?? null;
+  const displayPrice = selectedVariation?.price ?? service.price;
+  const minOrder = service.min_order ?? 1;
 
   return (
     <div className="page-h bg-[#f0f0f0] pb-20 sm:pb-4">
@@ -395,11 +419,46 @@ function DetailContent() {
                 <span className="text-xs text-[#5b403e]">Harga</span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl sm:text-3xl font-bold text-[#b51822]">
-                    Rp {service.price.toLocaleString('id-ID')}
+                    Rp {displayPrice.toLocaleString('id-ID')}
                   </span>
                   <span className="text-sm font-normal text-[#5b403e]">/{unitLabel(service.unit)}</span>
                 </div>
+                {minOrder > 1 && (
+                  <p className="text-xs text-[#5b403e] mt-1">Min. order {minOrder} {unitLabel(service.unit)}</p>
+                )}
               </div>
+
+              {/* Variasi (Shopee-style chips) */}
+              {hasVariations && (
+                <div className="mb-4">
+                  <div className="flex items-baseline justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-[#1c1b1b]">Pilih Variasi</h3>
+                    {!selectedVariation && (
+                      <span className="text-xs text-[#b51822]">Wajib dipilih</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {variations.map((v) => {
+                      const active = v.id === selectedVariationId;
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setSelectedVariationId(active ? '' : v.id)}
+                          className={`px-3 py-2 rounded-md border text-sm text-left transition-colors ${
+                            active
+                              ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]'
+                              : 'border-[#e5e2e1] text-[#1c1b1b] hover:border-[#b51822]/50'
+                          }`}
+                        >
+                          <span className="font-medium">{v.name}</span>
+                          <span className="block text-xs text-[#5b403e]">Rp {v.price.toLocaleString('id-ID')}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Quick Info */}
               <div className="mb-4">
@@ -474,8 +533,14 @@ function DetailContent() {
                 </div>
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-[#5b403e]">Harga</span>
-                  <span className="text-[#1c1b1b]">Rp {service.price.toLocaleString('id-ID')} <span className="text-[#5b403e]">/{unitLabel(service.unit)}</span></span>
+                  <span className="text-[#1c1b1b]">Rp {displayPrice.toLocaleString('id-ID')} <span className="text-[#5b403e]">/{unitLabel(service.unit)}</span></span>
                 </div>
+                {minOrder > 1 && (
+                  <div className="flex py-2">
+                    <span className="w-40 flex-shrink-0 text-[#5b403e]">Minimal Order</span>
+                    <span className="text-[#1c1b1b]">{minOrder} {unitLabel(service.unit)}</span>
+                  </div>
+                )}
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-[#5b403e]">Mitra</span>
                   <Link href={`/${service.partner_username}`} className="text-[#b51822] hover:underline">
@@ -549,7 +614,10 @@ function DetailContent() {
             {inCart ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
           </Button>
           <div className="flex-1">
-            <p className="text-base font-bold text-[#b51822]">Rp {service.price.toLocaleString('id-ID')}<span className="text-xs font-normal text-[#5b403e]">/{unitLabel(service.unit)}</span></p>
+            <p className="text-base font-bold text-[#b51822]">Rp {displayPrice.toLocaleString('id-ID')}<span className="text-xs font-normal text-[#5b403e]">/{unitLabel(service.unit)}</span></p>
+            {hasVariations && selectedVariation && (
+              <p className="text-[11px] text-[#5b403e] truncate">{selectedVariation.name}</p>
+            )}
           </div>
           <Button className="h-10 px-5 bg-[#b51822] hover:bg-[#90121a] text-white font-bold rounded-md text-sm" onClick={handleOrderNow}>
             <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan

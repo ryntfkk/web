@@ -10,6 +10,12 @@ export interface ServicePhoto {
   sort_order: number;
 }
 
+export interface ServiceVariation {
+  id: string;
+  name: string;
+  price: number;
+}
+
 export interface ServiceDetail {
   id: string;
   partner_id: string;
@@ -28,6 +34,8 @@ export interface ServiceDetail {
   excluded_items: string[];
   estimated_duration: number;
   unit: string;
+  min_order: number;
+  variations: ServiceVariation[] | null;
   photo_url: string;
   photos: ServicePhoto[];
 }

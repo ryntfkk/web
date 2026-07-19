@@ -25,6 +25,12 @@ interface ServicePhoto {
   is_primary?: boolean;
 }
 
+interface ServiceVariation {
+  id: string;
+  name: string;
+  price: number;
+}
+
 interface PartnerService {
   id: string;
   name: string;
@@ -32,6 +38,8 @@ interface PartnerService {
   duration_minutes?: number;
   estimated_duration?: number;
   unit?: string;
+  min_order?: number;
+  variations?: ServiceVariation[] | null;
   photos?: ServicePhoto[];
   photo_url?: string;
 }
@@ -76,6 +84,17 @@ export default function BookingClient() {
         .filter(Boolean),
     [searchParams],
   );
+  // Variasi pra-pilih dari detail layanan (?variation_id) atau keranjang
+  // (?variation_ids sejajar dengan service_ids). Slot kosong = tanpa variasi.
+  const preselectedVariations = useMemo(() => {
+    const ids = (searchParams.get('service_ids') ?? searchParams.get('service_id') ?? '')
+      .split(',').map((s) => s.trim());
+    const vars = (searchParams.get('variation_ids') ?? searchParams.get('variation_id') ?? '')
+      .split(',').map((s) => s.trim());
+    const map: Record<string, string> = {};
+    ids.forEach((sid, i) => { if (sid && vars[i]) map[sid] = vars[i]; });
+    return map;
+  }, [searchParams]);
   const removeCartItem = useCartStore((s) => s.removeItem);
 
   const [step, setStep] = useState(1);
@@ -86,8 +105,10 @@ export default function BookingClient() {
 
   // Form State
   const [selectedServices, setSelectedServices] = useState<Record<string, boolean>>({});
-  // Kuantitas per layanan (jumlah jam / unit / jasa). Default 1 bila belum di-set.
+  // Kuantitas per layanan (jumlah jam / unit / jasa). Default min_order bila belum di-set.
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  // Variasi terpilih per layanan (serviceId -> variationId).
+  const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
   const [addressId, setAddressId] = useState<string>('');
@@ -118,13 +139,17 @@ export default function BookingClient() {
 
   // Derived values (dihitung sebelum efek agar bisa jadi dependency)
   const selectedCount = Object.values(selectedServices).filter(Boolean).length;
-  const qtyOf = (id: string) => Math.max(1, quantities[id] ?? 1);
+  const minOrderOf = (id: string) => Math.max(1, services.find(s => s.id === id)?.min_order ?? 1);
+  const qtyOf = (id: string) => Math.max(minOrderOf(id), quantities[id] ?? minOrderOf(id));
   const setQty = (id: string, qty: number) =>
-    setQuantities(prev => ({ ...prev, [id]: Math.max(1, Math.min(100, qty)) }));
+    setQuantities(prev => ({ ...prev, [id]: Math.max(minOrderOf(id), Math.min(100, qty)) }));
+  // Harga satuan = harga variasi terpilih bila ada, jika tidak harga dasar.
+  const variationOf = (s: PartnerService) => s.variations?.find(v => v.id === selectedVariations[s.id]);
+  const unitPriceOf = (s: PartnerService) => variationOf(s)?.price ?? s.price;
   const subtotal = useMemo(
-    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? s.price * qtyOf(s.id) : 0), 0),
+    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? unitPriceOf(s) * qtyOf(s.id) : 0), 0),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [services, selectedServices, quantities],
+    [services, selectedServices, quantities, selectedVariations],
   );
   const totalPayment = Math.max(0, subtotal - promoDiscount);
 
@@ -167,6 +192,10 @@ export default function BookingClient() {
           for (const s of found) next[s.id] = true;
           return next;
         });
+        // Terapkan variasi pra-pilih (dari detail/keranjang).
+        if (Object.keys(preselectedVariations).length > 0) {
+          setSelectedVariations((prev) => ({ ...prev, ...preselectedVariations }));
+        }
         setStep(2);
       }
     }
@@ -258,7 +287,23 @@ export default function BookingClient() {
     }
   };
 
-  const handleNext = () => setStep(2);
+  // Semua layanan bervariasi yang dipilih wajib punya variasi terpilih.
+  const missingVariationId = () =>
+    Object.keys(selectedServices)
+      .filter((id) => selectedServices[id])
+      .find((id) => {
+        const s = services.find((x) => x.id === id);
+        return (s?.variations?.length ?? 0) > 0 && !selectedVariations[id];
+      });
+
+  const handleNext = () => {
+    if (missingVariationId()) {
+      setErrorMsg('Pilih variasi untuk setiap layanan yang dipilih.');
+      return;
+    }
+    setErrorMsg('');
+    setStep(2);
+  };
   const handlePrev = () => setStep(1);
 
   const submitOrder = async () => {
@@ -284,6 +329,11 @@ export default function BookingClient() {
 
     if (!time || !availableSlots.includes(time)) {
       setErrorMsg('Waktu yang dipilih tidak tersedia pada tanggal ini.');
+      return;
+    }
+
+    if (missingVariationId()) {
+      setErrorMsg('Pilih variasi untuk setiap layanan yang dipilih.');
       return;
     }
 
@@ -332,7 +382,11 @@ export default function BookingClient() {
 
       // 2. Prepare JSON body — pakai idempotencyKey yang stabil selama
       //    form tidak berubah, agar retry tidak membuat pesanan ganda.
-      const items = selectedIds.map(id => ({ service_id: id, quantity: qtyOf(id) }));
+      const items = selectedIds.map(id => ({
+        service_id: id,
+        quantity: qtyOf(id),
+        variation_id: selectedVariations[id] || undefined,
+      }));
       const payload = {
         partner_id: partner.id,
         scheduled_at: `${date}T${time}:00+07:00`,
@@ -378,9 +432,11 @@ export default function BookingClient() {
     
     const items = Object.keys(selectedServices)
       .filter(id => selectedServices[id])
-      .map(id => ({ service_id: id, quantity: qtyOf(id) }));
+      .map(id => ({ service_id: id, quantity: qtyOf(id), variation_id: selectedVariations[id] || undefined }));
 
     if (items.length === 0) return;
+    // Jangan minta preview jika variasi wajib belum dipilih (backend akan menolak).
+    if (missingVariationId()) return;
 
     setPreviewLoading(true);
     try {
@@ -423,7 +479,7 @@ export default function BookingClient() {
       fetchPreview(promoDiscount > 0 ? promoCode : undefined);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, addressId, date, time, selectedServices, quantities]);
+  }, [step, addressId, date, time, selectedServices, quantities, selectedVariations]);
 
   const validatePromo = async () => {
     if (!promoCode) return;
@@ -541,8 +597,12 @@ export default function BookingClient() {
       <div className="space-y-1.5">
         {selectedServiceList.map(s => (
           <div key={s.id} className="flex justify-between gap-3 text-sm">
-            <span className="text-[#5b403e] truncate">{s.name} <span className="text-[#9e8e8c]">× {qtyOf(s.id)} {unitLabel(s.unit)}</span></span>
-            <span className="font-medium text-[#1c1b1b] shrink-0">{formatPrice(s.price * qtyOf(s.id))}</span>
+            <span className="text-[#5b403e] truncate">
+              {s.name}
+              {variationOf(s) && <span className="text-[#9e8e8c]"> ({variationOf(s)!.name})</span>}
+              <span className="text-[#9e8e8c]"> × {qtyOf(s.id)} {unitLabel(s.unit)}</span>
+            </span>
+            <span className="font-medium text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOf(s) * qtyOf(s.id))}</span>
           </div>
         ))}
       </div>
@@ -668,17 +728,43 @@ export default function BookingClient() {
 
             {/* Kartu layanan horizontal (selectable) */}
             <div className="space-y-3">
-              {services.map(s => (
-                <ServiceItemCard
-                  key={s.id}
-                  name={s.name}
-                  price={s.price}
-                  photoUrl={servicePhoto(s)}
-                  durationMinutes={serviceDuration(s)}
-                  selected={!!selectedServices[s.id]}
-                  onSelect={() => setSelectedServices(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
-                />
-              ))}
+              {services.map(s => {
+                const vars = s.variations ?? [];
+                return (
+                <div key={s.id}>
+                  <ServiceItemCard
+                    name={s.name}
+                    price={unitPriceOf(s)}
+                    photoUrl={servicePhoto(s)}
+                    durationMinutes={serviceDuration(s)}
+                    selected={!!selectedServices[s.id]}
+                    onSelect={() => setSelectedServices(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
+                  />
+                  {selectedServices[s.id] && vars.length > 0 && (
+                    <div className="mt-2 mb-1 pl-1">
+                      <p className="text-xs font-semibold text-[#5b403e] mb-1.5">
+                        Pilih Variasi {!selectedVariations[s.id] && <span className="text-[#b51822]">(wajib)</span>}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {vars.map(v => {
+                          const active = selectedVariations[s.id] === v.id;
+                          return (
+                            <button
+                              key={v.id}
+                              type="button"
+                              onClick={() => setSelectedVariations(prev => ({ ...prev, [s.id]: v.id }))}
+                              className={`px-3 py-1.5 rounded border text-xs transition-colors ${active ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}
+                            >
+                              {v.name} · Rp {v.price.toLocaleString('id-ID')}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -849,17 +935,19 @@ export default function BookingClient() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-[#1c1b1b] truncate">{s.name}</p>
+                        {variationOf(s) && <p className="text-xs text-[#b51822] truncate">{variationOf(s)!.name}</p>}
                         {dur ? <p className="text-xs text-[#9e8e8c]">± {dur * qty} menit</p> : null}
-                        {/* Stepper kuantitas (jumlah jam / unit / jasa) */}
+                        {/* Stepper kuantitas (jumlah jam / unit / jasa / kg) */}
                         <div className="flex items-center gap-2 mt-1.5">
-                          <button type="button" aria-label="Kurangi" onClick={() => setQty(s.id, qty - 1)} disabled={qty <= 1}
+                          <button type="button" aria-label="Kurangi" onClick={() => setQty(s.id, qty - 1)} disabled={qty <= minOrderOf(s.id)}
                             className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">−</button>
                           <span className="text-xs font-semibold text-[#1c1b1b] min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
                           <button type="button" aria-label="Tambah" onClick={() => setQty(s.id, qty + 1)} disabled={qty >= 100}
                             className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
+                          {minOrderOf(s.id) > 1 && <span className="text-[10px] text-[#9e8e8c]">min {minOrderOf(s.id)}</span>}
                         </div>
                       </div>
-                      <p className="text-sm font-bold text-[#1c1b1b] shrink-0">{formatPrice(s.price * qty)}</p>
+                      <p className="text-sm font-bold text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOf(s) * qty)}</p>
                     </div>
                     );
                   })}

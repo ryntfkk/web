@@ -10,6 +10,9 @@ export interface CartItem {
   service_name: string;
   price: number;
   photo_url: string;
+  // Variasi terpilih (opsional). price di atas = harga variasi bila ada.
+  variation_id?: string;
+  variation_name?: string;
 }
 
 interface CartState {

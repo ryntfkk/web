@@ -24,6 +24,12 @@ export interface PartnerServicePhoto {
   sort_order: number;
 }
 
+export interface PartnerServiceVariation {
+  id: string;
+  name: string;
+  price: number;
+}
+
 export interface PartnerService {
   id: string;
   partner_id: string;
@@ -35,6 +41,8 @@ export interface PartnerService {
   excluded_items: string[] | null;
   estimated_duration: number;
   unit: string;
+  min_order: number;
+  variations: PartnerServiceVariation[] | null;
   photos: PartnerServicePhoto[];
 }
 

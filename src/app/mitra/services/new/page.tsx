@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ImagePlus, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { VariationsEditor } from '@/components/ui/variations-editor';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
-import { unwrapData } from '@/lib/order-utils';
+import { unwrapData, unitLabel } from '@/lib/order-utils';
 
 const MIN_PRICE = 50000; // Sesuai MinTransaction backend
 const MAX_PHOTOS = 5;
@@ -23,10 +24,14 @@ export default function NewMitraServicePage() {
     price: '',
     unit: 'per_service',
     duration_minutes: '60',
+    min_order: '1',
     description: '',
     included_items: '',
     excluded_items: '',
   });
+
+  // Variasi produk (opsional). Bila ada minimal 1, harga diambil dari variasi termurah.
+  const [variations, setVariations] = useState<{ name: string; price: string }[]>([]);
 
   const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
@@ -96,25 +101,53 @@ export default function NewMitraServicePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const numPrice = parseInt(form.price.replace(/\D/g, ''), 10);
+    const numPrice = parseInt(form.price.replace(/\D/g, ''), 10) || 0;
     const isPerHour = form.unit === 'per_hour';
     // per_hour: estimasi otomatis 1 jam (60 menit); selain itu dari input mitra.
     const numDuration = isPerHour ? 60 : parseInt(form.duration_minutes, 10);
+    const numMinOrder = Math.max(1, parseInt(form.min_order || '1', 10) || 1);
     const included = form.included_items.split('\n').map(i => i.trim()).filter(Boolean);
     const excluded = form.excluded_items.split('\n').map(i => i.trim()).filter(Boolean);
 
-    if (!form.name || !form.category_id || !numPrice || !numDuration || included.length === 0 || excluded.length === 0) {
+    // Variasi: buang baris kosong; bila ada, harga produk = variasi termurah.
+    const parsedVariations = variations
+      .map(v => ({ name: v.name.trim(), price: parseInt(v.price || '0', 10) || 0 }))
+      .filter(v => v.name || v.price);
+    const hasVariations = parsedVariations.length > 0;
+
+    if (!form.name || !form.category_id || !numDuration || included.length === 0 || excluded.length === 0) {
       setError('Semua field wajib diisi, termasuk minimal 1 include dan 1 exclude');
       return;
     }
-    if (numPrice < MIN_PRICE) {
-      setError(`Harga minimum layanan adalah Rp ${new Intl.NumberFormat('id-ID').format(MIN_PRICE)}`);
-      return;
+    if (hasVariations) {
+      for (const v of parsedVariations) {
+        if (!v.name || !v.price) {
+          setError('Setiap variasi wajib punya nama dan harga.');
+          return;
+        }
+        if (v.price < MIN_PRICE) {
+          setError(`Harga setiap variasi minimal Rp ${new Intl.NumberFormat('id-ID').format(MIN_PRICE)}`);
+          return;
+        }
+      }
+    } else {
+      if (!numPrice) {
+        setError('Harga wajib diisi (atau tambahkan variasi).');
+        return;
+      }
+      if (numPrice < MIN_PRICE) {
+        setError(`Harga minimum layanan adalah Rp ${new Intl.NumberFormat('id-ID').format(MIN_PRICE)}`);
+        return;
+      }
     }
     if (!isPerHour && numDuration < 15) {
       setError('Durasi minimum layanan adalah 15 menit');
       return;
     }
+
+    const effectivePrice = hasVariations
+      ? Math.min(...parsedVariations.map(v => v.price))
+      : numPrice;
 
     setLoading(true);
     setError('');
@@ -127,9 +160,11 @@ export default function NewMitraServicePage() {
         body: JSON.stringify({
           name: form.name,
           category_id: form.category_id,
-          price: numPrice,
+          price: effectivePrice,
           unit: form.unit,
           estimated_duration: numDuration,
+          min_order: numMinOrder,
+          variations: hasVariations ? parsedVariations : [],
           description: form.description,
           included_items: included,
           excluded_items: excluded,
@@ -227,40 +262,66 @@ export default function NewMitraServicePage() {
               <option value="per_service">Per Jasa (borongan)</option>
               <option value="per_hour">Per Jam</option>
               <option value="per_unit">Per Unit</option>
+              <option value="per_kg">Per Kg</option>
             </select>
-            <p className="text-xs text-[#9e8e8c] mt-1">Harga ditagih per {form.unit === 'per_hour' ? 'jam' : form.unit === 'per_unit' ? 'unit' : 'jasa'}. Pelanggan memilih jumlah saat memesan.</p>
+            <p className="text-xs text-[#9e8e8c] mt-1">Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.</p>
           </div>
 
+          {/* Variasi (opsional) — bila diisi, harga tunggal disembunyikan */}
+          <VariationsEditor value={variations} onChange={setVariations} minPrice={MIN_PRICE} />
+
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1c1b1b] font-bold text-sm">Rp</span>
-                <input
-                  type="text"
-                  value={form.price}
-                  onChange={handlePriceChange}
-                  placeholder="0"
-                  className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-sm font-bold text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
-                />
+            {variations.length === 0 ? (
+              <div>
+                <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1c1b1b] font-bold text-sm">Rp</span>
+                  <input
+                    type="text"
+                    value={form.price}
+                    onChange={handlePriceChange}
+                    placeholder="0"
+                    className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-sm font-bold text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                  />
+                </div>
+                <p className="text-xs text-[#9e8e8c] mt-1">Minimal Rp 50.000</p>
               </div>
-              <p className="text-xs text-[#9e8e8c] mt-1">Minimal Rp 50.000</p>
-            </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
+                <div className="w-full p-3 border border-dashed border-[#e5e2e1] rounded text-sm text-[#9e8e8c] bg-[#f7f5f4]">
+                  Otomatis dari variasi termurah
+                </div>
+              </div>
+            )}
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Estimasi Durasi (Menit)</label>
+              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Minimal Order</label>
               <input
                 type="number"
-                min="15"
-                step="15"
-                value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
-                disabled={form.unit === 'per_hour'}
-                onChange={e => setForm({ ...form, duration_minutes: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] disabled:bg-[#f7f5f4] disabled:text-[#9e8e8c]"
+                min="1"
+                step="1"
+                value={form.min_order}
+                onChange={e => setForm({ ...form, min_order: e.target.value })}
+                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
               />
-              <p className="text-xs text-[#9e8e8c] mt-1">
-                {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
-              </p>
+              <p className="text-xs text-[#9e8e8c] mt-1">Jumlah minimal per pesanan ({unitLabel(form.unit)})</p>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Estimasi Durasi (Menit)</label>
+            <input
+              type="number"
+              min="15"
+              step="15"
+              value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
+              disabled={form.unit === 'per_hour'}
+              onChange={e => setForm({ ...form, duration_minutes: e.target.value })}
+              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] disabled:bg-[#f7f5f4] disabled:text-[#9e8e8c]"
+            />
+            <p className="text-xs text-[#9e8e8c] mt-1">
+              {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
+            </p>
           </div>
 
           {/* Foto Layanan */}
