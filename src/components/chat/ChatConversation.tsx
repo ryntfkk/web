@@ -48,6 +48,8 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [otherTyping, setOtherTyping] = useState(false);
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { isConnected, sendTypingIndicator } = useWebSocket({
     roomId,
@@ -57,11 +59,22 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         return [...prev, msg];
       });
       if (msg.sender_id !== user?.id) {
+        setOtherTyping(false); // pesan datang → lawan berhenti mengetik
         fetchAPI(`/chat/${roomId}/messages/${msg.id}/read`, { method: 'PUT' });
       }
     },
-    onTyping: () => {},
+    onTyping: (data: { sender_id?: string; is_typing?: boolean }) => {
+      if (data?.sender_id === user?.id) return; // abaikan indikator diri sendiri
+      setOtherTyping(!!data?.is_typing);
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      if (data?.is_typing) {
+        // Auto-clear bila tak ada update lanjutan (lawan berhenti tanpa kirim stop).
+        typingTimeout.current = setTimeout(() => setOtherTyping(false), 4000);
+      }
+    },
   });
+
+  useEffect(() => () => { if (typingTimeout.current) clearTimeout(typingTimeout.current); }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -257,6 +270,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 </div>
                 <div>
                   <h1 className="text-sm font-bold text-[#1c1b1b] leading-tight">{partner.name}</h1>
+                  {otherTyping && (
+                    <p className="text-xs text-[#b51822] leading-tight animate-pulse">sedang mengetik…</p>
+                  )}
                 </div>
               </div>
             ) : (

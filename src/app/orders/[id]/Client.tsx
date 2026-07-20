@@ -8,7 +8,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, MapPin, Calendar, MessageSquare, Star, AlertTriangle,
   Phone, CheckCircle2, X, Copy, Check, ChevronRight, Clock,
-  ClipboardList, Wallet, ShieldCheck, Loader2,
+  ClipboardList, Wallet, ShieldCheck, Loader2, HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
@@ -525,6 +525,17 @@ export default function OrderDetailClient() {
             <h1 className="text-base font-bold text-[#1c1b1b] leading-tight">Detail Pesanan</h1>
             <p className="text-xs text-[#9e8e8c] truncate">{order.order_number}</p>
           </div>
+          <button
+            onClick={async () => {
+              const id = await createSupportThread({ category: 'other', description: `Halo CS Posko Jasa, saya butuh bantuan terkait Pesanan #${order.order_number}.` });
+              if (id) router.push(`/bantuan/${id}`);
+            }}
+            className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-[#5b403e] hover:bg-[#f7f5f4]"
+            aria-label="Bantuan"
+          >
+            <HelpCircle className="w-5 h-5" />
+            <span className="text-xs font-medium">Bantuan</span>
+          </button>
         </div>
       </div>
 
@@ -534,9 +545,21 @@ export default function OrderDetailClient() {
             <h1 className="text-2xl font-bold text-[#1c1b1b]">Detail Pesanan</h1>
             <p className="text-sm text-[#9e8e8c] mt-1">{order.order_number}</p>
           </div>
-          <Button variant="outline" className="rounded-lg border-[#e5e2e1] text-[#5b403e]" onClick={() => router.push('/orders')}>
-            <ArrowLeft className="w-4 h-4 mr-1.5" /> Semua Pesanan
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="rounded-lg border-[#e5e2e1] text-[#5b403e]"
+              onClick={async () => {
+                const id = await createSupportThread({ category: 'other', description: `Halo CS Posko Jasa, saya butuh bantuan terkait Pesanan #${order.order_number}.` });
+                if (id) router.push(`/bantuan/${id}`);
+              }}
+            >
+              <HelpCircle className="w-4 h-4 mr-1.5" /> Bantuan
+            </Button>
+            <Button variant="outline" className="rounded-lg border-[#e5e2e1] text-[#5b403e]" onClick={() => router.push('/orders')}>
+              <ArrowLeft className="w-4 h-4 mr-1.5" /> Semua Pesanan
+            </Button>
+          </div>
         </div>
 
         {/* ── Status hero ─────────────────────────────────────────── */}

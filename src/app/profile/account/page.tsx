@@ -18,6 +18,7 @@ export default function AccountPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const { showToast } = useToast();
@@ -29,6 +30,7 @@ export default function AccountPage() {
     if (user) {
       setName(user.name);
       setEmail(user.email || '');
+      setPhone(user.phone || '');
       setError('');
       setIsEditing(true);
     }
@@ -41,13 +43,18 @@ export default function AccountPage() {
       setError('Nama tidak boleh kosong');
       return;
     }
+    const phoneTrim = phone.trim();
+    if (phoneTrim.length < 8 || phoneTrim.length > 20) {
+      setError('Nomor HP tidak valid (8–20 digit)');
+      return;
+    }
 
     setSaving(true);
     setError('');
 
-    const res = await fetchAPI('/users/me', {
+    const res = await fetchAPI<{ phone?: string }>('/users/me', {
       method: 'PATCH',
-      body: JSON.stringify({ name, email: email || null }),
+      body: JSON.stringify({ name, email: email || null, phone: phoneTrim }),
     });
 
     setSaving(false);
@@ -55,8 +62,10 @@ export default function AccountPage() {
     if (res.success) {
       showToast('Profil berhasil diperbarui');
       setIsEditing(false);
-      // Update user object di authStore (nama/email berubah)
-      useAuthStore.getState().updateUser({ name, email });
+      // Pakai phone yang DIKEMBALIKAN server (sudah dinormalkan ke 62xxx) agar
+      // tampilan langsung konsisten dgn yang tersimpan.
+      const savedPhone = res.data?.phone ?? phoneTrim;
+      useAuthStore.getState().updateUser({ name, email, phone: savedPhone });
     } else {
       setError(res.message || 'Gagal memperbarui profil');
     }
@@ -165,14 +174,15 @@ export default function AccountPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-[#9e8e8c] mb-1">Nomor HP</label>
+                <label className="block text-sm font-semibold text-[#1c1b1b] mb-1">Nomor HP</label>
                 <input
-                  type="text"
-                  value={user.phone}
-                  disabled
-                  className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#9e8e8c] bg-[#f7f5f4] cursor-not-allowed"
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value.replace(/[^\d+]/g, ''))}
+                  placeholder="08xxxxxxxxxx"
+                  className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
                 />
-                <p className="text-xs text-[#9e8e8c] mt-1">Hubungi admin untuk mengubah nomor HP Anda.</p>
+                <p className="text-xs text-[#9e8e8c] mt-1">Dipakai untuk kontak &amp; notifikasi. Login tetap memakai username.</p>
               </div>
 
               {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}

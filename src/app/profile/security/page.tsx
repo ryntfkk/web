@@ -154,10 +154,20 @@ function LoginHistoryList() {
   const fetchHistory = async () => {
     setLoading(true);
     const res = await fetchAPI<any>('/users/me/login-history');
-    if (res.success && res.data) {
+    if (res.success && Array.isArray(res.data)) {
       setHistory(res.data);
     }
     setLoading(false);
+  };
+
+  // Render aman: backend LAMA mengirim ip_address (pqtype.Inet) & user_agent
+  // (sql.NullString) sebagai OBJEK JSON → dirender langsung membuat React crash
+  // ("Objects are not valid as a React child") sehingga halaman blank/tak bisa
+  // dibuka. Ambil string bila ada; abaikan bila masih objek.
+  const asText = (v: unknown): string => {
+    if (typeof v === 'string') return v;
+    if (v && typeof v === 'object') return (v as { String?: string }).String ?? '';
+    return '';
   };
 
   const formatDate = (dateString: string) => {
@@ -181,7 +191,10 @@ function LoginHistoryList() {
 
   return (
     <div className="divide-y divide-[#e5e2e1]">
-      {history.map((h, i) => (
+      {history.map((h, i) => {
+        const ipStr = asText(h.ip_address);
+        const uaStr = asText(h.user_agent);
+        return (
         <div key={h.id || i} className="p-4 flex flex-col gap-1">
           <div className="flex justify-between items-start">
             <span className="font-medium text-sm text-[#1c1b1b]">
@@ -190,11 +203,12 @@ function LoginHistoryList() {
             <span className="text-xs text-[#9e8e8c]">{formatDate(h.created_at)}</span>
           </div>
           <div className="text-xs text-[#5b403e] flex gap-2 mt-1">
-            <span className="bg-[#f7f5f4] px-1.5 py-0.5 rounded border border-[#e5e2e1]">IP: {h.ip_address}</span>
+            <span className="bg-[#f7f5f4] px-1.5 py-0.5 rounded border border-[#e5e2e1]">IP: {ipStr || '-'}</span>
           </div>
-          <p className="text-xs text-[#9e8e8c] mt-1 truncate">{h.user_agent}</p>
+          {uaStr && <p className="text-xs text-[#9e8e8c] mt-1 truncate">{uaStr}</p>}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

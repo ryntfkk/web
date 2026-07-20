@@ -116,6 +116,7 @@ function DetailContent() {
 
     if (inCart) {
       removeItem(service.id, selectedVariationId || undefined);
+      showToast('Dihapus dari keranjang', 'info');
     } else {
       const vars = service.variations ?? [];
       if (vars.length > 0 && !selectedVariationId) {
@@ -133,6 +134,7 @@ function DetailContent() {
         variation_id: v?.id,
         variation_name: v?.name,
       });
+      showToast(v ? `${service.name} (${v.name}) masuk keranjang` : `${service.name} masuk keranjang`, 'success');
     }
   };
 
