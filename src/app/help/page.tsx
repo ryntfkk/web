@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Search, ChevronDown, MessageCircle, LifeBuoy } from 'lucide-react';
+import { Search, ChevronDown, MessageCircle, LifeBuoy, Flag, Scale } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 
 interface Faq {
@@ -89,6 +89,28 @@ export default function HelpPage() {
               placeholder="Cari pertanyaan… (mis. refund, komisi)"
               className="w-full pl-10 pr-3 py-3 rounded-md text-sm text-[#1c1b1b] bg-white border border-transparent focus:outline-none focus:ring-2 focus:ring-white/40"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Hub bantuan — perjelas 3 kanal agar user tak bingung ke mana mengadu */}
+      <div className="max-w-2xl mx-auto px-4 pt-6">
+        <h2 className="text-sm font-semibold text-[#8f6f6d] uppercase tracking-wide mb-2 px-1">Butuh bantuan apa?</h2>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Link href="/bantuan" className="bg-white rounded-lg border border-[#e5e2e1] p-4 hover:border-[#b51822]/40 transition-colors">
+            <MessageCircle className="w-6 h-6 text-[#b51822] mb-2" />
+            <p className="text-sm font-semibold text-[#1c1b1b]">Chat Customer Service</p>
+            <p className="text-xs text-[#5b403e] mt-1 leading-snug">Pertanyaan umum, akun, atau pembayaran. Tim CS membalas langsung di chat ini.</p>
+          </Link>
+          <Link href="/orders" className="bg-white rounded-lg border border-[#e5e2e1] p-4 hover:border-[#b51822]/40 transition-colors">
+            <Scale className="w-6 h-6 text-[#b51822] mb-2" />
+            <p className="text-sm font-semibold text-[#1c1b1b]">Sengketa Pesanan</p>
+            <p className="text-xs text-[#5b403e] mt-1 leading-snug">Mitra tak datang, hasil tak sesuai, atau soal dana. Buka <strong>Pesanan → detail → Ajukan Sengketa</strong> (dana ditahan sampai CS memutuskan).</p>
+          </Link>
+          <div className="bg-white rounded-lg border border-[#e5e2e1] p-4">
+            <Flag className="w-6 h-6 text-[#b51822] mb-2" />
+            <p className="text-sm font-semibold text-[#1c1b1b]">Laporkan Mitra/Layanan</p>
+            <p className="text-xs text-[#5b403e] mt-1 leading-snug">Konten tak pantas atau pelanggaran. Buka halaman mitra/layanan lalu tekan tombol <strong>&quot;Laporkan&quot;</strong>.</p>
           </div>
         </div>
       </div>

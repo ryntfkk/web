@@ -8,7 +8,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, MapPin, Calendar, MessageSquare, Star, AlertTriangle,
   Phone, CheckCircle2, X, Copy, Check, ChevronRight, Clock,
-  ClipboardList, Wallet, ShieldCheck, Loader2, HelpCircle,
+  ClipboardList, Wallet, ShieldCheck, Loader2, HelpCircle, Scale,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
@@ -421,16 +421,14 @@ export default function OrderDetailClient() {
 
       {status === 'DISPUTED' && (
         <Button
-          className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded-lg"
+          className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded-lg flex items-center justify-center gap-1.5"
           onClick={async () => {
-            const id = await createSupportThread({
-              category: 'other',
-              description: `Halo CS Posko Jasa, saya melaporkan masalah pada Pesanan #${order.order_number}.`,
-            });
-            if (id) router.push(`/bantuan/${id}`);
+            const res = await fetchAPI<{ id: string }>(`/disputes/order/${order.id}`);
+            if (res.success && res.data?.id) router.push(`/disputes/${res.data.id}`);
+            else router.push('/bantuan');
           }}
         >
-          Hubungi CS
+          <Scale className="w-4 h-4" /> Buka Ruang Sengketa
         </Button>
       )}
     </>

@@ -41,6 +41,7 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   "cart",
   "categories",
   "chat",
+  "disputes",
   "help",
   "mitra",
   "notifications",
@@ -79,6 +80,7 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
   // Prefixed matches (sub-pages)
   if (pathname.startsWith("/orders/")) return true;
   if (pathname.startsWith("/bantuan/")) return true;
+  if (pathname.startsWith("/disputes/")) return true;
   if (pathname.startsWith("/chat/")) return true;
   if (pathname.startsWith("/profile/")) return true;
   if (pathname.startsWith("/payment/")) return true;

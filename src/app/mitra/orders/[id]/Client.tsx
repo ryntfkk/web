@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   ArrowLeft, MessageSquare, MapPin, Calendar, Clock, Phone, Loader2, X,
-  AlertTriangle, Check, Copy, ClipboardList, Wallet, Star, User, HelpCircle,
+  AlertTriangle, Check, Copy, ClipboardList, Wallet, Star, User, HelpCircle, Scale,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
@@ -413,14 +413,12 @@ export default function MitraOrderDetailClient() {
         <Button
           className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-lg flex items-center justify-center gap-2"
           onClick={async () => {
-            const id = await createSupportThread({
-              category: 'other',
-              description: `Halo CS Posko Jasa, saya mitra dan melaporkan masalah pada Pesanan #${order.order_number}.`,
-            });
-            if (id) router.push(`/bantuan/${id}`);
+            const res = await fetchAPI<{ id: string }>(`/disputes/order/${order.id}`);
+            if (res.success && res.data?.id) router.push(`/disputes/${res.data.id}`);
+            else router.push('/bantuan');
           }}
         >
-          Hubungi CS
+          <Scale className="w-4 h-4" /> Buka Ruang Sengketa
         </Button>
       )}
     </>
