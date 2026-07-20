@@ -4,11 +4,12 @@ import { useToast } from '@/components/ui/toast';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
+import { Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 
 interface Service {
@@ -78,21 +79,19 @@ export default function MitraServicesPage() {
     <div className="page-h bg-[#f7f5f4] pb-24">
 
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-            </button>
-            <h1 className="text-base font-bold text-[#1c1b1b]">Layanan Anda</h1>
-          </div>
-          <Link href="/mitra/services/new">
-            <button className="text-[#b51822] hover:bg-[#FFF5F5] p-2 rounded-full transition-colors">
-              <Plus className="w-5 h-5" />
-            </button>
+      <MobilePageHeader
+        alwaysShow
+        title="Layanan Anda"
+        right={
+          <Link
+            href="/mitra/services/new"
+            aria-label="Tambah layanan"
+            className="text-[#b51822] hover:bg-[#FFF5F5] p-2 rounded-full transition-colors inline-flex"
+          >
+            <Plus className="w-5 h-5" />
           </Link>
-        </div>
-      </div>
+        }
+      />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {loading ? (

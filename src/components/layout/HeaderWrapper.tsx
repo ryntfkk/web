@@ -17,6 +17,11 @@ const MOBILE_HIDE_PATHS = [
   "/cart",
   "/search",
   "/promos",
+  "/categories",
+  "/about",
+  "/terms",
+  "/privacy",
+  "/bantuan",
 ];
 
 /**
@@ -31,6 +36,7 @@ const MOBILE_HIDE_PATHS = [
  */
 const RESERVED_ROOT_SEGMENTS = new Set([
   "about",
+  "bantuan",
   "book",
   "cart",
   "categories",
@@ -72,6 +78,7 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
 
   // Prefixed matches (sub-pages)
   if (pathname.startsWith("/orders/")) return true;
+  if (pathname.startsWith("/bantuan/")) return true;
   if (pathname.startsWith("/chat/")) return true;
   if (pathname.startsWith("/profile/")) return true;
   if (pathname.startsWith("/payment/")) return true;

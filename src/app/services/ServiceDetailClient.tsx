@@ -58,7 +58,8 @@ function DetailContent() {
   const { data: service, isLoading, isError, refetch } = useServiceDetail(serviceId);
   const { data: workingHours, isLoading: hoursLoading } = usePartnerWorkingHours(service?.partner_id);
 
-  const inCart = service ? isInCart(service.id) : false;
+  // In-cart per (layanan, variasi terpilih): variasi berbeda = item terpisah.
+  const inCart = service ? isInCart(service.id, selectedVariationId || undefined) : false;
 
   // Catat ke "Baru Dilihat" (localStorage) tiap kali detail layanan dibuka.
   const recordView = useRecentlyViewedStore((s) => s.record);
@@ -114,7 +115,7 @@ function DetailContent() {
     if (!service) return;
 
     if (inCart) {
-      removeItem(service.id);
+      removeItem(service.id, selectedVariationId || undefined);
     } else {
       const vars = service.variations ?? [];
       if (vars.length > 0 && !selectedVariationId) {
@@ -606,6 +607,15 @@ function DetailContent() {
       {/* Mobile Action Bar */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#e5e2e1]">
         <div className="flex items-center gap-2 px-3 py-2.5">
+          <Button
+            variant="outline"
+            disabled={favBusy}
+            aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+            className={`flex-shrink-0 h-10 w-10 p-0 rounded-md disabled:opacity-50 ${isFav ? 'border-[#b51822] text-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
+            onClick={handleFavToggle}
+          >
+            <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+          </Button>
           <Button
             variant="outline"
             className={`flex-shrink-0 h-10 w-10 p-0 rounded-md ${inCart ? 'border-green-500 text-green-600 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}

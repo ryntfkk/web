@@ -75,25 +75,18 @@ export default function BookingClient() {
   const params = useParams();
   const searchParams = useSearchParams();
   const username = params?.username as string;
-  // Mendukung ?service_id=xxx (satu layanan) dan ?service_ids=a,b,c (dari keranjang)
-  const preselectedIds = useMemo(
-    () =>
-      (searchParams.get('service_ids') ?? searchParams.get('service_id') ?? '')
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean),
-    [searchParams],
-  );
-  // Variasi pra-pilih dari detail layanan (?variation_id) atau keranjang
-  // (?variation_ids sejajar dengan service_ids). Slot kosong = tanpa variasi.
-  const preselectedVariations = useMemo(() => {
+  // Baris pra-pilih dari detail (?service_id[&variation_id]) atau keranjang
+  // (?service_ids=a,b,c&variation_ids=x,y,z sejajar per indeks). Layanan yang
+  // sama dengan variasi berbeda muncul sebagai baris terpisah (indeks berbeda),
+  // jadi TIDAK di-collapse ke satu entri per service_id.
+  const preselectedLines = useMemo(() => {
     const ids = (searchParams.get('service_ids') ?? searchParams.get('service_id') ?? '')
       .split(',').map((s) => s.trim());
     const vars = (searchParams.get('variation_ids') ?? searchParams.get('variation_id') ?? '')
       .split(',').map((s) => s.trim());
-    const map: Record<string, string> = {};
-    ids.forEach((sid, i) => { if (sid && vars[i]) map[sid] = vars[i]; });
-    return map;
+    const out: { serviceId: string; variationId?: string }[] = [];
+    ids.forEach((sid, i) => { if (sid) out.push({ serviceId: sid, variationId: vars[i] || undefined }); });
+    return out;
   }, [searchParams]);
   const removeCartItem = useCartStore((s) => s.removeItem);
 
@@ -103,12 +96,12 @@ export default function BookingClient() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Form State
-  const [selectedServices, setSelectedServices] = useState<Record<string, boolean>>({});
-  // Kuantitas per layanan (jumlah jam / unit / jasa). Default min_order bila belum di-set.
+  // Form State — model per-BARIS. Kunci baris = `${serviceId}::${variationId ?? ''}`.
+  // Layanan yang sama dengan variasi berbeda = dua baris terpisah (mendukung
+  // keranjang yang memuat beberapa variasi dari satu layanan).
+  const [selectedLines, setSelectedLines] = useState<Record<string, boolean>>({});
+  // Kuantitas per BARIS (default min_order layanan bila belum di-set).
   const [quantities, setQuantities] = useState<Record<string, number>>({});
-  // Variasi terpilih per layanan (serviceId -> variationId).
-  const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('');
   const [addressId, setAddressId] = useState<string>('');
@@ -137,19 +130,54 @@ export default function BookingClient() {
   const addressEditedRef = useRef(false);
   const refreshOnReturnRef = useRef<() => void>(() => {});
 
-  // Derived values (dihitung sebelum efek agar bisa jadi dependency)
-  const selectedCount = Object.values(selectedServices).filter(Boolean).length;
-  const minOrderOf = (id: string) => Math.max(1, services.find(s => s.id === id)?.min_order ?? 1);
-  const qtyOf = (id: string) => Math.max(minOrderOf(id), quantities[id] ?? minOrderOf(id));
-  const setQty = (id: string, qty: number) =>
-    setQuantities(prev => ({ ...prev, [id]: Math.max(minOrderOf(id), Math.min(100, qty)) }));
-  // Harga satuan = harga variasi terpilih bila ada, jika tidak harga dasar.
-  const variationOf = (s: PartnerService) => s.variations?.find(v => v.id === selectedVariations[s.id]);
-  const unitPriceOf = (s: PartnerService) => variationOf(s)?.price ?? s.price;
+  // ── Model baris (service_id + variation_id) ─────────────────────────────
+  const KEY_SEP = '::';
+  const lineKey = (serviceId: string, variationId?: string) => `${serviceId}${KEY_SEP}${variationId ?? ''}`;
+  const parseKey = (key: string) => {
+    const i = key.indexOf(KEY_SEP);
+    const variationId = key.slice(i + KEY_SEP.length);
+    return { serviceId: key.slice(0, i), variationId: variationId || undefined };
+  };
+  const serviceById = (id: string) => services.find((s) => s.id === id);
+  const activeKeys = () => Object.keys(selectedLines).filter((k) => selectedLines[k]);
+  const toggleLine = (serviceId: string, variationId?: string) =>
+    setSelectedLines((prev) => {
+      const key = lineKey(serviceId, variationId);
+      return { ...prev, [key]: !prev[key] };
+    });
+
+  // Derived per-baris (dihitung sebelum efek agar bisa jadi dependency)
+  const selectedCount = activeKeys().length;
+  const minOrderOfKey = (key: string) => Math.max(1, serviceById(parseKey(key).serviceId)?.min_order ?? 1);
+  const qtyOfKey = (key: string) => Math.max(minOrderOfKey(key), quantities[key] ?? minOrderOfKey(key));
+  const setQtyKey = (key: string, qty: number) =>
+    setQuantities((prev) => ({ ...prev, [key]: Math.max(minOrderOfKey(key), Math.min(100, qty)) }));
+  const variationOfKey = (key: string) => {
+    const { serviceId, variationId } = parseKey(key);
+    return serviceById(serviceId)?.variations?.find((v) => v.id === variationId);
+  };
+  // Harga satuan baris = harga variasi bila ada, jika tidak harga dasar layanan.
+  const unitPriceOfKey = (key: string) =>
+    variationOfKey(key)?.price ?? serviceById(parseKey(key).serviceId)?.price ?? 0;
+  const durationOfKey = (key: string) => {
+    const s = serviceById(parseKey(key).serviceId);
+    return s ? serviceDuration(s) || 0 : 0;
+  };
+
+  // Baris invalid = layanan bervariasi tapi variasinya kosong/basi (tak ada pada
+  // daftar variasi terkini) → harus dipilih ulang sebelum lanjut/submit.
+  const hasInvalidLine = () =>
+    activeKeys().some((k) => {
+      const { serviceId, variationId } = parseKey(k);
+      const vars = serviceById(serviceId)?.variations ?? [];
+      if (vars.length === 0) return false;
+      return !variationId || !vars.some((v) => v.id === variationId);
+    });
+
   const subtotal = useMemo(
-    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? unitPriceOf(s) * qtyOf(s.id) : 0), 0),
+    () => activeKeys().reduce((sum, k) => sum + unitPriceOfKey(k) * qtyOfKey(k), 0),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [services, selectedServices, quantities, selectedVariations],
+    [services, selectedLines, quantities],
   );
   const totalPayment = Math.max(0, subtotal - promoDiscount);
 
@@ -165,7 +193,7 @@ export default function BookingClient() {
       ? crypto.randomUUID()
       : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     setIdempotencyKey(uuid);
-  }, [selectedServices, date, time, addressId, notes, photos.length, promoCode]);
+  }, [selectedLines, date, time, addressId, notes, photos.length, promoCode]);
 
   // Diskon promo divalidasi terhadap subtotal — jika pilihan layanan
   // berubah, diskon lama tidak lagi valid dan harus divalidasi ulang.
@@ -183,28 +211,40 @@ export default function BookingClient() {
   }, [isAuthenticated, username]);
 
   useEffect(() => {
-    if (preselectedIds.length > 0 && services.length > 0 && !preselectedRef.current) {
-      const found = services.filter((s) => preselectedIds.includes(s.id));
-      if (found.length > 0) {
-        preselectedRef.current = true;
-        setSelectedServices((prev) => {
-          const next = { ...prev };
-          for (const s of found) next[s.id] = true;
-          return next;
-        });
-        // Terapkan variasi pra-pilih (dari detail/keranjang).
-        if (Object.keys(preselectedVariations).length > 0) {
-          setSelectedVariations((prev) => ({ ...prev, ...preselectedVariations }));
+    if (preselectedLines.length > 0 && services.length > 0 && !preselectedRef.current) {
+      const matched = preselectedLines.filter((pl) => services.some((s) => s.id === pl.serviceId));
+      if (matched.length === 0) return;
+      preselectedRef.current = true;
+
+      // Bangun baris pra-pilih. Variasi diterapkan HANYA bila id-nya valid pada
+      // daftar variasi terkini — id basi (mitra sudah mengedit layanan) dibiarkan
+      // agar pelanggan memilih ulang di langkah 1 (cegah INVALID_VARIATION).
+      const nextKeys: Record<string, boolean> = {};
+      let needsPick = false;
+      for (const pl of matched) {
+        const s = services.find((x) => x.id === pl.serviceId)!;
+        const vars = s.variations ?? [];
+        if (vars.length === 0) {
+          nextKeys[lineKey(s.id, undefined)] = true;
+        } else if (pl.variationId && vars.some((v) => v.id === pl.variationId)) {
+          nextKeys[lineKey(s.id, pl.variationId)] = true;
+        } else {
+          needsPick = true;
         }
-        setStep(2);
       }
+      if (Object.keys(nextKeys).length > 0) {
+        setSelectedLines((prev) => ({ ...prev, ...nextKeys }));
+      }
+      // Lompat ke langkah 2 hanya bila tak ada variasi yang perlu dipilih ulang.
+      setStep(needsPick ? 1 : 2);
     }
-  }, [preselectedIds, services]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preselectedLines, services]);
 
   const totalDuration = useMemo(
-    () => services.reduce((sum, s) => sum + (selectedServices[s.id] ? (serviceDuration(s) || 0) * qtyOf(s.id) : 0), 0),
+    () => activeKeys().reduce((sum, k) => sum + durationOfKey(k) * qtyOfKey(k), 0),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [services, selectedServices, quantities],
+    [services, selectedLines, quantities],
   );
 
   useEffect(() => {
@@ -287,17 +327,8 @@ export default function BookingClient() {
     }
   };
 
-  // Semua layanan bervariasi yang dipilih wajib punya variasi terpilih.
-  const missingVariationId = () =>
-    Object.keys(selectedServices)
-      .filter((id) => selectedServices[id])
-      .find((id) => {
-        const s = services.find((x) => x.id === id);
-        return (s?.variations?.length ?? 0) > 0 && !selectedVariations[id];
-      });
-
   const handleNext = () => {
-    if (missingVariationId()) {
+    if (hasInvalidLine()) {
       setErrorMsg('Pilih variasi untuk setiap layanan yang dipilih.');
       return;
     }
@@ -321,8 +352,8 @@ export default function BookingClient() {
       return;
     }
 
-    const selectedIds = Object.keys(selectedServices).filter(id => selectedServices[id]);
-    if (selectedIds.length === 0) {
+    const keys = activeKeys();
+    if (keys.length === 0) {
       setErrorMsg('Pilih minimal satu layanan.');
       return;
     }
@@ -332,7 +363,7 @@ export default function BookingClient() {
       return;
     }
 
-    if (missingVariationId()) {
+    if (hasInvalidLine()) {
       setErrorMsg('Pilih variasi untuk setiap layanan yang dipilih.');
       return;
     }
@@ -382,11 +413,13 @@ export default function BookingClient() {
 
       // 2. Prepare JSON body — pakai idempotencyKey yang stabil selama
       //    form tidak berubah, agar retry tidak membuat pesanan ganda.
-      const items = selectedIds.map(id => ({
-        service_id: id,
-        quantity: qtyOf(id),
-        variation_id: selectedVariations[id] || undefined,
-      }));
+      // Satu item order per BARIS terpilih. variation_id hanya dikirim bila valid
+      // pada variasi terkini (cegah id basi memicu INVALID_VARIATION).
+      const items = keys.map((k) => {
+        const { serviceId } = parseKey(k);
+        const v = variationOfKey(k);
+        return { service_id: serviceId, quantity: qtyOfKey(k), variation_id: v?.id };
+      });
       const payload = {
         partner_id: partner.id,
         scheduled_at: `${date}T${time}:00+07:00`,
@@ -411,15 +444,29 @@ export default function BookingClient() {
 
       if (res.success && res.data) {
         const order = unwrapData<any>(res.data);
-        // Bersihkan layanan yang sudah dipesan dari keranjang
-        for (const id of selectedIds) removeCartItem(id);
+        // Bersihkan baris yang sudah dipesan dari keranjang (per service+variasi).
+        for (const k of keys) {
+          const { serviceId, variationId } = parseKey(k);
+          removeCartItem(serviceId, variationId);
+        }
         setSuccessMsg('Pesanan berhasil dibuat!');
         // replace: back dari detail pesanan tidak boleh kembali ke form
         // booking yang sudah ter-submit (membingungkan + rawan submit ulang).
         router.replace(`/orders/${order.id}`);
         return;
       }
-      setErrorMsg(getErrorMessage(res));
+      const msg = getErrorMessage(res);
+      // Balapan langka: mitra mengubah variasi tepat saat pelanggan menekan
+      // "Buat Pesanan" (data layanan di layar sudah basi). Muat ulang variasi
+      // terkini, kosongkan pilihan basi, dan kembalikan ke langkah pemilihan.
+      if (/INVALID_VARIATION|VARIATION_REQUIRED/.test(msg)) {
+        setSelectedLines({});
+        setStep(1);
+        fetchData();
+        setErrorMsg('Variasi layanan telah diperbarui oleh mitra. Silakan pilih ulang variasinya.');
+      } else {
+        setErrorMsg(msg);
+      }
     } catch (e: any) {
       setErrorMsg(e?.message || 'Terjadi kesalahan jaringan.');
     } finally {
@@ -430,13 +477,15 @@ export default function BookingClient() {
   const fetchPreview = async (currentPromo?: string) => {
     if (!partner?.id || !addressId || !date || !time) return;
     
-    const items = Object.keys(selectedServices)
-      .filter(id => selectedServices[id])
-      .map(id => ({ service_id: id, quantity: qtyOf(id), variation_id: selectedVariations[id] || undefined }));
+    const items = activeKeys().map((k) => {
+      const { serviceId } = parseKey(k);
+      const v = variationOfKey(k);
+      return { service_id: serviceId, quantity: qtyOfKey(k), variation_id: v?.id };
+    });
 
     if (items.length === 0) return;
-    // Jangan minta preview jika variasi wajib belum dipilih (backend akan menolak).
-    if (missingVariationId()) return;
+    // Jangan minta preview jika ada baris dengan variasi belum/ tak valid.
+    if (hasInvalidLine()) return;
 
     setPreviewLoading(true);
     try {
@@ -479,7 +528,7 @@ export default function BookingClient() {
       fetchPreview(promoDiscount > 0 ? promoCode : undefined);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, addressId, date, time, selectedServices, quantities, selectedVariations]);
+  }, [step, addressId, date, time, selectedLines, quantities]);
 
   const validatePromo = async () => {
     if (!promoCode) return;
@@ -526,7 +575,7 @@ export default function BookingClient() {
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
   const selectedAddress = addresses.find((a) => a.id === addressId);
-  const selectedServiceList = services.filter((s) => selectedServices[s.id]);
+  const selectedKeyList = activeKeys();
 
   // Section Promo — dipakai di kolom kiri (mobile) & kolom kanan (desktop)
   const promoSection = (
@@ -595,16 +644,21 @@ export default function BookingClient() {
       <h3 className="text-sm font-bold text-[#1c1b1b] border-b border-[#e5e2e1] pb-2">Rincian Pembayaran</h3>
 
       <div className="space-y-1.5">
-        {selectedServiceList.map(s => (
-          <div key={s.id} className="flex justify-between gap-3 text-sm">
-            <span className="text-[#5b403e] truncate">
-              {s.name}
-              {variationOf(s) && <span className="text-[#9e8e8c]"> ({variationOf(s)!.name})</span>}
-              <span className="text-[#9e8e8c]"> × {qtyOf(s.id)} {unitLabel(s.unit)}</span>
-            </span>
-            <span className="font-medium text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOf(s) * qtyOf(s.id))}</span>
-          </div>
-        ))}
+        {selectedKeyList.map((k) => {
+          const s = serviceById(parseKey(k).serviceId);
+          if (!s) return null;
+          const v = variationOfKey(k);
+          return (
+            <div key={k} className="flex justify-between gap-3 text-sm">
+              <span className="text-[#5b403e] truncate">
+                {s.name}
+                {v && <span className="text-[#9e8e8c]"> ({v.name})</span>}
+                <span className="text-[#9e8e8c]"> × {qtyOfKey(k)} {unitLabel(s.unit)}</span>
+              </span>
+              <span className="font-medium text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOfKey(k) * qtyOfKey(k))}</span>
+            </div>
+          );
+        })}
       </div>
 
       <div className="space-y-1.5 text-sm pt-2.5 border-t border-[#e5e2e1]">
@@ -730,39 +784,59 @@ export default function BookingClient() {
             <div className="space-y-3">
               {services.map(s => {
                 const vars = s.variations ?? [];
+
+                // Layanan TANPA variasi: satu kartu toggle = satu baris pesanan.
+                if (vars.length === 0) {
+                  const key = lineKey(s.id, undefined);
+                  return (
+                    <ServiceItemCard
+                      key={s.id}
+                      name={s.name}
+                      price={s.price}
+                      photoUrl={servicePhoto(s)}
+                      durationMinutes={serviceDuration(s)}
+                      selected={!!selectedLines[key]}
+                      onSelect={() => toggleLine(s.id, undefined)}
+                    />
+                  );
+                }
+
+                // Layanan BERVARIASI: pilih satu ATAU LEBIH variasi — tiap chip
+                // aktif jadi baris pesanan sendiri (bisa 2 variasi sekaligus).
+                const anyActive = vars.some((v) => selectedLines[lineKey(s.id, v.id)]);
                 return (
-                <div key={s.id}>
-                  <ServiceItemCard
-                    name={s.name}
-                    price={unitPriceOf(s)}
-                    photoUrl={servicePhoto(s)}
-                    durationMinutes={serviceDuration(s)}
-                    selected={!!selectedServices[s.id]}
-                    onSelect={() => setSelectedServices(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
-                  />
-                  {selectedServices[s.id] && vars.length > 0 && (
-                    <div className="mt-2 mb-1 pl-1">
-                      <p className="text-xs font-semibold text-[#5b403e] mb-1.5">
-                        Pilih Variasi {!selectedVariations[s.id] && <span className="text-[#b51822]">(wajib)</span>}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {vars.map(v => {
-                          const active = selectedVariations[s.id] === v.id;
-                          return (
-                            <button
-                              key={v.id}
-                              type="button"
-                              onClick={() => setSelectedVariations(prev => ({ ...prev, [s.id]: v.id }))}
-                              className={`px-3 py-1.5 rounded border text-xs transition-colors ${active ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}
-                            >
-                              {v.name} · Rp {v.price.toLocaleString('id-ID')}
-                            </button>
-                          );
-                        })}
+                  <div key={s.id} className={`rounded-xl border bg-white overflow-hidden ${anyActive ? 'border-[#b51822]' : 'border-[#e5e2e1]'}`}>
+                    <div className="flex items-center gap-3 p-3">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#f0eded] shrink-0">
+                        {servicePhoto(s) ? (
+                          <Image src={servicePhoto(s)!} alt={s.name} fill className="object-cover" sizes="48px" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center"><Tag className="w-4 h-4 text-[#9e8e8c]" /></div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-[#1c1b1b] truncate">{s.name}</p>
+                        <p className="text-xs text-[#9e8e8c]">
+                          Mulai Rp {Math.min(...vars.map((v) => v.price)).toLocaleString('id-ID')} · pilih variasi
+                        </p>
                       </div>
                     </div>
-                  )}
-                </div>
+                    <div className="px-3 pb-3 flex flex-wrap gap-2">
+                      {vars.map((v) => {
+                        const active = !!selectedLines[lineKey(s.id, v.id)];
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => toggleLine(s.id, v.id)}
+                            className={`px-3 py-1.5 rounded border text-xs transition-colors ${active ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}
+                          >
+                            {v.name} · Rp {v.price.toLocaleString('id-ID')}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -921,11 +995,14 @@ export default function BookingClient() {
                   <button onClick={handlePrev} className="text-xs font-semibold text-[#b51822] hover:underline">Ubah</button>
                 </div>
                 <div className="divide-y divide-[#f0eded]">
-                  {selectedServiceList.map(s => {
-                    const qty = qtyOf(s.id);
+                  {selectedKeyList.map((k) => {
+                    const s = serviceById(parseKey(k).serviceId);
+                    if (!s) return null;
+                    const v = variationOfKey(k);
+                    const qty = qtyOfKey(k);
                     const dur = serviceDuration(s) || 0;
                     return (
-                    <div key={s.id} className="flex items-center gap-3 px-3 sm:px-4 py-2.5">
+                    <div key={k} className="flex items-center gap-3 px-3 sm:px-4 py-2.5">
                       <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#f0eded] shrink-0">
                         {servicePhoto(s) ? (
                           <Image src={servicePhoto(s)!} alt={s.name} fill className="object-cover" sizes="48px" />
@@ -935,19 +1012,19 @@ export default function BookingClient() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-[#1c1b1b] truncate">{s.name}</p>
-                        {variationOf(s) && <p className="text-xs text-[#b51822] truncate">{variationOf(s)!.name}</p>}
+                        {v && <p className="text-xs text-[#b51822] truncate">{v.name}</p>}
                         {dur ? <p className="text-xs text-[#9e8e8c]">± {dur * qty} menit</p> : null}
                         {/* Stepper kuantitas (jumlah jam / unit / jasa / kg) */}
                         <div className="flex items-center gap-2 mt-1.5">
-                          <button type="button" aria-label="Kurangi" onClick={() => setQty(s.id, qty - 1)} disabled={qty <= minOrderOf(s.id)}
+                          <button type="button" aria-label="Kurangi" onClick={() => setQtyKey(k, qty - 1)} disabled={qty <= minOrderOfKey(k)}
                             className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">−</button>
                           <span className="text-xs font-semibold text-[#1c1b1b] min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
-                          <button type="button" aria-label="Tambah" onClick={() => setQty(s.id, qty + 1)} disabled={qty >= 100}
+                          <button type="button" aria-label="Tambah" onClick={() => setQtyKey(k, qty + 1)} disabled={qty >= 100}
                             className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
-                          {minOrderOf(s.id) > 1 && <span className="text-[10px] text-[#9e8e8c]">min {minOrderOf(s.id)}</span>}
+                          {minOrderOfKey(k) > 1 && <span className="text-[10px] text-[#9e8e8c]">min {minOrderOfKey(k)}</span>}
                         </div>
                       </div>
-                      <p className="text-sm font-bold text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOf(s) * qty)}</p>
+                      <p className="text-sm font-bold text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOfKey(k) * qty)}</p>
                     </div>
                     );
                   })}

@@ -19,12 +19,19 @@ interface CartState {
   items: CartItem[];
   itemCount: number;
   addItem: (item: CartItem) => void;
-  removeItem: (serviceId: string) => void;
+  // Identitas item keranjang = (service_id, variation_id). Variasi berbeda dari
+  // layanan yang sama = item terpisah, jadi remove/isInCart butuh variation_id.
+  removeItem: (serviceId: string, variationId?: string) => void;
   clearCart: () => void;
-  isInCart: (serviceId: string) => boolean;
+  isInCart: (serviceId: string, variationId?: string) => boolean;
 }
 
 // ── Store ────────────────────────────────────────────────────────────
+
+// Dua item dianggap sama hanya bila service_id DAN variation_id sama.
+// (variation_id undefined disamakan dengan '' agar layanan tanpa variasi konsisten.)
+const sameLine = (i: CartItem, serviceId: string, variationId?: string) =>
+  i.service_id === serviceId && (i.variation_id ?? '') === (variationId ?? '');
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -33,28 +40,26 @@ export const useCartStore = create<CartState>()(
       itemCount: 0,
 
       addItem: (item) => {
-        const existing = get().items.find(
-          (i) => i.service_id === item.service_id,
-        );
-        if (!existing) {
-          set((state) => ({
-            items: [...state.items, item],
-            itemCount: state.itemCount + 1,
-          }));
+        const exists = get().items.some((i) => sameLine(i, item.service_id, item.variation_id));
+        if (!exists) {
+          set((state) => {
+            const items = [...state.items, item];
+            return { items, itemCount: items.length };
+          });
         }
       },
 
-      removeItem: (serviceId) => {
-        set((state) => ({
-          items: state.items.filter((i) => i.service_id !== serviceId),
-          itemCount: Math.max(0, state.itemCount - 1),
-        }));
+      removeItem: (serviceId, variationId) => {
+        set((state) => {
+          const items = state.items.filter((i) => !sameLine(i, serviceId, variationId));
+          return { items, itemCount: items.length };
+        });
       },
 
       clearCart: () => set({ items: [], itemCount: 0 }),
 
-      isInCart: (serviceId) =>
-        get().items.some((i) => i.service_id === serviceId),
+      isInCart: (serviceId, variationId) =>
+        get().items.some((i) => sameLine(i, serviceId, variationId)),
     }),
     { name: 'posko-cart' },
   ),

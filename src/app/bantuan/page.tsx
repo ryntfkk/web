@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, MessageSquare, LifeBuoy, Loader2 } from 'lucide-react';
+import { Plus, MessageSquare, LifeBuoy, Loader2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import {
@@ -63,17 +64,15 @@ export default function SupportListPage() {
   return (
     <div className="min-h-[100dvh] bg-[#f7f5f4]">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-3 sticky top-0 z-10 flex items-center gap-3">
-        <button onClick={() => router.back()} className="p-1.5 -ml-1 hover:bg-[#f7f5f4] rounded">
-          <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-        </button>
-        <div className="flex items-center gap-2">
-          <LifeBuoy className="w-5 h-5 text-[#b51822]" />
-          <span className="font-semibold text-[#1c1b1b]">Chat Customer Service</span>
-        </div>
-      </div>
+      <MobilePageHeader
+        title="Chat Customer Service"
+        icon={<LifeBuoy className="w-5 h-5 text-[#b51822]" />}
+      />
 
       <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+        <h1 className="hidden lg:flex items-center gap-2 text-xl font-bold text-[#1c1b1b]">
+          <LifeBuoy className="w-5 h-5 text-[#b51822]" /> Chat Customer Service
+        </h1>
         <button
           onClick={startNewChat}
           disabled={creating}

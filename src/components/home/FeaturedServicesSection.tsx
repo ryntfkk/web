@@ -84,6 +84,7 @@ export default function FeaturedServicesSection() {
                 imageUrl={partner.avatar_url || PLACEHOLDER_IMG}
                 city={partner.city ?? undefined}
                 distance={formatDistance(partner.distance_meters)}
+                orderCount={partner.total_orders}
               />
             </Link>
           ))}

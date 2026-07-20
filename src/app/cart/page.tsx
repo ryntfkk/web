@@ -3,7 +3,8 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ShoppingCart, Trash2, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Trash2, ChevronRight } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
 import { useCartStore, CartItem } from '@/lib/store/cartStore';
@@ -73,22 +74,27 @@ export default function CartPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-20">
-      {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:relative lg:z-auto">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+      {/* Header (mobile) */}
+      <MobilePageHeader
+        title={items.length > 0 ? `Keranjang (${items.length})` : 'Keranjang'}
+        maxWidthClass="max-w-3xl"
+        right={
+          items.length > 0 ? (
+            <button onClick={clearCart} className="text-xs text-[#E53E3E] font-medium hover:underline">
+              Kosongkan
             </button>
-            <h1 className="text-base font-bold text-[#1c1b1b]">
-              Keranjang {items.length > 0 && <span className="text-[#9e8e8c] font-normal">({items.length})</span>}
-            </h1>
-          </div>
+          ) : undefined
+        }
+      />
+
+      {/* Header (desktop) */}
+      <div className="hidden lg:block max-w-3xl mx-auto px-4 pt-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[#1c1b1b]">
+            Keranjang {items.length > 0 && <span className="text-[#9e8e8c] font-normal text-lg">({items.length})</span>}
+          </h1>
           {items.length > 0 && (
-            <button
-              onClick={clearCart}
-              className="text-xs text-[#E53E3E] font-medium hover:underline"
-            >
+            <button onClick={clearCart} className="text-sm text-[#E53E3E] font-medium hover:underline">
               Kosongkan
             </button>
           )}
@@ -124,13 +130,13 @@ export default function CartPage() {
                 <div className="p-3 space-y-2">
                   {group.items.map((item) => (
                     <ServiceItemCard
-                      key={item.service_id}
+                      key={`${item.service_id}::${item.variation_id ?? ''}`}
                       name={item.variation_name ? `${item.service_name} - ${item.variation_name}` : item.service_name}
                       price={item.price}
                       photoUrl={item.photo_url || undefined}
                       action={
                         <button
-                          onClick={() => removeItem(item.service_id)}
+                          onClick={() => removeItem(item.service_id, item.variation_id)}
                           className="p-2 text-[#9e8e8c] hover:text-[#E53E3E] hover:bg-[#FFF5F5] rounded-lg shrink-0 transition-colors"
                           aria-label={`Hapus ${item.service_name}`}
                         >

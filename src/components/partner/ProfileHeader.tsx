@@ -1,11 +1,13 @@
 import Image from 'next/image';
-import { MapPin, Star, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { MapPin, Star, Clock, CheckCircle, Loader2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useFavoritePartners, useFavoritesActions } from '@/hooks/useFavorites';
+import { useToast } from '@/components/ui/toast';
 import ReportDialog from '@/components/ReportDialog';
 import { PLACEHOLDER_AVATAR as DEFAULT_AVATAR } from '@/lib/images';
 
@@ -15,12 +17,36 @@ interface ProfileHeaderProps {
 
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const currentUser = useAuthStore(state => state.user);
   // Mitra yang membuka profilnya sendiri tidak boleh chat/lapor/pesan ke diri
   // sendiri — backend menolaknya (SELF_ORDER / cannot chat with yourself).
   const isOwnProfile = !!currentUser?.id && currentUser.id === profile.user_id;
+
+  // Favorit mitra. partner_id memakai partners.id (= profile.id), bukan user_id.
+  const { data: favPartners } = useFavoritePartners();
+  const { addPartner, removePartner } = useFavoritesActions();
+  const [favBusy, setFavBusy] = useState(false);
+  const isFav = !!favPartners?.some((f) => f.partner_id === profile.id);
+
+  const handleFavToggle = async () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent(`/${profile.username}`)}`);
+      return;
+    }
+    if (favBusy) return;
+    setFavBusy(true);
+    try {
+      const res = isFav
+        ? await removePartner(profile.id)
+        : await addPartner(profile.id);
+      if (!res.success) showToast(res.message || 'Gagal mengubah favorit', 'error');
+    } finally {
+      setFavBusy(false);
+    }
+  };
 
   // Provide a proper fallback for avatar - handle any non-string value safely
   const avatarUrl = typeof profile.avatar_url === 'string' && profile.avatar_url.length > 0
@@ -121,13 +147,25 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                 Kelola Profil
               </Button>
             ) : (
-              <Button
-                className="flex-1 sm:flex-none bg-[#b51822] hover:bg-[#90121a] text-white"
-                onClick={handleChat}
-                disabled={isChatLoading}
-              >
-                {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
-              </Button>
+              <>
+                <Button
+                  variant="secondary"
+                  aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+                  onClick={handleFavToggle}
+                  disabled={favBusy}
+                  className={`flex-none px-3 ${isFav ? 'bg-[#FFF5F5] text-[#b51822] border border-[#b51822] hover:bg-[#fdeaea]' : 'bg-[#f0eded] text-[#5b403e] hover:bg-[#e5e2e1]'}`}
+                >
+                  <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+                  <span className="ml-1.5 sm:hidden">{isFav ? 'Tersimpan' : 'Favorit'}</span>
+                </Button>
+                <Button
+                  className="flex-1 sm:flex-none bg-[#b51822] hover:bg-[#90121a] text-white"
+                  onClick={handleChat}
+                  disabled={isChatLoading}
+                >
+                  {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
+                </Button>
+              </>
             )}
           </div>
         </div>

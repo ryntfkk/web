@@ -3,22 +3,19 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { useCategories } from '@/hooks/useCategories';
 
 export default function CategoriesPage() {
   const { data: categories, isLoading, isError } = useCategories();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col p-4 sm:p-6 md:p-8">
-      <div className="max-w-6xl mx-auto w-full">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Semua Kategori</h1>
-        </div>
-        
+    <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
+      <MobilePageHeader title="Semua Kategori" backHref="/" maxWidthClass="max-w-6xl" />
+      <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
+        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-8">Semua Kategori</h1>
+
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-[#b51822]" />

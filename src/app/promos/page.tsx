@@ -1,19 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Tag } from 'lucide-react';
+import { Tag } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 export default function PromosPage() {
   return (
     <div className="page-h bg-[#f7f5f4]">
-      {/* Sticky Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10 lg:relative lg:z-auto">
-        <div className="max-w-3xl mx-auto flex items-center gap-3 px-4 py-4">
-          <Link href="/" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-md transition-colors">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </Link>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Promo Menarik</h1>
-        </div>
-      </div>
+      <MobilePageHeader title="Promo Menarik" backHref="/" maxWidthClass="max-w-3xl" />
 
       {/* Empty State */}
       <div className="max-w-3xl mx-auto px-4 py-16 flex flex-col items-center text-center">

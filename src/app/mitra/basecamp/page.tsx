@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, MapPin, AlertCircle } from 'lucide-react';
+import { Loader2, MapPin, AlertCircle } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -104,14 +105,7 @@ export default function MitraBasecampPage() {
 
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center gap-3 px-4 py-4">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Alamat Basecamp</h1>
-        </div>
-      </div>
+      <MobilePageHeader alwaysShow title="Alamat Basecamp" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
         <div className="bg-[#FFF5F5] border border-[#FEB2B2] rounded-lg p-3 flex gap-3">

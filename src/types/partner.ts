@@ -19,6 +19,8 @@ export interface Partner {
   categories: PartnerCategory[];
   avg_rating: number;
   total_reviews: number;
+  /** Total pesanan selesai mitra (social proof di kartu). */
+  total_orders: number;
   starting_price: number;
   distance_meters: number;
   distance_km: number;
@@ -58,6 +60,7 @@ export function normalizePartner(raw: Record<string, unknown>): Partner {
     categories: normalizeCategories(raw.categories),
     avg_rating: Number(raw.avg_rating ?? 0),
     total_reviews: Number(raw.total_reviews ?? 0),
+    total_orders: Number(raw.total_orders ?? 0),
     starting_price: Number(raw.starting_price ?? 0),
     distance_meters: Number(raw.distance_meters ?? 0),
     distance_km: Number(raw.distance_km ?? 0),

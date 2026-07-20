@@ -54,6 +54,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
               unit={unitLabel(service.unit)}
               imageUrl={primaryPhoto}
               vendorAvatar={profile.avatar_url || undefined}
+              orderCount={profile.total_orders}
               className="h-full"
             />
           </Link>

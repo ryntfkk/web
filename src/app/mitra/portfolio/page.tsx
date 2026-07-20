@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Trash2, Image as ImageIcon, Loader2, X } from 'lucide-react';
+import { Plus, Trash2, Image as ImageIcon, Loader2, X } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -16,7 +16,6 @@ interface Portfolio {
 
 export default function MitraPortfolioPage() {
   const { isLoading: authLoading, isAuthorized, user } = useRequireAuth();
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -119,17 +118,7 @@ export default function MitraPortfolioPage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center gap-3 px-4 py-4">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded transition-colors">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </button>
-          <div>
-            <h1 className="text-base font-bold text-[#1c1b1b]">Galeri Portofolio</h1>
-            <p className="text-xs text-[#9e8e8c]">Maksimal 5 foto</p>
-          </div>
-        </div>
-      </div>
+      <MobilePageHeader alwaysShow title="Galeri Portofolio" subtitle="Maksimal 5 foto" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {error && (

@@ -2,8 +2,8 @@
 import { useToast } from '@/components/ui/toast';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -24,7 +24,6 @@ const DAYS = [
 
 export default function MitraSchedulePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
-  const router = useRouter();
 
   const [schedule, setSchedule] = useState<Record<string, { is_active: boolean; start_time: string; end_time: string }>>({
     monday: { is_active: true, start_time: '08:00', end_time: '17:00' },
@@ -156,14 +155,7 @@ export default function MitraSchedulePage() {
     <div className="page-h bg-[#f7f5f4] pb-24">
 
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Atur Jadwal Operasional</h1>
-        </div>
-      </div>
+      <MobilePageHeader alwaysShow title="Atur Jadwal Operasional" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         <div className="bg-[#FFF5F5] border border-[#FEB2B2] rounded-lg p-4 flex gap-3 items-start mb-2">

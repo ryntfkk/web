@@ -6,7 +6,8 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw } from 'lucide-react';
+import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
@@ -30,6 +31,8 @@ interface OrderItem {
 interface ReorderItem {
   service_id: string;
   service_name: string;
+  variation_id?: string;
+  variation_name?: string;
   quantity: number;
   photo_url?: string;
   original_price: number;
@@ -125,6 +128,8 @@ export default function OrdersPage() {
           service_name: i.service_name,
           price: i.current_price,
           photo_url: i.photo_url || PLACEHOLDER_SERVICE,
+          variation_id: i.variation_id,
+          variation_name: i.variation_name,
         }),
       );
       const unavailable = data.items.length - available.length;
@@ -187,16 +192,7 @@ export default function OrdersPage() {
     <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
 
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 lg:hidden">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3">
-            <Link href="/profile" className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-md">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-            </Link>
-            <h1 className="text-lg font-bold text-[#1c1b1b]">Riwayat Pesanan</h1>
-          </div>
-        </div>
-      </div>
+      <MobilePageHeader title="Riwayat Pesanan" backHref="/profile" maxWidthClass="max-w-6xl" />
 
       <div className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
         <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Riwayat Pesanan</h1>

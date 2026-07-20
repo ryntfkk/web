@@ -1,16 +1,18 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 export default function AboutPage() {
   return (
-    <div className="page-h bg-gray-50 flex flex-col items-center justify-center p-4">
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">Tentang Kami</h1>
-      <p className="text-gray-500 mb-6 text-center max-w-md">POSKO Jasa adalah platform yang menghubungkan Anda dengan penyedia jasa terpercaya di sekitar Anda.</p>
-      <Link href="/" className="inline-flex items-center gap-2 px-4 py-2 bg-[#b51822] text-white rounded-md hover:bg-[#90121a] transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Kembali ke Beranda
-      </Link>
+    <div className="page-h bg-[#f7f5f4]">
+      <MobilePageHeader title="Tentang Kami" backHref="/" maxWidthClass="max-w-md" />
+      <div className="max-w-md mx-auto px-4 py-16 flex flex-col items-center text-center">
+        <h1 className="hidden lg:block text-3xl font-bold text-[#1c1b1b] mb-4">Tentang Kami</h1>
+        <p className="text-[#5b403e] mb-6">POSKO Jasa adalah platform yang menghubungkan Anda dengan penyedia jasa terpercaya di sekitar Anda.</p>
+        <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b51822] text-white text-sm font-semibold rounded-md hover:bg-[#90121a] transition-colors">
+          Kembali ke Beranda
+        </Link>
+      </div>
     </div>
   );
 }
-

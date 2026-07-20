@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Loader2, X, Trash2 } from 'lucide-react';
+import { Loader2, X, Trash2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { VariationsEditor } from '@/components/ui/variations-editor';
 import { fetchAPI } from '@/lib/api';
@@ -226,14 +227,7 @@ export default function EditMitraServicePage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button type="button" onClick={() => router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
-          </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Edit Layanan</h1>
-        </div>
-      </div>
+      <MobilePageHeader alwaysShow title="Edit Layanan" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">

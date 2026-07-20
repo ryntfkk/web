@@ -3,6 +3,15 @@ import Image from 'next/image';
 import { Star, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+/** Ringkas jumlah pesanan: 1.200 → "1,2rb+", 15 → "15". */
+function formatOrderCount(n: number): string {
+  if (n >= 1000) {
+    const k = n / 1000;
+    return `${k.toFixed(k >= 10 || Number.isInteger(k) ? 0 : 1).replace('.', ',')}rb+`;
+  }
+  return `${n}`;
+}
+
 interface ServiceCardProps {
   vendorName: string;
   category: string;
@@ -16,6 +25,8 @@ interface ServiceCardProps {
   city?: string;
   /** Jarak terformat (mis. "2.3 km"); tampil bila lokasi user tersedia. */
   distance?: string;
+  /** Total pesanan selesai (mitra/layanan). Tampil sebagai social proof bila > 0. */
+  orderCount?: number;
   vendorAvatar?: string;
   className?: string;
 }
@@ -31,6 +42,7 @@ export function ServiceCard({
   isPro = false,
   city,
   distance,
+  orderCount,
   vendorAvatar,
   className,
 }: ServiceCardProps) {
@@ -94,11 +106,16 @@ export function ServiceCard({
           </span>
         </div>
 
-        {/* Rating + City Row */}
+        {/* Rating + Orders + City Row */}
         <div className="flex items-center justify-between gap-1 mt-0.5 sm:mt-1">
-          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-            <Star className="w-3 h-3 fill-[#D69E2E] text-[#D69E2E]" />
+          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 min-w-0">
+            <Star className="w-3 h-3 fill-[#D69E2E] text-[#D69E2E] flex-shrink-0" />
             <span className="text-[12px] font-medium text-[#1c1b1b]">{Number(rating).toFixed(1)}</span>
+            {typeof orderCount === 'number' && orderCount > 0 && (
+              <span className="text-[10px] sm:text-[11px] text-[#8f6f6d] truncate">
+                · {formatOrderCount(orderCount)} pesanan
+              </span>
+            )}
           </div>
           {city && (
             <div className="flex items-center gap-0.5 text-[#5b403e] min-w-0">
