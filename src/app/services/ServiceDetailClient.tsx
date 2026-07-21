@@ -28,6 +28,8 @@ import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRecentlyViewedStore } from '@/lib/store/recentlyViewedStore';
 import ScheduleView from '@/components/service/ScheduleView';
+import MoreFromPartner from '@/components/service/MoreFromPartner';
+import SimilarServices from '@/components/service/SimilarServices';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
 import { unitLabel } from '@/lib/order-utils';
 import { formatDistanceMeters } from '@/lib/distance';
@@ -604,6 +606,16 @@ function DetailContent() {
             )}
           </div>
         </div>
+
+        {/* Cross-sell: layanan lain dari mitra yang sama */}
+        <MoreFromPartner username={service.partner_username} excludeId={service.id} />
+
+        {/* Rekomendasi: layanan serupa dari mitra lain (kategori sama) */}
+        <SimilarServices
+          categoryId={service.category_id}
+          excludeServiceId={service.id}
+          excludePartnerId={service.partner_id}
+        />
       </div>
 
       {/* Mobile Action Bar */}

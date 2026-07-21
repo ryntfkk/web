@@ -26,6 +26,8 @@ export interface PublicService {
   partner_is_online?: boolean;
   /** Apakah mitra sudah terverifikasi oleh platform. */
   partner_is_verified?: boolean;
+  /** Jumlah pesanan SELESAI untuk layanan ini (social proof di kartu). */
+  total_orders?: number;
 }
 
 interface PublicServicesParams {
@@ -35,6 +37,8 @@ interface PublicServicesParams {
   q?: string;
   /** Filter kota (nama kanonik). '' / undefined = semua kota. */
   city?: string;
+  /** Filter kategori (UUID). Dipakai "Layanan serupa" & jelajah kategori. */
+  category?: string;
   /** Lokasi user untuk menghitung jarak ke basecamp mitra. */
   latitude?: number;
   longitude?: number;
@@ -50,6 +54,7 @@ export function usePublicServices(params: PublicServicesParams = {}) {
   if (params.limit) queryParams.append('limit', params.limit.toString());
   if (params.offset) queryParams.append('offset', params.offset.toString());
   if (params.city) queryParams.append('city', params.city);
+  if (params.category) queryParams.append('category', params.category);
   if (params.latitude !== undefined) queryParams.append('lat', params.latitude.toString());
   if (params.longitude !== undefined) queryParams.append('lon', params.longitude.toString());
 

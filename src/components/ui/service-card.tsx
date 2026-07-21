@@ -49,12 +49,12 @@ export function ServiceCard({
   return (
     <div
       className={cn(
-        "flex flex-col bg-white border border-[#e5e2e1] rounded-xs overflow-hidden cursor-pointer hover:shadow-md transition-all",
+        "flex flex-col bg-white border border-brand-gray-100 rounded-xs overflow-hidden cursor-pointer hover:shadow-md transition-all",
         className
       )}
     >
       {/* Image Section - Square 1:1 ratio */}
-      <div className="relative w-full aspect-square bg-[#e5e2e1]">
+      <div className="relative w-full aspect-square bg-brand-gray-100">
         <Image
           src={imageUrl}
           alt={vendorName}
@@ -64,7 +64,7 @@ export function ServiceCard({
         />
         {/* PRO Badge - top left */}
         {isPro && (
-          <div className="absolute top-2 left-2 bg-[#b51822] text-white px-2 py-0.5 rounded-md">
+          <div className="absolute top-2 left-2 bg-brand-red text-white px-2 py-0.5 rounded-md">
             <span className="text-[12px] sm:text-[14px] font-semibold leading-none">PRO</span>
           </div>
         )}
@@ -80,13 +80,13 @@ export function ServiceCard({
       {/* Content Section */}
       <div className="p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1">
         {/* Service Title */}
-        <h3 className="text-[13px] sm:text-[14px] font-semibold text-[#1c1b1b] leading-tight line-clamp-2">
+        <h3 className="text-[13px] sm:text-[14px] font-semibold text-brand-gray-900 leading-tight line-clamp-2">
           {vendorName}
         </h3>
 
         {/* Vendor Row - Avatar + Category */}
         <div className="flex items-center gap-1 mt-0.5 sm:mt-1">
-          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg sm:rounded-xl bg-[#e5e2e1] flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg sm:rounded-xl bg-brand-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
             {vendorAvatar ? (
               <Image
                 src={vendorAvatar}
@@ -96,12 +96,12 @@ export function ServiceCard({
                 className="object-cover"
               />
             ) : (
-              <span className="text-[8px] sm:text-[10px] font-medium text-[#5b403e]">
+              <span className="text-[8px] sm:text-[10px] font-medium text-brand-gray-700">
                 {getInitial(vendorName)}
               </span>
             )}
           </div>
-          <span className="text-[11px] sm:text-[12px] font-normal text-[#5b403e] truncate">
+          <span className="text-[11px] sm:text-[12px] font-normal text-brand-gray-700 truncate">
             {category}
           </span>
         </div>
@@ -109,16 +109,16 @@ export function ServiceCard({
         {/* Rating + Orders + City Row */}
         <div className="flex items-center justify-between gap-1 mt-0.5 sm:mt-1">
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 min-w-0">
-            <Star className="w-3 h-3 fill-[#D69E2E] text-[#D69E2E] flex-shrink-0" />
-            <span className="text-[12px] font-medium text-[#1c1b1b]">{Number(rating).toFixed(1)}</span>
+            <Star className="w-3 h-3 fill-brand-warning text-brand-warning flex-shrink-0" />
+            <span className="text-[12px] font-medium text-brand-gray-900">{Number(rating).toFixed(1)}</span>
             {typeof orderCount === 'number' && orderCount > 0 && (
-              <span className="text-[10px] sm:text-[11px] text-[#8f6f6d] truncate">
+              <span className="text-[10px] sm:text-[11px] text-brand-gray-400 truncate">
                 · {formatOrderCount(orderCount)} pesanan
               </span>
             )}
           </div>
           {city && (
-            <div className="flex items-center gap-0.5 text-[#5b403e] min-w-0">
+            <div className="flex items-center gap-0.5 text-brand-gray-700 min-w-0">
               <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
               <span className="text-[11px] sm:text-[12px] font-normal truncate">{city}</span>
             </div>
@@ -127,10 +127,10 @@ export function ServiceCard({
 
         {/* Price Row */}
         <div className="flex items-end gap-0.5 sm:gap-1 mt-1 sm:mt-2">
-          <span className="text-[14px] sm:text-[16px] font-semibold text-[#b51822] leading-none">
+          <span className="text-[14px] sm:text-[16px] font-semibold text-brand-red leading-none">
             Rp {price.toLocaleString('id-ID')}
           </span>
-          <span className="text-[11px] sm:text-[12px] font-normal text-[#5b403e] mb-0.5">
+          <span className="text-[11px] sm:text-[12px] font-normal text-brand-gray-700 mb-0.5">
             /{unit}
           </span>
         </div>
