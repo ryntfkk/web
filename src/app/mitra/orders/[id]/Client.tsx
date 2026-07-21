@@ -47,6 +47,9 @@ interface MitraOrderDetail {
   confirmation_expired_at?: string;
   service_address?: string;
   address_detail?: string;
+  district?: string;
+  city?: string;
+  province?: string;
   service_lat?: number;
   service_lon?: number;
   notes?: string;
@@ -631,12 +634,7 @@ export default function MitraOrderDetailClient() {
                     {order.customer_info.username && (
                       <p className="text-xs text-[#9e8e8c] truncate">@{order.customer_info.username}</p>
                     )}
-                    {order.customer_info.phone_masked && (
-                      <p className="text-xs text-[#9e8e8c] flex items-center gap-1 mt-1">
-                        <Phone className="w-3 h-3" /> {order.customer_info.phone_masked}
-                        <span className="text-[#c9bcba]">· chat untuk menghubungi</span>
-                      </p>
-                    )}
+
                   </div>
                   <Button
                     size="sm"
@@ -669,6 +667,11 @@ export default function MitraOrderDetailClient() {
                       <p className="text-[#1c1b1b]">{order.service_address}</p>
                       {order.address_detail && (
                         <p className="text-xs text-[#9e8e8c] mt-0.5">{order.address_detail}</p>
+                      )}
+                      {(order.district || order.city || order.province) && (
+                        <p className="text-xs text-[#5b403e] mt-0.5">
+                          {[order.district, order.city, order.province].filter(Boolean).join(', ')}
+                        </p>
                       )}
                     </div>
                   </div>

@@ -1,12 +1,11 @@
 "use client";
 
-import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw } from 'lucide-react';
+import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
@@ -288,140 +287,124 @@ export default function OrdersPage() {
                 )}
               </div>
             ) : (
-              filteredOrders.map(order => (
-                  <div key={order.id} className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
-                    <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div>
-                          <p className="text-sm font-semibold text-[#32201f]">{order.order_number}</p>
-                          <p className="text-xs text-[#8f6f6d] flex items-center gap-1 mt-1">
-                            <Calendar className="w-3 h-3" />
-                            {formatDate(order.created_at)}
-                          </p>
+              filteredOrders.map(order => {
+                const partnerName = order.partner?.name || order.partner_name;
+                const extraItems = (order.items?.length ?? 0) - 2;
+                return (
+                  <div key={order.id} className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden transition-shadow hover:shadow-sm">
+                    {/* Badan kartu bisa diklik → detail (gaya Shopee) */}
+                    <Link href={`/orders/${order.id}`} className="block">
+                      {/* Header: mitra (toko) + status */}
+                      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-[#f0eded]">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Store className="w-4 h-4 text-[#b51822] shrink-0" />
+                          <span className="text-sm font-semibold text-[#1c1b1b] truncate">{partnerName || 'Mitra'}</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-[#c9bcba] shrink-0" />
                         </div>
-                        <StatusBadge status={order.status as any} className="self-start sm:self-auto" />
+                        <StatusBadge status={order.status as any} className="shrink-0" />
                       </div>
-                    </div>
 
-                    <div className="p-4">
-                      <div className="space-y-2 mb-4">
+                      {/* Layanan — baris produk ala Shopee (thumbnail besar) */}
+                      <div className="px-4 py-3 divide-y divide-[#f0eded]">
                         {order.items?.slice(0, 2).map(item => {
                           const thumb = item.photo_url || item.service_photo_url;
                           return (
-                          <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-10 h-10 shrink-0 bg-[#f7f5f4] rounded-md overflow-hidden relative flex items-center justify-center">
+                            <div key={item.id} className="flex gap-3 py-2.5 first:pt-0 last:pb-0">
+                              <div className="w-16 h-16 shrink-0 bg-[#f7f5f4] rounded-md border border-[#e5e2e1] overflow-hidden relative flex items-center justify-center">
                                 {thumb ? (
-                                  <Image
-                                    src={thumb}
-                                    alt={item.service_name || item.name || 'Layanan'}
-                                    fill
-                                    className="object-cover"
-                                    sizes="40px"
-                                  />
+                                  <Image src={thumb} alt={item.service_name || item.name || 'Layanan'} fill className="object-cover" sizes="64px" />
                                 ) : (
-                                  <Package className="w-4 h-4 text-[#8f6f6d]" />
+                                  <Package className="w-5 h-5 text-[#8f6f6d]" />
                                 )}
                               </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-[#32201f] truncate">{item.service_name || item.name}</p>
-                                <p className="text-xs text-[#8f6f6d]">x{item.quantity}</p>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-[#1c1b1b] leading-snug line-clamp-2">{item.service_name || item.name}</p>
+                                <p className="text-xs text-[#8f6f6d] mt-1">x{item.quantity}</p>
                               </div>
+                              <p className="text-sm font-medium text-[#1c1b1b] shrink-0 text-right">
+                                {formatPrice(item.price * item.quantity)}
+                              </p>
                             </div>
-                            <p className="text-sm font-semibold text-[#32201f] self-end sm:self-auto">
-                              {formatPrice(item.price * item.quantity)}
-                            </p>
-                          </div>
                           );
                         })}
-                        {order.items && order.items.length > 2 && (
-                          <p className="text-xs text-[#8f6f6d] pl-10">
-                            +{order.items.length - 2} layanan lainnya
-                          </p>
+                        {extraItems > 0 && (
+                          <p className="pt-2.5 text-center text-xs text-[#8f6f6d]">Lihat {extraItems} layanan lainnya</p>
                         )}
                       </div>
 
-                      {/* Partner Info — API mengembalikan `partner.name` ter-nest; fallback ke root untuk klien lama. */}
-                      {(() => {
-                        const partnerName = order.partner?.name || order.partner_name;
-                        if (!partnerName) return null;
-                        return (
-                          <div className="flex items-center gap-3 p-3 bg-[#f7f5f4] rounded-md mb-4">
-                            <div className="w-10 h-10 shrink-0 bg-[#e5e2e1] rounded-md flex items-center justify-center text-sm font-bold text-[#5b403e]">
-                              {getInitial(partnerName)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-[#32201f] truncate">{partnerName}</p>
-                              <p className="text-xs text-[#8f6f6d]">Mitra</p>
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* Service Info */}
-                      {order.service_date || order.scheduled_at ? (
-                        <div className="flex items-center gap-2 text-xs text-[#8f6f6d] mb-4">
-                          <Calendar className="w-4 h-4 shrink-0" />
-                          <span className="truncate">Jadwal: {formatDate(order.service_date || order.scheduled_at || '')}</span>
-                        </div>
-                      ) : null}
-
-                      {order.service_address || order.address ? (
-                        <div className="flex items-center gap-2 text-xs text-[#8f6f6d] mb-4">
-                          <MapPin className="w-4 h-4 shrink-0" />
-                          <span className="truncate">{order.service_address || order.address}</span>
-                        </div>
-                      ) : null}
-
-                      {/* Footer */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-[#e5e2e1] gap-4">
-                        <div>
-                          <p className="text-xs text-[#8f6f6d]">Total</p>
-                          <p className="text-lg font-bold text-[#b51822]">{formatPrice(order.total_amount || order.agreed_price || 0)}</p>
-                        </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                          {order.status === 'WAITING_PAYMENT' && (
-                            <Link href={`/payment/${order.id}`} className="flex-1 sm:flex-none">
-                              <Button size="sm" className="w-full bg-[#DD6B20] hover:bg-[#C05621] rounded-md">
-                                Bayar
-                              </Button>
-                            </Link>
+                      {/* Jadwal + alamat (ringkas) */}
+                      {(order.service_date || order.scheduled_at || order.service_address || order.address) && (
+                        <div className="px-4 pb-2.5 space-y-1">
+                          {(order.service_date || order.scheduled_at) && (
+                            <p className="flex items-center gap-1.5 text-xs text-[#8f6f6d]">
+                              <Calendar className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">Jadwal: {formatDate(order.service_date || order.scheduled_at || '')}</span>
+                            </p>
                           )}
-                          {order.status === 'COMPLETED' && (
-                            <Link href={`/orders/${order.id}/review`} className="flex-1 sm:flex-none">
-                              <Button size="sm" variant="secondary" className="w-full border-[#e5e2e1] text-[#5b403e] rounded-md">
-                                <MessageSquare className="w-4 h-4 mr-1" />
-                                Ulasan
-                              </Button>
-                            </Link>
+                          {(order.service_address || order.address) && (
+                            <p className="flex items-center gap-1.5 text-xs text-[#8f6f6d]">
+                              <MapPin className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{order.service_address || order.address}</span>
+                            </p>
                           )}
-                          {(order.status === 'COMPLETED' || order.status === 'CANCELLED') && (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="flex-1 sm:flex-none border-[#e5e2e1] text-[#5b403e] rounded-md"
-                              disabled={reorderingId === order.id}
-                              onClick={() => handleReorder(order.id)}
-                            >
-                              {reorderingId === order.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <><RotateCcw className="w-4 h-4 mr-1" /> Pesan Lagi</>
-                              )}
-                            </Button>
-                          )}
-                          <Link href={`/orders/${order.id}`} className="flex-1 sm:flex-none">
-                            <Button size="sm" className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-md">
-                              Detail
-                              <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
-                            </Button>
-                          </Link>
                         </div>
+                      )}
+
+                      {/* No. pesanan + tanggal dibuat (tetap ditampilkan) */}
+                      <div className="px-4 pb-2 flex items-center justify-between gap-2 text-[11px] text-[#9e8e8c]">
+                        <span className="truncate">{order.order_number}</span>
+                        <span className="shrink-0 flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />{formatDate(order.created_at)}
+                        </span>
                       </div>
+
+                      {/* Total — rata kanan ala Shopee */}
+                      <div className="px-4 py-2.5 bg-[#fcfafa] border-t border-[#f0eded] flex items-center justify-end gap-1.5">
+                        <span className="text-xs text-[#5b403e]">Total Pesanan:</span>
+                        <span className="text-base font-bold text-[#b51822]">
+                          {formatPrice(order.total_amount || order.agreed_price || 0)}
+                        </span>
+                      </div>
+                    </Link>
+
+                    {/* Aksi — di luar Link agar tombol tak memicu navigasi */}
+                    <div className="px-4 py-2.5 border-t border-[#f0eded] flex items-center justify-end gap-2 flex-wrap">
+                      {order.status === 'WAITING_PAYMENT' && (
+                        <Link href={`/payment/${order.id}`}>
+                          <Button size="sm" className="bg-[#DD6B20] hover:bg-[#C05621] rounded-md">Bayar</Button>
+                        </Link>
+                      )}
+                      {order.status === 'COMPLETED' && (
+                        <Link href={`/orders/${order.id}/review`}>
+                          <Button size="sm" variant="secondary" className="border-[#e5e2e1] text-[#5b403e] rounded-md">
+                            <MessageSquare className="w-4 h-4 mr-1" /> Ulasan
+                          </Button>
+                        </Link>
+                      )}
+                      {(order.status === 'COMPLETED' || order.status === 'CANCELLED') && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="border-[#e5e2e1] text-[#5b403e] rounded-md"
+                          disabled={reorderingId === order.id}
+                          onClick={() => handleReorder(order.id)}
+                        >
+                          {reorderingId === order.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <><RotateCcw className="w-4 h-4 mr-1" /> Pesan Lagi</>
+                          )}
+                        </Button>
+                      )}
+                      <Link href={`/orders/${order.id}`}>
+                        <Button size="sm" className="bg-[#b51822] hover:bg-[#90121a] rounded-md">
+                          Detail <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
+                        </Button>
+                      </Link>
                     </div>
                   </div>
-                )
-              )
+                );
+              })
             )}
           </div>
         </div>

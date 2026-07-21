@@ -17,6 +17,11 @@ import { fetchAPI } from '@/lib/api';
 import { createSupportThread } from '@/lib/support';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import dynamic from 'next/dynamic';
+
+// Peta hanya di klien (butuh window/Leaflet) → hindari SSR. Sama seperti detail
+// order mitra, agar tampilan koordinat konsisten di kedua sisi.
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 interface OrderDetail {
   id: string;
@@ -39,6 +44,13 @@ interface OrderDetail {
   confirmation_expired_at?: string;
   service_address?: string;
   address_detail?: string;
+  district?: string;
+  city?: string;
+  province?: string;
+  // Koordinat lokasi pengerjaan (snapshot saat order dibuat) — untuk peta,
+  // konsisten dengan detail order mitra.
+  service_lat?: number;
+  service_lon?: number;
   notes?: string;
   photos?: string[];
   cancellation_reason?: string;
@@ -707,16 +719,7 @@ export default function OrderDetailClient() {
                       )}
                     </div>
 
-                    {order.partner.phone_masked && (
-                      <p className="text-xs text-[#9e8e8c] flex items-center gap-1 mt-1">
-                        <Phone className="w-3 h-3" /> {order.partner.phone_masked}
-                        <span className="text-[#c9bcba]">· chat untuk menghubungi</span>
-                      </p>
-                    )}
 
-                    {order.partner.bio && (
-                      <p className="text-xs text-[#5b403e] mt-1.5 line-clamp-2">{order.partner.bio}</p>
-                    )}
 
                     {order.partner.service_area && order.partner.service_area.length > 0 && (
                       <div className="flex gap-1 flex-wrap mt-2">
@@ -845,8 +848,24 @@ export default function OrderDetailClient() {
                       {order.address_detail && (
                         <p className="text-xs text-[#9e8e8c] mt-0.5">{order.address_detail}</p>
                       )}
+                      {(order.district || order.city || order.province) && (
+                        <p className="text-xs text-[#5b403e] mt-0.5">
+                          {[order.district, order.city, order.province].filter(Boolean).join(', ')}
+                        </p>
+                      )}
                     </div>
                   </div>
+                )}
+                {/* Peta koordinat lokasi pengerjaan (snapshot saat order dibuat) —
+                    konsisten dengan detail order mitra. */}
+                {typeof order.service_lat === 'number' && typeof order.service_lon === 'number' &&
+                  !(order.service_lat === 0 && order.service_lon === 0) && (
+                  <MapView
+                    lat={order.service_lat}
+                    lng={order.service_lon}
+                    label={order.service_address}
+                    className="h-48"
+                  />
                 )}
               </div>
 
