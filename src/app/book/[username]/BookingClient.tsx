@@ -9,7 +9,7 @@ import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
 import { PLACEHOLDER_AVATAR } from '@/lib/images';
 import { fetchAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCartStore } from '@/lib/store/cartStore';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
@@ -70,7 +70,10 @@ interface Address {
 }
 
 export default function BookingClient() {
-  const { isAuthenticated, user } = useAuthStore();
+  // useRequireAuth menunggu silent-refresh (isInitializing) sebelum memutuskan —
+  // tanpa ini, isAuthenticated sesaat false saat reload dan user yang sudah login
+  // terlempar ke /login. Redirect ditangani oleh hook.
+  const { isAuthenticated, isInitializing, user } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -202,13 +205,11 @@ export default function BookingClient() {
   }, [subtotal]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/book/${username}`)}`);
-      return;
-    }
+    // Tunggu init selesai & terautentikasi; redirect ditangani useRequireAuth.
+    if (isInitializing || !isAuthenticated) return;
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, username]);
+  }, [isAuthenticated, isInitializing, username]);
 
   useEffect(() => {
     if (preselectedLines.length > 0 && services.length > 0 && !preselectedRef.current) {
@@ -368,18 +369,13 @@ export default function BookingClient() {
       return;
     }
 
-    // Lead time validation for today
-    const isToday = date === new Date().toISOString().split('T')[0];
-    if (isToday) {
-      const [hour, minute] = time.split(':').map(Number);
-      const slotTime = new Date();
-      slotTime.setHours(hour, minute, 0, 0);
-      const minLeadTime = new Date();
-      minLeadTime.setHours(minLeadTime.getHours() + 2);
-      if (slotTime < minLeadTime) {
-        setErrorMsg('Waktu pengerjaan untuk hari ini minimal 2 jam dari sekarang.');
-        return;
-      }
+    // Lead time: slot diinterpretasikan sebagai WIB (+07:00), sama dgn scheduled_at
+    // yang dikirim. Bandingkan sebagai instant absolut (bukan setHours yang memakai
+    // TZ browser) agar benar untuk pengguna di zona waktu mana pun.
+    const slotInstant = new Date(`${date}T${time}:00+07:00`);
+    if (slotInstant.getTime() < Date.now() + 2 * 60 * 60 * 1000) {
+      setErrorMsg('Waktu pengerjaan minimal 2 jam dari sekarang.');
+      return;
     }
 
     setLoading(true);
@@ -968,14 +964,11 @@ export default function BookingClient() {
                     ) : (
                       <div className="grid grid-cols-4 gap-1.5">
                         {availableSlots.map(t => {
-                          const isToday = date === new Date().toISOString().split('T')[0];
-                          const [hour, minute] = t.split(':').map(Number);
-                          const slotTime = new Date();
-                          slotTime.setHours(hour, minute, 0, 0);
-                          const minLeadTime = new Date();
-                          minLeadTime.setHours(minLeadTime.getHours() + 2);
-                          const isDisabled = isToday && slotTime < minLeadTime;
-                          
+                          // Slot = WIB (+07:00); bandingkan sebagai instant absolut
+                          // agar disable benar di zona waktu mana pun (lihat submit).
+                          const slotInstant = new Date(`${date}T${t}:00+07:00`);
+                          const isDisabled = slotInstant.getTime() < Date.now() + 2 * 60 * 60 * 1000;
+
                           return (
                             <button key={t} onClick={() => setTime(t)} disabled={isDisabled} className={`py-1.5 rounded border text-sm font-medium transition-colors ${isDisabled ? 'border-[#e5e2e1] text-[#9e8e8c] bg-[#f7f5f4] opacity-50 cursor-not-allowed' : time === t ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}>
                               {t}

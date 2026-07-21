@@ -149,7 +149,10 @@ export default function OrdersPage() {
     .filter(order => {
       if (!searchQuery) return true;
       const inNumber = order.order_number?.toLowerCase().includes(searchQuery);
-      const inPartner = order.partner_name?.toLowerCase().includes(searchQuery);
+      // Nama mitra ter-nest di `partner` (partner_name di root tak terisi).
+      const inPartner = (order.partner?.name ?? order.partner_name)
+        ?.toLowerCase()
+        .includes(searchQuery);
       const inItems = order.items?.some(it =>
         (it.service_name || it.name || '').toLowerCase().includes(searchQuery),
       );

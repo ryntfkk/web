@@ -54,6 +54,39 @@ export async function silentRefresh(): Promise<boolean> {
   return refreshPromise;
 }
 
+/**
+ * Parse a Response into ApiResponse<T> TANPA mengasumsikan selalu ada body JSON.
+ * Respons 204 No Content / body kosong dari mutasi sukses (mis. DELETE foto) tak
+ * punya envelope; `response.json()` akan melempar dan catch luar mengubah sukses
+ * jadi "Network error" palsu. Tangani body kosong/non-JSON berdasarkan status,
+ * lalu tempelkan `status` (beberapa UI membaca res.status).
+ */
+async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
+  let data: ApiResponse<T>;
+  if (response.status === 204) {
+    data = { success: response.ok };
+  } else {
+    const text = await response.text();
+    if (!text) {
+      data = response.ok
+        ? { success: true }
+        : { success: false, error: `HTTP ${response.status}` };
+    } else {
+      try {
+        data = JSON.parse(text) as ApiResponse<T>;
+      } catch {
+        data = response.ok
+          ? { success: true }
+          : { success: false, error: `HTTP ${response.status}` };
+      }
+    }
+  }
+  if (typeof data === 'object' && data !== null) {
+    (data as ApiResponse<T> & { status?: number }).status = response.status;
+  }
+  return data;
+}
+
 // ── Public API helper ───────────────────────────────────────────────
 
 export async function fetchAPI<T>(
@@ -99,23 +132,14 @@ export async function fetchAPI<T>(
           headers: retryHeaders,
         });
 
-        const retryData = await retryResponse.json();
-        if (typeof retryData === 'object' && retryData !== null) {
-          (retryData as any).status = retryResponse.status;
-        }
-        return retryData;
+        return parseResponse<T>(retryResponse);
       }
 
       // Refresh failed — clear auth state so the UI reacts
       useAuthStore.getState().logout();
     }
 
-    const data = await response.json();
-    // Attach status to data object
-    if (typeof data === 'object' && data !== null) {
-      (data as any).status = response.status;
-    }
-    return data;
+    return parseResponse<T>(response);
   } catch (error) {
     console.error(`API Error on ${endpoint}:`, error);
     return { success: false, error: 'Network error or server unreachable', status: 0 };

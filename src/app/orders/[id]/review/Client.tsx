@@ -69,7 +69,9 @@ export default function ReviewClient() {
     if (res.success) {
       setSubmitted(true);
     } else {
-      if (res.message?.toLowerCase().includes('already reviewed')) {
+      // Backend memakai kode mesin REVIEW_ALREADY_EXISTS (message = kode itu
+      // sendiri, bukan teks Inggris "already reviewed") — cocokkan res.code.
+      if (res.code === 'REVIEW_ALREADY_EXISTS') {
         router.replace(`/orders/${orderId}`);
       } else {
         setError(res.message || 'Gagal mengirim ulasan.');

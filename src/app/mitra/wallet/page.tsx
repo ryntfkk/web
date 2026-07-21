@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, Clock, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -67,7 +68,10 @@ export default function MitraWalletPage() {
       }
       
       if (balRes.success && balRes.data) {
-        setBalance(balRes.data.balance || 0);
+        // unwrapData: envelope bisa satu/dua tingkat (res.data.data) — samakan dgn
+        // payment page, kalau tidak saldo bisa tampil Rp 0.
+        const bal = unwrapData<any>(balRes.data);
+        setBalance(bal?.balance || 0);
       }
     } catch (e) {
       console.error("Failed to fetch wallet data:", e);

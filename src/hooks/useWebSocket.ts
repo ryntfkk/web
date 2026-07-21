@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGlobalChat } from '@/components/providers/chat-provider';
 
 interface UseWebSocketProps {
@@ -8,27 +8,30 @@ interface UseWebSocketProps {
   onError?: (error: any) => void;
 }
 
-export function useWebSocket({ roomId, onMessage, onTyping, onError }: UseWebSocketProps = {}) {
+export function useWebSocket({ roomId, onMessage, onTyping }: UseWebSocketProps = {}) {
   const { isConnected, sendTypingIndicator, subscribeToMessages, subscribeToTyping } = useGlobalChat();
+
+  // Pemanggil melewatkan closure inline yang identitasnya berubah setiap render
+  // (setiap pesan → setMessages → render → closure baru). Jika dipakai langsung
+  // sebagai dep effect, langganan di-cleanup+resubscribe terus-menerus → pesan
+  // bisa lolos di jendela unsub/resub. Simpan di ref agar effect hanya bergantung
+  // pada roomId + fungsi subscribe yang stabil.
+  const onMessageRef = useRef(onMessage);
+  const onTypingRef = useRef(onTyping);
+  useEffect(() => { onMessageRef.current = onMessage; }, [onMessage]);
+  useEffect(() => { onTypingRef.current = onTyping; }, [onTyping]);
 
   useEffect(() => {
     if (!roomId) return;
-    
-    let unsubMsg: (() => void) | undefined;
-    let unsubTyping: (() => void) | undefined;
 
-    if (onMessage) {
-      unsubMsg = subscribeToMessages(roomId, onMessage);
-    }
-    if (onTyping) {
-      unsubTyping = subscribeToTyping(roomId, onTyping);
-    }
+    const unsubMsg = subscribeToMessages(roomId, (msg: any) => onMessageRef.current?.(msg));
+    const unsubTyping = subscribeToTyping(roomId, (data: any) => onTypingRef.current?.(data));
 
     return () => {
-      if (unsubMsg) unsubMsg();
-      if (unsubTyping) unsubTyping();
+      unsubMsg();
+      unsubTyping();
     };
-  }, [roomId, onMessage, onTyping, subscribeToMessages, subscribeToTyping]);
+  }, [roomId, subscribeToMessages, subscribeToTyping]);
 
   const sendTyping = (isTyping: boolean) => {
     if (roomId) {

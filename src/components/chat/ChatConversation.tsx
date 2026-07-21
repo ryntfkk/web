@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ArrowLeft, Send, Camera, Image as ImageIcon, Loader2 as UploadSpinner } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { unwrapData } from '@/lib/order-utils';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { ROLE_PARTNER } from '@/lib/constants';
@@ -81,8 +82,13 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
     try {
       const roomRes = await fetchAPI<any>(`/chat/rooms`);
       if (roomRes.success && roomRes.data) {
-        const rooms = roomRes.data;
-        const currentRoom = rooms.find((r: any) => r.room_id === roomId);
+        // unwrapData: envelope bisa satu/dua tingkat — samakan dgn endpoint
+        // messages di bawah. Tanpa ini, bila /chat/rooms ganda-wrap, `.find`
+        // melempar & header stuck di skeleton selamanya.
+        const rooms = unwrapData<any[]>(roomRes.data);
+        const currentRoom = Array.isArray(rooms)
+          ? rooms.find((r: any) => r.room_id === roomId)
+          : undefined;
         if (currentRoom) {
           // Tentukan lawan bicara PER-room via user.id — bukan active_role global,
           // yang keliru untuk user dual-role (mitra yang juga jadi pelanggan) pada
@@ -107,8 +113,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       }
 
       const msgRes = await fetchAPI<any>(`/chat/${roomId}/messages?per_page=100`);
-      if (msgRes.success && msgRes.data?.data) {
-        setMessages(msgRes.data.data);
+      if (msgRes.success && msgRes.data) {
+        const msgs = unwrapData<Message[]>(msgRes.data);
+        if (Array.isArray(msgs)) setMessages(msgs);
       }
     } catch (e) {
       console.error(e);

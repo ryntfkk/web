@@ -21,6 +21,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const ran = useRef(false);
   const isInitializing = useAuthStore((s) => s.isInitializing);
   const login = useAuthStore((s) => s.login);
+  const logout = useAuthStore((s) => s.logout);
   const finishInitialization = useAuthStore((s) => s.finishInitialization);
 
   useEffect(() => {
@@ -54,16 +55,17 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           }
         }
 
-        // If we have a token but couldn't fetch the profile, something is off
-        // Clear auth and let the user proceed as unauthenticated
-        finishInitialization();
+        // Refresh berhasil (token tersimpan) tapi /users/me gagal → JANGAN
+        // tinggalkan token menggantung dgn UI "logout" (state tak konsisten;
+        // hanya reload penuh yang memperbaikinya). Bersihkan token via logout().
+        logout();
       } catch {
-        finishInitialization();
+        logout();
       }
     }
 
     init();
-  }, [finishInitialization, login]);
+  }, [finishInitialization, login, logout]);
 
   // Don't block rendering — children handle their own loading states.
   // The `isInitializing` flag is available in the store for any component

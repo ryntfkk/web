@@ -9,23 +9,33 @@ import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { safeRedirect } from '@/lib/utils';
 
 function LoginContent() {
-  const { login, loading, error, isAuthenticated } = useAuth();
+  const { login, loading, error, isAuthenticated, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Sanitasi untuk cegah open-redirect (?redirect=https://evil.com).
-  const redirectUrl = safeRedirect(searchParams.get('redirect'));
+  // Param mentah (bisa null). JANGAN di-`safeRedirect` di sini: safeRedirect(null)
+  // mengembalikan '/', sehingga selalu truthy dan mematikan default berbasis
+  // peran di useAuth (mitra tak pernah ke /mitra/dashboard). Sanitasi dilakukan
+  // saat dipakai.
+  const rawRedirect = searchParams.get('redirect');
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Redirect to home if already authenticated
+  // Sudah login saat membuka /login: honor redirect eksplisit, selain itu arahkan
+  // sesuai peran (konsisten dgn useAuth.login).
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace(redirectUrl);
+      if (rawRedirect) {
+        router.replace(safeRedirect(rawRedirect));
+      } else if (user?.active_role === 'partner') {
+        router.replace('/mitra/dashboard');
+      } else {
+        router.replace('/');
+      }
     }
-  }, [isAuthenticated, router, redirectUrl]);
+  }, [isAuthenticated, user, router, rawRedirect]);
 
   // Don't render login form if authenticated
   if (isAuthenticated) {
@@ -34,7 +44,8 @@ function LoginContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(identifier, password, rememberMe, redirectUrl);
+    // Kirim param mentah (null→undefined) agar useAuth menerapkan default peran.
+    await login(identifier, password, rememberMe, rawRedirect ?? undefined);
   };
 
   return (
