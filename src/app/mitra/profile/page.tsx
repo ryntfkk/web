@@ -71,13 +71,13 @@ export default function MitraProfilePage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-24">
       {/* Header — hero premium */}
-      <div className="bg-gradient-to-br from-[#b51822] via-[#d63b45] to-[#b51822] text-white px-4 py-8 md:py-10 relative overflow-hidden shadow-md">
+      <div className="bg-gradient-to-br from-[#b51822] via-[#d63b45] to-[#b51822] text-white px-4 py-6 md:py-10 relative overflow-hidden shadow-md">
         {/* Decorative background shapes */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
 
-        <div className="max-w-lg mx-auto relative z-10 flex items-center gap-5">
-          <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-3xl md:text-4xl font-extrabold text-white overflow-hidden shrink-0 border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+        <div className="max-w-lg mx-auto relative z-10 flex items-center gap-4 md:gap-6">
+          <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden shrink-0 border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
             {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -90,14 +90,14 @@ export default function MitraProfilePage() {
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/jpeg,image/png,image/jpg" className="hidden" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl md:text-3xl font-extrabold truncate tracking-tight drop-shadow-sm">{user?.name}</h1>
-            <p className="text-white/90 text-sm font-medium mt-0.5 drop-shadow-sm">{user?.phone}</p>
-            <div className="mt-3 flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
+            <h1 className="text-xl md:text-3xl font-extrabold truncate tracking-tight drop-shadow-sm">{user?.name}</h1>
+            <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user?.phone}</p>
+            <div className="mt-2 md:mt-3 flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Mode Mitra
               </span>
               {verificationStatus !== null && (
-                <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${
+                <span className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${
                   isVerified ? 'bg-[#F0FFF4]/90 backdrop-blur-sm text-[#276749] border-[#C6F6D5]' :
                   isPending ? 'bg-[#FFFAF0]/90 backdrop-blur-sm text-[#975A16] border-[#FEEBC8]' :
                   'bg-white/90 backdrop-blur-sm text-[#9B2C2C] border-[#FED7D7]'
@@ -112,6 +112,10 @@ export default function MitraProfilePage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        <MenuCard title="Mode">
+          <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan jasa sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />
+        </MenuCard>
+
         <MenuCard title="Akun & Mitra">
           <MenuListItem icon={ShieldCheck} label="Status Verifikasi Dokumen" subtitle="Cek status & unggah ulang dokumen" href="/mitra/verification-status" />
           <MenuListItem icon={User} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
@@ -127,9 +131,6 @@ export default function MitraProfilePage() {
           <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
         </MenuCard>
 
-        <MenuCard title="Mode">
-          <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan jasa sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />
-        </MenuCard>
 
         <button
           onClick={handleLogout}

@@ -32,10 +32,10 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
           {/* Subtle gradient accent on top */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#b51822] via-[#d63b45] to-[#b51822]"></div>
           
-          <div className="p-5 flex items-center justify-between border-b border-[#f0eceb]/60">
+          <div className="p-4 md:p-5 flex items-center justify-between border-b border-[#f0eceb]/60">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#fff0f0] to-[#fdeaea] flex items-center justify-center text-[#b51822] shadow-inner">
-                <ShieldCheck className="w-5 h-5" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-[#fff0f0] to-[#fdeaea] flex items-center justify-center text-[#b51822] shadow-inner">
+                <ShieldCheck className="w-4 h-4 md:w-5 md:h-5" />
               </div>
               <div>
                 <p className="font-bold text-[#1c1b1b] text-sm leading-none mb-1">Mitra Posko Jasa</p>
@@ -54,39 +54,39 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
             </div>
           </div>
           
-          <div className="p-5 grid grid-cols-3 gap-3">
-            <div className="bg-[#fcfafa] hover:bg-white rounded-xl p-3 flex flex-col items-center justify-center border border-transparent hover:border-[#f0eceb] hover:shadow-sm transition-all duration-300 cursor-default">
-              <div className="w-7 h-7 rounded-full bg-[#FFFAF0] flex items-center justify-center mb-2">
-                <Star className="w-3.5 h-3.5 text-[#D69E2E] fill-[#D69E2E]" />
+          <div className="p-4 md:p-5 grid grid-cols-3 gap-2 md:gap-3">
+            <div className="bg-[#fcfafa] hover:bg-white rounded-lg md:rounded-xl p-2.5 md:p-3 flex flex-col items-center justify-center border border-transparent hover:border-[#f0eceb] hover:shadow-sm transition-all duration-300 cursor-default">
+              <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-[#FFFAF0] flex items-center justify-center mb-1.5 md:mb-2">
+                <Star className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#D69E2E] fill-[#D69E2E]" />
               </div>
-              <p className="text-lg font-extrabold text-[#1c1b1b] leading-tight">
+              <p className="text-base md:text-lg font-extrabold text-[#1c1b1b] leading-tight">
                 {partnerStatus && 'rating' in partnerStatus ? (partnerStatus as any).rating?.toFixed(1) ?? '—' : '—'}
               </p>
-              <p className="text-[10px] text-[#5b403e] font-medium mt-0.5">Rating</p>
+              <p className="text-[9px] md:text-[10px] text-[#5b403e] font-medium mt-0.5">Rating</p>
             </div>
             
-            <div className="bg-[#fcfafa] hover:bg-white rounded-xl p-3 flex flex-col items-center justify-center border border-transparent hover:border-[#f0eceb] hover:shadow-sm transition-all duration-300 cursor-default">
-              <div className="w-7 h-7 rounded-full bg-[#EBF8FF] flex items-center justify-center mb-2">
-                <Clock className="w-3.5 h-3.5 text-[#3182CE]" />
+            <div className="bg-[#fcfafa] hover:bg-white rounded-lg md:rounded-xl p-2.5 md:p-3 flex flex-col items-center justify-center border border-transparent hover:border-[#f0eceb] hover:shadow-sm transition-all duration-300 cursor-default">
+              <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-[#EBF8FF] flex items-center justify-center mb-1.5 md:mb-2">
+                <Clock className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#3182CE]" />
               </div>
-              <p className="text-lg font-extrabold text-[#1c1b1b] leading-tight">
+              <p className="text-base md:text-lg font-extrabold text-[#1c1b1b] leading-tight">
                 {partnerStatus && 'total_orders' in partnerStatus ? (partnerStatus as any).total_orders ?? 0 : 0}
               </p>
-              <p className="text-[10px] text-[#5b403e] font-medium mt-0.5">Order</p>
+              <p className="text-[9px] md:text-[10px] text-[#5b403e] font-medium mt-0.5">Order</p>
             </div>
             
-            <div className="bg-[#fcfafa] hover:bg-white rounded-xl p-3 flex flex-col items-center justify-center border border-transparent hover:border-[#f0eceb] hover:shadow-sm transition-all duration-300 cursor-default">
-              <div className="w-7 h-7 rounded-full bg-[#F0FFF4] flex items-center justify-center mb-2">
-                <TrendingUp className="w-3.5 h-3.5 text-[#38A169]" />
+            <div className="bg-[#fcfafa] hover:bg-white rounded-lg md:rounded-xl p-2.5 md:p-3 flex flex-col items-center justify-center border border-transparent hover:border-[#f0eceb] hover:shadow-sm transition-all duration-300 cursor-default">
+              <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-[#F0FFF4] flex items-center justify-center mb-1.5 md:mb-2">
+                <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#38A169]" />
               </div>
-              <p className="text-lg font-extrabold text-[#1c1b1b] leading-tight">
+              <p className="text-base md:text-lg font-extrabold text-[#1c1b1b] leading-tight">
                 {partnerStatus && 'acceptance_rate' in partnerStatus ? `${(partnerStatus as any).acceptance_rate ?? 0}%` : '—'}
               </p>
-              <p className="text-[10px] text-[#5b403e] font-medium mt-0.5">Acc Rate</p>
+              <p className="text-[9px] md:text-[10px] text-[#5b403e] font-medium mt-0.5">Acc Rate</p>
             </div>
           </div>
           
-          <div className="px-5 pb-5">
+          <div className="px-4 pb-4 md:px-5 md:pb-5">
             <button
               onClick={onSwitchRole}
               disabled={switching}
@@ -115,19 +115,19 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#b51822]/5 rounded-bl-full -z-0"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#b51822]/5 rounded-tr-full -z-0"></div>
           
-          <div className="p-6 text-center relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-white shadow-sm border border-[#f0eceb] flex items-center justify-center mx-auto mb-4 rotate-3">
-              <Briefcase className="w-8 h-8 text-[#b51822]" />
+          <div className="p-4 md:p-5 flex flex-col items-center justify-center text-center relative z-10">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-[#fff0f0] rounded-full flex items-center justify-center mb-3 md:mb-4">
+              <Briefcase className="w-6 h-6 md:w-8 md:h-8 text-[#b51822]" />
             </div>
             
-            <h3 className="text-lg font-extrabold text-[#1c1b1b] mb-2 tracking-tight">
-              {partnerStatus?.verification_status === 'pending' ? 'Verifikasi Sedang Diproses' : 'Hasilkan Uang Tambahan'}
+            <h3 className="text-sm md:text-base font-bold text-[#1c1b1b] mb-1 md:mb-2 tracking-tight">
+              {partnerStatus?.verification_status === 'pending' ? 'Verifikasi Sedang Diproses' : 'Mulai Perjalanan Anda'}
             </h3>
             
-            <p className="text-sm text-[#5b403e] mb-6 leading-relaxed px-2">
+            <p className="text-xs text-[#8f6f6d] mb-4 md:mb-6 max-w-[200px] md:max-w-[250px] leading-relaxed">
               {partnerStatus?.verification_status === 'pending'
                 ? 'Tim kami sedang meninjau dokumen pendaftaran Anda. Mohon tunggu maksimal 1x24 jam kerja.'
-                : 'Bergabunglah sebagai mitra Posko Jasa, atur jadwal Anda sendiri, dan jangkau lebih banyak pelanggan.'}
+                : 'Daftar sebagai mitra dan raih penghasilan tambahan bersama Posko Jasa.'}
             </p>
             
             {!partnerStatus ? (

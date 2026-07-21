@@ -147,20 +147,20 @@ export default function ProfilePage() {
   return (
     <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
       {/* Header - Full Width (shared mobile & desktop) */}
-      <div className="bg-gradient-to-br from-[#b51822] via-[#d63b45] to-[#b51822] text-white px-4 py-8 md:py-10 relative overflow-hidden shadow-md">
+      <div className="bg-gradient-to-br from-[#b51822] via-[#d63b45] to-[#b51822] text-white px-4 py-6 md:py-10 relative overflow-hidden shadow-md">
         {/* Decorative background shapes */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
 
         <div className="max-w-6xl mx-auto relative z-10">
-          <div className="flex items-center gap-5">
-            <div className="h-20 w-20 md:h-24 md:w-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-3xl md:text-4xl font-extrabold text-white border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="h-16 w-16 md:h-24 md:w-24 bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
               {getInitial(user?.name || '')}
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight drop-shadow-sm">{user.name}</h1>
-              <p className="text-white/90 text-sm font-medium mt-0.5 drop-shadow-sm">{user.phone}</p>
-              <div className="mt-3 inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
+              <h1 className="text-xl md:text-3xl font-extrabold tracking-tight drop-shadow-sm">{user.name}</h1>
+              <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user.phone}</p>
+              <div className="mt-2 md:mt-3 inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
                 {user.active_role === 'partner' ? 'Mode Mitra' : 'Mode Pelanggan'}
               </div>
