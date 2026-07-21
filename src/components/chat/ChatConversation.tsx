@@ -44,6 +44,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [isArchived, setIsArchived] = useState(false);
+  const [activeOrder, setActiveOrder] = useState<any>(null);
   const [sendError, setSendError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -109,6 +110,31 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             });
           }
           setIsArchived(!currentRoom.is_active);
+
+          // Try to fetch active order context
+          try {
+            const endpoint = iAmPartner ? '/mitra/orders' : '/orders';
+            const ordersRes = await fetchAPI<any>(endpoint);
+            if (ordersRes.success && ordersRes.data) {
+              const orders = unwrapData<any[]>(ordersRes.data);
+              if (Array.isArray(orders)) {
+                // Find an active order with this specific partner/customer
+                const active = orders.find(o => {
+                  const isActiveStatus = ['WAITING_CONFIRMATION', 'WAITING_PAYMENT', 'PAID', 'IN_PROGRESS'].includes(o.status);
+                  if (!isActiveStatus) return false;
+                  
+                  if (iAmPartner) {
+                    return o.user?.id === currentRoom.customer_id || o.user_id === currentRoom.customer_id;
+                  } else {
+                    return o.partner?.id === currentRoom.partner_id || o.partner?.user_id === currentRoom.partner_id || o.partner_id === currentRoom.partner_id;
+                  }
+                });
+                if (active) setActiveOrder(active);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to fetch order context', e);
+          }
         }
       }
 
@@ -315,6 +341,30 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         </button>
       </div>
 
+      {/* Context Card (Active Order) */}
+      {activeOrder && (
+        <div className={`shrink-0 border-b border-[#e5e2e1] bg-white p-3 shadow-sm z-10 ${embedded ? '' : 'max-w-lg mx-auto w-full'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-semibold text-[#8f6f6d] uppercase tracking-wider mb-0.5">Pesanan Aktif</span>
+              <span className="text-sm font-bold text-[#1c1b1b] truncate">
+                {activeOrder.order_number}
+              </span>
+              <span className="text-xs text-[#5b403e] truncate">
+                {activeOrder.items?.[0]?.service_name || activeOrder.items?.[0]?.name || 'Layanan Jasa'}
+                {activeOrder.items?.length > 1 && ` +${activeOrder.items.length - 1} lainnya`}
+              </span>
+            </div>
+            <Link 
+              href={isMitra ? `/mitra/orders/${activeOrder.id}` : `/orders/${activeOrder.id}`}
+              className="shrink-0 bg-[#fdf2f2] text-[#b51822] hover:bg-[#fce5e5] px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+            >
+              Lihat Detail
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${embedded ? '' : 'max-w-lg mx-auto w-full'}`}>
         {loading ? (
@@ -388,19 +438,35 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       </div>
 
       {/* Input Area */}
-      <div className={`bg-white border-t border-[#e5e2e1] mt-auto shrink-0 ${embedded ? '' : 'pb-[env(safe-area-inset-bottom)]'}`}>
+      <div className={`bg-white border-t border-[#e5e2e1] mt-auto shrink-0 flex flex-col ${embedded ? '' : 'pb-[env(safe-area-inset-bottom)]'}`}>
         {isArchived ? (
           <div className={`p-4 text-center ${embedded ? '' : 'max-w-lg mx-auto'}`}>
             <p className="text-sm text-[#9e8e8c] font-medium">Sesi chat ini telah diarsipkan karena pesanan selesai.</p>
           </div>
         ) : (
-          <form onSubmit={handleSend} className={`p-3 flex flex-col gap-2 ${embedded ? '' : 'max-w-lg mx-auto'}`}>
-            {sendError && (
-              <div className="text-xs text-[#E53E3E] px-2 font-medium bg-[#FFF5F5] py-1.5 rounded-lg border border-[#FEB2B2]">
-                {sendError}
+          <div className={`flex flex-col w-full ${embedded ? '' : 'max-w-lg mx-auto'}`}>
+            {/* Quick Replies for Mitra */}
+            {isMitra && (
+              <div className="flex gap-2 overflow-x-auto px-3 pt-3 pb-1 scrollbar-hide touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' }}>
+                {["Halo, ada yang bisa dibantu?", "Saya segera menuju lokasi.", "Baik, pesanan sudah saya terima.", "Mohon ditunggu sebentar ya."].map((reply, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setInput(reply)}
+                    className="shrink-0 bg-[#f7f5f4] hover:bg-[#f0eded] border border-[#e5e2e1] text-[#5b403e] text-xs px-3 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium"
+                  >
+                    {reply}
+                  </button>
+                ))}
               </div>
             )}
-            <div className="flex items-end gap-2">
+            <form onSubmit={handleSend} className="p-3 flex flex-col gap-2 w-full">
+              {sendError && (
+                <div className="text-xs text-[#E53E3E] px-2 font-medium bg-[#FFF5F5] py-1.5 rounded-lg border border-[#FEB2B2]">
+                  {sendError}
+                </div>
+              )}
+              <div className="flex items-end gap-2">
               {/* Input file tersembunyi: galeri & kamera (capture di mobile) */}
               <input
                 ref={galleryInputRef}
@@ -461,6 +527,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             </div>
             </div>
           </form>
+          </div>
         )}
       </div>
     </div>

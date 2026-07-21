@@ -5,7 +5,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store } from 'lucide-react';
+import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store, CheckCircle2, Check, Clock, AlertCircle } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
@@ -271,21 +271,39 @@ export default function OrdersPage() {
                 ))}
               </>
             ) : filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-md border border-[#e5e2e1] p-8 text-center">
-                <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-[#32201f] mb-2">
-                  {searchQuery ? 'Tidak Ada Hasil' : activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
+              <div className="bg-white rounded-xl border border-[#e5e2e1] p-10 text-center flex flex-col items-center justify-center min-h-[300px] shadow-sm">
+                <div className="relative w-32 h-32 mb-6">
+                  <div className="absolute inset-0 bg-[#fdf2f2] rounded-full opacity-60 animate-pulse"></div>
+                  <div className="absolute inset-4 bg-[#fce5e5] rounded-full"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {searchQuery ? (
+                      <Search className="w-12 h-12 text-[#b51822]" strokeWidth={1.5} />
+                    ) : activeFilter === 'all' ? (
+                      <Package className="w-12 h-12 text-[#b51822]" strokeWidth={1.5} />
+                    ) : activeFilter === 'cancelled' ? (
+                      <AlertCircle className="w-12 h-12 text-[#b51822]" strokeWidth={1.5} />
+                    ) : (
+                      <Clock className="w-12 h-12 text-[#b51822]" strokeWidth={1.5} />
+                    )}
+                  </div>
+                  {/* Decorative dots */}
+                  <div className="absolute top-2 right-4 w-3 h-3 bg-[#D69E2E] rounded-full opacity-70"></div>
+                  <div className="absolute bottom-4 left-2 w-2 h-2 bg-[#3182CE] rounded-full opacity-70"></div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-[#1c1b1b] mb-2">
+                  {searchQuery ? 'Pesanan Tidak Ditemukan' : activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
                 </h3>
-                <p className="text-sm text-[#8f6f6d] mb-6">
+                <p className="text-[#5b403e] mb-8 max-w-sm text-sm">
                   {searchQuery
-                    ? `Tidak ada pesanan yang cocok dengan "${search}".`
+                    ? `Maaf, kami tidak menemukan pesanan yang cocok dengan "${search}".`
                     : activeFilter === 'all'
-                      ? 'Anda belum memiliki pesanan. Mulai pesan jasa sekarang!'
-                      : 'Tidak ada pesanan dengan status ini.'}
+                      ? 'Tampaknya Anda belum pernah memesan jasa. Yuk, temukan layanan yang Anda butuhkan sekarang!'
+                      : 'Belum ada riwayat pesanan untuk status ini.'}
                 </p>
                 {activeFilter === 'all' && !searchQuery && (
-                  <Button onClick={() => router.push('/')} className="rounded-md">
-                    Cari Jasa
+                  <Button onClick={() => router.push('/')} className="rounded-xl px-8 py-6 font-bold shadow-[0_4px_12px_rgba(181,24,34,0.2)]">
+                    Mulai Cari Jasa
                   </Button>
                 )}
               </div>
@@ -298,13 +316,49 @@ export default function OrdersPage() {
                     {/* Badan kartu bisa diklik → detail (gaya Shopee) */}
                     <Link href={`/orders/${order.id}`} className="block">
                       {/* Header: mitra (toko) + status */}
-                      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-[#f0eded]">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Store className="w-4 h-4 text-[#b51822] shrink-0" />
-                          <span className="text-sm font-semibold text-[#1c1b1b] truncate">{partnerName || 'Mitra'}</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-[#c9bcba] shrink-0" />
+                      <div className="flex flex-col gap-3 px-4 py-3 border-b border-[#f0eded] bg-[#fcfafa]">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <Store className="w-4 h-4 text-[#b51822] shrink-0" />
+                            <span className="text-sm font-semibold text-[#1c1b1b] truncate">{partnerName || 'Mitra'}</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#c9bcba] shrink-0" />
+                          </div>
+                          <span className="text-xs font-bold text-[#1c1b1b]">{order.order_number}</span>
                         </div>
-                        <StatusBadge status={order.status as any} className="shrink-0" />
+                        
+                        {/* Visual Progress Stepper */}
+                        {(() => {
+                          const s = order.status;
+                          if (s === 'CANCELLED') return <div className="text-xs font-bold text-[#E53E3E] flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> Dibatalkan</div>;
+                          if (s === 'COMPLETED') return <div className="text-xs font-bold text-[#38A169] flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5"/> Selesai</div>;
+                          
+                          // Active Stepper Logic
+                          const step1Active = true; // Always active if not cancelled
+                          const step2Active = ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM'].includes(s);
+                          const step3Active = false; // Because it's not COMPLETED if we reach here
+                          
+                          return (
+                            <div className="flex items-center w-full max-w-sm mt-1">
+                              {/* Step 1: Menunggu */}
+                              <div className="flex flex-col items-center flex-1 relative">
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center z-10 text-[10px] font-bold ${step1Active ? 'bg-[#b51822] text-white' : 'bg-[#e5e2e1] text-[#8f6f6d]'}`}>1</div>
+                                <span className={`text-[10px] mt-1 font-medium ${step1Active ? 'text-[#b51822]' : 'text-[#8f6f6d]'}`}>Menunggu</span>
+                                <div className={`absolute top-2.5 left-1/2 w-full h-[2px] -z-0 ${step2Active ? 'bg-[#b51822]' : 'bg-[#e5e2e1]'}`}></div>
+                              </div>
+                              {/* Step 2: Diproses */}
+                              <div className="flex flex-col items-center flex-1 relative">
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center z-10 text-[10px] font-bold ${step2Active ? 'bg-[#b51822] text-white' : 'bg-[#e5e2e1] text-[#8f6f6d]'}`}>2</div>
+                                <span className={`text-[10px] mt-1 font-medium ${step2Active ? 'text-[#b51822]' : 'text-[#8f6f6d]'}`}>Diproses</span>
+                                <div className="absolute top-2.5 left-1/2 w-full h-[2px] -z-0 bg-[#e5e2e1]"></div>
+                              </div>
+                              {/* Step 3: Selesai */}
+                              <div className="flex flex-col items-center flex-1">
+                                <div className="w-5 h-5 rounded-full flex items-center justify-center z-10 text-[10px] font-bold bg-[#e5e2e1] text-[#8f6f6d]">3</div>
+                                <span className="text-[10px] mt-1 font-medium text-[#8f6f6d]">Selesai</span>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Layanan — baris produk ala Shopee (thumbnail besar) */}
@@ -353,9 +407,8 @@ export default function OrdersPage() {
                         </div>
                       )}
 
-                      {/* No. pesanan + tanggal dibuat (tetap ditampilkan) */}
-                      <div className="px-4 pb-2 flex items-center justify-between gap-2 text-[11px] text-[#9e8e8c]">
-                        <span className="truncate">{order.order_number}</span>
+                      {/* Tanggal dibuat (tetap ditampilkan) */}
+                      <div className="px-4 pb-2 flex items-center justify-end gap-2 text-[11px] text-[#9e8e8c]">
                         <span className="shrink-0 flex items-center gap-1">
                           <Calendar className="w-3 h-3" />{formatDate(order.created_at)}
                         </span>
