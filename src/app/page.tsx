@@ -7,7 +7,33 @@ import FeaturedServicesSection from '@/components/home/FeaturedServicesSection';
 import ProductsSection from '@/components/home/ProductsSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
 import PartnerRedirectGate from './PartnerRedirectGate';
+import JsonLd from '@/components/seo/JsonLd';
 import type { Category } from '@/types/category';
+
+const SITE = 'https://poskojasa.com';
+
+// SE6: WebSite + SearchAction → memungkinkan sitelinks searchbox di hasil Google.
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Posko Jasa',
+  url: SITE,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/search?q={search_term_string}` },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+// SE6: Organization → identitas brand di Knowledge Panel / rich result.
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Posko Jasa',
+  url: SITE,
+  logo: `${SITE}/logo.png`,
+  description: 'Marketplace jasa terpercaya — temukan & pesan jasa profesional di dekat Anda.',
+};
 
 // P2/SE2: Home kini Server Component. Hero + kategori dirender di SERVER (masuk
 // HTML awal → LCP cepat + kebaca crawler), bukan `return null` sampai hidrasi.
@@ -42,6 +68,8 @@ export default async function Home() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
+      <JsonLd data={websiteSchema} />
+      <JsonLd data={organizationSchema} />
       <PartnerRedirectGate />
       <div className="flex flex-col page-h">
         {/* Hero Section - Auto-sliding Carousel */}

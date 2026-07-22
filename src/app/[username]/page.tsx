@@ -1,7 +1,10 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import PartnerProfileClient from './PartnerProfileClient';
 import { API_URL } from '@/lib/api';
+import JsonLd from '@/components/seo/JsonLd';
 import type { PartnerProfileData, PartnerService } from '@/hooks/usePartnerProfile';
+
+const SITE = 'https://poskojasa.com';
 
 // Type for the params
 interface PageProps {
@@ -95,24 +98,63 @@ export default async function PartnerProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  // Prefetch data publik mitra (profil + layanan) di server, lalu hydrate.
-  // encodeURIComponent aman utk username. Gagal fetch → cache kosong, klien
-  // refetch seperti biasa (perilaku not-found tetap ditangani PartnerProfileClient).
-  const queryClient = new QueryClient();
+  // Ambil data publik mitra (profil + layanan) di server SEKALI, lalu isi cache
+  // React Query via setQueryData supaya klien hydrate tanpa refetch — sekaligus
+  // datanya dipakai membangun JSON-LD di bawah. `catch → null` menjaga halaman
+  // tetap render bila API gagal (klien akan fetch ulang; not-found tetap
+  // ditangani PartnerProfileClient). Fetch di-dedupe Next dengan generateMetadata.
   const enc = encodeURIComponent(username);
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: ['partnerProfile', username],
-      queryFn: () => fetchData<PartnerProfileData>(`/partners/${enc}`),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ['partnerServices', username],
-      queryFn: () => fetchData<PartnerService[]>(`/partners/${enc}/services`),
-    }),
+  const [profile, services] = await Promise.all([
+    fetchData<PartnerProfileData>(`/partners/${enc}`).catch(() => null),
+    fetchData<PartnerService[]>(`/partners/${enc}/services`).catch(() => null),
   ]);
+
+  const queryClient = new QueryClient();
+  if (profile) queryClient.setQueryData(['partnerProfile', username], profile);
+  if (services) queryClient.setQueryData(['partnerServices', username], services);
+
+  // SE6: LocalBusiness — nama, foto, area layanan, rating agregat.
+  // aggregateRating HANYA disertakan bila ada ulasan: reviewCount 0 = schema
+  // invalid & bisa kena penalti rich-result.
+  const partnerSchema = profile
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        name: profile.name,
+        url: `${SITE}/${username}`,
+        ...(profile.bio ? { description: profile.bio.slice(0, 300) } : {}),
+        ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
+        ...(profile.service_area ? { areaServed: profile.service_area } : {}),
+        ...(profile.total_reviews > 0
+          ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: profile.avg_rating,
+                reviewCount: profile.total_reviews,
+                bestRating: 5,
+                worstRating: 1,
+              },
+            }
+          : {}),
+      }
+    : null;
+
+  // SE6: BreadcrumbList — Beranda › nama mitra.
+  const breadcrumbSchema = profile
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Beranda', item: SITE },
+          { '@type': 'ListItem', position: 2, name: profile.name, item: `${SITE}/${username}` },
+        ],
+      }
+    : null;
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
+      {partnerSchema && <JsonLd data={partnerSchema} />}
+      {breadcrumbSchema && <JsonLd data={breadcrumbSchema} />}
       <PartnerProfileClient username={username} />
     </HydrationBoundary>
   );

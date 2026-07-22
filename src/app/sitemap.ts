@@ -39,7 +39,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       services = rows
         .filter((s) => s && s.id)
         .map((s) => ({
-          url: `${BASE}/services?id=${s.id}`,
+          // Route dinamis /services/[id] (URL bersih) — menggantikan ?id=.
+          url: `${BASE}/services/${s.id}`,
           lastModified: s.updated_at ? new Date(s.updated_at) : new Date(),
           changeFrequency: 'daily' as const,
           priority: 0.8,

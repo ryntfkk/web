@@ -37,10 +37,11 @@ import { formatDistanceMeters } from '@/lib/distance';
 
 
 
-function DetailContent() {
+function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const serviceId = searchParams.get('id') || '';
+  // Prioritas prop (route /services/[id]); fallback ?id= agar URL lama tetap jalan.
+  const serviceId = serviceIdProp || searchParams.get('id') || '';
   const distanceStr = searchParams.get('distance');
   const distance = distanceStr ? formatDistanceMeters(Number(distanceStr)) : null;
 
@@ -700,10 +701,13 @@ function DetailContent() {
   );
 }
 
-export default function ServiceDetailClient() {
+// `serviceId` opsional: dipakai route baru /services/[id] (SSR + metadata).
+// Bila tidak diberikan, komponen jatuh kembali ke query param ?id= (URL lama
+// tetap berfungsi) — lihat DetailContent.
+export default function ServiceDetailClient({ serviceId }: { serviceId?: string }) {
   return (
     <Suspense fallback={<div className="p-4 text-center">Memuat layanan...</div>}>
-      <DetailContent />
+      <DetailContent serviceId={serviceId} />
     </Suspense>
   );
 }
