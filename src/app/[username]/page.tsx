@@ -1,9 +1,32 @@
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import PartnerProfileClient from './PartnerProfileClient';
 import { API_URL } from '@/lib/api';
+import type { PartnerProfileData, PartnerService } from '@/hooks/usePartnerProfile';
 
 // Type for the params
 interface PageProps {
   params: Promise<{ username: string }>;
+}
+
+// Base API ABSOLUT untuk fetch sisi-server. `API_URL` bisa relatif ('/api/v1',
+// dipakai proxy dev di .env.local) — dan fetch relatif GAGAL di server Node.
+// Pakai API_URL bila sudah absolut (http...), else fallback ke domain produksi.
+const SERVER_API = API_URL.startsWith('http') ? API_URL : 'https://api.poskojasa.com/api/v1';
+
+// P2/SE2: ambil data publik mitra di server agar konten profil (nama, bio, rating,
+// layanan) masuk HTML awal — LCP cepat + kebaca crawler. queryKey & bentuk nilai
+// SAMA seperti hook (usePartnerProfile/usePartnerServices) sehingga klien hydrate
+// tanpa refetch. Portfolio & review (bawah lipatan) tetap di-fetch klien.
+// THROW saat gagal: prefetchQuery menangkapnya sendiri → query tak tersimpan
+// sebagai "sukses undefined" (React Query menolak data undefined), klien refetch.
+async function fetchData<T>(path: string): Promise<T> {
+  const res = await fetch(`${SERVER_API}${path}`, {
+    headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) throw new Error(`fetch ${path} -> ${res.status}`);
+  const json = await res.json();
+  return json?.data as T;
 }
 
 export const dynamicParams = true;
@@ -25,7 +48,7 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   try {
-    const res = await fetch(`${API_URL}/partners/${encodeURIComponent(username)}`, {
+    const res = await fetch(`${SERVER_API}/partners/${encodeURIComponent(username)}`, {
       headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
       next: { revalidate: 600 },
     });
@@ -72,5 +95,25 @@ export default async function PartnerProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  return <PartnerProfileClient username={username} />;
+  // Prefetch data publik mitra (profil + layanan) di server, lalu hydrate.
+  // encodeURIComponent aman utk username. Gagal fetch → cache kosong, klien
+  // refetch seperti biasa (perilaku not-found tetap ditangani PartnerProfileClient).
+  const queryClient = new QueryClient();
+  const enc = encodeURIComponent(username);
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ['partnerProfile', username],
+      queryFn: () => fetchData<PartnerProfileData>(`/partners/${enc}`),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['partnerServices', username],
+      queryFn: () => fetchData<PartnerService[]>(`/partners/${enc}/services`),
+    }),
+  ]);
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PartnerProfileClient username={username} />
+    </HydrationBoundary>
+  );
 }

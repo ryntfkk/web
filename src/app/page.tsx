@@ -1,8 +1,4 @@
-"use client";
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/authStore';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import HeroCarousel from '@/components/ui/hero-carousel';
 import CategorySection from '@/components/home/CategorySection';
 import CitySelector from '@/components/home/CitySelector';
@@ -10,73 +6,59 @@ import TopPartnersSection from '@/components/home/TopPartnersSection';
 import FeaturedServicesSection from '@/components/home/FeaturedServicesSection';
 import ProductsSection from '@/components/home/ProductsSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
-import { Skeleton } from '@/components/ui/skeleton';
+import PartnerRedirectGate from './PartnerRedirectGate';
+import type { Category } from '@/types/category';
 
-// U5: shell skeleton menggantikan `return null` agar tidak ada blank flash saat
-// hidrasi/inisialisasi auth. Meniru layout Home (hero + baris kategori + kartu).
-function HomeSkeleton() {
-  return (
-    <div className="flex flex-col page-h" aria-hidden="true">
-      <Skeleton className="w-full h-40 sm:h-56 md:h-72 rounded-none" />
-      <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 lg:px-6 py-4 sm:py-8 md:py-12 flex-1">
-        <div className="flex gap-3 overflow-hidden mb-8">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex flex-col items-center gap-2 shrink-0">
-              <Skeleton className="w-14 h-14 rounded-full" />
-              <Skeleton className="w-12 h-3" />
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-2">
-              <Skeleton className="w-full aspect-square rounded-lg" />
-              <Skeleton className="w-3/4 h-4" />
-              <Skeleton className="w-1/2 h-4" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+// P2/SE2: Home kini Server Component. Hero + kategori dirender di SERVER (masuk
+// HTML awal → LCP cepat + kebaca crawler), bukan `return null` sampai hidrasi.
+// Section personal (lokasi/localStorage) tetap Client Component: di server mereka
+// render skeleton (useQuery tak fetch di server), lalu fetch di klien.
+export const revalidate = 300;
 
-export default function Home() {
-  const router = useRouter();
-  const { user, isAuthenticated, isInitializing } = useAuthStore();
-  const [mounted, setMounted] = useState(false);
+const API = 'https://api.poskojasa.com/api/v1';
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted && !isInitializing && isAuthenticated && user?.active_role === 'partner') {
-      router.replace('/mitra/dashboard');
-    }
-  }, [mounted, isInitializing, isAuthenticated, user, router]);
-
-  if (!mounted || isInitializing || (isAuthenticated && user?.active_role === 'partner')) {
-    return <HomeSkeleton />;
+// Prefetch kategori di server dengan queryKey yang SAMA (['categories']) seperti
+// hook useCategories, sehingga CategorySection ter-render berisi data saat SSR
+// dan klien hydrate tanpa refetch. Nilai cache = Category[] (data mentah,
+// tanpa envelope) agar cocok dengan yang dibaca hook.
+async function getCategories(): Promise<Category[]> {
+  try {
+    const res = await fetch(`${API}/categories`, {
+      headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return Array.isArray(json?.data) ? json.data : [];
+  } catch {
+    return [];
   }
-
-  return (
-    <div className="flex flex-col page-h">
-      {/* Hero Section - Auto-sliding Carousel */}
-      <HeroCarousel />
-
-      {/* Main Content Area - Better mobile padding */}
-      <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-8 md:py-12 flex-1">
-        <CategorySection />
-        <div className="flex justify-center mb-4 sm:mb-6">
-          <CitySelector />
-        </div>
-        <RecentlyViewedSection />
-        <ProductsSection />
-        <TopPartnersSection />
-        <FeaturedServicesSection />
-      </div>
-    </div>
-  );
 }
 
+export default async function Home() {
+  const queryClient = new QueryClient();
+  // prefetchQuery menelan error sendiri → tak menggagalkan render halaman.
+  await queryClient.prefetchQuery({ queryKey: ['categories'], queryFn: getCategories });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PartnerRedirectGate />
+      <div className="flex flex-col page-h">
+        {/* Hero Section - Auto-sliding Carousel */}
+        <HeroCarousel />
+
+        {/* Main Content Area - Better mobile padding */}
+        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-8 md:py-12 flex-1">
+          <CategorySection />
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <CitySelector />
+          </div>
+          <RecentlyViewedSection />
+          <ProductsSection />
+          <TopPartnersSection />
+          <FeaturedServicesSection />
+        </div>
+      </div>
+    </HydrationBoundary>
+  );
+}
