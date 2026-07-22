@@ -90,7 +90,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
 
   const handleFavToggle = async () => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/services?id=${serviceId}`)}`);
+      router.push(`/login?redirect=${encodeURIComponent(`/services/${serviceId}`)}`);
       return;
     }
     if (!service || favBusy) return;
@@ -112,7 +112,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
 
   const handleCartToggle = () => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/services?id=${serviceId}`)}`);
+      router.push(`/login?redirect=${encodeURIComponent(`/services/${serviceId}`)}`);
       return;
     }
     if (!service) return;
@@ -143,7 +143,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
 
   const handleOrderNow = () => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/services?id=${serviceId}`)}`);
+      router.push(`/login?redirect=${encodeURIComponent(`/services/${serviceId}`)}`);
       return;
     }
     if (!service) return;

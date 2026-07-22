@@ -35,7 +35,7 @@ export default function RecentlyViewedSection() {
         {items.map((it) => (
           <Link
             key={it.service_id}
-            href={`/services?id=${it.service_id}`}
+            href={`/services/${it.service_id}`}
             className="w-32 sm:w-40 shrink-0 bg-white border border-[#e5e2e1] rounded-lg overflow-hidden hover:shadow-md transition-all"
           >
             <div className="aspect-square bg-[#f7f5f4]">

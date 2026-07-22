@@ -122,7 +122,7 @@ export default function FavoritesPage() {
                 key={f.favorite_id}
                 className="flex items-center gap-3 border border-[#e5e2e1] rounded-lg p-3 bg-white"
               >
-                <Link href={`/services?id=${f.service_id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                <Link href={`/services/${f.service_id}`} className="flex items-center gap-3 flex-1 min-w-0">
                   <img
                     src={f.photo_url || PLACEHOLDER_IMG}
                     alt={f.service_name}

@@ -13,7 +13,10 @@ type ServiceRow = { id: string; updated_at?: string };
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     '',
-    '/services',
+    // CATATAN: '/services' polos SENGAJA tidak didaftarkan — belum ada halaman
+    // daftar layanan; tanpa ?id=/[id] halaman itu menampilkan state kosong, dan
+    // mengiklankannya ke Google berisiko dinilai soft-404. Daftarkan kembali
+    // setelah halaman "Semua Layanan" yang sebenarnya dibuat.
     '/categories',
     '/promos',
     '/about',

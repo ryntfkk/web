@@ -45,7 +45,7 @@ export default function MoreFromPartner({
           return (
             <Link
               key={s.id}
-              href={`/services?id=${s.id}`}
+              href={`/services/${s.id}`}
               className="flex-shrink-0 w-36 sm:w-40 snap-start border border-brand-gray-100 rounded-md overflow-hidden bg-white hover:shadow-md transition-shadow"
             >
               <div className="relative w-full aspect-square bg-brand-gray-100">

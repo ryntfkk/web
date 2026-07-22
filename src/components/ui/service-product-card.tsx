@@ -29,7 +29,7 @@ const TRUSTED_MIN_ORDERS = 20;
 const TRUSTED_MIN_RATING = 4.7;
 
 // Kartu satu produk jasa (dipakai di Home "Produk & Layanan" dan hasil pencarian).
-// Menautkan ke detail jasa /services?id=...
+// Menautkan ke detail jasa /services/<id> (route SSR).
 export function ServiceProductCard({ service }: { service: PublicService }) {
   const distance = formatDistanceMeters(service.distance_meters);
   const orderCount = service.total_orders ?? 0;
@@ -49,7 +49,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/services?id=${service.id}`)}`);
+      router.push(`/login?redirect=${encodeURIComponent(`/services/${service.id}`)}`);
       return;
     }
     if (favBusy) return;
@@ -63,7 +63,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
   };
 
   return (
-    <Link href={`/services?id=${service.id}&distance=${service.distance_meters || 0}`} className="block">
+    <Link href={`/services/${service.id}?distance=${service.distance_meters || 0}`} className="block">
       <div className="bg-white border border-brand-gray-100 rounded-xs overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
         {/* Image */}
         <div className="relative w-full aspect-square bg-brand-gray-100 flex-shrink-0">

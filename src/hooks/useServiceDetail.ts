@@ -51,7 +51,7 @@ export interface WorkingHour {
 
 // ── Hooks ───────────────────────────────────────────────────────────
 
-/** Fetch a single service's full detail (for /services?id=[id] page). */
+/** Fetch a single service's full detail (untuk halaman /services/[id]). */
 export function useServiceDetail(serviceId: string) {
   return useQuery({
     queryKey: ['serviceDetail', serviceId],

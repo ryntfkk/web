@@ -44,7 +44,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
           PLACEHOLDER_IMG;
 
         return (
-          <Link key={service.id} href={`/services?id=${service.id}`} className="block h-full">
+          <Link key={service.id} href={`/services/${service.id}`} className="block h-full">
             <ServiceCard
               vendorName={service.name}
               category={profile.name}
