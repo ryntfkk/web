@@ -3,7 +3,11 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
+        # npm install (bukan npm ci): lockfile digenerate di Windows, tapi Amplify
+        # build di Linux. Dep opsional lintas-platform (mis. @img/sharp-wasm32 →
+        # @emnapi/*) hanya di-resolve di Linux, sehingga `npm ci` yang ketat gagal
+        # "Missing from lock file". `npm install` me-resolve dep yang benar di Linux.
+        - npm install
     build:
       commands:
         - npm run build
