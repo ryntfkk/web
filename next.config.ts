@@ -23,6 +23,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // URL detail layanan lama (/services?id=<uuid>) → route kanonik /services/<uuid>.
+  // Ditangani di level config (sebelum render) karena redirect di dalam page
+  // tidak konsisten saat route juga melayani daftar; ini dijamin 308 permanen
+  // sehingga bookmark/tautan lama tetap hidup & bobot SEO menyatu ke satu URL.
+  async redirects() {
+    return [
+      {
+        source: '/services',
+        has: [{ type: 'query', key: 'id', value: '(?<sid>[^&]+)' }],
+        destination: '/services/:sid',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
