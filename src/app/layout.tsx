@@ -66,6 +66,13 @@ export const metadata: Metadata = {
   },
   alternates: { canonical: "https://poskojasa.com" },
   robots: { index: true, follow: true },
+  // Verifikasi kepemilikan domain untuk Google Search Console. Next merender ini
+  // menjadi <meta name="google-site-verification" ...> di <head> semua halaman.
+  // JANGAN dihapus — Google memeriksa ulang secara berkala; hilang = verifikasi
+  // dicabut dan data Search Console berhenti.
+  verification: {
+    google: "TvH5t6zCpwUyYoV6ClSZTo7d0qop9LM-m1Dl9mffFLc",
+  },
 };
 
 export default function RootLayout({
