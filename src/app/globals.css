@@ -65,6 +65,16 @@
   --color-brand-red: #b51822;
   --color-brand-red-dark: #90121a;
   --color-brand-red-light: #f0eded;
+
+  /* U1 — Brand Blue (merah tetap primary/CTA; biru = link, tab aktif, fokus,
+     header peran-kerja). Token additif: mengaktifkan utility bg-/text-/border-
+     brand-blue tanpa mengubah surface abu yang ada. Rasio target 60% putih /
+     30% biru+netral / 10% merah. Remap penuh secondary/accent → biru menyusul
+     di U2 (butuh verifikasi visual per-komponen). */
+  --color-brand-blue: #1e4fd6;
+  --color-brand-blue-dark: #1a3fb0;
+  --color-brand-blue-light: #e8eefc;
+  --color-brand-blue-50: #f4f7fe;
   --color-brand-gray-900: #1c1b1b;
   --color-brand-gray-700: #5b403e;
   --color-brand-gray-400: #8f6f6d;
@@ -131,7 +141,10 @@
   --destructive: #E53E3E;
   --border: #e5e2e1;
   --input: #e5e2e1;
-  --ring: #b51822;
+  /* U1: focus ring biru → kontras dengan CTA merah, terasa di seluruh form
+     tanpa menyentuh tiap komponen. */
+  --ring: #1e4fd6;
+  --info: #1e4fd6;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -145,7 +158,7 @@
   --sidebar-accent: #f0eded;
   --sidebar-accent-foreground: #1c1b1b;
   --sidebar-border: #e5e2e1;
-  --sidebar-ring: #b51822;
+  --sidebar-ring: #1e4fd6;
 }
 
 /* Catatan: tema .dark dihapus 2026-07-19 — dead code (tidak ada toggle & tidak

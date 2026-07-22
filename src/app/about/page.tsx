@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+
+export const metadata: Metadata = {
+  title: 'Tentang Kami',
+  description: 'Tentang Posko Jasa, marketplace jasa terpercaya yang menghubungkan Anda dengan penyedia jasa di sekitar.',
+  alternates: { canonical: 'https://poskojasa.com/about' },
+};
 
 export default function AboutPage() {
   return (

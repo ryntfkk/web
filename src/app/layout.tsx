@@ -20,9 +20,52 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// SE3: metadata root lengkap. `metadataBase` memperbaiki resolusi URL OG relatif;
+// `template` membuat judul tiap halaman anak konsisten ("%s | Posko Jasa").
+// TODO(SE3): ganti /images/hero-1.png dengan aset OG khusus 1200×630 (og-default.png).
 export const metadata: Metadata = {
-  title: "Posko Jasa - Marketplace Jasa",
-  description: "Platform Marketplace Jasa Terpercaya",
+  metadataBase: new URL("https://poskojasa.com"),
+  title: {
+    default: "Posko Jasa — Marketplace Jasa Terpercaya",
+    template: "%s | Posko Jasa",
+  },
+  description:
+    "Temukan & pesan jasa profesional terpercaya di dekat Anda. AC, kebersihan, perbaikan, dan lainnya.",
+  keywords: [
+    "jasa",
+    "marketplace jasa",
+    "tukang",
+    "service AC",
+    "jasa kebersihan",
+    "posko jasa",
+  ],
+  applicationName: "Posko Jasa",
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: "https://poskojasa.com",
+    siteName: "Posko Jasa",
+    title: "Posko Jasa — Marketplace Jasa Terpercaya",
+    description:
+      "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
+    images: [
+      {
+        url: "/images/hero-1.png",
+        width: 1200,
+        height: 630,
+        alt: "Posko Jasa",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Posko Jasa — Marketplace Jasa Terpercaya",
+    description:
+      "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
+    images: ["/images/hero-1.png"],
+  },
+  alternates: { canonical: "https://poskojasa.com" },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

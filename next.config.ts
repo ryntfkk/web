@@ -44,6 +44,26 @@ const nextConfig: NextConfig = {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains',
           },
+          {
+            key: 'Permissions-Policy',
+            value: 'geolocation=(self), camera=(), microphone=()',
+          },
+          // S5: CSP dimulai sebagai Report-Only agar tidak memblokir apa pun
+          // sampai terverifikasi live (Snap Midtrans redirect + WebSocket chat).
+          // Setelah dikonfirmasi tak ada pelanggaran sah, ganti key ini menjadi
+          // 'Content-Security-Policy' untuk enforce.
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value:
+              "default-src 'self'; " +
+              "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-1.amazonaws.com; " +
+              "script-src 'self' 'unsafe-inline' https://app.sandbox.midtrans.com https://app.midtrans.com; " +
+              "connect-src 'self' https://api.poskojasa.com wss://api.poskojasa.com; " +
+              "frame-src https://app.sandbox.midtrans.com https://app.midtrans.com; " +
+              "style-src 'self' 'unsafe-inline'; " +
+              "font-src 'self' data:; " +
+              "base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
+          },
         ],
       },
     ];
