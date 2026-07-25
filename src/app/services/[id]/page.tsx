@@ -1,4 +1,5 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { notFound } from 'next/navigation';
 import ServiceDetailClient from '../ServiceDetailClient';
 import { API_URL } from '@/lib/api';
 import JsonLd from '@/components/seo/JsonLd';
@@ -11,32 +12,52 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export const revalidate = 300;
+// Caching data ada di level fetch (`next: { revalidate: 300 }`), bukan di level
+// halaman — jadi API tidak terbebani meski route ini dinamis (`ƒ`, karena segmen
+// [id]). Catatan soft-404: lihat penjelasan notFound() di bawah.
 
 const SITE = 'https://poskojasa.com';
 // Base ABSOLUT: API_URL bisa relatif ('/api/v1') dan fetch relatif gagal di server Node.
 const SERVER_API = API_URL.startsWith('http') ? API_URL : 'https://api.poskojasa.com/api/v1';
 
-async function getService(id: string): Promise<ServiceDetail | null> {
+// Hanya UUID yang merupakan id layanan valid. Slug lama (mis. /services/elektronik)
+// dulu dijawab HTTP 200 berisi "tidak ditemukan" = SOFT-404: Google menganggapnya
+// halaman valid, memboroskan crawl budget & menurunkan sinyal kualitas.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Dibedakan bertingkat: 'missing' (memang tidak ada → 404 sungguhan) vs 'error'
+// (API bermasalah → JANGAN 404, biar klien mencoba lagi; kalau tidak, saat API
+// down semua halaman layanan yang sah ikut hilang dari indeks).
+type ServiceResult =
+  | { kind: 'ok'; data: ServiceDetail }
+  | { kind: 'missing' }
+  | { kind: 'error' };
+
+async function getService(id: string): Promise<ServiceResult> {
+  if (!UUID_RE.test(id)) return { kind: 'missing' };
   try {
     const res = await fetch(`${SERVER_API}/services/${encodeURIComponent(id)}`, {
       headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
       next: { revalidate: 300 },
     });
-    if (!res.ok) return null;
+    if (res.status === 400 || res.status === 404) return { kind: 'missing' };
+    if (!res.ok) return { kind: 'error' };
     const json = await res.json();
-    return (json?.data as ServiceDetail) ?? null;
+    const data = json?.data as ServiceDetail | undefined;
+    return data ? { kind: 'ok', data } : { kind: 'missing' };
   } catch {
-    return null;
+    return { kind: 'error' };
   }
 }
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-  const s = await getService(id);
-  if (!s) {
-    return { title: 'Layanan tidak ditemukan' };
+  const r = await getService(id);
+  if (r.kind !== 'ok') {
+    // noindex sebagai lapis kedua; halaman juga membalas 404 sungguhan di bawah.
+    return { title: 'Layanan tidak ditemukan', robots: { index: false, follow: false } };
   }
+  const s = r.data;
   const desc = (s.description?.trim() || `${s.name} oleh ${s.partner_name}`).slice(0, 160);
   return {
     title: s.name,
@@ -54,7 +75,18 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ServiceDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const service = await getService(id);
+  const result = await getService(id);
+
+  // Benar-benar tidak ada → notFound(). Karena ada loading.tsx root, respons
+  // sudah nge-stream sehingga status tetap 200, TAPI Next otomatis menyisipkan
+  // <meta name="robots" content="noindex"> (+ generateMetadata di atas juga
+  // set index:false). Google TIDAK mengindeks halaman noindex → soft-404 teratasi
+  // tanpa harus membuang loading.tsx. Saat API bermasalah ('error') kita TIDAK
+  // panggil notFound() — halaman tetap dirender & klien mencoba memuat ulang.
+  if (result.kind === 'missing') {
+    notFound();
+  }
+  const service = result.kind === 'ok' ? result.data : null;
 
   const queryClient = new QueryClient();
   if (service) queryClient.setQueryData(['serviceDetail', id], service);

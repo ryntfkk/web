@@ -32,8 +32,37 @@ async function fetchData<T>(path: string): Promise<T> {
   return json?.data as T;
 }
 
+// `/[username]` adalah catch-all di ROOT: setiap URL tak dikenal (/kontak,
+// /promo-lebaran, dst.) mendarat di sini. Dulu semuanya dijawab HTTP 200 berisi
+// "Tidak Ditemukan" = SOFT-404 tanpa batas — Google menganggapnya halaman valid
+// dan memboroskan crawl budget pada URL yang jumlahnya tak terhingga.
+// Dibedakan bertingkat: 'missing' → 404 sungguhan; 'error' (API bermasalah) →
+// JANGAN 404, agar saat API down profil mitra yang sah tidak hilang dari indeks.
+type PartnerResult =
+  | { kind: 'ok'; data: PartnerProfileData }
+  | { kind: 'missing' }
+  | { kind: 'error' };
+
+async function getPartner(enc: string): Promise<PartnerResult> {
+  try {
+    const res = await fetch(`${SERVER_API}/partners/${enc}`, {
+      headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
+      next: { revalidate: 60 },
+    });
+    if (res.status === 400 || res.status === 404) return { kind: 'missing' };
+    if (!res.ok) return { kind: 'error' };
+    const json = await res.json();
+    const data = json?.data as PartnerProfileData | undefined;
+    return data && data.name ? { kind: 'ok', data } : { kind: 'missing' };
+  } catch {
+    return { kind: 'error' };
+  }
+}
+
 export const dynamicParams = true;
-export const revalidate = 60; // Regenerate every 60 seconds
+// Caching data ada di level fetch (`next: { revalidate }`), bukan di level
+// halaman. Route ini catch-all di root; penanganan URL tak dikenal (soft-404)
+// dijelaskan di getPartner() & notFound() di bawah.
 
 
 // generateStaticParams removed to fully embrace SSR using standalone Next.js server
@@ -50,15 +79,15 @@ export async function generateMetadata({ params }: PageProps) {
     };
   }
 
-  try {
-    const res = await fetch(`${SERVER_API}/partners/${encodeURIComponent(username)}`, {
-      headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
-      next: { revalidate: 600 },
-    });
-    if (res.ok) {
-      const json = await res.json();
-      const p = json?.data;
-      if (p && p.name) {
+  {
+    const r = await getPartner(encodeURIComponent(username));
+    if (r.kind === 'missing') {
+      // noindex sebagai lapis kedua; halaman juga membalas 404 sungguhan.
+      return { title: 'Mitra Tidak Ditemukan', robots: { index: false, follow: false } };
+    }
+    if (r.kind === 'ok') {
+      const p = r.data;
+      {
         const area = p.service_area ? ` di ${p.service_area}` : '';
         const desc = (p.bio && p.bio.trim())
           ? p.bio.trim().slice(0, 160)
@@ -77,8 +106,7 @@ export async function generateMetadata({ params }: PageProps) {
         };
       }
     }
-  } catch {
-    // API tak tersedia — fallback ke metadata generik di bawah.
+    // kind === 'error' (API bermasalah) → jatuh ke metadata generik di bawah.
   }
 
   return {
@@ -92,22 +120,32 @@ export default async function PartnerProfilePage({ params }: PageProps) {
   const resolvedParams = await params;
   const { username } = resolvedParams;
 
+  const { notFound } = await import('next/navigation');
+
   // Guard against undefined username only — validity is checked by the API
   if (!username) {
-    const { notFound } = await import('next/navigation');
     notFound();
   }
 
   // Ambil data publik mitra (profil + layanan) di server SEKALI, lalu isi cache
   // React Query via setQueryData supaya klien hydrate tanpa refetch — sekaligus
-  // datanya dipakai membangun JSON-LD di bawah. `catch → null` menjaga halaman
-  // tetap render bila API gagal (klien akan fetch ulang; not-found tetap
-  // ditangani PartnerProfileClient). Fetch di-dedupe Next dengan generateMetadata.
+  // datanya dipakai membangun JSON-LD di bawah.
+  // Fetch di-dedupe Next dengan generateMetadata.
   const enc = encodeURIComponent(username);
-  const [profile, services] = await Promise.all([
-    fetchData<PartnerProfileData>(`/partners/${enc}`).catch(() => null),
+  const [partnerResult, services] = await Promise.all([
+    getPartner(enc),
     fetchData<PartnerService[]>(`/partners/${enc}/services`).catch(() => null),
   ]);
+
+  // Mitra memang tidak ada → notFound(). Karena loading.tsx root membuat respons
+  // nge-stream, status tetap 200 tapi Next otomatis menyisipkan noindex (+
+  // generateMetadata set index:false). Google tak mengindeks halaman noindex →
+  // soft-404 catch-all root teratasi. Saat API bermasalah ('error') halaman
+  // tetap dirender & klien mencoba lagi.
+  if (partnerResult.kind === 'missing') {
+    notFound();
+  }
+  const profile = partnerResult.kind === 'ok' ? partnerResult.data : null;
 
   const queryClient = new QueryClient();
   if (profile) queryClient.setQueryData(['partnerProfile', username], profile);
