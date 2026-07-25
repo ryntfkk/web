@@ -29,7 +29,15 @@ export default function FloatingChat() {
     <div className="hidden lg:block">
       {isPanelOpen ? (
         /* ── Panel: menempel di dasar layar, ala Shopee/Tokopedia ── */
-        <div className="fixed bottom-0 right-6 z-50 w-[400px] h-[520px] max-h-[calc(100dvh-6rem)] bg-white border border-b-0 border-[#e5e2e1] rounded-t-xl shadow-2xl flex flex-col overflow-hidden">
+        <div
+          style={{
+            borderTopLeftRadius: '16px',
+            borderTopRightRadius: '16px',
+            borderBottomLeftRadius: '0px',
+            borderBottomRightRadius: '0px',
+          }}
+          className="fixed bottom-0 right-6 z-50 w-[400px] h-[520px] max-h-[calc(100dvh-6rem)] bg-white border border-b-0 border-[#e5e2e1] shadow-2xl flex flex-col overflow-hidden flat-bottom"
+        >
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-[#e5e2e1] bg-[#b51822] shrink-0">
             <div className="flex items-center gap-2 min-w-0">
@@ -78,7 +86,13 @@ export default function FloatingChat() {
         <button
           onClick={() => openPanel()}
           title="Buka Pesan"
-          className="fixed bottom-0 right-6 z-50 flex items-center gap-2 bg-[#b51822] hover:bg-[#90121a] text-white font-bold text-sm pl-4 pr-5 py-2.5 rounded-t-xl shadow-lg transition-colors"
+          style={{
+            borderTopLeftRadius: '12px',
+            borderTopRightRadius: '12px',
+            borderBottomLeftRadius: '0px',
+            borderBottomRightRadius: '0px',
+          }}
+          className="fixed bottom-0 right-6 z-50 flex items-center gap-2 bg-[#b51822] hover:bg-[#90121a] text-white font-bold text-sm pl-4 pr-5 py-2.5 shadow-lg transition-colors flat-bottom"
         >
           <MessageCircle className="w-5 h-5" />
           Chat

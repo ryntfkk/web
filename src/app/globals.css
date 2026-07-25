@@ -292,7 +292,7 @@ body.chat-room {
 input,
 textarea,
 select {
-  border-radius: var(--radius-md) !important;
+  border-radius: var(--radius-md);
 }
 
 /* Rounded buttons */
@@ -301,5 +301,13 @@ button,
 [type="button"],
 [type="submit"],
 [type="reset"] {
-  border-radius: var(--radius-md) !important;
+  border-radius: var(--radius-md);
+}
+
+/* Utility for flat bottom edge (floating chat / panels) */
+.flat-bottom,
+button.flat-bottom,
+div.flat-bottom {
+  border-bottom-left-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
 }

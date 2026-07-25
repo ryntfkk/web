@@ -410,7 +410,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                       <a href={msg.content} target="_blank" rel="noopener noreferrer">
                         <img
                           src={msg.content}
-                          alt="Foto"
+                          alt="Foto lampiran dalam percakapan"
                           loading="lazy"
                           className="max-w-full max-h-64 object-contain rounded border border-black/10"
                         />

@@ -93,7 +93,15 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    unoptimized: true,
+    // P1: optimizer Next AKTIF (dulu unoptimized:true = gambar dikirim ukuran
+    // penuh tanpa WebP/resize). Amplify menangani /_next/image via compute.
+    // formats modern didahulukan; deviceSizes disesuaikan agar srcset relevan
+    // untuk mayoritas layar mobile Indonesia. minimumCacheTTL menahan hasil
+    // optimasi lama di cache CDN (hemat compute).
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [360, 420, 640, 750, 828, 1080, 1200],
+    imageSizes: [64, 96, 128, 256, 384],
+    minimumCacheTTL: 2592000, // 30 hari
     remotePatterns: [
       {
         protocol: 'https',
