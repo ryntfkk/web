@@ -8,12 +8,13 @@ import Link from 'next/link';
 import {
   ArrowLeft, MapPin, Calendar, MessageSquare, Star, AlertTriangle,
   Phone, CheckCircle2, X, Copy, Check, ChevronRight, Clock,
-  ClipboardList, Wallet, ShieldCheck, Loader2, HelpCircle, Scale,
+  ClipboardList, Wallet, ShieldCheck, Loader2, HelpCircle, Scale, Printer,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
+import { printOrderReceipt } from '@/lib/receipt';
 import { createSupportThread } from '@/lib/support';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -515,6 +516,16 @@ export default function OrderDetailClient() {
               Dana masuk ke saldo dompetmu — lihat di Dompet →
             </button>
           </>
+        )}
+
+        {/* U3: unduh/cetak struk — hanya setelah pembayaran (ada yang bisa distrukkan). */}
+        {order.paid_at && (
+          <button
+            onClick={() => printOrderReceipt(order)}
+            className="w-full mt-3 inline-flex items-center justify-center gap-2 h-10 rounded-md border border-[#e5e2e1] bg-white text-sm font-semibold text-[#1c1b1b] hover:border-brand-blue hover:text-brand-blue transition-colors"
+          >
+            <Printer className="w-4 h-4" /> Unduh / Cetak Struk
+          </button>
         )}
       </div>
     </Section>
