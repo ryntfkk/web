@@ -35,6 +35,16 @@ const nextConfig: NextConfig = {
         destination: '/services/:sid',
         permanent: true,
       },
+      // Konsolidasi www → non-www (308 permanen). www.poskojasa.com melayani
+      // konten yang sama; tanpa redirect ini Google melihat dua host (duplikat).
+      // Canonical sudah non-www, tapi redirect memberi sinyal terkuat & merapikan
+      // address bar. Hanya menyalakan saat host = www, jadi tak ada loop.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.poskojasa.com' }],
+        destination: 'https://poskojasa.com/:path*',
+        permanent: true,
+      },
     ];
   },
   async headers() {
