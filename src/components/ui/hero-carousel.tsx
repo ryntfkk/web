@@ -9,19 +9,21 @@ interface HeroSlide {
   imageUrl: string;
 }
 
-// Place images in: /public/images/hero-1.png, hero-2.png, hero-3.png, etc.
+// P1: hero = elemen LCP. PNG asli (246–446 KB) dikonversi ke WebP (19–31 KB,
+// turun ~93%) via sharp; PNG tetap disimpan untuk OG (kompat WebP OG tak merata)
+// & fallback. Regenerasi bila ganti hero: sharp(png).webp({quality:80}).
 const HERO_SLIDES: HeroSlide[] = [
   {
     id: 1,
-    imageUrl: "/images/hero-1.png",
+    imageUrl: "/images/hero-1.webp",
   },
   {
     id: 2,
-    imageUrl: "/images/hero-2.png",
+    imageUrl: "/images/hero-2.webp",
   },
   {
     id: 3,
-    imageUrl: "/images/hero-3.png",
+    imageUrl: "/images/hero-3.webp",
   },
 ];
 
@@ -61,10 +63,11 @@ export default function HeroCarousel() {
           >
             <Image
               src={slide.imageUrl}
-              alt={`Hero slide ${index + 1}`}
+              alt={`Promosi layanan Posko Jasa ${index + 1}`}
               fill
               className="object-cover"
               priority={index === 0}
+              fetchPriority={index === 0 ? "high" : undefined}
               sizes="100vw"
             />
           </div>
