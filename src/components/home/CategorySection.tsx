@@ -12,7 +12,7 @@ export default function CategorySection() {
   const displayCategories = categories?.slice(0, 7) || [];
 
   return (
-    <section className="mb-6 sm:mb-10 md:mb-12">
+    <section className="mb-2 sm:mb-3">
       {isLoading ? (
         <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 scrollbar-hide">
           {Array.from({ length: 8 }).map((_, i) => (

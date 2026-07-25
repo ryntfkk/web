@@ -76,9 +76,9 @@ export default async function Home() {
         <HeroCarousel />
 
         {/* Main Content Area - Better mobile padding */}
-        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-8 md:py-12 flex-1">
+        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-6 flex-1">
           <CategorySection />
-          <div className="flex justify-center mb-4 sm:mb-6">
+          <div className="flex justify-center mb-5 sm:mb-8">
             <CitySelector />
           </div>
           <RecentlyViewedSection />
