@@ -5,8 +5,10 @@ import { ChevronRight, MapPin } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import JsonLd from '@/components/seo/JsonLd';
+import FaqSection from '@/components/seo/FaqSection';
 import { API_URL } from '@/lib/api';
 import { slugify } from '@/lib/slug';
+import { faqJsonLd, formatRupiah, localFaq, localIntro, minServicePrice } from '@/lib/seo';
 import type { PublicService } from '@/hooks/usePublicServices';
 import type { Category } from '@/types/category';
 
@@ -53,9 +55,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const services = await getJSON<PublicService[]>(
     `/services?category=${cat.id}&city=${encodeURIComponent(city)}&limit=${PAGE_SIZE}&offset=0`,
   );
-  const hasServices = (services?.length ?? 0) > 0;
+  const count = services?.length ?? 0;
+  const hasServices = count > 0;
+  const minPrice = minServicePrice(services ?? []);
   const title = `Jasa ${cat.name} ${city} — Mitra Terverifikasi | Posko Jasa`;
-  const description = `Cari jasa ${cat.name} di ${city}? Temukan mitra profesional terverifikasi dekat Anda. Harga transparan, ulasan asli, pesan online di Posko Jasa.`;
+  const description =
+    `${count > 0 ? `${count} ` : ''}jasa ${cat.name} di ${city} dari mitra terverifikasi` +
+    `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Pesan online, ulasan asli — Posko Jasa.`;
   return {
     title,
     description,
@@ -75,6 +81,9 @@ export default async function LocalCategoryPage({ params }: PageProps) {
     `/services?category=${cat.id}&city=${encodeURIComponent(city)}&limit=${PAGE_SIZE}&offset=0`,
   );
   const serviceList = services ?? [];
+  const minPrice = minServicePrice(serviceList);
+  const intro = localIntro(cat.name, city, serviceList.length, minPrice);
+  const faq = localFaq(cat.name, city, serviceList.length, minPrice);
 
   const crumbs = [
     { name: 'Beranda', href: '/' },
@@ -110,6 +119,7 @@ export default async function LocalCategoryPage({ params }: PageProps) {
     <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
       <JsonLd data={breadcrumbSchema} />
       {serviceList.length > 0 && <JsonLd data={itemListSchema} />}
+      <JsonLd data={faqJsonLd(faq)} />
       <MobilePageHeader title={`${cat.name} ${city}`} backHref={`/kategori/${cat.slug}`} maxWidthClass="max-w-6xl" />
 
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
@@ -137,6 +147,9 @@ export default async function LocalCategoryPage({ params }: PageProps) {
           </p>
         </div>
 
+        {/* Intro unik (anti thin-content) */}
+        <p className="text-[14px] leading-relaxed text-[#5b403e] mb-8 max-w-3xl">{intro}</p>
+
         {serviceList.length === 0 ? (
           <div className="text-center text-[#8f6f6d] py-12">
             <p className="text-[14px]">Belum ada layanan {cat.name} di {city}.</p>
@@ -156,6 +169,8 @@ export default async function LocalCategoryPage({ params }: PageProps) {
             </div>
           </>
         )}
+
+        <FaqSection items={faq} title={`Pertanyaan Umum — Jasa ${cat.name} di ${city}`} />
       </div>
     </div>
   );

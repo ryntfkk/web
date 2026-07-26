@@ -6,8 +6,10 @@ import { ChevronRight } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import JsonLd from '@/components/seo/JsonLd';
+import FaqSection from '@/components/seo/FaqSection';
 import { API_URL } from '@/lib/api';
 import { slugify } from '@/lib/slug';
+import { categoryFaq, categoryIntro, faqJsonLd, formatRupiah, minServicePrice } from '@/lib/seo';
 import type { PublicService } from '@/hooks/usePublicServices';
 import type { Category } from '@/types/category';
 
@@ -45,8 +47,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!cat) {
     return { title: 'Kategori tidak ditemukan', robots: { index: false, follow: false } };
   }
+  // Deskripsi dinamis (jumlah + harga mulai) → snippet unik per kategori.
+  const services = await getJSON<PublicService[]>(`/services?category=${cat.id}&limit=${PAGE_SIZE}&offset=0`);
+  const count = services?.length ?? 0;
+  const minPrice = minServicePrice(services ?? []);
   const title = `Jasa ${cat.name} — Mitra Terverifikasi | Posko Jasa`;
-  const description = `Temukan & pesan jasa ${cat.name} dari mitra profesional terverifikasi di Posko Jasa. Harga transparan, ulasan asli, pesan online.`;
+  const description =
+    `Bandingkan ${count > 0 ? `${count} ` : ''}layanan ${cat.name} dari mitra terverifikasi di Posko Jasa` +
+    `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Ulasan asli, pesan online.`;
   return {
     title,
     description,
@@ -78,6 +86,11 @@ export default async function CategoryPage({ params }: PageProps) {
   const cities = Array.from(
     new Set(serviceList.map((s) => s.partner_city).filter((c): c is string => !!c)),
   ).slice(0, 12);
+
+  // Konten unik (anti thin-content) + FAQ ber-data.
+  const minPrice = minServicePrice(serviceList);
+  const intro = categoryIntro(cat.name, serviceList.length, minPrice);
+  const faq = categoryFaq(cat.name, minPrice);
 
   // Breadcrumb: Beranda › [induk bila sub] › kategori.
   const crumbs: { name: string; href: string }[] = [{ name: 'Beranda', href: '/' }];
@@ -112,6 +125,7 @@ export default async function CategoryPage({ params }: PageProps) {
     <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
       <JsonLd data={breadcrumbSchema} />
       {serviceList.length > 0 && <JsonLd data={itemListSchema} />}
+      <JsonLd data={faqJsonLd(faq)} />
       <MobilePageHeader title={cat.name} backHref={parent?.slug ? `/kategori/${parent.slug}` : '/categories'} maxWidthClass="max-w-6xl" />
 
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
@@ -140,6 +154,9 @@ export default async function CategoryPage({ params }: PageProps) {
             <p className="text-[13px] text-[#8f6f6d]">Mitra terverifikasi &middot; pesan online</p>
           </div>
         </div>
+
+        {/* Intro unik (anti thin-content) */}
+        <p className="text-[14px] leading-relaxed text-[#5b403e] mb-8 max-w-3xl">{intro}</p>
 
         {/* Subkategori (bila kategori utama) */}
         {isMain && subList.length > 0 && (
@@ -197,6 +214,8 @@ export default async function CategoryPage({ params }: PageProps) {
             ))}
           </div>
         )}
+
+        <FaqSection items={faq} title={`Pertanyaan Umum — Jasa ${cat.name}`} />
       </div>
     </div>
   );
