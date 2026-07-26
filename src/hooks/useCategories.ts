@@ -16,3 +16,22 @@ export function useCategories() {
     placeholderData: (prev) => prev,
   });
 }
+
+/**
+ * Subkategori dari satu kategori utama. Diaktifkan hanya saat parentId ada
+ * (mis. drawer terbuka), agar tak fetch berlebihan.
+ */
+export function useSubcategories(parentId: string | null | undefined) {
+  return useQuery({
+    queryKey: ['subcategories', parentId],
+    enabled: !!parentId,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async (): Promise<Category[]> => {
+      const res = await fetchAPI<Category[]>(`/categories/${parentId}/subcategories`);
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Gagal memuat subkategori');
+      }
+      return res.data;
+    },
+  });
+}

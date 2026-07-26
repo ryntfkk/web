@@ -6,6 +6,7 @@ import { Loader2, X, Trash2 } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { VariationsEditor } from '@/components/ui/variations-editor';
+import CategoryPicker from '@/components/mitra/CategoryPicker';
 import { fetchAPI } from '@/lib/api';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -37,7 +38,6 @@ export default function EditMitraServicePage() {
   const [existingPhotos, setExistingPhotos] = useState<{id: string, photo_url: string}[]>([]);
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
 
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,11 +46,6 @@ export default function EditMitraServicePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const catRes = await fetchAPI<any>('/categories');
-        if (catRes.success && catRes.data) {
-          setCategories(unwrapData(catRes.data));
-        }
-
         const svcsRes = await fetchAPI<any>('/partners/me/services');
         if (svcsRes.success && svcsRes.data) {
           const svcsData = unwrapData<any>(svcsRes.data);
@@ -242,19 +237,10 @@ export default function EditMitraServicePage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kategori</label>
-            <select
-              value={form.category_id}
-              onChange={e => setForm({ ...form, category_id: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white"
-            >
-              <option value="">Pilih Kategori</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
+          <CategoryPicker
+            value={form.category_id}
+            onChange={(id) => setForm((f) => ({ ...f, category_id: id }))}
+          />
 
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Satuan Harga</label>

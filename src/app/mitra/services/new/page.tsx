@@ -6,6 +6,7 @@ import { ImagePlus, X, Loader2 } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { VariationsEditor } from '@/components/ui/variations-editor';
+import CategoryPicker from '@/components/mitra/CategoryPicker';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
@@ -35,27 +36,9 @@ export default function NewMitraServicePage() {
   const [variations, setVariations] = useState<{ name: string; price: string }[]>([]);
 
   const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState('');
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await fetchAPI<any>('/categories');
-        if (res.success && res.data) {
-          const data = unwrapData<any>(res.data);
-          setCategories(Array.isArray(data) ? data : data.categories ?? []);
-        }
-      } catch (err) {
-        console.error("Failed to fetch categories");
-      }
-    };
-    if (isAuthorized) {
-      fetchCategories();
-    }
-  }, [isAuthorized]);
 
   useEffect(() => {
     // Bersihkan object URL saat unmount
@@ -228,19 +211,10 @@ export default function NewMitraServicePage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kategori</label>
-            <select
-              value={form.category_id}
-              onChange={e => setForm({ ...form, category_id: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white"
-            >
-              <option value="">Pilih Kategori</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
+          <CategoryPicker
+            value={form.category_id}
+            onChange={(id) => setForm((f) => ({ ...f, category_id: id }))}
+          />
 
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Satuan Harga</label>

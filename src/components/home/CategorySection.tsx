@@ -1,12 +1,20 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCategories } from '@/hooks/useCategories';
+import { X, ChevronRight } from 'lucide-react';
+import { useCategories, useSubcategories } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
+
+// Tautan kategori: pakai slug (SEO) bila ada, jika tidak fallback ke search.
+function categoryHref(cat: Pick<Category, 'slug' | 'name'>) {
+  return cat.slug ? `/kategori/${cat.slug}` : `/search?q=${encodeURIComponent(cat.name)}`;
+}
 
 export default function CategorySection() {
   const { data: categories, isLoading, isError } = useCategories();
+  const [activeMain, setActiveMain] = useState<Category | null>(null);
 
   // For MVP, just take the first 7 to leave room for the "Lainnya" button
   const displayCategories = categories?.slice(0, 7) || [];
@@ -30,9 +38,11 @@ export default function CategorySection() {
       ) : (
         <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayCategories.map((cat: Category) => (
-            <Link
+            <button
               key={cat.id}
-              href={`/search?q=${encodeURIComponent(cat.name)}`}
+              type="button"
+              onClick={() => setActiveMain(cat)}
+              aria-haspopup="dialog"
               className="group flex-shrink-0 w-[72px] sm:w-[84px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
               <div className="w-14 h-14 sm:w-16 sm:h-16 mb-2 flex items-center justify-center bg-[#fcf9f8] border border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:shadow-md transition-all relative overflow-hidden">
@@ -46,7 +56,7 @@ export default function CategorySection() {
               <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight line-clamp-2 px-1">
                 {cat.name}
               </span>
-            </Link>
+            </button>
           ))}
 
           {/* Tombol Lihat Semua Kategori */}
@@ -63,6 +73,111 @@ export default function CategorySection() {
           </Link>
         </div>
       )}
+
+      {activeMain && (
+        <SubcategoryDrawer main={activeMain} onClose={() => setActiveMain(null)} />
+      )}
     </section>
+  );
+}
+
+function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => void }) {
+  const { data: subs, isLoading } = useSubcategories(main.id);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={onClose} />
+
+      <div className="relative w-full max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl z-10 overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[75vh] border border-[#e5e2e1] animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200">
+        <div className="sm:hidden w-full flex justify-center pt-2.5 pb-1">
+          <div className="w-10 h-1 bg-[#e5e2e1] rounded-full" />
+        </div>
+
+        {/* Header */}
+        <div className="px-5 pt-2 sm:pt-4 pb-3 border-b border-[#e5e2e1] flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 relative rounded-xl overflow-hidden bg-[#fcf9f8] border border-[#e5e2e1] shrink-0">
+              <Image src={main.icon_url || '/icons/default.svg'} alt={main.name} fill className="object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-[16px] font-bold text-[#1c1b1b] truncate">{main.name}</h3>
+              <p className="text-[12px] text-[#8f6f6d]">Pilih subkategori</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-[#f5f3f2] hover:bg-[#e5e2e1] flex items-center justify-center text-[#5b403e] transition-colors shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-4 overflow-y-auto flex-1 min-h-0">
+          {/* Lihat semua di kategori utama */}
+          <Link
+            href={categoryHref(main)}
+            onClick={onClose}
+            className="flex items-center justify-between p-3 mb-3 rounded-xl bg-[#b51822]/5 border border-[#b51822]/30 text-[#b51822] font-semibold text-[13px] hover:bg-[#b51822]/10 transition-colors"
+          >
+            <span>Lihat semua di {main.name}</span>
+            <ChevronRight className="w-4 h-4 shrink-0" />
+          </Link>
+
+          {isLoading ? (
+            <div className="grid grid-cols-3 gap-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <div className="w-14 h-14 bg-gray-200 rounded-2xl animate-pulse" />
+                  <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          ) : !subs || subs.length === 0 ? (
+            <p className="py-6 text-center text-[13px] text-[#8f6f6d]">
+              Belum ada subkategori. Lihat semua layanan di {main.name} di atas.
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-3">
+              {subs.map((sub) => (
+                <Link
+                  key={sub.id}
+                  href={categoryHref(sub)}
+                  onClick={onClose}
+                  className="group flex flex-col items-center gap-2 p-1"
+                >
+                  <div className="w-14 h-14 flex items-center justify-center bg-[#fcf9f8] border border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:shadow-md transition-all relative overflow-hidden">
+                    <Image
+                      src={sub.icon_url || '/icons/default.svg'}
+                      alt={sub.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <span className="text-[11px] font-medium text-[#1c1b1b] text-center leading-tight line-clamp-2">
+                    {sub.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
