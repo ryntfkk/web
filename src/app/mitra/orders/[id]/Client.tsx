@@ -378,11 +378,28 @@ export default function MitraOrderDetailClient() {
         </div>
       )}
 
-      {status === 'PAID' && (
-        <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-lg" onClick={() => handleAction('start')} disabled={actionLoading}>
-          Mulai Kerjakan
-        </Button>
-      )}
+      {status === 'PAID' && (() => {
+        // Jendela mulai = H-2 jam s/d H+12 jam (backend validateStartWindow).
+        // Cegah klik terlalu awal di klien supaya mitra tak kena error server.
+        const startEarliest = new Date(new Date(order.scheduled_at).getTime() - 2 * 60 * 60 * 1000);
+        const tooEarly = new Date() < startEarliest;
+        return (
+          <div>
+            <Button
+              className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-lg"
+              onClick={() => handleAction('start')}
+              disabled={actionLoading || tooEarly}
+            >
+              Mulai Kerjakan
+            </Button>
+            {tooEarly && (
+              <p className="mt-1.5 text-xs text-[#9e8e8c] text-center">
+                Bisa dimulai paling awal <strong>2 jam sebelum jadwal</strong> ({formatDate(startEarliest.toISOString())}).
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       {status === 'IN_PROGRESS' && (
         <>
