@@ -63,21 +63,24 @@ export async function silentRefresh(): Promise<boolean> {
  */
 async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
   let data: ApiResponse<T>;
+  // M1: respons error tanpa body JSON tetap harus punya `message` ramah-pengguna
+  // (banyak komponen membaca res.message langsung).
+  const httpErr = (status: number): ApiResponse<T> => ({
+    success: false,
+    message: 'Terjadi kesalahan pada server. Silakan coba lagi.',
+    error: `HTTP ${status}`,
+  });
   if (response.status === 204) {
     data = { success: response.ok };
   } else {
     const text = await response.text();
     if (!text) {
-      data = response.ok
-        ? { success: true }
-        : { success: false, error: `HTTP ${response.status}` };
+      data = response.ok ? { success: true } : httpErr(response.status);
     } else {
       try {
         data = JSON.parse(text) as ApiResponse<T>;
       } catch {
-        data = response.ok
-          ? { success: true }
-          : { success: false, error: `HTTP ${response.status}` };
+        data = response.ok ? { success: true } : httpErr(response.status);
       }
     }
   }
@@ -142,7 +145,15 @@ export async function fetchAPI<T>(
     return parseResponse<T>(response);
   } catch (error) {
     console.error(`API Error on ${endpoint}:`, error);
-    return { success: false, error: 'Network error or server unreachable', status: 0 };
+    // M1: set `message` JUGA (bukan hanya `error`) — banyak komponen membaca
+    // `res.message` langsung; tanpa ini mereka menampilkan pesan kosong saat
+    // server mati / internet putus. Pesan ramah-pengguna (Bahasa Indonesia).
+    return {
+      success: false,
+      message: 'Koneksi bermasalah. Periksa internet Anda lalu coba lagi.',
+      error: 'Network error or server unreachable',
+      status: 0,
+    };
   }
 }
 

@@ -60,8 +60,21 @@ export default function MitraOrdersPage() {
     fetchOrders();
   }, [isAuthenticated, user?.active_role]);
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  // K1-interim: polling senyap 45s agar order baru/perubahan status muncul tanpa
+  // reload manual (belum ada push/WS real-time). Hanya saat tab terlihat.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const id = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchOrders(true);
+      }
+    }, 45000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  const fetchOrders = async (silent = false) => {
+    if (!silent) setLoading(true);
     const res = await fetchAPI<unknown>('/orders?role=partner', {
       method: 'GET',
       credentials: 'include',

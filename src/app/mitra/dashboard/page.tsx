@@ -53,8 +53,22 @@ export default function MitraDashboardPage() {
     fetchData();
   }, [isAuthenticated, user?.active_role]);
 
-  const fetchData = async () => {
-    setLoading(true);
+  // K1-interim: polling senyap tiap 45s agar order baru & badge notif muncul
+  // tanpa reload manual (mitra tak punya push/WS real-time saat ini). Hanya saat
+  // tab terlihat — hemat request. Tanpa spinner (silent) agar tak berkedip.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const id = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchData(true);
+      }
+    }, 45000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  const fetchData = async (silent = false) => {
+    if (!silent) setLoading(true);
     const [res, unreadRes] = await Promise.all([
       fetchAPI<any>('/partners/me/dashboard'),
       fetchAPI<any>('/notifications/unread-count')
