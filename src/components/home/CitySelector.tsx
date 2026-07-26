@@ -1,19 +1,16 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { MapPin, ChevronDown, Search, X, Check, Globe, Navigation, Sparkles } from 'lucide-react';
+import { MapPin, ChevronDown, Search, X, Check, Globe } from 'lucide-react';
 import { useCities } from '@/hooks/useCities';
 import { useCityFilter } from '@/lib/store/cityFilterStore';
-import { useLocationStore } from '@/lib/store/locationStore';
 
 export default function CitySelector() {
   const { data: cities, isLoading } = useCities();
   const { city, setCity } = useCityFilter();
-  const { requestLocation, permissionStatus } = useLocationStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLocating, setIsLocating] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Lock body scroll when modal is open on mobile
@@ -51,15 +48,6 @@ export default function CitySelector() {
   const handleSelectCity = (selectedCity: string) => {
     setCity(selectedCity);
     setIsOpen(false);
-  };
-
-  const handleGPSLocation = () => {
-    setIsLocating(true);
-    requestLocation();
-    setTimeout(() => {
-      setIsLocating(false);
-      // If we have cities, we leave default or user notification
-    }, 1200);
   };
 
   return (
@@ -135,8 +123,10 @@ export default function CitySelector() {
               </button>
             </div>
 
-            {/* Search Input */}
-            <div className="p-3 sm:p-4 bg-[#faf8f7] border-b border-[#e5e2e1] shrink-0 space-y-2">
+            {/* Search Input — tombol GPS dihapus: lokasi diminta OTOMATIS untuk
+                menghitung jarak (lihat LocationNotice); pemilih kota ini murni
+                untuk memfilter wilayah, bukan menentukan lokasi presisi. */}
+            <div className="p-3 sm:p-4 bg-[#faf8f7] border-b border-[#e5e2e1] shrink-0">
               <div className="relative">
                 <Search className="w-4 h-4 text-[#8f6f6d] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -157,17 +147,6 @@ export default function CitySelector() {
                   </button>
                 )}
               </div>
-
-              {/* GPS button */}
-              <button
-                type="button"
-                onClick={handleGPSLocation}
-                disabled={isLocating}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-white border border-[#e5e2e1] hover:border-[#b51822]/40 rounded-xl text-[12px] font-semibold text-[#5b403e] hover:text-[#b51822] transition-colors shadow-2xs"
-              >
-                <Navigation className={`w-3.5 h-3.5 text-[#b51822] ${isLocating ? 'animate-spin' : ''}`} />
-                <span>{isLocating ? 'Mendeteksi Lokasi...' : 'Gunakan Lokasi Saya Saat Ini'}</span>
-              </button>
             </div>
 
             {/* Cities List */}

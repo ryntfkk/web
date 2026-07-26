@@ -6,6 +6,7 @@ import TopPartnersSection from '@/components/home/TopPartnersSection';
 import FeaturedServicesSection from '@/components/home/FeaturedServicesSection';
 import ProductsSection from '@/components/home/ProductsSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
+import LocationNotice from '@/components/home/LocationNotice';
 import PartnerRedirectGate from './PartnerRedirectGate';
 import JsonLd from '@/components/seo/JsonLd';
 import type { Category } from '@/types/category';
@@ -81,6 +82,8 @@ export default async function Home() {
           <div className="flex justify-center mb-5 sm:mb-8">
             <CitySelector />
           </div>
+          {/* Minta lokasi otomatis; tampilkan notif bila ditolak (jarak di kartu butuh lokasi). */}
+          <LocationNotice />
           <RecentlyViewedSection />
           <ProductsSection />
           <TopPartnersSection />
