@@ -129,6 +129,49 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       }
     : null;
 
+  // SE7: Product — melengkapi Service agar layanan ELIGIBLE tampil sebagai
+  // "produk" di Google (gambar + harga, gaya kartu belanja). aggregateRating
+  // dilekatkan di sini (bila ada ulasan) karena di marketplace ini mitra =
+  // penjual langsung penawaran ini; rating mencerminkan pengalaman pembeli atas
+  // jasa mitra. Kota mitra ikut disematkan (areaServed via Offer) agar Google
+  // mengaitkan produk dengan lokasi basecamp (mendukung query "[jasa] [kota]").
+  const productSchema = service
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: service.name,
+        ...(service.description ? { description: service.description.slice(0, 300) } : {}),
+        ...(service.photo_url ? { image: service.photo_url } : {}),
+        ...(service.category_name ? { category: service.category_name } : {}),
+        brand: { '@type': 'Brand', name: service.partner_name },
+        ...(service.partner_total_reviews > 0
+          ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: service.partner_avg_rating,
+                reviewCount: service.partner_total_reviews,
+                bestRating: 5,
+                worstRating: 1,
+              },
+            }
+          : {}),
+        offers: {
+          '@type': 'Offer',
+          price: service.price,
+          priceCurrency: 'IDR',
+          availability: 'https://schema.org/InStock',
+          url: `${SITE}/services/${id}`,
+          ...(service.partner_city ? { areaServed: service.partner_city } : {}),
+          seller: {
+            '@type': 'LocalBusiness',
+            name: service.partner_name,
+            url: `${SITE}/${service.partner_username}`,
+            ...(service.partner_city ? { address: { '@type': 'PostalAddress', addressLocality: service.partner_city } } : {}),
+          },
+        },
+      }
+    : null;
+
   const breadcrumbSchema = service
     ? {
         '@context': 'https://schema.org',
@@ -144,6 +187,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       {serviceSchema && <JsonLd data={serviceSchema} />}
+      {productSchema && <JsonLd data={productSchema} />}
       {breadcrumbSchema && <JsonLd data={breadcrumbSchema} />}
       <ServiceDetailClient serviceId={id} />
     </HydrationBoundary>

@@ -7,6 +7,7 @@ import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import JsonLd from '@/components/seo/JsonLd';
 import { API_URL } from '@/lib/api';
+import { slugify } from '@/lib/slug';
 import type { PublicService } from '@/hooks/usePublicServices';
 import type { Category } from '@/types/category';
 
@@ -71,6 +72,12 @@ export default async function CategoryPage({ params }: PageProps) {
 
   const serviceList = services ?? [];
   const subList = subs ?? [];
+
+  // Kota yang punya layanan kategori ini → tautan internal /jasa/[slug]/[kota]
+  // (bantu Google menemukan landing lokal + navigasi pelanggan).
+  const cities = Array.from(
+    new Set(serviceList.map((s) => s.partner_city).filter((c): c is string => !!c)),
+  ).slice(0, 12);
 
   // Breadcrumb: Beranda › [induk bila sub] › kategori.
   const crumbs: { name: string; href: string }[] = [{ name: 'Beranda', href: '/' }];
@@ -146,6 +153,26 @@ export default async function CategoryPage({ params }: PageProps) {
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-[#e5e2e1] text-[13px] font-medium text-[#1c1b1b] hover:border-[#b51822] hover:text-[#b51822] transition-colors"
                 >
                   {sub.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tersedia di kota (tautan internal ke landing lokal) */}
+        {cities.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-[15px] font-bold text-[#1c1b1b] mb-3">
+              Jasa {cat.name} per kota
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {cities.map((city) => (
+                <Link
+                  key={city}
+                  href={`/jasa/${cat.slug}/${slugify(city)}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-[#e5e2e1] text-[13px] font-medium text-[#1c1b1b] hover:border-[#b51822] hover:text-[#b51822] transition-colors"
+                >
+                  {cat.name} {city}
                 </Link>
               ))}
             </div>

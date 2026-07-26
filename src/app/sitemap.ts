@@ -1,14 +1,16 @@
 import type { MetadataRoute } from 'next';
+import { slugify } from '@/lib/slug';
 
-// SE1: sitemap dinamis. Statis (halaman publik) + dinamis (detail layanan dari
-// API). Di-revalidate tiap jam. Fetch defensif: bila API gagal saat build,
-// tetap kembalikan halaman statis (jangan gagalkan build Amplify).
+// SE1: sitemap dinamis. Statis + kategori + landing lokal /jasa/[kat]/[kota]
+// (HANYA kombinasi yang punya layanan → hindari soft-404) + detail layanan.
+// Di-revalidate tiap jam. Fetch defensif: bila API gagal saat build, tetap
+// kembalikan halaman statis (jangan gagalkan build Amplify).
 export const revalidate = 3600;
 
 const BASE = 'https://poskojasa.com';
 const API = 'https://api.poskojasa.com/api/v1';
 
-type ServiceRow = { id: string; updated_at?: string };
+type ServiceRow = { id: string; updated_at?: string; category_id?: string; partner_city?: string };
 type CatRow = { id: string; slug?: string | null };
 
 async function fetchJSON<T>(path: string): Promise<T | null> {
@@ -28,7 +30,6 @@ async function fetchJSON<T>(path: string): Promise<T | null> {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     '',
-    // '/services' kini halaman daftar layanan sungguhan (bukan lagi state kosong).
     '/services',
     '/categories',
     '/promos',
@@ -43,15 +44,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: p === '' ? 1 : 0.7,
   }));
 
-  // Kategori (utama + sub) → /kategori/[slug]. Sumber halaman SEO taksonomi.
-  let categories: MetadataRoute.Sitemap = [];
+  // Peta kategori: id → slug, dan id-sub → slug induk (untuk kombinasi /jasa).
+  const slugById = new Map<string, string>();
+  const parentSlugById = new Map<string, string>();
+  let categoryPages: MetadataRoute.Sitemap = [];
   try {
     const mains = (await fetchJSON<CatRow[]>('/categories')) ?? [];
-    const subLists = await Promise.all(
-      mains.map((m) => fetchJSON<CatRow[]>(`/categories/${m.id}/subcategories`)),
+    for (const m of mains) if (m.slug) slugById.set(m.id, m.slug);
+    const grouped = await Promise.all(
+      mains.map((m) =>
+        fetchJSON<CatRow[]>(`/categories/${m.id}/subcategories`).then((subs) => ({ main: m, subs: subs ?? [] })),
+      ),
     );
-    const all = [...mains, ...subLists.flatMap((s) => s ?? [])];
-    categories = all
+    const allSubs: CatRow[] = [];
+    for (const { main, subs } of grouped) {
+      for (const sub of subs) {
+        if (sub.slug) {
+          slugById.set(sub.id, sub.slug);
+          if (main.slug) parentSlugById.set(sub.id, main.slug);
+        }
+        allSubs.push(sub);
+      }
+    }
+    categoryPages = [...mains, ...allSubs]
       .filter((c) => c && c.slug)
       .map((c) => ({
         url: `${BASE}/kategori/${c.slug}`,
@@ -63,28 +78,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // abaikan — cukup halaman lain.
   }
 
-  let services: MetadataRoute.Sitemap = [];
+  // Layanan (sekali fetch) → detail /services/[id] + kombinasi lokal /jasa.
+  let servicePages: MetadataRoute.Sitemap = [];
+  const jasaCombos = new Set<string>(); // key: "catSlug|citySlug"
   try {
-    const res = await fetch(`${API}/services?limit=1000`, {
-      headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
-      next: { revalidate: 3600 },
-    });
-    if (res.ok) {
-      const json = await res.json();
-      const rows: ServiceRow[] = Array.isArray(json?.data) ? json.data : [];
-      services = rows
-        .filter((s) => s && s.id)
-        .map((s) => ({
-          // Route dinamis /services/[id] (URL bersih) — menggantikan ?id=.
-          url: `${BASE}/services/${s.id}`,
-          lastModified: s.updated_at ? new Date(s.updated_at) : new Date(),
-          changeFrequency: 'daily' as const,
-          priority: 0.8,
-        }));
+    const rows = (await fetchJSON<ServiceRow[]>('/services?limit=1000')) ?? [];
+    servicePages = rows
+      .filter((s) => s && s.id)
+      .map((s) => ({
+        url: `${BASE}/services/${s.id}`,
+        lastModified: s.updated_at ? new Date(s.updated_at) : new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.8,
+      }));
+
+    for (const s of rows) {
+      if (!s.category_id || !s.partner_city) continue;
+      const citySlug = slugify(s.partner_city);
+      if (!citySlug) continue;
+      // Slug kategori langsung (sub/utama) + slug induk (filter hierarki
+      // menampilkan layanan sub di halaman kategori utama juga).
+      const catSlug = slugById.get(s.category_id);
+      if (catSlug) jasaCombos.add(`${catSlug}|${citySlug}`);
+      const parentSlug = parentSlugById.get(s.category_id);
+      if (parentSlug) jasaCombos.add(`${parentSlug}|${citySlug}`);
     }
   } catch {
     // API tak tersedia saat build — cukup halaman statis.
   }
 
-  return [...staticPages, ...categories, ...services];
+  const localPages: MetadataRoute.Sitemap = [...jasaCombos].map((key) => {
+    const [catSlug, citySlug] = key.split('|');
+    return {
+      url: `${BASE}/jasa/${catSlug}/${citySlug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
+    };
+  });
+
+  return [...staticPages, ...categoryPages, ...localPages, ...servicePages];
 }
