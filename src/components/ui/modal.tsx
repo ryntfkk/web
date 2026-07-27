@@ -23,6 +23,8 @@ interface ModalProps {
   maxWidthClass?: string;
   /** Sembunyikan header bawaan (mis. modal yang punya header sendiri). */
   hideHeader?: boolean;
+  /** Header kustom (fixed/shrink-0) menggantikan baris judul+X bawaan. */
+  header?: React.ReactNode;
   /** Padding body. Default p-5; set false untuk konten yang atur padding sendiri. */
   padded?: boolean;
 }
@@ -34,6 +36,7 @@ export function Modal({
   children,
   maxWidthClass = 'max-w-sm',
   hideHeader = false,
+  header,
   padded = true,
 }: ModalProps) {
   const [mounted, setMounted] = useState(false);
@@ -70,7 +73,9 @@ export function Modal({
           <div className="h-1 w-10 rounded-full bg-[#e5e2e1]" />
         </div>
 
-        {!hideHeader && (
+        {header ? (
+          <div className="shrink-0">{header}</div>
+        ) : !hideHeader ? (
           <div className="flex shrink-0 items-center justify-between border-b border-[#e5e2e1] px-5 pt-2 pb-3 sm:pt-4">
             <h3 className="text-[16px] font-bold text-[#1c1b1b] sm:text-[17px]">{title}</h3>
             <button
@@ -82,7 +87,7 @@ export function Modal({
               <X className="h-4 w-4" />
             </button>
           </div>
-        )}
+        ) : null}
 
         <div className={`min-h-0 flex-1 overflow-y-auto ${padded ? 'p-5' : ''}`}>{children}</div>
       </div>
