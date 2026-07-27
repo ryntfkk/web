@@ -14,7 +14,7 @@ interface ServicesListProps {
 export default function ServicesList({ services, profile, isLoading }: ServicesListProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-[260px] bg-gray-100 animate-pulse rounded-xs" />
         ))}
@@ -36,7 +36,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
       {validServices.map((service) => {
         const primaryPhoto =
           service.photos?.find(p => p.is_primary)?.photo_url ||

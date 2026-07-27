@@ -80,11 +80,17 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy-Report-Only',
             value:
               "default-src 'self'; " +
-              "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-1.amazonaws.com; " +
-              "script-src 'self' 'unsafe-inline' https://app.sandbox.midtrans.com https://app.midtrans.com; " +
-              "connect-src 'self' https://api.poskojasa.com wss://api.poskojasa.com; " +
-              "frame-src https://app.sandbox.midtrans.com https://app.midtrans.com; " +
-              "style-src 'self' 'unsafe-inline'; " +
+              // lh3.googleusercontent.com = foto profil akun Google. Tanpa ini
+              // avatar pengguna yang mendaftar lewat Google akan kosong begitu
+              // CSP di-enforce.
+              "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-1.amazonaws.com https://*.googleusercontent.com; " +
+              // accounts.google.com = skrip Google Identity Services (tombol
+              // "Masuk dengan Google").
+              "script-src 'self' 'unsafe-inline' https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com; " +
+              "connect-src 'self' https://api.poskojasa.com wss://api.poskojasa.com https://accounts.google.com; " +
+              // GIS merender tombol & dialog persetujuannya di dalam iframe.
+              "frame-src https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com; " +
+              "style-src 'self' 'unsafe-inline' https://accounts.google.com; " +
               "font-src 'self' data:; " +
               "base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
           },
@@ -110,6 +116,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'd2qm3dfz28907r.cloudfront.net',
+      },
+      {
+        // Foto profil dari akun Google (avatar_url diisi saat registrasi Google).
+        // Tanpa entri ini, next/image MELEMPAR error — bukan sekadar gagal
+        // memuat gambar — sehingga halaman yang menampilkan avatar mitra ikut
+        // tumbang. Lihat BookingClient.tsx yang merender partner.avatar_url.
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
       },
     ],
   },

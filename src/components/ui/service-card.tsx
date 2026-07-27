@@ -54,7 +54,7 @@ export function ServiceCard({
       )}
     >
       {/* Image Section - Square 1:1 ratio */}
-      <div className="relative w-full aspect-square bg-brand-gray-100">
+      <div className="relative w-full aspect-[4/3] bg-brand-gray-100">
         <Image
           src={imageUrl}
           alt={vendorName}

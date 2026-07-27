@@ -162,7 +162,7 @@ export default async function LocalCategoryPage({ params }: PageProps) {
             <h2 className="text-[15px] font-bold text-[#1c1b1b] mb-4">
               {serviceList.length} layanan tersedia
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {serviceList.map((s) => (
                 <ServiceProductCard key={s.id} service={s} />
               ))}
