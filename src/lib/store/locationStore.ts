@@ -54,7 +54,7 @@ export const useLocationStore = create<LocationState>()(
               permissionStatus: 'granted',
               isResolved: true,
               hasLocation: true,
-              label: 'Lokasi saat ini',
+              label: 'Lokasi GPS saat ini',
               source: 'gps',
             });
           },

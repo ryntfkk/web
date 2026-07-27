@@ -79,11 +79,11 @@ export default async function Home() {
         {/* Main Content Area - Better mobile padding */}
         <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-6 flex-1">
           <CategorySection />
-          <div className="flex justify-center mb-5 sm:mb-8">
+          <section className="w-full mb-5 sm:mb-8">
             {/* Pemilih lokasi (alamat tersimpan / GPS + mini-map). Menggantikan
                 pemilihan kota: jarak di kartu dihitung dari lokasi ini. */}
             <LocationPicker />
-          </div>
+          </section>
           {/* Minta lokasi otomatis; tampilkan notif bila ditolak (jarak di kartu butuh lokasi). */}
           <LocationNotice />
           <RecentlyViewedSection />

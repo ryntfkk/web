@@ -25,6 +25,7 @@ interface Address {
 export default function LocationPicker() {
   const label = useLocationStore((s) => s.label);
   const hasLocation = useLocationStore((s) => s.hasLocation);
+  const source = useLocationStore((s) => s.source);
   const latitude = useLocationStore((s) => s.latitude);
   const longitude = useLocationStore((s) => s.longitude);
   const isResolved = useLocationStore((s) => s.isResolved);
@@ -79,28 +80,32 @@ export default function LocationPicker() {
     setOpen(false);
   };
 
-  const capsuleLabel = hasLocation ? label || 'Lokasi terpilih' : 'Tentukan lokasi kamu';
-
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className="group inline-flex max-w-full shrink-0 cursor-pointer items-center gap-2 rounded-full border border-[#e5e2e1] bg-white px-3 py-1.5 shadow-2xs transition-all duration-200 hover:border-[#b51822]/40 hover:shadow-xs active:scale-95"
+        className="group relative flex w-full cursor-pointer items-center justify-between gap-2 sm:gap-3 rounded-xl border border-[#e5e2e1] bg-white px-3.5 py-2.5 sm:px-4 shadow-2xs transition-all duration-200 hover:border-[#b51822]/40 hover:shadow-xs active:scale-[0.995]"
       >
-        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#b51822]/10 text-[#b51822] transition-colors group-hover:bg-[#b51822] group-hover:text-white">
-          <MapPin className="h-3 w-3" />
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#b51822]/10 text-[#b51822] transition-colors group-hover:bg-[#b51822] group-hover:text-white">
+            <MapPin className="h-3.5 w-3.5" />
+          </div>
+
+          <div className="flex min-w-0 flex-1 items-center text-left">
+            <span className="truncate text-[12px] sm:text-[13px] font-bold text-[#1c1b1b]">
+              {hasLocation
+                ? (label === 'Lokasi saat ini' ? 'Lokasi GPS saat ini' : label) || 'Lokasi Terpilih'
+                : 'Tentukan lokasi kamu untuk melihat estimasi jarak'}
+            </span>
+          </div>
         </div>
-        <div className="flex min-w-0 items-center gap-1.5">
-          <span className="hidden shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#8f6f6d] xs:inline">
-            Lokasi:
-          </span>
-          <span className="truncate text-[12px] font-bold leading-tight text-[#1c1b1b] sm:text-[13px] max-w-[150px] sm:max-w-[220px]">
-            {capsuleLabel}
-          </span>
+
+        <div className="flex shrink-0 items-center gap-1 text-[11px] sm:text-[12px] font-semibold text-[#8f6f6d] transition-colors group-hover:text-[#b51822]">
+          <span>Ganti</span>
+          <ChevronDown className="h-3.5 w-3.5" />
         </div>
-        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[#8f6f6d] transition-colors group-hover:text-[#b51822]" />
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Lokasi Kamu">
