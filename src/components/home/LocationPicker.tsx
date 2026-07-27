@@ -1,0 +1,195 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { MapPin, ChevronDown, Navigation, Home, Check, Loader2 } from 'lucide-react';
+import { Modal } from '@/components/ui/modal';
+import MapView from '@/components/MapView';
+import { fetchAPI } from '@/lib/api';
+import { unwrapData } from '@/lib/order-utils';
+import { useLocationStore } from '@/lib/store/locationStore';
+
+interface Address {
+  id: string;
+  label: string;
+  address: string;
+  address_detail?: string;
+  is_default: boolean;
+  lat: number;
+  lon: number;
+}
+
+/**
+ * Pemilih lokasi home ala Grab/ShopeeFood. Koordinat aktif (GPS / alamat
+ * tersimpan) men-drive JARAK di kartu jasa & mitra — menggantikan filter kota.
+ */
+export default function LocationPicker() {
+  const label = useLocationStore((s) => s.label);
+  const hasLocation = useLocationStore((s) => s.hasLocation);
+  const latitude = useLocationStore((s) => s.latitude);
+  const longitude = useLocationStore((s) => s.longitude);
+  const isResolved = useLocationStore((s) => s.isResolved);
+  const permissionStatus = useLocationStore((s) => s.permissionStatus);
+  const setManualLocation = useLocationStore((s) => s.setManualLocation);
+
+  const [open, setOpen] = useState(false);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loadingAddr, setLoadingAddr] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  // Muat alamat tersimpan saat modal dibuka (best-effort; tamu → kosong).
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    (async () => {
+      setLoadingAddr(true);
+      try {
+        const res = await fetchAPI<unknown>('/users/me/addresses');
+        if (alive && res.success && res.data) {
+          const data = unwrapData<Address[]>(res.data);
+          setAddresses(Array.isArray(data) ? data.filter((a) => a.lat && a.lon) : []);
+        }
+      } catch {
+        /* tamu / tak ada alamat */
+      }
+      if (alive) setLoadingAddr(false);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [open]);
+
+  // Tutup modal begitu GPS selesai (berhasil).
+  useEffect(() => {
+    if (locating && isResolved) {
+      setLocating(false);
+      if (hasLocation) setOpen(false);
+    }
+  }, [locating, isResolved, hasLocation]);
+
+  const handleGPS = () => {
+    setLocating(true);
+    // Paksa ambil ulang GPS meski sudah ada lokasi (guard requestLocation skip
+    // saat sudah punya lokasi) → reset dulu.
+    useLocationStore.getState().resetLocation();
+    useLocationStore.getState().requestLocation();
+  };
+
+  const pickAddress = (a: Address) => {
+    setManualLocation(a.lat, a.lon, a.label ? `${a.label} — ${a.address}` : a.address);
+    setOpen(false);
+  };
+
+  const capsuleLabel = hasLocation ? label || 'Lokasi terpilih' : 'Tentukan lokasi kamu';
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+        className="group inline-flex max-w-full shrink-0 cursor-pointer items-center gap-2 rounded-full border border-[#e5e2e1] bg-white px-3 py-1.5 shadow-2xs transition-all duration-200 hover:border-[#b51822]/40 hover:shadow-xs active:scale-95"
+      >
+        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#b51822]/10 text-[#b51822] transition-colors group-hover:bg-[#b51822] group-hover:text-white">
+          <MapPin className="h-3 w-3" />
+        </div>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="hidden shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[#8f6f6d] xs:inline">
+            Lokasi:
+          </span>
+          <span className="truncate text-[12px] font-bold leading-tight text-[#1c1b1b] sm:text-[13px] max-w-[150px] sm:max-w-[220px]">
+            {capsuleLabel}
+          </span>
+        </div>
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[#8f6f6d] transition-colors group-hover:text-[#b51822]" />
+      </button>
+
+      <Modal open={open} onClose={() => setOpen(false)} title="Lokasi Kamu">
+        <p className="mb-4 text-[12px] leading-relaxed text-[#8f6f6d]">
+          Jarak pada kartu jasa &amp; mitra dihitung dari lokasi ini ke basecamp mitra. Pilih lokasi
+          saat ini atau salah satu alamat tersimpan.
+        </p>
+
+        {/* Mini-map lokasi aktif */}
+        {hasLocation && latitude != null && longitude != null && (
+          <div className="mb-4 overflow-hidden rounded-xl border border-[#e5e2e1]">
+            <MapView lat={latitude} lng={longitude} label={label} className="h-40" />
+          </div>
+        )}
+
+        {/* Gunakan lokasi saat ini (GPS) */}
+        <button
+          type="button"
+          onClick={handleGPS}
+          disabled={locating}
+          className="mb-2 flex w-full items-center gap-3 rounded-xl border border-[#e5e2e1] p-3 text-left transition-colors hover:border-[#b51822]/50 disabled:opacity-60"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#b51822]/10 text-[#b51822]">
+            {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[14px] font-semibold text-[#1c1b1b]">Gunakan lokasi saat ini</p>
+            <p className="text-[12px] text-[#8f6f6d]">
+              {locating
+                ? 'Mengambil lokasi…'
+                : permissionStatus === 'denied'
+                  ? 'Izin lokasi ditolak — aktifkan di pengaturan browser'
+                  : 'Deteksi otomatis via GPS'}
+            </p>
+          </div>
+          {useLocationStore.getState().source === 'gps' && hasLocation && (
+            <Check className="h-4 w-4 shrink-0 text-[#b51822]" />
+          )}
+        </button>
+
+        {/* Alamat tersimpan */}
+        <div className="mt-3">
+          <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-[#8f6f6d]">
+            Alamat tersimpan
+          </p>
+          {loadingAddr ? (
+            <div className="py-6 text-center text-[13px] text-[#8f6f6d]">
+              <Loader2 className="mx-auto h-5 w-5 animate-spin text-[#b51822]" />
+            </div>
+          ) : addresses.length === 0 ? (
+            <p className="px-1 py-3 text-[12px] text-[#8f6f6d]">
+              Belum ada alamat tersimpan berkoordinat. Tambahkan di menu Alamat pada profil.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {addresses.map((a) => {
+                const active =
+                  hasLocation && latitude === a.lat && longitude === a.lon;
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => pickAddress(a)}
+                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                      active ? 'border-[#b51822] bg-[#b51822]/5' : 'border-[#e5e2e1] hover:border-[#b51822]/50'
+                    }`}
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f5f3f2] text-[#5b403e]">
+                      <Home className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-semibold text-[#1c1b1b]">
+                        {a.label || 'Alamat'}
+                        {a.is_default && (
+                          <span className="ml-2 rounded bg-[#f5f3f2] px-1.5 py-0.5 text-[10px] font-medium text-[#8f6f6d]">
+                            Utama
+                          </span>
+                        )}
+                      </p>
+                      <p className="truncate text-[12px] text-[#8f6f6d]">{a.address}</p>
+                    </div>
+                    {active && <Check className="h-4 w-4 shrink-0 text-[#b51822]" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </Modal>
+    </>
+  );
+}

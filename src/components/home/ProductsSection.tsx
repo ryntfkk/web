@@ -2,16 +2,15 @@
 
 import Link from 'next/link';
 import { usePublicServices } from '@/hooks/usePublicServices';
-import { useCityFilter } from '@/lib/store/cityFilterStore';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 
 export default function ProductsSection() {
-  const { city } = useCityFilter();
+  // Lokasi (bukan kota) = acuan jarak & urutan terdekat. Filter kota dihapus
+  // dari home agar mitra kota-sebelah yang lebih dekat tak tersembunyi.
   const { latitude, longitude, hasLocation } = useUserLocation();
   const { data: services, isLoading, isError } = usePublicServices({
     limit: 12,
-    city: city || undefined,
     latitude: hasLocation ? latitude ?? undefined : undefined,
     longitude: hasLocation ? longitude ?? undefined : undefined,
   });
@@ -45,9 +44,7 @@ export default function ProductsSection() {
           ))}
         </div>
       ) : (
-        <div className="text-center text-gray-500 py-8">
-          {city ? `Belum ada layanan di ${city}.` : 'Belum ada layanan tersedia.'}
-        </div>
+        <div className="text-center text-gray-500 py-8">Belum ada layanan tersedia.</div>
       )}
     </section>
   );

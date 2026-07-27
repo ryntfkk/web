@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Briefcase, User, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Briefcase, User, RefreshCw } from 'lucide-react';
+import { Modal } from '@/components/ui/modal';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
@@ -19,7 +19,7 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (!isOpen || !user) return null;
+  if (!user) return null;
 
   const handleSwitch = async (targetRole: 'customer' | 'partner') => {
     if (user.active_role === targetRole) {
@@ -64,16 +64,8 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-6 animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0">
-        <div className="flex items-start justify-between mb-6">
-          <h3 className="text-lg font-bold text-[#1c1b1b]">Pilih Mode Akun</h3>
-          <button onClick={onClose} className="p-1 hover:bg-[#f7f5f4] rounded-full transition-colors">
-            <X className="w-5 h-5 text-[#9e8e8c]" />
-          </button>
-        </div>
-
-        <div className="space-y-3">
+    <Modal open={isOpen} onClose={onClose} title="Pilih Mode Akun">
+      <div className="space-y-3">
           <button
             onClick={() => handleSwitch('customer')}
             disabled={loading}
@@ -139,7 +131,6 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
             Gagal beralih mode: {error}. Coba lagi.
           </div>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }
