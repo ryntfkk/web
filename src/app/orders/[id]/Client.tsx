@@ -412,7 +412,8 @@ export default function OrderDetailClient() {
         </Button>
       )}
 
-      {(status === 'WAITING_CONFIRMATION' || status === 'PAID') && (
+      {/* Pra-bayar: pelanggan boleh membatalkan (belum ada uang berpindah). */}
+      {(status === 'WAITING_CONFIRMATION' || status === 'WAITING_PAYMENT') && (
         <Button
           variant="outline"
           className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg"
@@ -420,6 +421,18 @@ export default function OrderDetailClient() {
           disabled={actionLoading}
         >
           Batalkan Pesanan
+        </Button>
+      )}
+
+      {/* Pasca-bayar: TIDAK bisa batal sepihak. Pembatalan lewat sengketa yang
+          ditinjau admin (cegah pembatalan semena-mena setelah mitra menyiapkan). */}
+      {status === 'PAID' && (
+        <Button
+          variant="outline"
+          className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg"
+          onClick={() => router.push(`/orders/${order.id}/dispute`)}
+        >
+          <AlertTriangle className="w-4 h-4 mr-1.5" /> Ajukan Sengketa
         </Button>
       )}
 
