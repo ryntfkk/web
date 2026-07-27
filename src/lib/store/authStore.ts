@@ -13,6 +13,7 @@ export interface User {
   balance: number;
   is_verified: boolean;
   is_suspended: boolean;
+  phone_verified?: boolean;
 }
 
 interface AuthState {

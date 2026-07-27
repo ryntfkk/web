@@ -26,6 +26,7 @@ interface Address {
   province?: string;
   city?: string;
   district?: string;
+  postal_code?: string;
   is_default: boolean;
   lon?: number;
   lat?: number;
@@ -44,6 +45,7 @@ export default function EditAddressPage() {
     province: '',
     city: '',
     district: '',
+    postal_code: '',
     is_default: false,
     lon: 106.816666,
     lat: -6.2,
@@ -71,6 +73,7 @@ export default function EditAddressPage() {
             province: a.province || '',
             city: a.city || '',
             district: a.district || '',
+            postal_code: a.postal_code || '',
             is_default: Boolean(a.is_default),
             lon: a.lon ?? 106.816666,
             lat: a.lat ?? -6.2,
@@ -96,6 +99,10 @@ export default function EditAddressPage() {
       setError('Label dan alamat lengkap wajib diisi');
       return;
     }
+    if (form.postal_code && !/^\d{5}$/.test(form.postal_code)) {
+      setError('Kode pos harus 5 digit angka');
+      return;
+    }
     if (!hasCoords) {
       setError('Tandai titik lokasi alamat pada peta terlebih dahulu');
       return;
@@ -111,6 +118,7 @@ export default function EditAddressPage() {
         province: form.province,
         city: form.city,
         district: form.district,
+        postal_code: form.postal_code,
         lon: form.lon,
         lat: form.lat,
         is_default: form.is_default,
@@ -157,6 +165,19 @@ export default function EditAddressPage() {
             value={{ province: form.province, city: form.city, district: form.district }}
             onChange={(v) => setForm({ ...form, ...v })}
           />
+
+          <div>
+            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kode Pos (opsional)</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={5}
+              placeholder="Contoh: 12345"
+              value={form.postal_code}
+              onChange={e => setForm({ ...form, postal_code: e.target.value.replace(/\D/g, '') })}
+              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+            />
+          </div>
 
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Detail / Catatan (opsional)</label>

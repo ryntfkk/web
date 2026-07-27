@@ -16,9 +16,10 @@ import { unwrapData } from '@/lib/order-utils';
 interface Address {
   id: string;
   label: string;
-  // Backend: address (alamat lengkap), address_detail (detail/penerima), is_default.
+  // Backend: address (alamat lengkap), address_detail (detail/penerima), postal_code, is_default.
   address: string;
   address_detail?: string;
+  postal_code?: string;
   is_default: boolean;
 }
 
@@ -132,7 +133,10 @@ export default function AddressesPage() {
                 </div>
               </div>
               {a.address_detail && <p className="text-sm font-semibold text-[#5b403e]">{a.address_detail}</p>}
-              <p className="text-sm text-[#5b403e] mt-1 leading-relaxed">{a.address}</p>
+              <p className="text-sm text-[#5b403e] mt-1 leading-relaxed">
+                {a.address}
+                {a.postal_code ? ` (Kode Pos: ${a.postal_code})` : ''}
+              </p>
 
               {!a.is_default && (
                 <button

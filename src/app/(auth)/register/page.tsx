@@ -7,9 +7,10 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { Stepper } from '@/components/ui/stepper';
 import { PasswordStrength } from '@/components/ui/password-strength';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
 export default function RegisterPage() {
-  const { sendOTP, verifyOTPAndRegister, loading, error, isAuthenticated } = useAuth();
+  const { sendOTP, verifyOTPAndRegister, loginWithGoogle, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -114,6 +115,22 @@ export default function RegisterPage() {
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Kirim OTP'}
                 </button>
               </div>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#e5e2e1]" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-3 text-[#8f6f6d]">atau daftar dengan</span>
+                </div>
+              </div>
+
+              <GoogleSignInButton
+                text="signup_with"
+                onSuccess={async (idToken) => {
+                  await loginWithGoogle(idToken);
+                }}
+              />
             </form>
           )}
 

@@ -125,12 +125,44 @@ export function useAuth() {
     }
   };
 
+  const loginWithGoogle = async (idToken: string, redirectUrl?: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetchAPI<{ user: User; access_token: string }>('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({ id_token: idToken }),
+        credentials: 'include',
+      });
+
+      if (res.success && res.data) {
+        authStore.login(res.data.user, res.data.access_token);
+        if (redirectUrl) {
+          router.push(safeRedirect(redirectUrl));
+        } else if (res.data.user.active_role === 'partner') {
+          router.push('/mitra/dashboard');
+        } else {
+          router.push('/');
+        }
+        setLoading(false);
+      } else {
+        setError(getErrorMessage(res));
+        setLoading(false);
+      }
+      return res;
+    } catch (err) {
+      setLoading(false);
+      throw err;
+    }
+  };
+
   return {
     user: authStore.user,
     isAuthenticated: authStore.isAuthenticated,
     loading,
     error,
     login,
+    loginWithGoogle,
     sendOTP,
     verifyOTPAndRegister,
     switchRole,

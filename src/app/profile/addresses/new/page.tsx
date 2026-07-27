@@ -29,6 +29,7 @@ export default function NewAddressPage() {
     province: '',
     city: '',
     district: '',
+    postal_code: '',
     full_address: '',
     is_primary: false,
     latitude: -6.200000,
@@ -56,6 +57,10 @@ export default function NewAddressPage() {
       setError('Nomor HP penerima tidak valid (contoh: 08123456789)');
       return;
     }
+    if (form.postal_code && !/^\d{5}$/.test(form.postal_code)) {
+      setError('Kode pos harus 5 digit angka');
+      return;
+    }
     if (!pinSet) {
       setError('Tandai titik lokasi alamat pada peta terlebih dahulu');
       return;
@@ -64,7 +69,7 @@ export default function NewAddressPage() {
     setLoading(true);
     setError('');
 
-    // Backend memakai field: label, address, address_detail, city, district, lon, lat, is_default.
+    // Backend memakai field: label, address, address_detail, city, district, province, postal_code, lon, lat, is_default.
     const res = await fetchAPI('/users/me/addresses', {
       method: 'POST',
       body: JSON.stringify({
@@ -74,6 +79,7 @@ export default function NewAddressPage() {
         province: form.province,
         city: form.city,
         district: form.district,
+        postal_code: form.postal_code,
         lon: form.longitude,
         lat: form.latitude,
         is_default: form.is_primary,
@@ -151,6 +157,19 @@ export default function NewAddressPage() {
             value={{ province: form.province, city: form.city, district: form.district }}
             onChange={(v) => setForm({ ...form, ...v })}
           />
+
+          <div>
+            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kode Pos (opsional)</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={5}
+              placeholder="Contoh: 12345"
+              value={form.postal_code}
+              onChange={e => setForm({ ...form, postal_code: e.target.value.replace(/\D/g, '') })}
+              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+            />
+          </div>
 
           <div>
             <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Alamat Lengkap</label>

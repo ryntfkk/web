@@ -14,6 +14,7 @@ import { useCartStore } from '@/lib/store/cartStore';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import dynamic from 'next/dynamic';
+import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 
 // Peta hanya di klien (butuh window/Google Maps) → hindari SSR.
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -63,6 +64,7 @@ interface Address {
   // Backend memakai field `address` dan `is_default`.
   address: string;
   address_detail?: string;
+  postal_code?: string;
   is_default: boolean;
   // Koordinat alamat (null untuk alamat lama yang belum di-pin di peta).
   lat?: number | null;
@@ -98,6 +100,7 @@ export default function BookingClient() {
   const [services, setServices] = useState<PartnerService[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
 
   // Form State — model per-BARIS. Kunci baris = `${serviceId}::${variationId ?? ''}`.
   // Layanan yang sama dengan variasi berbeda = dua baris terpisah (mendukung
@@ -340,6 +343,12 @@ export default function BookingClient() {
 
   const submitOrder = async () => {
     setErrorMsg('');
+
+    // Guard: user harus memiliki nomor HP yang terverifikasi (OTP) untuk memesan
+    if (!user?.phone || user?.phone_verified === false) {
+      setShowPhoneModal(true);
+      return;
+    }
 
     // Guard: data partner wajib ada sebelum submit
     if (!partner?.id) {
@@ -1103,6 +1112,15 @@ export default function BookingClient() {
           )}
         </div>
       </div>
+
+      <PhoneVerificationModal
+        isOpen={showPhoneModal}
+        onClose={() => setShowPhoneModal(false)}
+        onSuccess={() => {
+          setShowPhoneModal(false);
+          submitOrder();
+        }}
+      />
     </div>
   );
 }

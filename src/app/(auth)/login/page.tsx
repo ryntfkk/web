@@ -7,9 +7,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { safeRedirect } from '@/lib/utils';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
 function LoginContent() {
-  const { login, loading, error, isAuthenticated, user } = useAuth();
+  const { login, loginWithGoogle, loading, error, isAuthenticated, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   // Param mentah (bisa null). JANGAN di-`safeRedirect` di sini: safeRedirect(null)
@@ -173,6 +174,22 @@ function LoginContent() {
                 )}
               </button>
             </div>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[#e5e2e1]" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-3 text-[#8f6f6d]">atau masuk dengan</span>
+              </div>
+            </div>
+
+            <GoogleSignInButton
+              text="signin_with"
+              onSuccess={async (idToken) => {
+                await loginWithGoogle(idToken, rawRedirect ?? undefined);
+              }}
+            />
           </form>
         </div>
       </div>
