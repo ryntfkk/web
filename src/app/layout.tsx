@@ -8,7 +8,6 @@ import QueryProvider from "@/components/providers/query-provider";
 import AuthProvider from "@/components/providers/auth-provider";
 import { ChatProvider } from "@/components/providers/chat-provider";
 import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
-import { DevNoticeModal } from "@/components/ui/dev-notice-modal";
 import { Toaster } from "@/components/ui/toast";
 
 // Load Inter font with proper weights
@@ -93,7 +92,6 @@ export default function RootLayout({
               <Footer />
               <BottomNav />
               <FloatingChatWrapper />
-              <DevNoticeModal />
               <Toaster />
             </ChatProvider>
           </AuthProvider>

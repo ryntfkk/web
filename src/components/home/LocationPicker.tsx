@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapPin, ChevronDown, Navigation, Home, Check, Loader2 } from 'lucide-react';
+import { MapPin, MapPinOff, ChevronDown, Navigation, Home, Check, Loader2 } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import MapView from '@/components/MapView';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
+import { useUserLocation } from '@/hooks/useUserLocation';
 import { useLocationStore } from '@/lib/store/locationStore';
 
 interface Address {
@@ -23,6 +24,9 @@ interface Address {
  * tersimpan) men-drive JARAK di kartu jasa & mitra — menggantikan filter kota.
  */
 export default function LocationPicker() {
+  // Picu permintaan lokasi OTOMATIS saat home dimuat (dulu tugas LocationNotice
+  // yang kini dilebur ke modal ini). Store men-guard agar tak minta berulang.
+  useUserLocation();
   const label = useLocationStore((s) => s.label);
   const hasLocation = useLocationStore((s) => s.hasLocation);
   const source = useLocationStore((s) => s.source);
@@ -113,6 +117,19 @@ export default function LocationPicker() {
           Jarak pada kartu jasa &amp; mitra dihitung dari lokasi ini ke basecamp mitra. Pilih lokasi
           saat ini atau salah satu alamat tersimpan.
         </p>
+
+        {/* Notice lokasi tidak aktif (dilebur dari LocationNotice home) */}
+        {isResolved && !hasLocation && (
+          <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-[#FEB2B2] bg-[#FFF5F5] p-3">
+            <MapPinOff className="mt-0.5 h-4 w-4 shrink-0 text-[#b51822]" />
+            <p className="text-[12px] leading-snug text-[#5b403e]">
+              <span className="font-semibold text-[#1c1b1b]">Lokasi tidak aktif — jarak tidak ditampilkan.</span>{' '}
+              {permissionStatus === 'denied'
+                ? 'Kamu menolak izin lokasi. Tekan "Gunakan lokasi saat ini" di bawah, atau ubah izin lokasi di pengaturan browser lalu muat ulang.'
+                : 'Aktifkan GPS/izin lokasi, lalu tekan "Gunakan lokasi saat ini" di bawah.'}
+            </p>
+          </div>
+        )}
 
         {/* Mini-map lokasi aktif */}
         {hasLocation && latitude != null && longitude != null && (

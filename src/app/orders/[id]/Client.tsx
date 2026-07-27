@@ -15,7 +15,7 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { printOrderReceipt } from '@/lib/receipt';
-import { createSupportThread } from '@/lib/support';
+import OrderHelpModal from '@/components/order/OrderHelpModal';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import dynamic from 'next/dynamic';
@@ -221,6 +221,7 @@ export default function OrderDetailClient() {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [finishChecked, setFinishChecked] = useState(false);
   
   const isSubmittingRef = React.useRef(false);
@@ -560,10 +561,7 @@ export default function OrderDetailClient() {
             <p className="text-xs text-[#9e8e8c] truncate">{order.order_number}</p>
           </div>
           <button
-            onClick={async () => {
-              const id = await createSupportThread({ category: 'other', description: `Halo CS Posko Jasa, saya butuh bantuan terkait Pesanan #${order.order_number}.` });
-              if (id) router.push(`/bantuan/${id}`);
-            }}
+            onClick={() => setHelpOpen(true)}
             className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-[#5b403e] hover:bg-[#f7f5f4]"
             aria-label="Bantuan"
           >
@@ -583,10 +581,7 @@ export default function OrderDetailClient() {
             <Button
               variant="outline"
               className="rounded-lg border-[#e5e2e1] text-[#5b403e]"
-              onClick={async () => {
-                const id = await createSupportThread({ category: 'other', description: `Halo CS Posko Jasa, saya butuh bantuan terkait Pesanan #${order.order_number}.` });
-                if (id) router.push(`/bantuan/${id}`);
-              }}
+              onClick={() => setHelpOpen(true)}
             >
               <HelpCircle className="w-4 h-4 mr-1.5" /> Bantuan
             </Button>
@@ -980,6 +975,13 @@ export default function OrderDetailClient() {
           <div className="flex gap-2">{actions}</div>
         </div>
       )}
+
+      {/* Konfirmasi Hubungi Admin (tak lagi langsung kirim laporan) */}
+      <OrderHelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        orderNumber={order.order_number}
+      />
 
       {/* Dialog pembatalan */}
       {showCancelDialog && (
