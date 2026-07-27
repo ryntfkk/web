@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { Flag, X } from 'lucide-react';
+import { Flag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Modal } from '@/components/ui/modal';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 
@@ -92,82 +93,65 @@ export default function ReportDialog({
         <Flag className="w-3.5 h-3.5" /> {label}
       </button>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="bg-white rounded-lg w-full max-w-md p-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-[#1c1b1b]">Laporkan</h3>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
+      <Modal open={open} onClose={() => setOpen(false)} title="Laporkan" maxWidthClass="max-w-md">
+        {done ? (
+          <div className="py-6 text-center">
+            <p className="text-sm text-[#1c1b1b] mb-4">
+              Terima kasih. Laporan Anda telah dikirim dan akan ditinjau tim kami.
+            </p>
+            <button
+              onClick={() => setOpen(false)}
+              className="px-4 py-2 rounded bg-[#b51822] text-white text-sm"
+            >
+              Tutup
+            </button>
+          </div>
+        ) : (
+          <>
+            <label className="block text-xs font-medium text-[#5b403e] mb-1">Alasan</label>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full border border-[#e5e2e1] rounded px-3 py-2 text-sm mb-3"
+            >
+              {REASONS.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+
+            <label className="block text-xs font-medium text-[#5b403e] mb-1">
+              Detail (opsional)
+            </label>
+            <textarea
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              rows={3}
+              className="w-full border border-[#e5e2e1] rounded px-3 py-2 text-sm mb-3"
+              placeholder="Jelaskan masalahnya…"
+            />
+
+            {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setOpen(false)}
+                className="px-4 py-2 rounded border border-[#e5e2e1] text-sm"
+              >
+                Batal
+              </button>
+              <button
+                onClick={submit}
+                disabled={busy}
+                className="px-4 py-2 rounded bg-[#b51822] text-white text-sm disabled:opacity-50"
+              >
+                {busy ? 'Mengirim…' : 'Kirim Laporan'}
               </button>
             </div>
-
-            {done ? (
-              <div className="py-6 text-center">
-                <p className="text-sm text-[#1c1b1b] mb-4">
-                  Terima kasih. Laporan Anda telah dikirim dan akan ditinjau tim kami.
-                </p>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="px-4 py-2 rounded bg-[#b51822] text-white text-sm"
-                >
-                  Tutup
-                </button>
-              </div>
-            ) : (
-              <>
-                <label className="block text-xs font-medium text-[#5b403e] mb-1">Alasan</label>
-                <select
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  className="w-full border border-[#e5e2e1] rounded px-3 py-2 text-sm mb-3"
-                >
-                  {REASONS.map((r) => (
-                    <option key={r.value} value={r.value}>
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-
-                <label className="block text-xs font-medium text-[#5b403e] mb-1">
-                  Detail (opsional)
-                </label>
-                <textarea
-                  value={desc}
-                  onChange={(e) => setDesc(e.target.value)}
-                  rows={3}
-                  className="w-full border border-[#e5e2e1] rounded px-3 py-2 text-sm mb-3"
-                  placeholder="Jelaskan masalahnya…"
-                />
-
-                {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
-
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => setOpen(false)}
-                    className="px-4 py-2 rounded border border-[#e5e2e1] text-sm"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    onClick={submit}
-                    disabled={busy}
-                    className="px-4 py-2 rounded bg-[#b51822] text-white text-sm disabled:opacity-50"
-                  >
-                    {busy ? 'Mengirim…' : 'Kirim Laporan'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </>
   );
 }
