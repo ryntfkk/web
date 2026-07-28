@@ -87,6 +87,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           alt={profile.name}
           fill
           className="object-cover rounded-md border-4 border-white shadow-md"
+          sizes="(max-width: 640px) 80px, 128px"
         />
         {profile.is_online && (
           <div className="absolute bottom-1 right-1 w-4 h-4 bg-[#38A169] rounded-full border-2 border-white" />

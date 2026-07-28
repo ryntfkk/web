@@ -91,6 +91,7 @@ export default function ReviewSection({ reviews, summary }: ReviewSectionProps) 
                   alt={typeof review.customer_name === 'string' ? review.customer_name : 'Customer'}
                   fill
                   className="object-cover"
+                  sizes="40px"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-medium">

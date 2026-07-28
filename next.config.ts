@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   // Tailwind v4 + App Router: default cssChunking me-reorder chunk CSS saat
@@ -86,7 +88,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-1.amazonaws.com https://*.googleusercontent.com; " +
               // accounts.google.com = skrip Google Identity Services (tombol
               // "Masuk dengan Google").
-              "script-src 'self' 'unsafe-inline' https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com; " +
+              "script-src 'self' 'unsafe-inline' " + (isDev ? "'unsafe-eval' " : "") + "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com; " +
               "connect-src 'self' https://api.poskojasa.com wss://api.poskojasa.com https://accounts.google.com; " +
               // GIS merender tombol & dialog persetujuannya di dalam iframe.
               "frame-src https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com; " +

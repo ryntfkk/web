@@ -52,6 +52,7 @@ export default function CategorySection() {
                   alt={cat.name}
                   fill
                   className="object-cover"
+                  sizes="(max-width: 640px) 56px, 64px"
                 />
               </div>
               <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight line-clamp-2 px-1">
@@ -95,7 +96,7 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
         <div className="flex items-center justify-between border-b border-[#e5e2e1] px-5 pt-1 pb-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[#e5e2e1] bg-[#fcf9f8]">
-              <Image src={main.icon_url || '/icons/default.svg'} alt={main.name} fill className="object-cover" />
+              <Image src={main.icon_url || '/icons/default.svg'} alt={main.name} fill className="object-cover" sizes="36px" />
             </div>
             <div className="min-w-0">
               <h3 className="truncate text-[16px] font-bold text-[#1c1b1b]">{main.name}</h3>
@@ -147,7 +148,7 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
                 className="group flex flex-col items-center gap-2 p-1"
               >
                 <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-[#e5e2e1] bg-[#fcf9f8] transition-all group-hover:border-[#b51822] group-hover:shadow-md">
-                  <Image src={sub.icon_url || '/icons/default.svg'} alt={sub.name} fill className="object-cover" />
+                  <Image src={sub.icon_url || '/icons/default.svg'} alt={sub.name} fill className="object-cover" sizes="56px" />
                 </div>
                 <span className="line-clamp-2 text-center text-[11px] font-medium leading-tight text-[#1c1b1b]">
                   {sub.name}

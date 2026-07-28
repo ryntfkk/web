@@ -91,6 +91,7 @@ export default function TopNavbar() {
                       fill
                       className="object-contain"
                       priority
+                      sizes="32px"
                     />
                   </div>
                   <span className="text-[24px] font-bold text-[#1c1b1b] tracking-[-0.6px] whitespace-nowrap">

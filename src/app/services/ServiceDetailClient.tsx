@@ -352,7 +352,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                   {allPhotos.map((photo, idx) => (
                     <button key={photo.id} onClick={() => scrollToPhoto(idx)}
                       className={`relative flex-shrink-0 w-14 h-14 rounded-md overflow-hidden transition-all ${idx === currentPhotoIndex ? '' : 'opacity-60 hover:opacity-100'}`}>
-                      <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" />
+                      <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" sizes="56px" />
                       {idx === currentPhotoIndex && (
                         <div className="absolute inset-0 rounded-md ring-2 ring-inset ring-[#b51822] pointer-events-none" aria-hidden="true" />
                       )}

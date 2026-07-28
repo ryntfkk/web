@@ -66,7 +66,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
     <Link href={`/services/${service.id}?distance=${service.distance_meters || 0}`} className="block">
       <div className="bg-white border border-brand-gray-100 rounded-xs overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
         {/* Image */}
-        <div className="relative w-full aspect-[4/3] bg-brand-gray-100 flex-shrink-0">
+        <div className="relative w-full aspect-square bg-brand-gray-100 flex-shrink-0">
           <Image
             src={service.photo_url || PLACEHOLDER_SERVICE}
             alt={service.name}

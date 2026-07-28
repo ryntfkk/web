@@ -147,7 +147,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 relative rounded-xl overflow-hidden bg-[#fcf9f8] border border-[#e5e2e1] shrink-0">
-            <Image src={cat.icon_url || '/icons/default.svg'} alt={cat.name} fill className="object-cover" />
+            <Image src={cat.icon_url || '/icons/default.svg'} alt={cat.name} fill className="object-cover" sizes="48px" />
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-[#1c1b1b]">Jasa {cat.name}</h1>
