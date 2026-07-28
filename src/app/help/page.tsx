@@ -34,8 +34,8 @@ const FAQS: FaqGroup[] = [
   {
     category: 'Pembatalan & Refund',
     items: [
-      { q: 'Bagaimana cara membatalkan pesanan?', a: 'Selama pesanan belum dikerjakan, buka detail pesanan lalu pilih Batalkan. Kebijakan pembatalan tergantung status pesanan saat itu.' },
-      { q: 'Kapan dana refund saya kembali?', a: 'Refund akibat pembatalan atau mitra tidak datang (no-show) dikembalikan ke saldo dompet Anda dan dapat langsung digunakan atau ditarik.' },
+      { q: 'Bagaimana cara membatalkan pesanan?', a: 'Sebelum pembayaran, buka detail pesanan lalu pilih Batalkan — gratis, belum ada biaya yang ditagihkan. Setelah pembayaran, pesanan tidak bisa dibatalkan sepihak; ajukan Sengketa dari halaman pesanan dan tim kami akan meninjau untuk menentukan refund.' },
+      { q: 'Kapan dana refund saya kembali?', a: 'Refund otomatis (pembatalan oleh mitra, atau mitra tidak datang/no-show) langsung masuk ke saldo dompet Anda dan dapat langsung digunakan atau ditarik. Untuk refund lewat sengketa, dana masuk ke dompet setelah admin meninjau dan memutuskan hasilnya.' },
       { q: 'Mitra tidak datang, bagaimana?', a: 'Laporkan lewat halaman pesanan atau ajukan sengketa. Jika terverifikasi sebagai no-show, dana Anda dikembalikan penuh ke saldo dompet.' },
     ],
   },

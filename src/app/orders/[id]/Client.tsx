@@ -994,25 +994,11 @@ export default function OrderDetailClient() {
               </button>
             </div>
 
-            {/* Refund policy per scenario */}
-            {status === 'PAID' ? (
-              <div className="mb-4 p-3 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg space-y-1.5 text-xs">
-                <p className="font-semibold text-[#744210] mb-1">Kebijakan Refund:</p>
-                <div className="flex items-start gap-1.5">
-                  <span className="text-[#38A169] font-bold shrink-0">✓</span>
-                  <span className="text-[#5b403e]"><strong>Kamu batalkan pesanan ini</strong> → Refund 80% biaya jasa + 100% biaya transport ke dompet</span>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <span className="text-[#38A169] font-bold shrink-0">✓</span>
-                  <span className="text-[#5b403e]"><strong>Mitra membatalkan / tidak datang</strong> → Refund 100% biaya jasa + transport ke dompet</span>
-                </div>
-                <p className="text-[#9e8e8c] pt-1 border-t border-[#F6E05E]">Biaya admin/layanan platform tidak dikembalikan.</p>
-              </div>
-            ) : (
-              <p className="text-sm text-[#5b403e] mb-4">
-                Pesanan masih menunggu konfirmasi. Pembatalan gratis — kamu belum dikenakan biaya apapun.
-              </p>
-            )}
+            {/* Dialog ini hanya dibuka saat WAITING_CONFIRMATION / WAITING_PAYMENT
+                (lihat gate tombol di atas) -- status PAID pakai alur sengketa terpisah. */}
+            <p className="text-sm text-[#5b403e] mb-4">
+              Pesanan masih menunggu konfirmasi. Pembatalan gratis — kamu belum dikenakan biaya apapun.
+            </p>
 
             <div className="mb-6">
               <label htmlFor="cancel-reason" className="block text-sm font-medium text-[#1c1b1b] mb-1">

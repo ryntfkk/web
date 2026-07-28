@@ -627,7 +627,11 @@ export default function BookingClient() {
         <div className="px-4 pb-4 space-y-2 border-t border-[#e5e2e1] pt-3">
           <div className="flex items-start gap-2 text-sm">
             <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
-            <span className="text-[#5b403e]"><strong>Kamu batalkan setelah membayar</strong> → Refund 80% biaya jasa + 100% biaya transport ke dompetmu</span>
+            <span className="text-[#5b403e]"><strong>Kamu batalkan sebelum membayar</strong> → Gratis, belum ada biaya yang ditagihkan</span>
+          </div>
+          <div className="flex items-start gap-2 text-sm">
+            <span className="text-[#b51822] font-bold shrink-0 mt-0.5">✗</span>
+            <span className="text-[#5b403e]"><strong>Kamu batalkan setelah membayar</strong> → Tidak bisa batal sepihak; ajukan sengketa dan tim kami akan meninjau untuk menentukan refund</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
             <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
