@@ -25,7 +25,7 @@ export interface ChatRoom {
 interface ChatRoomListProps {
   onSelect: (roomId: string) => void;
   selectedRoomId?: string | null;
-  /** Padding lebih rapat â€” untuk floating panel */
+  /** Padding lebih rapat — untuk floating panel */
   compact?: boolean;
   /** Dipanggil sekali setelah fetch jika ada minimal satu room (untuk auto-select di desktop) */
   onFirstRoom?: (roomId: string) => void;
@@ -46,7 +46,7 @@ function formatTime(time?: string) {
 }
 
 /**
- * Daftar percakapan â€” dipakai halaman /chat dan floating chat panel (desktop).
+ * Daftar percakapan — dipakai halaman /chat dan floating chat panel (desktop).
  * Fetch, pencarian, dan sorting ada di sini agar tidak ada duplikasi logika.
  */
 export default function ChatRoomList({ onSelect, selectedRoomId, compact = false, onFirstRoom }: ChatRoomListProps) {
@@ -70,7 +70,7 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
 
   // Tentukan lawan bicara PER-room dengan membandingkan user.id, bukan menebak
   // dari active_role global. Untuk user dual-role (mitra yang juga jadi pelanggan)
-  // active_role keliru pada room di "sisi lain" â€” menampilkan nama/foto diri
+  // active_role keliru pada room di "sisi lain" — menampilkan nama/foto diri
   // sendiri. Fallback ke active_role hanya bila backend belum mengirim id peserta.
   const counterpartyOf = (c: ChatRoom): { name?: string; avatar?: string } => {
     if (user?.id && c.partner_id && c.customer_id) {

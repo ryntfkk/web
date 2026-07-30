@@ -1,6 +1,6 @@
 import type { FaqItem } from '@/lib/seo';
 
-// FAQ terlihat (server component, pakai <details> native â†’ tanpa JS klien).
+// FAQ terlihat (server component, pakai <details> native → tanpa JS klien).
 // Teks yang sama diemit sebagai JSON-LD FAQPage terpisah oleh pemanggil.
 export default function FaqSection({ items, title = 'Pertanyaan Umum' }: { items: FaqItem[]; title?: string }) {
   if (!items.length) return null;

@@ -7,7 +7,7 @@ import { useLocationStore } from '@/lib/store/locationStore';
 
 /**
  * Banner peringatan lokasi. Memicu permintaan lokasi OTOMATIS saat mount (via
- * useUserLocation) â€” jarak di kartu jasa/mitra butuh lokasi, jadi tak ada tombol
+ * useUserLocation) — jarak di kartu jasa/mitra butuh lokasi, jadi tak ada tombol
  * "gunakan lokasi" lagi; kita selalu meminta. Bila ditolak/gagal, tampilkan
  * notifikasi + tombol "Coba lagi". Bila diizinkan, komponen ini tak menampilkan
  * apa-apa (return null).
@@ -19,12 +19,12 @@ export default function LocationNotice() {
   const [dismissed, setDismissed] = useState(false);
 
   // Tampil HANYA setelah percobaan selesai & tetap tanpa lokasi. Saat masih
-  // menunggu izin (isResolved=false) atau sudah dapat lokasi â†’ sembunyi.
+  // menunggu izin (isResolved=false) atau sudah dapat lokasi → sembunyi.
   if (!isResolved || hasLocation || dismissed) return null;
 
   const retry = () => {
     resetLocation();   // buka kunci (isResolved -> false) supaya boleh minta ulang
-    requestLocation(); // minta lagi â€” browser akan prompt bila belum diblok permanen
+    requestLocation(); // minta lagi — browser akan prompt bila belum diblok permanen
   };
 
   const denied = permissionStatus === 'denied';
@@ -36,7 +36,7 @@ export default function LocationNotice() {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[13px] sm:text-[14px] font-semibold text-brand-gray-900">
-          Lokasi tidak aktif â€” jarak tidak ditampilkan
+          Lokasi tidak aktif — jarak tidak ditampilkan
         </p>
         <p className="text-[12px] text-brand-gray-700 mt-0.5 leading-snug">
           {denied

@@ -16,7 +16,7 @@ interface MapViewProps {
   linkLabel?: string;
 }
 
-// â”€â”€ Loader Google Maps JS (singleton, berbagi script dengan MapPicker) â”€â”€
+// ── Loader Google Maps JS (singleton, berbagi script dengan MapPicker) ──
 let mapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
   if (typeof window === 'undefined') return Promise.reject(new Error('no window'));
@@ -51,7 +51,7 @@ function loadGoogleMaps(): Promise<void> {
   return p;
 }
 
-// MapView â€” peta READ-ONLY (marker tidak bisa digeser) untuk menampilkan
+// MapView — peta READ-ONLY (marker tidak bisa digeser) untuk menampilkan
 // koordinat alamat pelanggan di detail pesanan mitra. Selalu menyertakan
 // tautan "Buka di Google Maps" sebagai fallback (mis. API key belum diset).
 export default function MapView({ lat, lng, label, className, linkLabel }: MapViewProps) {
@@ -62,7 +62,7 @@ export default function MapView({ lat, lng, label, className, linkLabel }: MapVi
 
   const hasCoords = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
   const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  // API_KEY konstan â†’ turunkan saat render, jangan setState di dalam effect.
+  // API_KEY konstan → turunkan saat render, jangan setState di dalam effect.
   const showError = error !== null || !API_KEY;
 
   useEffect(() => {

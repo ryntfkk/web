@@ -36,7 +36,7 @@ export default function TopNavbar() {
   }, []);
 
   const handleLogout = () => {
-    // useAuth.logout: POST /auth/logout â†’ bersihkan store â†’ router.push('/login')
+    // useAuth.logout: POST /auth/logout → bersihkan store → router.push('/login')
     logout();
   };
 

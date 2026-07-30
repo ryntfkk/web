@@ -21,7 +21,7 @@ interface Address {
 
 /**
  * Pemilih lokasi home ala Grab/ShopeeFood. Koordinat aktif (GPS / alamat
- * tersimpan) men-drive JARAK di kartu jasa & mitra â€” menggantikan filter kota.
+ * tersimpan) men-drive JARAK di kartu jasa & mitra — menggantikan filter kota.
  */
 export default function LocationPicker() {
   // Picu permintaan lokasi OTOMATIS saat home dimuat (dulu tugas LocationNotice
@@ -41,7 +41,7 @@ export default function LocationPicker() {
   const [loadingAddr, setLoadingAddr] = useState(false);
   const [locating, setLocating] = useState(false);
 
-  // Muat alamat tersimpan saat modal dibuka (best-effort; tamu â†’ kosong).
+  // Muat alamat tersimpan saat modal dibuka (best-effort; tamu → kosong).
   useEffect(() => {
     if (!open) return;
     let alive = true;
@@ -74,13 +74,13 @@ export default function LocationPicker() {
   const handleGPS = () => {
     setLocating(true);
     // Paksa ambil ulang GPS meski sudah ada lokasi (guard requestLocation skip
-    // saat sudah punya lokasi) â†’ reset dulu.
+    // saat sudah punya lokasi) → reset dulu.
     useLocationStore.getState().resetLocation();
     useLocationStore.getState().requestLocation();
   };
 
   const pickAddress = (a: Address) => {
-    setManualLocation(a.lat, a.lon, a.label ? `${a.label} â€” ${a.address}` : a.address);
+    setManualLocation(a.lat, a.lon, a.label ? `${a.label} — ${a.address}` : a.address);
     setOpen(false);
   };
 
@@ -123,7 +123,7 @@ export default function LocationPicker() {
           <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-brand-error-border bg-brand-error-soft p-3">
             <MapPinOff className="mt-0.5 h-4 w-4 shrink-0 text-brand-red" />
             <p className="text-[12px] leading-snug text-brand-gray-700">
-              <span className="font-semibold text-brand-gray-900">Lokasi tidak aktif â€” jarak tidak ditampilkan.</span>{' '}
+              <span className="font-semibold text-brand-gray-900">Lokasi tidak aktif — jarak tidak ditampilkan.</span>{' '}
               {permissionStatus === 'denied'
                 ? 'Kamu menolak izin lokasi. Tekan "Gunakan lokasi saat ini" di bawah, atau ubah izin lokasi di pengaturan browser lalu muat ulang.'
                 : 'Aktifkan GPS/izin lokasi, lalu tekan "Gunakan lokasi saat ini" di bawah.'}
@@ -152,9 +152,9 @@ export default function LocationPicker() {
             <p className="text-[14px] font-semibold text-brand-gray-900">Gunakan lokasi saat ini</p>
             <p className="text-[12px] text-brand-gray-400">
               {locating
-                ? 'Mengambil lokasiâ€¦'
+                ? 'Mengambil lokasi…'
                 : permissionStatus === 'denied'
-                  ? 'Izin lokasi ditolak â€” aktifkan di pengaturan browser'
+                  ? 'Izin lokasi ditolak — aktifkan di pengaturan browser'
                   : 'Deteksi otomatis via GPS'}
             </p>
           </div>

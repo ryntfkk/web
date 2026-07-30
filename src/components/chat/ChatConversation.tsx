@@ -62,7 +62,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         return [...prev, msg];
       });
       if (msg.sender_id !== user?.id) {
-        setOtherTyping(false); // pesan datang â†’ lawan berhenti mengetik
+        setOtherTyping(false); // pesan datang → lawan berhenti mengetik
         fetchAPI(`/chat/${roomId}/messages/${msg.id}/read`, { method: 'PUT' });
       }
     },
@@ -84,7 +84,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
     try {
       const roomRes = await fetchAPI<any>(`/chat/rooms`);
       if (roomRes.success && roomRes.data) {
-        // unwrapData: envelope bisa satu/dua tingkat â€” samakan dgn endpoint
+        // unwrapData: envelope bisa satu/dua tingkat — samakan dgn endpoint
         // messages di bawah. Tanpa ini, bila /chat/rooms ganda-wrap, `.find`
         // melempar & header stuck di skeleton selamanya.
         const rooms = unwrapData<any[]>(roomRes.data);
@@ -92,7 +92,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
           ? rooms.find((r: any) => r.room_id === roomId)
           : undefined;
         if (currentRoom) {
-          // Tentukan lawan bicara PER-room via user.id â€” bukan active_role global,
+          // Tentukan lawan bicara PER-room via user.id — bukan active_role global,
           // yang keliru untuk user dual-role (mitra yang juga jadi pelanggan) pada
           // room di sisi lain. Fallback ke active_role bila backend belum kirim id.
           const hasIds = user?.id && currentRoom.partner_id && currentRoom.customer_id;
@@ -305,7 +305,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 <div>
                   <h1 className="text-sm font-bold text-brand-gray-900 leading-tight">{partner.name}</h1>
                   {otherTyping && (
-                    <p className="text-xs text-brand-red leading-tight animate-pulse">sedang mengetikâ€¦</p>
+                    <p className="text-xs text-brand-red leading-tight animate-pulse">sedang mengetik…</p>
                   )}
                 </div>
               </div>
@@ -325,7 +325,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       {/* Anti-disintermediation warning bar */}
       <div className="bg-brand-warning-soft border-b border-brand-warning-border px-4 py-2 flex items-center gap-2 shrink-0">
         <span className="text-xs text-brand-warning-dark flex-1">
-          âš ï¸ <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
+          ⚠️ <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
         </span>
         <button
           type="button"
@@ -438,7 +438,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                     )}
                     {isMe && msg.status !== 'pending' && (
                       <span className={`text-[10px] font-medium ${msg.is_read ? 'text-brand-success' : 'text-brand-gray-450'}`}>
-                        {msg.is_read ? 'âœ“âœ“' : 'âœ“'}
+                        {msg.is_read ? '✓✓' : '✓'}
                       </span>
                     )}
                   </div>

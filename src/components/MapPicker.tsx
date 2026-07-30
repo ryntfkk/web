@@ -11,7 +11,7 @@ interface MapPickerProps {
   onChange: (lat: number, lng: number) => void;
 }
 
-// â”€â”€ Loader Google Maps JS (singleton) â”€â”€
+// ── Loader Google Maps JS (singleton) ──
 let mapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
   if (typeof window === 'undefined') return Promise.reject(new Error('no window'));
@@ -41,7 +41,7 @@ function loadGoogleMaps(): Promise<void> {
     document.head.appendChild(script);
   });
 
-  // Jangan cache promise yang gagal â€” supaya bisa retry saat mount berikutnya.
+  // Jangan cache promise yang gagal — supaya bisa retry saat mount berikutnya.
   mapsPromise = p;
   p.catch(() => { if (mapsPromise === p) mapsPromise = null; });
   return p;
@@ -156,7 +156,7 @@ export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
           <circle cx="12" cy="12" r="3" />
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </svg>
-        {locating ? 'Mencariâ€¦' : 'Lokasi saya'}
+        {locating ? 'Mencari…' : 'Lokasi saya'}
       </button>
       {error && (
         <div className="absolute top-2 left-2 right-2 z-10 bg-brand-error-soft border border-brand-error-border text-brand-error-dark text-xs px-3 py-2 rounded-md">

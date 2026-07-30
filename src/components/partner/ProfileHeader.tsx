@@ -22,7 +22,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const currentUser = useAuthStore(state => state.user);
   // Mitra yang membuka profilnya sendiri tidak boleh chat/lapor/pesan ke diri
-  // sendiri â€” backend menolaknya (SELF_ORDER / cannot chat with yourself).
+  // sendiri — backend menolaknya (SELF_ORDER / cannot chat with yourself).
   const isOwnProfile = !!currentUser?.id && currentUser.id === profile.user_id;
 
   // Favorit mitra. partner_id memakai partners.id (= profile.id), bukan user_id.
@@ -99,12 +99,19 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-xl sm:text-2xl font-bold text-brand-gray-900">{profile.name}</h1>
-              {/* <span className="bg-brand-red-light text-brand-red text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
-                <CheckCircle className="w-3 h-3" /> Terverifikasi
-              </span> */}
+              {profile.is_online && (
+                <span className="bg-brand-success-soft text-brand-success text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-brand-success rounded-full" /> Online
+                </span>
+              )}
+              {profile.total_orders > 0 && (
+                <span className="bg-brand-red-light text-brand-red text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" /> {profile.total_orders}+ Pesanan
+                </span>
+              )}
             </div>
 
-            {/* Bio â€” inline di bawah nama */}
+            {/* Bio — inline di bawah nama */}
             {typeof profile.bio === 'string' && profile.bio.trim().length > 0 && (
               <p className="text-sm text-brand-gray-700 leading-relaxed whitespace-pre-line mb-3 mt-1">
                 {profile.bio}
@@ -129,11 +136,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                 <span className="font-medium text-brand-gray-900">{profile.total_orders}</span>
                 <span className="text-brand-gray-400 text-xs">Pesanan</span>
               </div>
-              {/* <div className="w-px h-8 bg-brand-gray-100" />
+              <div className="w-px h-8 bg-brand-gray-100" />
               <div className="flex flex-col">
-                <span className="font-medium text-brand-gray-900">Aktif</span>
-                <span className="text-brand-gray-400 text-xs">2 Tahun</span>
-              </div> */}
+                <span className="font-medium text-brand-gray-900">{profile.is_online ? 'Online' : 'Offline'}</span>
+                <span className="text-brand-gray-400 text-xs">Status</span>
+              </div>
             </div>
 
           </div>

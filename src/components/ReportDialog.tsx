@@ -65,7 +65,7 @@ export default function ReportDialog({
         }),
       });
       if (res.success) {
-        // Laporan kini ditangani via chat CS â€” arahkan ke percakapannya agar
+        // Laporan kini ditangani via chat CS — arahkan ke percakapannya agar
         // pengguna bisa langsung berbalas dengan admin (bukan lagi WhatsApp).
         if (res.data?.id) {
           setOpen(false);
@@ -129,7 +129,7 @@ export default function ReportDialog({
               onChange={(e) => setDesc(e.target.value)}
               rows={3}
               className="w-full border border-brand-gray-100 rounded px-3 py-2 text-sm mb-3"
-              placeholder="Jelaskan masalahnyaâ€¦"
+              placeholder="Jelaskan masalahnya…"
             />
 
             {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
@@ -146,7 +146,7 @@ export default function ReportDialog({
                 disabled={busy}
                 className="px-4 py-2 rounded bg-brand-red text-white text-sm disabled:opacity-50"
               >
-                {busy ? 'Mengirimâ€¦' : 'Kirim Laporan'}
+                {busy ? 'Mengirim…' : 'Kirim Laporan'}
               </button>
             </div>
           </>

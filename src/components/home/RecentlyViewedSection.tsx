@@ -8,7 +8,7 @@ import { useRecentlyViewedStore } from '@/lib/store/recentlyViewedStore';
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 
 export default function RecentlyViewedSection() {
-  // Store dipersist di localStorage â†’ hydrate setelah mount. Guard `mounted`
+  // Store dipersist di localStorage → hydrate setelah mount. Guard `mounted`
   // mencegah mismatch SSR/CSR (server tak punya akses localStorage).
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);

@@ -22,6 +22,9 @@ const MOBILE_HIDE_PATHS = [
   "/terms",
   "/privacy",
   "/bantuan",
+  "/help",
+  "/jasa",
+  "/kategori",
 ];
 
 /**
@@ -43,6 +46,9 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   "chat",
   "disputes",
   "help",
+  // Route SEO-friendly untuk listing jasa per kategori/kota
+  "jasa",
+  "kategori",
   "mitra",
   "notifications",
   "orders",
@@ -53,7 +59,9 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   "search",
   "services",
   "terms",
-  // Route group (auth)
+  // Route group (auth) — folder (auth) tidak menjadi segmen URL, tapi
+  // login/register/forgot-password tetap perlu di-list karena bisa diakses
+  // langsung di root.
   "login",
   "register",
   "forgot-password",
@@ -86,22 +94,16 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
   if (pathname.startsWith("/payment/")) return true;
   if (pathname.startsWith("/book/")) return true;
   if (pathname.startsWith("/search/")) return true;
+  if (pathname.startsWith("/jasa/")) return true;
+  if (pathname.startsWith("/kategori/")) return true;
 
   // Auth pages - header handled by their own layouts
   if (pathname.startsWith("/login")) return true;
   if (pathname.startsWith("/register")) return true;
   if (pathname.startsWith("/forgot-password")) return true;
 
-  // Mitra flow pages
-  if (pathname.startsWith("/mitra/dashboard")) return true;
-  if (pathname.startsWith("/mitra/orders")) return true;
-  if (pathname.startsWith("/mitra/profile")) return true;
-  if (pathname.startsWith("/mitra/wallet")) return true;
-  if (pathname.startsWith("/mitra/bank-account")) return true;
-  if (pathname.startsWith("/mitra/services")) return true;
-  if (pathname.startsWith("/mitra/schedule")) return true;
-  if (pathname.startsWith("/mitra/register")) return true;
-  if (pathname.startsWith("/mitra/verification-status")) return true;
+  // Mitra flow pages — semua sub-halaman mitra punya header sendiri
+  if (pathname.startsWith("/mitra/")) return true;
 
   return false;
 }

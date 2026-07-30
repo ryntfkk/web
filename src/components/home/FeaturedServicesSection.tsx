@@ -13,7 +13,7 @@ import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 export default function FeaturedServicesSection() {
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
 
-  // Lokasi = acuan. Ada lokasi â†’ urut TERDEKAT; tanpa lokasi â†’ terbaru.
+  // Lokasi = acuan. Ada lokasi → urut TERDEKAT; tanpa lokasi → terbaru.
   // Filter kota dihapus (jarak yang menentukan, bukan batas kota).
   const { data: partners, isLoading, isError, refetch } = usePartners({
     per_page: 6,

@@ -124,7 +124,7 @@ export default function CitySelector() {
               </button>
             </div>
 
-            {/* Search Input â€” tombol GPS dihapus: lokasi diminta OTOMATIS untuk
+            {/* Search Input — tombol GPS dihapus: lokasi diminta OTOMATIS untuk
                 menghitung jarak (lihat LocationNotice); pemilih kota ini murni
                 untuk memfilter wilayah, bukan menentukan lokasi presisi. */}
             <div className="p-3 sm:p-4 bg-brand-gray-50 border-b border-brand-gray-100 shrink-0">

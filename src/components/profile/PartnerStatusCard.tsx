@@ -15,7 +15,7 @@ interface PartnerStatusCardProps {
   user: User;
   partnerStatus: PartnerProfile | null;
   statusLoading: boolean;
-  /** useAuth().loading â€” menonaktifkan tombol switch selama proses. */
+  /** useAuth().loading — menonaktifkan tombol switch selama proses. */
   switching: boolean;
   /** Membuka SwitchRoleModal (instance modal tetap di page). */
   onSwitchRole: () => void;
@@ -60,7 +60,7 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
                 <Star className="w-3 h-3 md:w-3.5 md:h-3.5 text-brand-warning fill-brand-warning" />
               </div>
               <p className="text-base md:text-lg font-extrabold text-brand-gray-900 leading-tight">
-                {partnerStatus && 'rating' in partnerStatus ? (partnerStatus as any).rating?.toFixed(1) ?? 'â€”' : 'â€”'}
+                {partnerStatus && 'rating' in partnerStatus ? (partnerStatus as any).rating?.toFixed(1) ?? '—' : '—'}
               </p>
               <p className="text-[9px] md:text-[10px] text-brand-gray-700 font-medium mt-0.5">Rating</p>
             </div>
@@ -80,7 +80,7 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
                 <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 text-brand-success" />
               </div>
               <p className="text-base md:text-lg font-extrabold text-brand-gray-900 leading-tight">
-                {partnerStatus && 'acceptance_rate' in partnerStatus ? `${(partnerStatus as any).acceptance_rate ?? 0}%` : 'â€”'}
+                {partnerStatus && 'acceptance_rate' in partnerStatus ? `${(partnerStatus as any).acceptance_rate ?? 0}%` : '—'}
               </p>
               <p className="text-[9px] md:text-[10px] text-brand-gray-700 font-medium mt-0.5">Acc Rate</p>
             </div>

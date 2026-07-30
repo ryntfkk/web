@@ -169,7 +169,7 @@ export default function PhoneVerificationModal({
                   inputMode="numeric"
                   maxLength={6}
                   required
-                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢"
+                  placeholder="••••••"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                   className="w-full text-center text-xl tracking-[0.4em] px-3 py-2.5 border border-brand-gray-100 rounded-lg focus:outline-none focus:border-brand-red"

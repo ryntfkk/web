@@ -13,7 +13,7 @@ import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 export default function TopPartnersSection() {
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
 
-  // Ada lokasi â†’ urut TERDEKAT; tanpa lokasi â†’ rating tertinggi. Tanpa filter kota.
+  // Ada lokasi → urut TERDEKAT; tanpa lokasi → rating tertinggi. Tanpa filter kota.
   const { data: partners, isLoading, isError, refetch } = usePartners({
     per_page: 6,
     sort_by: hasLocation ? 'distance' : 'rating',
@@ -39,7 +39,7 @@ export default function TopPartnersSection() {
         </Link>
       </div>
 
-      {/* Location notice â€” shown when user denied or hasn't responded yet */}
+      {/* Location notice — shown when user denied or hasn't responded yet */}
       {permissionStatus === 'denied' && (
         <div className="mb-4 flex items-center gap-2 text-[12px] sm:text-[13px] text-brand-gray-700 bg-brand-gray-50 border border-brand-gray-100 rounded-xs px-3 py-2">
           <MapPinOff className="w-4 h-4 flex-shrink-0" />
