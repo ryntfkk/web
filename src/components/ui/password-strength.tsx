@@ -37,12 +37,12 @@ export function PasswordStrength({ password, className }: Props) {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className={cn('h-1.5 flex-1 rounded-full transition-colors', i <= score ? level.color : 'bg-[#e5e2e1]')}
+            className={cn('h-1.5 flex-1 rounded-full transition-colors', i <= score ? level.color : 'bg-brand-gray-100')}
           />
         ))}
       </div>
-      <p className="mt-1 text-xs text-[#8f6f6d]">
-        Kekuatan: <span className="font-semibold text-[#5b403e]">{level.label}</span>
+      <p className="mt-1 text-xs text-brand-gray-400">
+        Kekuatan: <span className="font-semibold text-brand-gray-700">{level.label}</span>
       </p>
     </div>
   );

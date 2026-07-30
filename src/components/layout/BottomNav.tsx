@@ -11,15 +11,15 @@ export default function BottomNav() {
   const activeRole = useAuthStore((s) => s.user?.active_role);
 
   // Sembunyikan BottomNav pada:
-  // 1. Room chat (/chat/{id}) — area percakapan penuh; daftar chat (/chat) tetap tampil.
-  // 2. Seluruh area mitra (/mitra/*) — punya MitraBottomNav sendiri / flow penuh.
+  // 1. Room chat (/chat/{id}) â€” area percakapan penuh; daftar chat (/chat) tetap tampil.
+  // 2. Seluruh area mitra (/mitra/*) â€” punya MitraBottomNav sendiri / flow penuh.
   // 3. Halaman dengan action bar fixed di bawah (booking, payment, detail layanan,
   //    detail pesanan, form alamat) agar tombol aksi tidak tertutup nav.
   //    /orders exact tetap tampil karena Pesanan adalah tab utama.
   const p = pathname ?? '';
 
   // Mode Mitra: di halaman BERSAMA (chat list, notifikasi, dll) tampilkan
-  // MitraBottomNav agar navigasi mitra tetap konsisten (docs 3.2 — Chat
+  // MitraBottomNav agar navigasi mitra tetap konsisten (docs 3.2 â€” Chat
   // adalah bagian dari mode mitra). Area /mitra/* merender nav-nya sendiri.
   if (activeRole === 'partner') {
     const hideForPartner =
@@ -31,7 +31,7 @@ export default function BottomNav() {
       p.startsWith('/services') ||
       p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
     if (hideForPartner) return null;
-    // Tanpa md:hidden — area mitra memakai MitraBottomNav di semua ukuran layar
+    // Tanpa md:hidden â€” area mitra memakai MitraBottomNav di semua ukuran layar
     // (header pelanggan tidak ada di mode mitra).
     return <MitraBottomNav />;
   }
@@ -75,7 +75,7 @@ export default function BottomNav() {
 
   return (
     /* Bottom Navigation - hidden on desktop (md:hidden) */
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] pb-safe z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 pb-safe z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -90,8 +90,8 @@ export default function BottomNav() {
                 flex-1 h-full space-y-1
                 transition-colors duration-200
                 ${isActive
-                  ? 'text-[#b51822]'
-                  : 'text-[#8f6f6d] hover:text-[#5b403e]'
+                  ? 'text-brand-red'
+                  : 'text-brand-gray-400 hover:text-brand-gray-700'
                 }
               `}
             >

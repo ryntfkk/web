@@ -71,21 +71,21 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
             disabled={loading}
             className={`w-full p-4 rounded-xl border flex items-center justify-between transition-colors ${
               user.active_role === 'customer' 
-                ? 'border-[#b51822] bg-[#FFF5F5]' 
-                : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/50'
+                ? 'border-brand-red bg-brand-error-soft' 
+                : 'border-brand-gray-100 bg-white hover:border-brand-red/50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'customer' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'customer' ? 'bg-brand-red text-white' : 'bg-brand-gray-60 text-brand-gray-700'}`}>
                 <User className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <p className="font-bold text-[#1c1b1b]">Mode Pelanggan</p>
-                <p className="text-xs text-[#9e8e8c]">Cari dan pesan layanan</p>
+                <p className="font-bold text-brand-gray-900">Mode Pelanggan</p>
+                <p className="text-xs text-brand-gray-450">Cari dan pesan layanan</p>
               </div>
             </div>
             {user.active_role === 'customer' && (
-              <div className="w-4 h-4 rounded-full bg-[#b51822] flex items-center justify-center">
+              <div className="w-4 h-4 rounded-full bg-brand-red flex items-center justify-center">
                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
               </div>
             )}
@@ -96,23 +96,23 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
             disabled={loading}
             className={`w-full p-4 rounded-xl border flex items-center justify-between transition-colors ${
               user.active_role === 'partner' 
-                ? 'border-[#b51822] bg-[#FFF5F5]' 
-                : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/50'
+                ? 'border-brand-red bg-brand-error-soft' 
+                : 'border-brand-gray-100 bg-white hover:border-brand-red/50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'partner' ? 'bg-[#b51822] text-white' : 'bg-[#f7f5f4] text-[#5b403e]'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.active_role === 'partner' ? 'bg-brand-red text-white' : 'bg-brand-gray-60 text-brand-gray-700'}`}>
                 <Briefcase className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <p className="font-bold text-[#1c1b1b]">Mode Mitra</p>
-                <p className="text-xs text-[#9e8e8c]">
+                <p className="font-bold text-brand-gray-900">Mode Mitra</p>
+                <p className="text-xs text-brand-gray-450">
                   {user.partner_id ? 'Kelola pesanan dan layanan' : 'Daftar jadi mitra'}
                 </p>
               </div>
             </div>
             {user.active_role === 'partner' && (
-              <div className="w-4 h-4 rounded-full bg-[#b51822] flex items-center justify-center">
+              <div className="w-4 h-4 rounded-full bg-brand-red flex items-center justify-center">
                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
               </div>
             )}
@@ -120,14 +120,14 @@ export function SwitchRoleModal({ isOpen, onClose }: SwitchRoleModalProps) {
         </div>
 
         {loading && (
-          <div className="mt-4 flex items-center justify-center text-sm text-[#5b403e]">
-            <RefreshCw className="w-4 h-4 mr-2 animate-spin text-[#b51822]" />
+          <div className="mt-4 flex items-center justify-center text-sm text-brand-gray-700">
+            <RefreshCw className="w-4 h-4 mr-2 animate-spin text-brand-red" />
             Beralih mode...
           </div>
         )}
 
         {error && !loading && (
-          <div className="mt-4 bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">
+          <div className="mt-4 bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">
             Gagal beralih mode: {error}. Coba lagi.
           </div>
         )}

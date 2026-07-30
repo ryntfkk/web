@@ -40,11 +40,11 @@ export default function MobilePageHeader({
   maxWidthClass = 'max-w-lg',
 }: MobilePageHeaderProps) {
   const router = useRouter();
-  const backClass = 'p-2 -ml-2 hover:bg-[#f7f5f4] rounded';
-  const arrow = <ArrowLeft className="w-5 h-5 text-[#5b403e]" />;
+  const backClass = 'p-2 -ml-2 hover:bg-brand-gray-60 rounded';
+  const arrow = <ArrowLeft className="w-5 h-5 text-brand-gray-700" />;
 
   return (
-    <div className={`bg-white border-b border-[#e5e2e1] sticky top-0 z-10 ${alwaysShow ? '' : 'lg:hidden'}`}>
+    <div className={`bg-white border-b border-brand-gray-100 sticky top-0 z-10 ${alwaysShow ? '' : 'lg:hidden'}`}>
       <div className={`${maxWidthClass} mx-auto flex items-center px-4 py-4 gap-3`}>
         {backHref ? (
           <Link href={backHref} className={backClass}>
@@ -58,11 +58,11 @@ export default function MobilePageHeader({
         {icon}
         {subtitle ? (
           <div className="min-w-0">
-            <h1 className="text-base font-bold text-[#1c1b1b] flex items-center gap-2 leading-tight">{title}</h1>
-            <p className="text-xs text-[#9e8e8c] leading-tight truncate">{subtitle}</p>
+            <h1 className="text-base font-bold text-brand-gray-900 flex items-center gap-2 leading-tight">{title}</h1>
+            <p className="text-xs text-brand-gray-450 leading-tight truncate">{subtitle}</p>
           </div>
         ) : (
-          <h1 className="text-base font-bold text-[#1c1b1b] flex items-center gap-2">{title}</h1>
+          <h1 className="text-base font-bold text-brand-gray-900 flex items-center gap-2">{title}</h1>
         )}
         {right && <div className="ml-auto">{right}</div>}
       </div>

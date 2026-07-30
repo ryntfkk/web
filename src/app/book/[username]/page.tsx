@@ -13,7 +13,7 @@ export default async function BookingPage({ params }: PageProps) {
     <Suspense
       fallback={
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="w-8 h-8 border-4 border-[#e5e2e1] border-t-[#b51822] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-brand-gray-100 border-t-brand-red rounded-full animate-spin" />
         </div>
       }
     >

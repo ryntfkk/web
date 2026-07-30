@@ -87,19 +87,19 @@ export default function PhoneVerificationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#e5e2e1] bg-[#f7f5f4]">
+        <div className="flex items-center justify-between p-5 border-b border-brand-gray-100 bg-brand-gray-60">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-[#b51822]/10 rounded-full text-[#b51822]">
+            <div className="p-2 bg-brand-red/10 rounded-full text-brand-red">
               <Phone className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-[#1c1b1b] text-base">Verifikasi Nomor HP</h3>
-              <p className="text-xs text-[#8f6f6d]">Diperlukan untuk konfirmasi pesanan</p>
+              <h3 className="font-bold text-brand-gray-900 text-base">Verifikasi Nomor HP</h3>
+              <p className="text-xs text-brand-gray-400">Diperlukan untuk konfirmasi pesanan</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-[#8f6f6d] hover:bg-black/5 transition-colors"
+            className="p-1 rounded-full text-brand-gray-400 hover:bg-black/5 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -107,7 +107,7 @@ export default function PhoneVerificationModal({
 
         {/* Content */}
         <div className="p-6">
-          <div className="mb-4 text-xs text-[#5b403e] bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-start gap-2">
+          <div className="mb-4 text-xs text-brand-gray-700 bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
               Nomor WhatsApp kamu diperlukan agar Mitra Posko Jasa dapat menghubungi lokasi saat pengerjaan.
@@ -123,7 +123,7 @@ export default function PhoneVerificationModal({
           {step === 1 && (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div>
-                <label htmlFor="modal-phone" className="block text-xs font-semibold text-[#1c1b1b] mb-1">
+                <label htmlFor="modal-phone" className="block text-xs font-semibold text-brand-gray-900 mb-1">
                   Nomor WhatsApp / HP
                 </label>
                 <input
@@ -133,7 +133,7 @@ export default function PhoneVerificationModal({
                   placeholder="08123456789"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2.5 border border-[#e5e2e1] rounded-lg text-sm focus:outline-none focus:border-[#b51822]"
+                  className="w-full px-3 py-2.5 border border-brand-gray-100 rounded-lg text-sm focus:outline-none focus:border-brand-red"
                 />
               </div>
 
@@ -142,14 +142,14 @@ export default function PhoneVerificationModal({
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  className="text-xs border-[#e5e2e1]"
+                  className="text-xs border-brand-gray-100"
                 >
                   Batal
                 </Button>
                 <Button
                   type="submit"
                   disabled={loading || !phone}
-                  className="bg-[#b51822] hover:bg-[#90121a] text-xs font-bold"
+                  className="bg-brand-red hover:bg-brand-red-dark text-xs font-bold"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : 'Kirim Kode OTP'}
                 </Button>
@@ -160,7 +160,7 @@ export default function PhoneVerificationModal({
           {step === 2 && (
             <form onSubmit={handleVerifyOTP} className="space-y-4">
               <div>
-                <label htmlFor="modal-otp" className="block text-xs font-semibold text-[#1c1b1b] mb-1">
+                <label htmlFor="modal-otp" className="block text-xs font-semibold text-brand-gray-900 mb-1">
                   Kode OTP (6 Digit dikirim ke {phone})
                 </label>
                 <input
@@ -169,10 +169,10 @@ export default function PhoneVerificationModal({
                   inputMode="numeric"
                   maxLength={6}
                   required
-                  placeholder="••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                  className="w-full text-center text-xl tracking-[0.4em] px-3 py-2.5 border border-[#e5e2e1] rounded-lg focus:outline-none focus:border-[#b51822]"
+                  className="w-full text-center text-xl tracking-[0.4em] px-3 py-2.5 border border-brand-gray-100 rounded-lg focus:outline-none focus:border-brand-red"
                 />
               </div>
 
@@ -180,7 +180,7 @@ export default function PhoneVerificationModal({
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-xs text-[#8f6f6d] hover:text-[#1c1b1b] flex items-center gap-1"
+                  className="text-xs text-brand-gray-400 hover:text-brand-gray-900 flex items-center gap-1"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" /> Ganti Nomor
                 </button>
@@ -190,14 +190,14 @@ export default function PhoneVerificationModal({
                     type="button"
                     variant="outline"
                     onClick={onClose}
-                    className="text-xs border-[#e5e2e1]"
+                    className="text-xs border-brand-gray-100"
                   >
                     Batal
                   </Button>
                   <Button
                     type="submit"
                     disabled={loading || otp.length < 6}
-                    className="bg-[#b51822] hover:bg-[#90121a] text-xs font-bold"
+                    className="bg-brand-red hover:bg-brand-red-dark text-xs font-bold"
                   >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : 'Verifikasi & Simpan'}
                   </Button>

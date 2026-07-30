@@ -43,7 +43,7 @@ export default function NewAddressPage() {
   // koordinat Jakarta → ongkos transport ke basecamp mitra jadi salah.
   const [pinSet, setPinSet] = useState(false);
 
-  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
+  if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,60 +96,60 @@ export default function NewAddressPage() {
 
   return (
     // pb-20 untuk memberi ruang fixed action bar "Simpan Alamat" di semua breakpoint.
-    <div className="page-h bg-[#f7f5f4] pb-20">
+    <div className="page-h bg-brand-gray-60 pb-20">
       <MobilePageHeader title="Tambah Alamat Baru" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Tambah Alamat Baru</h1>
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Tambah Alamat Baru</h1>
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
           
           {/* Pin lokasi — koordinat harus cocok dengan alamat (dipakai untuk hitung jarak & ongkos ke basecamp mitra) */}
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Titik Lokasi (Pinpoint)</label>
-            <p className="text-xs text-[#8f6f6d] mb-2">Ketuk peta untuk menandai lokasi persis alamat ini.</p>
-            <div className="h-64 border border-[#e5e2e1] rounded-lg overflow-hidden">
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Titik Lokasi (Pinpoint)</label>
+            <p className="text-xs text-brand-gray-400 mb-2">Ketuk peta untuk menandai lokasi persis alamat ini.</p>
+            <div className="h-64 border border-brand-gray-100 rounded-lg overflow-hidden">
               <MapPicker
                 lat={form.latitude}
                 lng={form.longitude}
                 onChange={(lat, lng) => { setForm({ ...form, latitude: lat, longitude: lng }); setPinSet(true); }}
               />
             </div>
-            <p className={`text-xs mt-1.5 flex items-center gap-1 ${pinSet ? 'text-[#38A169]' : 'text-[#DD6B20]'}`}>
+            <p className={`text-xs mt-1.5 flex items-center gap-1 ${pinSet ? 'text-brand-success' : 'text-brand-orange'}`}>
               <MapPin className="w-3.5 h-3.5" />
               {pinSet ? 'Titik lokasi sudah ditandai.' : 'Titik lokasi belum ditandai — ketuk peta.'}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Label Alamat</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Label Alamat</label>
             <input
               type="text"
               placeholder="Contoh: Rumah, Kantor, Apartemen"
               value={form.label}
               onChange={e => setForm({ ...form, label: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nama Penerima</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Penerima</label>
               <input
                 type="text"
                 placeholder="Nama lengkap"
                 value={form.recipient_name}
                 onChange={e => setForm({ ...form, recipient_name: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nomor HP</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nomor HP</label>
               <input
                 type="tel"
                 placeholder="08123456789"
                 value={form.recipient_phone}
                 onChange={e => setForm({ ...form, recipient_phone: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function NewAddressPage() {
           />
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kode Pos (opsional)</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Kode Pos (opsional)</label>
             <input
               type="text"
               inputMode="numeric"
@@ -168,40 +168,40 @@ export default function NewAddressPage() {
               placeholder="Contoh: 12345"
               value={form.postal_code}
               onChange={e => setForm({ ...form, postal_code: e.target.value.replace(/\D/g, '') })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Alamat Lengkap</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Alamat Lengkap</label>
             <textarea
               placeholder="Jalan, RT/RW, Patokan..."
               value={form.full_address}
               onChange={e => setForm({ ...form, full_address: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
-          <label className="flex items-center gap-3 p-4 border border-[#e5e2e1] rounded-lg cursor-pointer hover:bg-[#f7f5f4] transition-colors">
+          <label className="flex items-center gap-3 p-4 border border-brand-gray-100 rounded-lg cursor-pointer hover:bg-brand-gray-60 transition-colors">
             <input
               type="checkbox"
               checked={form.is_primary}
               onChange={e => setForm({ ...form, is_primary: e.target.checked })}
-              className="w-4 h-4 text-[#b51822] focus:ring-[#b51822] border-[#e5e2e1] rounded"
+              className="w-4 h-4 text-brand-red focus:ring-brand-red border-brand-gray-100 rounded"
             />
-            <span className="text-sm font-semibold text-[#1c1b1b]">Jadikan Alamat Utama</span>
+            <span className="text-sm font-semibold text-brand-gray-900">Jadikan Alamat Utama</span>
           </label>
 
-          {error && <p className="text-sm text-[#E53E3E] bg-brand-error-soft p-3 rounded-lg">{error}</p>}
+          {error && <p className="text-sm text-brand-error bg-brand-error-soft p-3 rounded-lg">{error}</p>}
         </form>
       </div>
 
       {/* Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-20">
         <div className="max-w-lg mx-auto">
           <Button
-            className="w-full bg-[#b51822] hover:bg-[#90121a] rounded"
+            className="w-full bg-brand-red hover:bg-brand-red-dark rounded"
             onClick={handleSubmit}
             disabled={loading}
           >

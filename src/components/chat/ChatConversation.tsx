@@ -62,7 +62,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         return [...prev, msg];
       });
       if (msg.sender_id !== user?.id) {
-        setOtherTyping(false); // pesan datang → lawan berhenti mengetik
+        setOtherTyping(false); // pesan datang â†’ lawan berhenti mengetik
         fetchAPI(`/chat/${roomId}/messages/${msg.id}/read`, { method: 'PUT' });
       }
     },
@@ -84,7 +84,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
     try {
       const roomRes = await fetchAPI<any>(`/chat/rooms`);
       if (roomRes.success && roomRes.data) {
-        // unwrapData: envelope bisa satu/dua tingkat — samakan dgn endpoint
+        // unwrapData: envelope bisa satu/dua tingkat â€” samakan dgn endpoint
         // messages di bawah. Tanpa ini, bila /chat/rooms ganda-wrap, `.find`
         // melempar & header stuck di skeleton selamanya.
         const rooms = unwrapData<any[]>(roomRes.data);
@@ -92,7 +92,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
           ? rooms.find((r: any) => r.room_id === roomId)
           : undefined;
         if (currentRoom) {
-          // Tentukan lawan bicara PER-room via user.id — bukan active_role global,
+          // Tentukan lawan bicara PER-room via user.id â€” bukan active_role global,
           // yang keliru untuk user dual-role (mitra yang juga jadi pelanggan) pada
           // room di sisi lain. Fallback ke active_role bila backend belum kirim id.
           const hasIds = user?.id && currentRoom.partner_id && currentRoom.customer_id;
@@ -283,19 +283,19 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
   const isMitra = user?.active_role === ROLE_PARTNER;
 
   return (
-    <div className={`flex flex-col ${embedded ? 'h-full' : 'h-[100dvh] lg:h-[calc(100dvh-4rem)]'} bg-[#f7f5f4]`}>
+    <div className={`flex flex-col ${embedded ? 'h-full' : 'h-[100dvh] lg:h-[calc(100dvh-4rem)]'} bg-brand-gray-60`}>
       {/* Header */}
-      <div className={`bg-white border-b border-[#e5e2e1] shrink-0 ${embedded ? '' : 'shadow-sm'}`}>
+      <div className={`bg-white border-b border-brand-gray-100 shrink-0 ${embedded ? '' : 'shadow-sm'}`}>
         <div className={`flex items-center justify-between px-4 py-3 ${embedded ? '' : 'max-w-lg mx-auto'}`}>
           <div className="flex items-center gap-3">
             {!embedded && (
-              <button onClick={onBack || (() => router.back())} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-                <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+              <button onClick={onBack || (() => router.back())} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+                <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
               </button>
             )}
             {partner ? (
               <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-full bg-[#e5e2e1] flex items-center justify-center text-sm font-bold text-[#5b403e] shrink-0 overflow-hidden">
+                <div className="relative w-10 h-10 rounded-full bg-brand-gray-100 flex items-center justify-center text-sm font-bold text-brand-gray-700 shrink-0 overflow-hidden">
                   {partner.avatar_url ? (
                     <Image src={partner.avatar_url} alt={partner.name} fill sizes="40px" className="object-cover" />
                   ) : (
@@ -303,18 +303,18 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                   )}
                 </div>
                 <div>
-                  <h1 className="text-sm font-bold text-[#1c1b1b] leading-tight">{partner.name}</h1>
+                  <h1 className="text-sm font-bold text-brand-gray-900 leading-tight">{partner.name}</h1>
                   {otherTyping && (
-                    <p className="text-xs text-[#b51822] leading-tight animate-pulse">sedang mengetik…</p>
+                    <p className="text-xs text-brand-red leading-tight animate-pulse">sedang mengetikâ€¦</p>
                   )}
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#e5e2e1] shrink-0 animate-pulse" />
+                <div className="w-10 h-10 rounded-full bg-brand-gray-100 shrink-0 animate-pulse" />
                 <div className="space-y-2">
-                  <div className="w-24 h-3 bg-[#e5e2e1] rounded animate-pulse" />
-                  <div className="w-16 h-2 bg-[#e5e2e1] rounded animate-pulse" />
+                  <div className="w-24 h-3 bg-brand-gray-100 rounded animate-pulse" />
+                  <div className="w-16 h-2 bg-brand-gray-100 rounded animate-pulse" />
                 </div>
               </div>
             )}
@@ -323,9 +323,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       </div>
 
       {/* Anti-disintermediation warning bar */}
-      <div className="bg-[#FFFBEB] border-b border-[#F6E05E] px-4 py-2 flex items-center gap-2 shrink-0">
-        <span className="text-xs text-[#744210] flex-1">
-          ⚠️ <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
+      <div className="bg-brand-warning-soft border-b border-brand-warning-border px-4 py-2 flex items-center gap-2 shrink-0">
+        <span className="text-xs text-brand-warning-dark flex-1">
+          âš ï¸ <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
         </span>
         <button
           type="button"
@@ -336,7 +336,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             });
             if (id) router.push(`/bantuan/${id}`);
           }}
-          className="text-[10px] font-semibold text-[#b51822] hover:underline shrink-0 whitespace-nowrap"
+          className="text-[10px] font-semibold text-brand-red hover:underline shrink-0 whitespace-nowrap"
         >
           Laporkan
         </button>
@@ -344,21 +344,21 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
 
       {/* Context Card (Active Order) */}
       {activeOrder && (
-        <div className={`shrink-0 border-b border-[#e5e2e1] bg-white p-3 shadow-sm z-10 ${embedded ? '' : 'max-w-lg mx-auto w-full'}`}>
+        <div className={`shrink-0 border-b border-brand-gray-100 bg-white p-3 shadow-sm z-10 ${embedded ? '' : 'max-w-lg mx-auto w-full'}`}>
           <div className="flex items-center justify-between">
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] font-semibold text-[#8f6f6d] uppercase tracking-wider mb-0.5">Pesanan Aktif</span>
-              <span className="text-sm font-bold text-[#1c1b1b] truncate">
+              <span className="text-[10px] font-semibold text-brand-gray-400 uppercase tracking-wider mb-0.5">Pesanan Aktif</span>
+              <span className="text-sm font-bold text-brand-gray-900 truncate">
                 {activeOrder.order_number}
               </span>
-              <span className="text-xs text-[#5b403e] truncate">
+              <span className="text-xs text-brand-gray-700 truncate">
                 {activeOrder.items?.[0]?.service_name || activeOrder.items?.[0]?.name || 'Layanan Jasa'}
                 {activeOrder.items?.length > 1 && ` +${activeOrder.items.length - 1} lainnya`}
               </span>
             </div>
             <Link 
               href={isMitra ? `/mitra/orders/${activeOrder.id}` : `/orders/${activeOrder.id}`}
-              className="shrink-0 bg-[#fdf2f2] text-[#b51822] hover:bg-[#fce5e5] px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+              className="shrink-0 bg-brand-red-soft text-brand-red hover:bg-brand-red-soft px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
             >
               Lihat Detail
             </Link>
@@ -370,11 +370,11 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${embedded ? '' : 'max-w-lg mx-auto w-full'}`}>
         {loading ? (
           <div className="flex justify-center py-10">
-            <div className="w-6 h-6 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#e5e2e1] flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-brand-gray-100 flex items-center justify-center mb-4">
               <Send className="w-6 h-6 text-brand-gray-450" />
             </div>
             <p className="text-sm text-brand-gray-450">Belum ada pesan. Mulai percakapan!</p>
@@ -390,7 +390,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
               <div key={msg.id}>
                 {showDate && (
                   <div className="flex justify-center my-4">
-                    <span className="bg-[#e5e2e1] text-[#5b403e] text-[10px] font-medium px-3 py-1 rounded-full shadow-sm">
+                    <span className="bg-brand-gray-100 text-brand-gray-700 text-[10px] font-medium px-3 py-1 rounded-full shadow-sm">
                       {new Date(msg.created_at).toLocaleDateString('id-ID', {
                         weekday: 'long',
                         day: 'numeric',
@@ -403,8 +403,8 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                   <div
                     className={`px-4 py-2.5 rounded-2xl shadow-sm ${
                       isMe
-                        ? 'bg-[#b51822] text-white rounded-br-sm'
-                        : 'bg-white border border-[#e5e2e1] text-[#1c1b1b] rounded-bl-sm'
+                        ? 'bg-brand-red text-white rounded-br-sm'
+                        : 'bg-white border border-brand-gray-100 text-brand-gray-900 rounded-bl-sm'
                     }`}
                   >
                     {msg.message_type === 'image' && (
@@ -437,8 +437,8 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                       <span className="text-[10px] text-brand-gray-450">...</span>
                     )}
                     {isMe && msg.status !== 'pending' && (
-                      <span className={`text-[10px] font-medium ${msg.is_read ? 'text-[#38A169]' : 'text-brand-gray-450'}`}>
-                        {msg.is_read ? '✓✓' : '✓'}
+                      <span className={`text-[10px] font-medium ${msg.is_read ? 'text-brand-success' : 'text-brand-gray-450'}`}>
+                        {msg.is_read ? 'âœ“âœ“' : 'âœ“'}
                       </span>
                     )}
                   </div>
@@ -451,7 +451,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       </div>
 
       {/* Input Area */}
-      <div className={`bg-white border-t border-[#e5e2e1] mt-auto shrink-0 flex flex-col ${embedded ? '' : 'pb-[env(safe-area-inset-bottom)]'}`}>
+      <div className={`bg-white border-t border-brand-gray-100 mt-auto shrink-0 flex flex-col ${embedded ? '' : 'pb-[env(safe-area-inset-bottom)]'}`}>
         {isArchived ? (
           <div className={`p-4 text-center ${embedded ? '' : 'max-w-lg mx-auto'}`}>
             <p className="text-sm text-brand-gray-450 font-medium">Sesi chat ini telah diarsipkan karena pesanan selesai.</p>
@@ -466,7 +466,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                     key={idx}
                     type="button"
                     onClick={() => setInput(reply)}
-                    className="shrink-0 bg-[#f7f5f4] hover:bg-[#f0eded] border border-[#e5e2e1] text-[#5b403e] text-xs px-3 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium"
+                    className="shrink-0 bg-brand-gray-60 hover:bg-brand-red-light border border-brand-gray-100 text-brand-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium"
                   >
                     {reply}
                   </button>
@@ -475,7 +475,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             )}
             <form onSubmit={handleSend} className="p-3 flex flex-col gap-2 w-full">
               {sendError && (
-                <div className="text-xs text-[#E53E3E] px-2 font-medium bg-brand-error-soft py-1.5 rounded-lg border border-[#FEB2B2]">
+                <div className="text-xs text-brand-error px-2 font-medium bg-brand-error-soft py-1.5 rounded-lg border border-brand-error-border">
                   {sendError}
                 </div>
               )}
@@ -501,7 +501,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 onClick={() => galleryInputRef.current?.click()}
                 disabled={uploading}
                 title="Kirim foto dari galeri"
-                className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0 disabled:opacity-50"
+                className="p-2.5 text-brand-gray-700 hover:bg-brand-gray-60 rounded-full transition-colors shrink-0 disabled:opacity-50"
               >
                 {uploading ? <UploadSpinner className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
               </button>
@@ -510,16 +510,16 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 onClick={() => cameraInputRef.current?.click()}
                 disabled={uploading}
                 title="Ambil foto dengan kamera"
-                className="p-2.5 text-[#5b403e] hover:bg-[#f7f5f4] rounded-full transition-colors shrink-0 disabled:opacity-50 sm:hidden"
+                className="p-2.5 text-brand-gray-700 hover:bg-brand-gray-60 rounded-full transition-colors shrink-0 disabled:opacity-50 sm:hidden"
               >
                 <Camera className="w-5 h-5" />
               </button>
-            <div className="flex-1 bg-[#f7f5f4] border border-[#e5e2e1] rounded-2xl flex items-center pr-1 overflow-hidden transition-colors focus-within:border-[#b51822]">
+            <div className="flex-1 bg-brand-gray-60 border border-brand-gray-100 rounded-2xl flex items-center pr-1 overflow-hidden transition-colors focus-within:border-brand-red">
               <textarea
                 value={input}
                 onChange={handleTyping}
                 placeholder="Ketik pesan..."
-                className="w-full bg-transparent p-3 text-base sm:text-sm text-[#1c1b1b] focus:outline-none resize-none max-h-32"
+                className="w-full bg-transparent p-3 text-base sm:text-sm text-brand-gray-900 focus:outline-none resize-none max-h-32"
                 rows={1}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
@@ -532,7 +532,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 type="submit"
                 disabled={!input.trim()}
                 className={`p-2 rounded-xl transition-colors shrink-0 ${
-                  input.trim() ? 'bg-[#b51822] text-white hover:bg-[#90121a] shadow-sm' : 'text-brand-gray-450'
+                  input.trim() ? 'bg-brand-red text-white hover:bg-brand-red-dark shadow-sm' : 'text-brand-gray-450'
                 }`}
               >
                 <Send className="w-4 h-4" />

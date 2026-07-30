@@ -8,7 +8,7 @@ export interface VariationInput {
 }
 
 const inputCls =
-  'w-full p-2.5 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]';
+  'w-full p-2.5 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red';
 
 /**
  * Editor variasi produk jasa (satu tingkat: nama + harga).
@@ -36,20 +36,20 @@ export function VariationsEditor({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <label className="block text-sm font-semibold text-[#1c1b1b]">
-          Variasi <span className="text-[#9e8e8c] font-normal">(opsional)</span>
+        <label className="block text-sm font-semibold text-brand-gray-900">
+          Variasi <span className="text-brand-gray-450 font-normal">(opsional)</span>
         </label>
         <button
           type="button"
           onClick={add}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#b51822] hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-red hover:underline"
         >
           <Plus className="w-3.5 h-3.5" /> Tambah Variasi
         </button>
       </div>
 
       {value.length === 0 ? (
-        <p className="text-xs text-[#9e8e8c]">
+        <p className="text-xs text-brand-gray-450">
           Belum ada variasi. Tambahkan bila layanan punya beberapa pilihan (mis. Regular / Express).
           Jika diisi, harga produk diambil dari variasi termurah.
         </p>
@@ -65,7 +65,7 @@ export function VariationsEditor({
                 className={`flex-1 min-w-0 ${inputCls}`}
               />
               <div className="relative w-32 shrink-0">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1c1b1b] text-xs font-bold">Rp</span>
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-gray-900 text-xs font-bold">Rp</span>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -78,14 +78,14 @@ export function VariationsEditor({
               <button
                 type="button"
                 onClick={() => remove(idx)}
-                className="p-2.5 text-[#9e8e8c] hover:text-[#E53E3E] shrink-0"
+                className="p-2.5 text-brand-gray-450 hover:text-brand-error shrink-0"
                 aria-label="Hapus variasi"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
           ))}
-          <p className="text-xs text-[#9e8e8c]">
+          <p className="text-xs text-brand-gray-450">
             Harga tiap variasi minimal Rp {new Intl.NumberFormat('id-ID').format(minPrice)}. Harga produk = variasi termurah.
           </p>
         </div>

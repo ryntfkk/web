@@ -25,7 +25,7 @@ export interface ChatRoom {
 interface ChatRoomListProps {
   onSelect: (roomId: string) => void;
   selectedRoomId?: string | null;
-  /** Padding lebih rapat — untuk floating panel */
+  /** Padding lebih rapat â€” untuk floating panel */
   compact?: boolean;
   /** Dipanggil sekali setelah fetch jika ada minimal satu room (untuk auto-select di desktop) */
   onFirstRoom?: (roomId: string) => void;
@@ -46,7 +46,7 @@ function formatTime(time?: string) {
 }
 
 /**
- * Daftar percakapan — dipakai halaman /chat dan floating chat panel (desktop).
+ * Daftar percakapan â€” dipakai halaman /chat dan floating chat panel (desktop).
  * Fetch, pencarian, dan sorting ada di sini agar tidak ada duplikasi logika.
  */
 export default function ChatRoomList({ onSelect, selectedRoomId, compact = false, onFirstRoom }: ChatRoomListProps) {
@@ -79,7 +79,7 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
 
   // Tentukan lawan bicara PER-room dengan membandingkan user.id, bukan menebak
   // dari active_role global. Untuk user dual-role (mitra yang juga jadi pelanggan)
-  // active_role keliru pada room di "sisi lain" — menampilkan nama/foto diri
+  // active_role keliru pada room di "sisi lain" â€” menampilkan nama/foto diri
   // sendiri. Fallback ke active_role hanya bila backend belum mengirim id peserta.
   const counterpartyOf = (c: ChatRoom): { name?: string; avatar?: string } => {
     if (user?.id && c.partner_id && c.customer_id) {
@@ -114,13 +114,13 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
       {/* Search */}
       <div className={`${compact ? 'px-3 pt-3' : 'px-4 pt-2'} pb-2 shrink-0`}>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9e8e8c]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray-450" />
           <input
             type="text"
             placeholder="Cari nama atau pesan"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#f7f5f4] rounded-lg p-2.5 pl-9 text-sm text-[#1c1b1b] placeholder:text-[#9e8e8c] focus:outline-none focus:ring-1 focus:ring-[#b51822] border-none"
+            className="w-full bg-brand-gray-60 rounded-lg p-2.5 pl-9 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:ring-1 focus:ring-brand-red border-none"
           />
         </div>
       </div>
@@ -131,18 +131,18 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
           <div>
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className={`flex items-center gap-3 ${itemPad} animate-pulse`}>
-                <div className={`${avatarSize} rounded-full bg-[#e5e2e1] shrink-0`} />
+                <div className={`${avatarSize} rounded-full bg-brand-gray-100 shrink-0`} />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3.5 bg-[#e5e2e1] rounded w-2/5" />
-                  <div className="h-3 bg-[#e5e2e1] rounded w-3/4" />
+                  <div className="h-3.5 bg-brand-gray-100 rounded w-2/5" />
+                  <div className="h-3 bg-brand-gray-100 rounded w-3/4" />
                 </div>
               </div>
             ))}
           </div>
         ) : filteredChats.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <MessageSquare className="w-14 h-14 text-[#e5e2e1] mb-4" />
-            <p className="text-sm text-[#9e8e8c] font-medium">
+            <MessageSquare className="w-14 h-14 text-brand-gray-100 mb-4" />
+            <p className="text-sm text-brand-gray-450 font-medium">
               {search ? 'Tidak ditemukan' : 'Belum ada percakapan'}
             </p>
           </div>
@@ -159,12 +159,12 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
                 <button
                   key={chat.room_id}
                   onClick={() => onSelect(chat.room_id)}
-                  className={`w-full flex items-center gap-3 ${itemPad} text-left transition-colors hover:bg-[#f7f5f4] relative ${
-                    isSelected ? 'bg-[#fdf1f1]' : ''
+                  className={`w-full flex items-center gap-3 ${itemPad} text-left transition-colors hover:bg-brand-gray-60 relative ${
+                    isSelected ? 'bg-brand-red-soft' : ''
                   }`}
                 >
                   {isSelected && (
-                    <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-[#b51822] rounded-r" />
+                    <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-brand-red rounded-r" />
                   )}
 
                   <div className={`${avatarSize} rounded-full bg-brand-gray-100 flex items-center justify-center text-base font-bold text-brand-gray-700 shrink-0 overflow-hidden relative`}>
@@ -177,26 +177,26 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-0.5">
-                      <p className={`text-[14px] truncate pr-2 ${hasUnread ? 'font-bold' : 'font-semibold'} text-[#1c1b1b]`}>
+                      <p className={`text-[14px] truncate pr-2 ${hasUnread ? 'font-bold' : 'font-semibold'} text-brand-gray-900`}>
                         {displayName}
                       </p>
-                      <span className={`text-[11px] shrink-0 ${hasUnread ? 'text-[#b51822] font-semibold' : 'text-[#9e8e8c]'}`}>
+                      <span className={`text-[11px] shrink-0 ${hasUnread ? 'text-brand-red font-semibold' : 'text-brand-gray-450'}`}>
                         {formatTime(chat.last_message_at)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center gap-2">
                       <div className="min-w-0 flex-1">
                         {chat.is_active === false && (
-                          <span className="inline-block text-[10px] text-[#9e8e8c] bg-[#f0eded] rounded px-1.5 py-0.5 mr-1.5 font-medium align-middle">
+                          <span className="inline-block text-[10px] text-brand-gray-450 bg-brand-red-light rounded px-1.5 py-0.5 mr-1.5 font-medium align-middle">
                             Selesai
                           </span>
                         )}
-                        <span className={`text-[13px] truncate ${hasUnread ? 'text-[#1c1b1b] font-medium' : 'text-[#9e8e8c]'}`}>
+                        <span className={`text-[13px] truncate ${hasUnread ? 'text-brand-gray-900 font-medium' : 'text-brand-gray-450'}`}>
                           {chat.last_message || 'Belum ada pesan'}
                         </span>
                       </div>
                       {hasUnread && (
-                        <span className="shrink-0 min-w-[20px] h-5 bg-[#b51822] text-white text-[11px] font-bold flex items-center justify-center rounded-full px-1.5">
+                        <span className="shrink-0 min-w-[20px] h-5 bg-brand-red text-white text-[11px] font-bold flex items-center justify-center rounded-full px-1.5">
                           {(chat.unread_count ?? 0) > 99 ? '99+' : chat.unread_count}
                         </span>
                       )}

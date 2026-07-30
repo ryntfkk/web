@@ -93,11 +93,11 @@ export default function PaymentStatusClient() {
 
   if (status === 'success' && verify === 'checking') {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
-          <Loader2 className="w-16 h-16 text-[#b51822] mx-auto mb-4 animate-spin" />
-          <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Memverifikasi Pembayaran...</h1>
-          <p className="text-sm text-[#5b403e]">Mohon tunggu, kami sedang mengonfirmasi pembayaranmu ke penyedia pembayaran.</p>
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
+          <Loader2 className="w-16 h-16 text-brand-red mx-auto mb-4 animate-spin" />
+          <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Memverifikasi Pembayaran...</h1>
+          <p className="text-sm text-brand-gray-700">Mohon tunggu, kami sedang mengonfirmasi pembayaranmu ke penyedia pembayaran.</p>
         </div>
       </div>
     );
@@ -108,18 +108,18 @@ export default function PaymentStatusClient() {
   // yang akan menuntaskan status order.
   if (status === 'success' && verify === 'failed') {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
-          <Clock className="w-16 h-16 text-[#DD6B20] mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Menunggu Konfirmasi Pembayaran</h1>
-          <p className="text-sm text-[#5b403e] mb-6">
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
+          <Clock className="w-16 h-16 text-brand-orange mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Menunggu Konfirmasi Pembayaran</h1>
+          <p className="text-sm text-brand-gray-700 mb-6">
             Pembayaranmu sedang diproses penyedia pembayaran. Status pesanan akan diperbarui otomatis begitu pembayaran terkonfirmasi.
           </p>
           <div className="space-y-3">
-            <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => window.location.reload()}>
+            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => window.location.reload()}>
               Cek Lagi
             </Button>
-            <Button variant="outline" className="w-full rounded border-[#e5e2e1]" onClick={() => router.replace(`/orders/${orderId}`)}>
+            <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.replace(`/orders/${orderId}`)}>
               Lihat Detail Pesanan
             </Button>
           </div>
@@ -130,22 +130,22 @@ export default function PaymentStatusClient() {
 
   if (verifiedSuccess) {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
-          <CheckCircle className="w-16 h-16 text-[#38A169] mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Pembayaran Berhasil!</h1>
-          <p className="text-sm text-[#5b403e] mb-6">
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
+          <CheckCircle className="w-16 h-16 text-brand-success mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Pembayaran Berhasil!</h1>
+          <p className="text-sm text-brand-gray-700 mb-6">
             Pesanan Anda telah dibayar dan akan segera diproses oleh mitra.
           </p>
           <div className="space-y-3">
-            <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.replace(`/orders/${orderId}`)}>
+            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace(`/orders/${orderId}`)}>
               Lihat Detail Pesanan
             </Button>
-            <Button variant="outline" className="w-full rounded border-[#e5e2e1]" onClick={() => router.push('/')}>
+            <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.push('/')}>
               Kembali ke Beranda
             </Button>
           </div>
-          <p className="text-xs text-[#9e8e8c] mt-4">
+          <p className="text-xs text-brand-gray-450 mt-4">
             Mengarahkan otomatis dalam {countdown} detik...
           </p>
         </div>
@@ -155,18 +155,18 @@ export default function PaymentStatusClient() {
 
   if (status === 'pending') {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
-          <Clock className="w-16 h-16 text-[#DD6B20] mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Menunggu Pembayaran</h1>
-          <p className="text-sm text-[#5b403e] mb-6">
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
+          <Clock className="w-16 h-16 text-brand-orange mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Menunggu Pembayaran</h1>
+          <p className="text-sm text-brand-gray-700 mb-6">
             Selesaikan pembayaran Anda sesuai instruksi (mis. transfer ke Virtual Account). Pesanan akan otomatis diproses setelah pembayaran kami terima.
           </p>
           <div className="space-y-3">
-            <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.replace(`/orders/${orderId}`)}>
+            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace(`/orders/${orderId}`)}>
               Lihat Detail Pesanan
             </Button>
-            <Button variant="outline" className="w-full rounded border-[#e5e2e1]" onClick={() => router.push('/')}>
+            <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.push('/')}>
               Kembali ke Beranda
             </Button>
           </div>
@@ -177,14 +177,14 @@ export default function PaymentStatusClient() {
 
   if (status === 'timeout') {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
-          <Clock className="w-16 h-16 text-[#9e8e8c] mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Batas Waktu Habis</h1>
-          <p className="text-sm text-[#5b403e] mb-6">
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
+          <Clock className="w-16 h-16 text-brand-gray-450 mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Batas Waktu Habis</h1>
+          <p className="text-sm text-brand-gray-700 mb-6">
             Batas waktu pembayaran telah habis. Pesanan ini akan dibatalkan otomatis oleh sistem.
           </p>
-          <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.push('/')}>
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.push('/')}>
             Kembali ke Beranda
           </Button>
         </div>
@@ -194,18 +194,18 @@ export default function PaymentStatusClient() {
 
   // Failed
   return (
-    <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-[#e5e2e1]">
-        <XCircle className="w-16 h-16 text-[#E53E3E] mx-auto mb-4" />
-        <h1 className="text-xl font-bold text-[#1c1b1b] mb-2">Pembayaran Gagal</h1>
-        <p className="text-sm text-[#5b403e] mb-6">
+    <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
+        <XCircle className="w-16 h-16 text-brand-error mx-auto mb-4" />
+        <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Pembayaran Gagal</h1>
+        <p className="text-sm text-brand-gray-700 mb-6">
           {message || 'Maaf, terjadi kesalahan saat memproses pembayaran Anda. Silakan coba lagi.'}
         </p>
         <div className="space-y-3">
-          <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.replace(`/payment/${orderId}`)}>
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace(`/payment/${orderId}`)}>
             Coba Lagi
           </Button>
-          <Button variant="outline" className="w-full rounded border-[#e5e2e1]" onClick={() => router.push('/')}>
+          <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.push('/')}>
             Kembali ke Beranda
           </Button>
         </div>

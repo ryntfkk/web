@@ -122,7 +122,7 @@ export default async function CategoryPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
+    <div className="min-h-screen bg-brand-gray-60 flex flex-col">
       <JsonLd data={breadcrumbSchema} />
       {serviceList.length > 0 && <JsonLd data={itemListSchema} />}
       <JsonLd data={faqJsonLd(faq)} />
@@ -130,44 +130,44 @@ export default async function CategoryPage({ params }: PageProps) {
 
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
         {/* Breadcrumb (terlihat) */}
-        <nav aria-label="Breadcrumb" className="mb-4 hidden sm:flex items-center gap-1.5 text-[13px] text-[#8f6f6d] flex-wrap">
+        <nav aria-label="Breadcrumb" className="mb-4 hidden sm:flex items-center gap-1.5 text-[13px] text-brand-gray-400 flex-wrap">
           {crumbs.map((c, i) => (
             <span key={c.href} className="flex items-center gap-1.5">
               {i > 0 && <ChevronRight className="w-3.5 h-3.5" />}
               {i < crumbs.length - 1 ? (
-                <Link href={c.href} className="hover:text-[#b51822] transition-colors">
+                <Link href={c.href} className="hover:text-brand-red transition-colors">
                   {c.name}
                 </Link>
               ) : (
-                <span className="font-semibold text-[#1c1b1b]">{c.name}</span>
+                <span className="font-semibold text-brand-gray-900">{c.name}</span>
               )}
             </span>
           ))}
         </nav>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 relative rounded-xl overflow-hidden bg-[#fcf9f8] border border-[#e5e2e1] shrink-0">
+          <div className="w-12 h-12 relative rounded-xl overflow-hidden bg-brand-gray-50 border border-brand-gray-100 shrink-0">
             <Image src={cat.icon_url || '/icons/default.svg'} alt={cat.name} fill className="object-cover" sizes="48px" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#1c1b1b]">Jasa {cat.name}</h1>
-            <p className="text-[13px] text-[#8f6f6d]">Mitra terverifikasi &middot; pesan online</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-brand-gray-900">Jasa {cat.name}</h1>
+            <p className="text-[13px] text-brand-gray-400">Mitra terverifikasi &middot; pesan online</p>
           </div>
         </div>
 
         {/* Intro unik (anti thin-content) */}
-        <p className="text-[14px] leading-relaxed text-[#5b403e] mb-8 max-w-3xl">{intro}</p>
+        <p className="text-[14px] leading-relaxed text-brand-gray-700 mb-8 max-w-3xl">{intro}</p>
 
         {/* Subkategori (bila kategori utama) */}
         {isMain && subList.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-[15px] font-bold text-[#1c1b1b] mb-3">Subkategori</h2>
+            <h2 className="text-[15px] font-bold text-brand-gray-900 mb-3">Subkategori</h2>
             <div className="flex flex-wrap gap-2">
               {subList.map((sub) => (
                 <Link
                   key={sub.id}
                   href={sub.slug ? `/kategori/${sub.slug}` : `/search?q=${encodeURIComponent(sub.name)}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-[#e5e2e1] text-[13px] font-medium text-[#1c1b1b] hover:border-[#b51822] hover:text-[#b51822] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-brand-gray-100 text-[13px] font-medium text-brand-gray-900 hover:border-brand-red hover:text-brand-red transition-colors"
                 >
                   {sub.name}
                 </Link>
@@ -179,7 +179,7 @@ export default async function CategoryPage({ params }: PageProps) {
         {/* Tersedia di kota (tautan internal ke landing lokal) */}
         {cities.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-[15px] font-bold text-[#1c1b1b] mb-3">
+            <h2 className="text-[15px] font-bold text-brand-gray-900 mb-3">
               Jasa {cat.name} per kota
             </h2>
             <div className="flex flex-wrap gap-2">
@@ -187,7 +187,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 <Link
                   key={city}
                   href={`/jasa/${cat.slug}/${slugify(city)}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-[#e5e2e1] text-[13px] font-medium text-[#1c1b1b] hover:border-[#b51822] hover:text-[#b51822] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-brand-gray-100 text-[13px] font-medium text-brand-gray-900 hover:border-brand-red hover:text-brand-red transition-colors"
                 >
                   {cat.name} {city}
                 </Link>
@@ -197,11 +197,11 @@ export default async function CategoryPage({ params }: PageProps) {
         )}
 
         {/* Daftar layanan */}
-        <h2 className="text-[15px] font-bold text-[#1c1b1b] mb-4">
-          Layanan {cat.name} {serviceList.length > 0 && <span className="font-normal text-[#8f6f6d]">({serviceList.length})</span>}
+        <h2 className="text-[15px] font-bold text-brand-gray-900 mb-4">
+          Layanan {cat.name} {serviceList.length > 0 && <span className="font-normal text-brand-gray-400">({serviceList.length})</span>}
         </h2>
         {serviceList.length === 0 ? (
-          <div className="text-center text-[#8f6f6d] py-12">
+          <div className="text-center text-brand-gray-400 py-12">
             <p className="text-[14px]">Belum ada layanan di kategori ini.</p>
             {isMain && subList.length > 0 && (
               <p className="text-[13px] mt-1">Coba jelajahi subkategori di atas.</p>

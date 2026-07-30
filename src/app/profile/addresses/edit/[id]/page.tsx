@@ -89,7 +89,7 @@ export default function EditAddressPage() {
   }, [isAuthorized, id]);
 
   if (authLoading || loading) {
-    return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
+    return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   }
   if (!isAuthorized) return null;
 
@@ -134,31 +134,31 @@ export default function EditAddressPage() {
 
   return (
     // pb-20 untuk memberi ruang fixed action bar "Simpan Perubahan" di semua breakpoint.
-    <div className="page-h bg-[#f7f5f4] pb-20">
+    <div className="page-h bg-brand-gray-60 pb-20">
       <MobilePageHeader title="Edit Alamat" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Edit Alamat</h1>
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Edit Alamat</h1>
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Label Alamat</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Label Alamat</label>
             <input
               type="text"
               placeholder="Contoh: Rumah, Kantor, Apartemen"
               value={form.label}
               onChange={e => setForm({ ...form, label: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Alamat Lengkap</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Alamat Lengkap</label>
             <textarea
               placeholder="Jalan, RT/RW, Patokan..."
               value={form.address}
               onChange={e => setForm({ ...form, address: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
@@ -168,7 +168,7 @@ export default function EditAddressPage() {
           />
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kode Pos (opsional)</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Kode Pos (opsional)</label>
             <input
               type="text"
               inputMode="numeric"
@@ -176,25 +176,25 @@ export default function EditAddressPage() {
               placeholder="Contoh: 12345"
               value={form.postal_code}
               onChange={e => setForm({ ...form, postal_code: e.target.value.replace(/\D/g, '') })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Detail / Catatan (opsional)</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Detail / Catatan (opsional)</label>
             <input
               type="text"
               placeholder="Penerima, patokan, dsb."
               value={form.address_detail}
               onChange={e => setForm({ ...form, address_detail: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Titik Lokasi (Pinpoint)</label>
-            <p className="text-xs text-[#8f6f6d] mb-2">Ketuk peta untuk memperbarui lokasi persis alamat ini.</p>
-            <div className="h-64 border border-[#e5e2e1] rounded-lg overflow-hidden">
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Titik Lokasi (Pinpoint)</label>
+            <p className="text-xs text-brand-gray-400 mb-2">Ketuk peta untuk memperbarui lokasi persis alamat ini.</p>
+            <div className="h-64 border border-brand-gray-100 rounded-lg overflow-hidden">
               <MapPicker
                 lat={form.lat}
                 lng={form.lon}
@@ -202,32 +202,32 @@ export default function EditAddressPage() {
               />
             </div>
             {!hasCoords && (
-              <p className="text-xs mt-1.5 flex items-center gap-1 text-[#DD6B20]">
+              <p className="text-xs mt-1.5 flex items-center gap-1 text-brand-orange">
                 <MapPin className="w-3.5 h-3.5" />
                 Titik lokasi belum ada — ketuk peta untuk menandai.
               </p>
             )}
           </div>
 
-          <label className="flex items-center gap-3 p-4 border border-[#e5e2e1] rounded-lg cursor-pointer hover:bg-[#f7f5f4] transition-colors">
+          <label className="flex items-center gap-3 p-4 border border-brand-gray-100 rounded-lg cursor-pointer hover:bg-brand-gray-60 transition-colors">
             <input
               type="checkbox"
               checked={form.is_default}
               onChange={e => setForm({ ...form, is_default: e.target.checked })}
-              className="w-4 h-4 text-[#b51822] focus:ring-[#b51822] border-[#e5e2e1] rounded"
+              className="w-4 h-4 text-brand-red focus:ring-brand-red border-brand-gray-100 rounded"
             />
-            <span className="text-sm font-semibold text-[#1c1b1b]">Jadikan Alamat Utama</span>
+            <span className="text-sm font-semibold text-brand-gray-900">Jadikan Alamat Utama</span>
           </label>
 
-          {error && <p className="text-sm text-[#E53E3E] bg-brand-error-soft p-3 rounded-lg">{error}</p>}
+          {error && <p className="text-sm text-brand-error bg-brand-error-soft p-3 rounded-lg">{error}</p>}
         </form>
       </div>
 
       {/* Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-20">
         <div className="max-w-lg mx-auto">
           <Button
-            className="w-full bg-[#b51822] hover:bg-[#90121a] rounded"
+            className="w-full bg-brand-red hover:bg-brand-red-dark rounded"
             onClick={handleSubmit}
             disabled={saving}
           >

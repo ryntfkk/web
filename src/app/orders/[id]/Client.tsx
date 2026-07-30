@@ -119,7 +119,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
     desc: 'Dana ditahan aman oleh Posko Jasa. Mitra akan datang sesuai jadwal.',
   },
   IN_PROGRESS: {
-    tone: 'from-[#805AD5] to-brand-purple',
+    tone: 'from-brand-purple to-brand-purple',
     title: 'Mitra sedang bekerja',
     desc: 'Pekerjaan sedang berlangsung. Hubungi mitra lewat chat bila ada yang perlu disampaikan.',
   },
@@ -129,7 +129,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
     desc: 'Mitra mengajukan biaya tambahan. Tinjau dan setujui agar pekerjaan bisa dilanjutkan.',
   },
   WAITING_CUSTOMER_CONFIRM: {
-    tone: 'from-[#5A67D8] to-brand-purple-dark',
+    tone: 'from-brand-blue-dark to-brand-purple-dark',
     title: 'Pekerjaan selesai — mohon konfirmasi',
     desc: 'Mitra menyatakan pekerjaan sudah selesai. Periksa hasilnya, lalu tekan Konfirmasi Selesai untuk mencairkan dana. Tanpa konfirmasi dalam 24 jam, dana cair otomatis ke mitra.',
   },
@@ -139,7 +139,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
     desc: 'Terima kasih! Ceritakan pengalamanmu lewat ulasan untuk membantu pelanggan lain.',
   },
   CANCELLED: {
-    tone: 'from-[#718096] to-brand-slate',
+    tone: 'from-brand-slate to-brand-slate',
     title: 'Pesanan dibatalkan',
     desc: 'Pesanan ini sudah tidak berjalan.',
   },
@@ -374,7 +374,7 @@ export default function OrderDetailClient() {
             Lapor Masalah
           </Button>
           <Button
-            className="flex-1 bg-brand-success hover:bg-[#2F855A] rounded-lg"
+            className="flex-1 bg-brand-success hover:bg-brand-success-dark rounded-lg"
             onClick={() => { setFinishChecked(false); setShowFinishConfirm(true); }}
             disabled={actionLoading}
           >
@@ -1012,7 +1012,7 @@ export default function OrderDetailClient() {
               <Button variant="outline" className="flex-1 rounded-lg border-brand-gray-100" onClick={() => setShowCancelDialog(false)}>
                 Batal
               </Button>
-              <Button className="flex-1 bg-brand-error hover:bg-[#C53030] rounded-lg" onClick={handleCancel} disabled={actionLoading}>
+              <Button className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded-lg" onClick={handleCancel} disabled={actionLoading}>
                 {actionLoading ? 'Memproses...' : 'Ya, Batalkan'}
               </Button>
             </div>
@@ -1055,7 +1055,7 @@ export default function OrderDetailClient() {
                 Periksa Lagi
               </Button>
               <Button
-                className="flex-1 bg-brand-success hover:bg-[#2F855A] rounded-lg"
+                className="flex-1 bg-brand-success hover:bg-brand-success-dark rounded-lg"
                 onClick={() => { setShowFinishConfirm(false); handleAction('finish'); }}
                 disabled={!finishChecked || actionLoading}
               >

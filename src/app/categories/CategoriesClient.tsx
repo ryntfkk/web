@@ -16,14 +16,14 @@ export default function CategoriesClient() {
   const { data: categories, isLoading, isError } = useCategories();
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
+    <div className="min-h-screen bg-brand-gray-60 flex flex-col">
       <MobilePageHeader title="Semua Kategori" backHref="/" maxWidthClass="max-w-6xl" />
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-8">Semua Kategori</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-8">Semua Kategori</h1>
 
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-[#b51822]" />
+            <Loader2 className="w-8 h-8 animate-spin text-brand-red" />
           </div>
         ) : isError ? (
           <div className="text-center text-red-500 py-10">Gagal memuat kategori.</div>
@@ -51,13 +51,13 @@ function MainCategoryBlock({ main }: { main: Category }) {
         href={categoryHref(main)}
         className="group flex items-center gap-3 mb-4"
       >
-        <div className="w-11 h-11 relative rounded-xl overflow-hidden bg-[#fcf9f8] border border-[#e5e2e1] shrink-0">
+        <div className="w-11 h-11 relative rounded-xl overflow-hidden bg-brand-gray-50 border border-brand-gray-100 shrink-0">
           <Image src={main.icon_url || '/icons/default.svg'} alt={main.name} fill className="object-cover" />
         </div>
-        <h2 className="text-[16px] sm:text-[18px] font-bold text-[#1c1b1b] group-hover:text-[#b51822] transition-colors">
+        <h2 className="text-[16px] sm:text-[18px] font-bold text-brand-gray-900 group-hover:text-brand-red transition-colors">
           {main.name}
         </h2>
-        <ChevronRight className="w-4 h-4 text-[#8f6f6d] group-hover:text-[#b51822] transition-colors" />
+        <ChevronRight className="w-4 h-4 text-brand-gray-400 group-hover:text-brand-red transition-colors" />
       </Link>
 
       {/* Subkategori */}
@@ -71,7 +71,7 @@ function MainCategoryBlock({ main }: { main: Category }) {
           ))}
         </div>
       ) : !subs || subs.length === 0 ? (
-        <p className="text-[13px] text-[#8f6f6d] pl-1">Belum ada subkategori.</p>
+        <p className="text-[13px] text-brand-gray-400 pl-1">Belum ada subkategori.</p>
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6">
           {subs.map((sub) => (
@@ -80,10 +80,10 @@ function MainCategoryBlock({ main }: { main: Category }) {
               href={categoryHref(sub)}
               className="group flex flex-col items-center justify-start cursor-pointer"
             >
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mb-3 flex items-center justify-center bg-[#fcf9f8] border border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:shadow-md transition-all relative overflow-hidden">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mb-3 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
                 <Image src={sub.icon_url || '/icons/default.svg'} alt={sub.name} fill className="object-cover" />
               </div>
-              <span className="text-[12px] sm:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight line-clamp-2 px-1 group-hover:text-[#b51822] transition-colors">
+              <span className="text-[12px] sm:text-[14px] font-medium text-brand-gray-900 text-center leading-tight line-clamp-2 px-1 group-hover:text-brand-red transition-colors">
                 {sub.name}
               </span>
             </Link>

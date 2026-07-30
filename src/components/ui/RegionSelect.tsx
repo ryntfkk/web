@@ -30,8 +30,8 @@ interface RegionSelectProps {
 }
 
 const DEFAULT_SELECT =
-  'w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] bg-white focus:outline-none focus:border-[#b51822]';
-const DEFAULT_LABEL = 'block text-sm font-semibold text-[#1c1b1b] mb-2';
+  'w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 bg-white focus:outline-none focus:border-brand-red';
+const DEFAULT_LABEL = 'block text-sm font-semibold text-brand-gray-900 mb-2';
 
 export default function RegionSelect({
   value,

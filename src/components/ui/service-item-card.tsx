@@ -38,7 +38,7 @@ export function ServiceItemCard({
   const content = (
     <>
       {/* Foto */}
-      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-[#f0eded] shrink-0">
+      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-brand-red-light shrink-0">
         <Image
           src={photoUrl || PLACEHOLDER_SERVICE}
           alt={name}
@@ -50,9 +50,9 @@ export function ServiceItemCard({
 
       {/* Info */}
       <div className="flex-1 min-w-0 text-left">
-        <p className="text-sm font-semibold text-[#1c1b1b] leading-snug line-clamp-2">{name}</p>
+        <p className="text-sm font-semibold text-brand-gray-900 leading-snug line-clamp-2">{name}</p>
         {typeof durationMinutes === 'number' && durationMinutes > 0 && (
-          <p className="text-xs text-[#9e8e8c] mt-0.5 flex items-center gap-1">
+          <p className="text-xs text-brand-gray-450 mt-0.5 flex items-center gap-1">
             <Clock className="w-3 h-3" /> {durationMinutes} menit
           </p>
         )}
@@ -63,7 +63,7 @@ export function ServiceItemCard({
       {selectable ? (
         <div
           className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
-            selected ? 'bg-[#b51822] border-[#b51822]' : 'border-[#d5d2d1] bg-white'
+            selected ? 'bg-brand-red border-brand-red' : 'border-brand-gray-200 bg-white'
           }`}
           aria-hidden="true"
         >
@@ -78,9 +78,9 @@ export function ServiceItemCard({
   const baseClass = `flex items-center gap-3 p-3 rounded-lg border transition-colors ${
     selectable
       ? selected
-        ? 'border-[#b51822] bg-[#FFF5F5]'
-        : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/40'
-      : 'border-[#e5e2e1] bg-white'
+        ? 'border-brand-red bg-brand-error-soft'
+        : 'border-brand-gray-100 bg-white hover:border-brand-red/40'
+      : 'border-brand-gray-100 bg-white'
   } ${className}`;
 
   if (selectable) {

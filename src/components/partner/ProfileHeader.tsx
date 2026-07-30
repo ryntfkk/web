@@ -22,7 +22,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const currentUser = useAuthStore(state => state.user);
   // Mitra yang membuka profilnya sendiri tidak boleh chat/lapor/pesan ke diri
-  // sendiri — backend menolaknya (SELF_ORDER / cannot chat with yourself).
+  // sendiri â€” backend menolaknya (SELF_ORDER / cannot chat with yourself).
   const isOwnProfile = !!currentUser?.id && currentUser.id === profile.user_id;
 
   // Favorit mitra. partner_id memakai partners.id (= profile.id), bukan user_id.
@@ -90,7 +90,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           sizes="(max-width: 640px) 80px, 96px"
         />
         {profile.is_online && (
-          <div className="absolute bottom-1 right-1 w-4 h-4 bg-[#38A169] rounded-full border-2 border-white" />
+          <div className="absolute bottom-1 right-1 w-4 h-4 bg-brand-success rounded-full border-2 border-white" />
         )}
       </div>
 
@@ -98,41 +98,41 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl sm:text-2xl font-bold text-[#1c1b1b]">{profile.name}</h1>
-              {/* <span className="bg-[#f0eded] text-[#b51822] text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-brand-gray-900">{profile.name}</h1>
+              {/* <span className="bg-brand-red-light text-brand-red text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
                 <CheckCircle className="w-3 h-3" /> Terverifikasi
               </span> */}
             </div>
 
-            {/* Bio — inline di bawah nama */}
+            {/* Bio â€” inline di bawah nama */}
             {typeof profile.bio === 'string' && profile.bio.trim().length > 0 && (
-              <p className="text-sm text-[#5b403e] leading-relaxed whitespace-pre-line mb-3 mt-1">
+              <p className="text-sm text-brand-gray-700 leading-relaxed whitespace-pre-line mb-3 mt-1">
                 {profile.bio}
               </p>
             )}
 
-            <div className="flex items-center text-sm text-[#8f6f6d] mb-3 gap-1">
+            <div className="flex items-center text-sm text-brand-gray-400 mb-3 gap-1">
               <MapPin className="w-4 h-4" />
               <span>{profile.service_area || 'Tidak ada area'}</span>
             </div>
 
             <div className="flex items-center gap-4 text-sm mb-4">
               <div className="flex flex-col">
-                <div className="flex items-center gap-1 text-[#D69E2E] font-medium">
+                <div className="flex items-center gap-1 text-brand-warning font-medium">
                   <Star className="w-4 h-4 fill-current" />
                   <span>{Number(profile.avg_rating).toFixed(1)}</span>
                 </div>
-                <span className="text-[#8f6f6d] text-xs">{profile.total_reviews} Ulasan</span>
+                <span className="text-brand-gray-400 text-xs">{profile.total_reviews} Ulasan</span>
               </div>
-              <div className="w-px h-8 bg-[#e5e2e1]" />
+              <div className="w-px h-8 bg-brand-gray-100" />
               <div className="flex flex-col">
-                <span className="font-medium text-[#1c1b1b]">{profile.total_orders}</span>
-                <span className="text-[#8f6f6d] text-xs">Pesanan</span>
+                <span className="font-medium text-brand-gray-900">{profile.total_orders}</span>
+                <span className="text-brand-gray-400 text-xs">Pesanan</span>
               </div>
-              {/* <div className="w-px h-8 bg-[#e5e2e1]" />
+              {/* <div className="w-px h-8 bg-brand-gray-100" />
               <div className="flex flex-col">
-                <span className="font-medium text-[#1c1b1b]">Aktif</span>
-                <span className="text-[#8f6f6d] text-xs">2 Tahun</span>
+                <span className="font-medium text-brand-gray-900">Aktif</span>
+                <span className="text-brand-gray-400 text-xs">2 Tahun</span>
               </div> */}
             </div>
 
@@ -142,7 +142,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             {isOwnProfile ? (
               <Button
                 variant="secondary"
-                className="flex-1 sm:flex-none bg-[#f0eded] text-[#5b403e] hover:bg-[#e5e2e1]"
+                className="flex-1 sm:flex-none bg-brand-red-light text-brand-gray-700 hover:bg-brand-gray-100"
                 onClick={() => router.push('/mitra/dashboard')}
               >
                 Kelola Profil
@@ -154,13 +154,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                   aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
                   onClick={handleFavToggle}
                   disabled={favBusy}
-                  className={`flex-none px-3 ${isFav ? 'bg-[#FFF5F5] text-[#b51822] border border-[#b51822] hover:bg-[#fdeaea]' : 'bg-[#f0eded] text-[#5b403e] hover:bg-[#e5e2e1]'}`}
+                  className={`flex-none px-3 ${isFav ? 'bg-brand-error-soft text-brand-red border border-brand-red hover:bg-brand-red-soft' : 'bg-brand-red-light text-brand-gray-700 hover:bg-brand-gray-100'}`}
                 >
                   <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
                   <span className="ml-1.5 sm:hidden">{isFav ? 'Tersimpan' : 'Favorit'}</span>
                 </Button>
                 <Button
-                  className="flex-1 sm:flex-none bg-[#b51822] hover:bg-[#90121a] text-white"
+                  className="flex-1 sm:flex-none bg-brand-red hover:bg-brand-red-dark text-white"
                   onClick={handleChat}
                   disabled={isChatLoading}
                 >

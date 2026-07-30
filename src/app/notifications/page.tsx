@@ -78,13 +78,13 @@ export default function NotificationsPage() {
 
   const getIcon = (type: string) => {
     const t = (type || '').toLowerCase();
-    if (t.includes('payment')) return <CreditCard className="w-5 h-5 text-[#DD6B20]" />;
-    if (t.includes('dispute')) return <AlertTriangle className="w-5 h-5 text-[#b51822]" />;
-    if (t.includes('withdraw')) return <DollarSign className="w-5 h-5 text-[#5b403e]" />;
-    if (t.includes('review')) return <CheckCircle className="w-5 h-5 text-[#38A169]" />;
-    if (t.includes('order')) return <FileText className="w-5 h-5 text-[#3182CE]" />;
-    if (t === 'system') return <CheckCircle className="w-5 h-5 text-[#38A169]" />;
-    return <Bell className="w-5 h-5 text-[#8f6f6d]" />;
+    if (t.includes('payment')) return <CreditCard className="w-5 h-5 text-brand-orange" />;
+    if (t.includes('dispute')) return <AlertTriangle className="w-5 h-5 text-brand-red" />;
+    if (t.includes('withdraw')) return <DollarSign className="w-5 h-5 text-brand-gray-700" />;
+    if (t.includes('review')) return <CheckCircle className="w-5 h-5 text-brand-success" />;
+    if (t.includes('order')) return <FileText className="w-5 h-5 text-brand-info" />;
+    if (t === 'system') return <CheckCircle className="w-5 h-5 text-brand-success" />;
+    return <Bell className="w-5 h-5 text-brand-gray-400" />;
   };
 
   const formatTime = (time: string) => {
@@ -97,7 +97,7 @@ export default function NotificationsPage() {
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ListItemSkeleton count={8} /></div>;
+  if (authLoading) return <div className="page-h bg-brand-gray-60"><ListItemSkeleton count={8} /></div>;
   if (!isAuthorized) return null;
 
   const filteredNotifications = notifications.filter(n => {
@@ -128,16 +128,16 @@ export default function NotificationsPage() {
     <div
       key={n.id}
       onClick={() => handleNotificationClick(n)}
-      className={`bg-white rounded-lg border border-[#e5e2e1] p-4 flex gap-4 cursor-pointer transition-colors ${!n.is_read ? 'bg-brand-error-soft border-[#FEB2B2]' : 'hover:bg-[#f7f5f4]'}`}
+      className={`bg-white rounded-lg border border-brand-gray-100 p-4 flex gap-4 cursor-pointer transition-colors ${!n.is_read ? 'bg-brand-error-soft border-brand-error-border' : 'hover:bg-brand-gray-60'}`}
     >
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-white' : 'bg-[#f7f5f4]'}`}>
+      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-white' : 'bg-brand-gray-60'}`}>
         {getIcon(n.type)}
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className={`text-sm mb-1 ${!n.is_read ? 'font-bold text-[#1c1b1b]' : 'font-semibold text-[#5b403e]'}`}>
+        <h3 className={`text-sm mb-1 ${!n.is_read ? 'font-bold text-brand-gray-900' : 'font-semibold text-brand-gray-700'}`}>
           {n.title}
         </h3>
-        <p className={`text-sm mb-2 leading-snug ${!n.is_read ? 'text-[#32201f]' : 'text-brand-gray-450'}`}>
+        <p className={`text-sm mb-2 leading-snug ${!n.is_read ? 'text-brand-gray-800' : 'text-brand-gray-450'}`}>
           {n.body}
         </p>
         <p className="text-[10px] text-brand-gray-450 font-medium uppercase tracking-wide">
@@ -146,27 +146,27 @@ export default function NotificationsPage() {
       </div>
       {!n.is_read && (
         <div className="shrink-0 pt-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#b51822]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-brand-red" />
         </div>
       )}
     </div>
   );
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-10">
+    <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       <MobilePageHeader
         title="Notifikasi"
         right={unreadCount > 0 ? (
-          <button onClick={handleMarkAllRead} className="text-sm font-semibold text-[#b51822] hover:underline">
+          <button onClick={handleMarkAllRead} className="text-sm font-semibold text-brand-red hover:underline">
             Tandai semua dibaca
           </button>
         ) : undefined}
       />
 
       <div className="hidden lg:flex max-w-lg mx-auto px-4 pt-8 items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-[#1c1b1b]">Notifikasi</h1>
+        <h1 className="text-2xl font-bold text-brand-gray-900">Notifikasi</h1>
         {unreadCount > 0 && (
-          <button onClick={handleMarkAllRead} className="text-sm font-semibold text-[#b51822] hover:underline">
+          <button onClick={handleMarkAllRead} className="text-sm font-semibold text-brand-red hover:underline">
             Tandai semua dibaca
           </button>
         )}
@@ -177,19 +177,19 @@ export default function NotificationsPage() {
         <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar">
           <button 
             onClick={() => setActiveFilter('all')}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'all' ? 'bg-[#b51822] text-white' : 'bg-white border border-[#e5e2e1] text-[#5b403e] hover:bg-[#f7f5f4]'}`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'all' ? 'bg-brand-red text-white' : 'bg-white border border-brand-gray-100 text-brand-gray-700 hover:bg-brand-gray-60'}`}
           >
             Semua
           </button>
           <button 
             onClick={() => setActiveFilter('transaction')}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'transaction' ? 'bg-[#b51822] text-white' : 'bg-white border border-[#e5e2e1] text-[#5b403e] hover:bg-[#f7f5f4]'}`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'transaction' ? 'bg-brand-red text-white' : 'bg-white border border-brand-gray-100 text-brand-gray-700 hover:bg-brand-gray-60'}`}
           >
             Transaksi
           </button>
           <button 
             onClick={() => setActiveFilter('system')}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'system' ? 'bg-[#b51822] text-white' : 'bg-white border border-[#e5e2e1] text-[#5b403e] hover:bg-[#f7f5f4]'}`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'system' ? 'bg-brand-red text-white' : 'bg-white border border-brand-gray-100 text-brand-gray-700 hover:bg-brand-gray-60'}`}
           >
             Sistem
           </button>
@@ -203,7 +203,7 @@ export default function NotificationsPage() {
           <div className="space-y-5">
             {groupedNotifications.map((group) => (
               <div key={group.label}>
-                <h2 className="text-xs font-semibold text-[#8f6f6d] uppercase tracking-wide px-1 mb-2">{group.label}</h2>
+                <h2 className="text-xs font-semibold text-brand-gray-400 uppercase tracking-wide px-1 mb-2">{group.label}</h2>
                 <div className="space-y-2">
                   {group.items.map(renderCard)}
                 </div>

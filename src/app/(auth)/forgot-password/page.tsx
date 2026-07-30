@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
                     required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm"
                     placeholder="08123456789 atau email Anda"
                   />
                 </div>
@@ -121,14 +121,14 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading || !identifier}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
+                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Kirim Kode Pemulihan'}
                 </button>
                 
                 <Link
                   href="/login"
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Kembali ke Login
@@ -152,7 +152,7 @@ export default function ForgotPasswordPage() {
                     maxLength={6}
                     value={token}
                     onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm tracking-widest text-center"
+                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm tracking-widest text-center"
                     placeholder="Masukkan kode 6 digit dari email/SMS"
                   />
                 </div>
@@ -171,7 +171,7 @@ export default function ForgotPasswordPage() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
+                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm pr-10"
                     placeholder="Minimal 8 karakter"
                   />
                   <button
@@ -192,7 +192,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading || !token || password.length < 8}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
+                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Ubah Password'}
                 </button>
@@ -204,7 +204,7 @@ export default function ForgotPasswordPage() {
                     setSuccess('');
                     setError('');
                   }}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Ganti Identitas

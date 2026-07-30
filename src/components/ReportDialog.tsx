@@ -65,7 +65,7 @@ export default function ReportDialog({
         }),
       });
       if (res.success) {
-        // Laporan kini ditangani via chat CS — arahkan ke percakapannya agar
+        // Laporan kini ditangani via chat CS â€” arahkan ke percakapannya agar
         // pengguna bisa langsung berbalas dengan admin (bukan lagi WhatsApp).
         if (res.data?.id) {
           setOpen(false);
@@ -88,7 +88,7 @@ export default function ReportDialog({
       <button
         type="button"
         onClick={openDialog}
-        className={`inline-flex items-center gap-1 text-xs text-[#9e8e8c] hover:text-[#b51822] ${className}`}
+        className={`inline-flex items-center gap-1 text-xs text-brand-gray-450 hover:text-brand-red ${className}`}
       >
         <Flag className="w-3.5 h-3.5" /> {label}
       </button>
@@ -96,23 +96,23 @@ export default function ReportDialog({
       <Modal open={open} onClose={() => setOpen(false)} title="Laporkan" maxWidthClass="max-w-md">
         {done ? (
           <div className="py-6 text-center">
-            <p className="text-sm text-[#1c1b1b] mb-4">
+            <p className="text-sm text-brand-gray-900 mb-4">
               Terima kasih. Laporan Anda telah dikirim dan akan ditinjau tim kami.
             </p>
             <button
               onClick={() => setOpen(false)}
-              className="px-4 py-2 rounded bg-[#b51822] text-white text-sm"
+              className="px-4 py-2 rounded bg-brand-red text-white text-sm"
             >
               Tutup
             </button>
           </div>
         ) : (
           <>
-            <label className="block text-xs font-medium text-[#5b403e] mb-1">Alasan</label>
+            <label className="block text-xs font-medium text-brand-gray-700 mb-1">Alasan</label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full border border-[#e5e2e1] rounded px-3 py-2 text-sm mb-3"
+              className="w-full border border-brand-gray-100 rounded px-3 py-2 text-sm mb-3"
             >
               {REASONS.map((r) => (
                 <option key={r.value} value={r.value}>
@@ -121,15 +121,15 @@ export default function ReportDialog({
               ))}
             </select>
 
-            <label className="block text-xs font-medium text-[#5b403e] mb-1">
+            <label className="block text-xs font-medium text-brand-gray-700 mb-1">
               Detail (opsional)
             </label>
             <textarea
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
               rows={3}
-              className="w-full border border-[#e5e2e1] rounded px-3 py-2 text-sm mb-3"
-              placeholder="Jelaskan masalahnya…"
+              className="w-full border border-brand-gray-100 rounded px-3 py-2 text-sm mb-3"
+              placeholder="Jelaskan masalahnyaâ€¦"
             />
 
             {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
@@ -137,16 +137,16 @@ export default function ReportDialog({
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setOpen(false)}
-                className="px-4 py-2 rounded border border-[#e5e2e1] text-sm"
+                className="px-4 py-2 rounded border border-brand-gray-100 text-sm"
               >
                 Batal
               </button>
               <button
                 onClick={submit}
                 disabled={busy}
-                className="px-4 py-2 rounded bg-[#b51822] text-white text-sm disabled:opacity-50"
+                className="px-4 py-2 rounded bg-brand-red text-white text-sm disabled:opacity-50"
               >
-                {busy ? 'Mengirim…' : 'Kirim Laporan'}
+                {busy ? 'Mengirimâ€¦' : 'Kirim Laporan'}
               </button>
             </div>
           </>

@@ -36,7 +36,7 @@ export default function TopNavbar() {
   }, []);
 
   const handleLogout = () => {
-    // useAuth.logout: POST /auth/logout → bersihkan store → router.push('/login')
+    // useAuth.logout: POST /auth/logout â†’ bersihkan store â†’ router.push('/login')
     logout();
   };
 
@@ -54,17 +54,17 @@ export default function TopNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-[#e5e2e1] bg-[#fcf9f8]">
+      <header className="sticky top-0 z-50 w-full border-b border-brand-gray-100 bg-brand-gray-50">
         <div className="mx-auto h-16 max-w-[1200px] px-4 sm:px-6 flex items-center justify-between lg:px-6">
           {isMobileSearchOpen ? (
             <div className="flex-1 flex items-center gap-2 w-full lg:hidden animate-in fade-in duration-200">
               <div className="relative w-full">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search className="h-4 w-4 text-[#8f6f6d]" />
+                  <Search className="h-4 w-4 text-brand-gray-400" />
                 </div>
                 <input
                   type="text"
-                  className="block w-full rounded-md border border-[#e5e2e1] bg-white py-2 pl-9 pr-4 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
+                  className="block w-full rounded-md border border-brand-gray-100 bg-white py-2 pl-9 pr-4 text-[14px] text-brand-gray-900 placeholder:text-brand-gray-400 focus:border-brand-red focus:outline-none focus:ring-1 focus:ring-brand-red"
                   placeholder="Cari jasa AC, ledeng, kebersihan..."
                   autoFocus
                   onKeyDown={handleSearch}
@@ -74,7 +74,7 @@ export default function TopNavbar() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMobileSearchOpen(false)}
-                className="text-[#5b403e] hover:text-[#b51822] shrink-0"
+                className="text-brand-gray-700 hover:text-brand-red shrink-0"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -94,7 +94,7 @@ export default function TopNavbar() {
                       sizes="32px"
                     />
                   </div>
-                  <span className="text-[24px] font-bold text-[#1c1b1b] tracking-[-0.6px] whitespace-nowrap">
+                  <span className="text-[24px] font-bold text-brand-gray-900 tracking-[-0.6px] whitespace-nowrap">
                     POSKO
                   </span>
                 </Link>
@@ -104,11 +104,11 @@ export default function TopNavbar() {
               <div className="hidden lg:flex flex-1 justify-center px-8">
                 <div className="relative w-full max-w-[512px]">
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <Search className="h-[18px] w-[18px] text-[#8f6f6d]" />
+                    <Search className="h-[18px] w-[18px] text-brand-gray-400" />
                   </div>
                   <input
                     type="text"
-                    className="block w-full rounded-md border border-[#e5e2e1] bg-white py-2.5 pl-4 pr-10 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
+                    className="block w-full rounded-md border border-brand-gray-100 bg-white py-2.5 pl-4 pr-10 text-[14px] text-brand-gray-900 placeholder:text-brand-gray-400 focus:border-brand-red focus:outline-none focus:ring-1 focus:ring-brand-red"
                     placeholder="Cari jasa AC, ledeng, kebersihan..."
                     onKeyDown={handleSearch}
                   />
@@ -121,7 +121,7 @@ export default function TopNavbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden text-[#5b403e] hover:text-[#b51822]"
+                  className="lg:hidden text-brand-gray-700 hover:text-brand-red"
                   onClick={() => setIsMobileSearchOpen(true)}
                 >
                   <Search className="h-5 w-5" />
@@ -129,9 +129,9 @@ export default function TopNavbar() {
 
                 {isInitializing ? (
                   <div className="flex items-center gap-2 lg:gap-4 animate-pulse">
-                    <div className="hidden lg:block w-8 h-8 bg-[#e5e2e1] rounded-full" />
-                    <div className="hidden lg:block w-8 h-8 bg-[#e5e2e1] rounded-full" />
-                    <div className="w-8 h-8 bg-[#e5e2e1] rounded-xl" />
+                    <div className="hidden lg:block w-8 h-8 bg-brand-gray-100 rounded-full" />
+                    <div className="hidden lg:block w-8 h-8 bg-brand-gray-100 rounded-full" />
+                    <div className="w-8 h-8 bg-brand-gray-100 rounded-xl" />
                   </div>
                 ) : isAuthenticated ? (
                   <>
@@ -139,12 +139,12 @@ export default function TopNavbar() {
                     <div className="hidden lg:flex items-center gap-4">
                       {/* Cart Icon */}
                       <button
-                        className="text-[#5b403e] hover:text-[#b51822] transition-colors relative"
+                        className="text-brand-gray-700 hover:text-brand-red transition-colors relative"
                         onClick={() => router.push('/cart')}
                       >
                         <ShoppingCart className="h-[20px] w-[19.98px]" />
                         {itemCount > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 bg-[#b51822] text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {itemCount > 99 ? '99+' : itemCount}
                           </span>
                         )}
@@ -152,12 +152,12 @@ export default function TopNavbar() {
 
                       {/* Bell Icon */}
                       <button
-                        className="text-[#5b403e] hover:text-[#b51822] transition-colors relative"
+                        className="text-brand-gray-700 hover:text-brand-red transition-colors relative"
                         onClick={() => router.push('/notifications')}
                         aria-label="Notifikasi"
                       >
                         <Bell className="h-5 w-5" />
-                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b51822] rounded-full" />
+                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-brand-red rounded-full" />
                       </button>
 
                       {/* User Avatar with Dropdown */}
@@ -168,7 +168,7 @@ export default function TopNavbar() {
                           aria-expanded={isDropdownOpen}
                           aria-haspopup="true"
                         >
-                          <div className="w-8 h-8 rounded-xl border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
+                          <div className="w-8 h-8 rounded-xl border border-brand-gray-100 bg-brand-gray-100 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-brand-red transition-all">
                             {userAvatar ? (
                               <Image
                                 src={userAvatar}
@@ -178,28 +178,28 @@ export default function TopNavbar() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <User className="h-4 w-4 text-[#5b403e]" />
+                              <User className="h-4 w-4 text-brand-gray-700" />
                             )}
                           </div>
-                          <ChevronDown className={`h-4 w-4 text-[#5b403e] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`h-4 w-4 text-brand-gray-700 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {/* Dropdown Menu */}
                         {isDropdownOpen && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white border border-[#e5e2e1] rounded-lg shadow-lg py-2 z-50">
-                            <Link href="/profile" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
+                          <div className="absolute right-0 mt-2 w-48 bg-white border border-brand-gray-100 rounded-lg shadow-lg py-2 z-50">
+                            <Link href="/profile" className="block px-4 py-2 text-[14px] text-brand-gray-700 hover:bg-brand-gray-60 hover:text-brand-red" onClick={() => setIsDropdownOpen(false)}>
                               Akun Saya
                             </Link>
-                            <Link href="/orders" className="block px-4 py-2 text-[14px] text-[#5b403e] hover:bg-[#f7f5f4] hover:text-[#b51822]" onClick={() => setIsDropdownOpen(false)}>
+                            <Link href="/orders" className="block px-4 py-2 text-[14px] text-brand-gray-700 hover:bg-brand-gray-60 hover:text-brand-red" onClick={() => setIsDropdownOpen(false)}>
                               Pesanan Saya
                             </Link>
-                            <hr className="my-1 border-[#e5e2e1]" />
+                            <hr className="my-1 border-brand-gray-100" />
                             <button
                               onClick={() => {
                                 setIsDropdownOpen(false);
                                 handleLogout();
                               }}
-                              className="w-full text-left block px-4 py-2 text-[14px] text-[#b51822] hover:bg-[#fdf2f2] font-semibold"
+                              className="w-full text-left block px-4 py-2 text-[14px] text-brand-red hover:bg-brand-red-soft font-semibold"
                             >
                               Logout
                             </button>
@@ -212,13 +212,13 @@ export default function TopNavbar() {
                     <div className="lg:hidden flex items-center gap-1">
                       {/* Cart Icon */}
                       <button
-                        className="relative flex h-10 w-10 items-center justify-center text-[#5b403e] hover:text-[#b51822] transition-colors"
+                        className="relative flex h-10 w-10 items-center justify-center text-brand-gray-700 hover:text-brand-red transition-colors"
                         onClick={() => router.push('/cart')}
                         aria-label="Keranjang"
                       >
                         <ShoppingCart className="h-[22px] w-[22px]" />
                         {itemCount > 0 && (
-                          <span className="absolute top-0 right-0 bg-[#b51822] text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute top-0 right-0 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {itemCount > 99 ? '99+' : itemCount}
                           </span>
                         )}
@@ -226,12 +226,12 @@ export default function TopNavbar() {
 
                       {/* Bell Icon */}
                       <button
-                        className="relative flex h-10 w-10 items-center justify-center text-[#5b403e] hover:text-[#b51822] transition-colors"
+                        className="relative flex h-10 w-10 items-center justify-center text-brand-gray-700 hover:text-brand-red transition-colors"
                         aria-label="Notifikasi"
                         onClick={() => router.push('/notifications')}
                       >
                         <Bell className="h-[22px] w-[22px]" />
-                        <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#b51822] rounded-full" />
+                        <span className="absolute top-1.5 right-2 w-2 h-2 bg-brand-red rounded-full" />
                       </button>
                     </div>
                   </>
@@ -241,13 +241,13 @@ export default function TopNavbar() {
                     <div className="hidden lg:flex items-center gap-2">
                       <Link
                         href="/login"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[44px] px-4 py-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-transparent text-brand-gray-700 hover:text-brand-red hover:bg-brand-red-light h-[44px] px-4 py-3"
                       >
                         Masuk
                       </Link>
                       <Link
                         href="/register"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[44px] px-4 py-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-brand-red text-white hover:bg-brand-red-dark h-[44px] px-4 py-3"
                       >
                         Daftar
                       </Link>
@@ -257,13 +257,13 @@ export default function TopNavbar() {
                     <div className="lg:hidden flex items-center gap-2">
                       <Link
                         href="/login"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-transparent text-[#5b403e] hover:text-[#b51822] hover:bg-[#f0eded] h-[36px] px-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-transparent text-brand-gray-700 hover:text-brand-red hover:bg-brand-red-light h-[36px] px-3"
                       >
                         Masuk
                       </Link>
                       <Link
                         href="/register"
-                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-[#b51822] text-white hover:bg-[#90121a] h-[36px] px-3"
+                        className="inline-flex items-center justify-center font-bold text-[14px] leading-none rounded-md transition-all duration-200 bg-brand-red text-white hover:bg-brand-red-dark h-[36px] px-3"
                       >
                         Daftar
                       </Link>

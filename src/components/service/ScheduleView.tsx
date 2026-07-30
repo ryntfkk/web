@@ -25,7 +25,7 @@ const DAY_ORDER = [
 
 function formatTime(t: string): string {
   // Backend menyerialisasi kolom TIME sebagai RFC3339 ("0000-01-01T08:00:00Z")
-  // atau "HH:MM:SS" — ambil komponen jam:menit di mana pun posisinya
+  // atau "HH:MM:SS" â€” ambil komponen jam:menit di mana pun posisinya
   // (regex tidak boleh ter-anchor di awal string).
   const match = t.match(/(\d{2}):(\d{2})/);
   if (!match) return t;
@@ -43,10 +43,10 @@ export default function ScheduleView({
 }: ScheduleViewProps) {
   if (isLoading) {
     return (
-      <div className="rounded-xs border border-[#e5e2e1] bg-white p-4">
+      <div className="rounded-xs border border-brand-gray-100 bg-white p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Clock className="w-4 h-4 text-[#5b403e]" />
-          <h3 className="text-[14px] sm:text-[15px] font-semibold text-[#1c1b1b]">
+          <Clock className="w-4 h-4 text-brand-gray-700" />
+          <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
             Jadwal Mitra
           </h3>
         </div>
@@ -64,14 +64,14 @@ export default function ScheduleView({
 
   if (!workingHours || workingHours.length === 0) {
     return (
-      <div className="rounded-xs border border-[#e5e2e1] bg-white p-4">
+      <div className="rounded-xs border border-brand-gray-100 bg-white p-4">
         <div className="flex items-center gap-2 mb-2">
-          <CalendarOff className="w-4 h-4 text-[#8f6f6d]" />
-          <h3 className="text-[14px] sm:text-[15px] font-semibold text-[#1c1b1b]">
+          <CalendarOff className="w-4 h-4 text-brand-gray-400" />
+          <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
             Jadwal Mitra
           </h3>
         </div>
-        <p className="text-[12px] sm:text-[13px] text-[#8f6f6d]">
+        <p className="text-[12px] sm:text-[13px] text-brand-gray-400">
           Jam kerja belum ditentukan.
         </p>
       </div>
@@ -84,27 +84,27 @@ export default function ScheduleView({
   );
 
   return (
-    <div className="rounded-xs border border-[#e5e2e1] bg-white p-4">
+    <div className="rounded-xs border border-brand-gray-100 bg-white p-4">
       <div className="flex items-center gap-2 mb-3">
-        <Clock className="w-4 h-4 text-[#5b403e]" />
-        <h3 className="text-[14px] sm:text-[15px] font-semibold text-[#1c1b1b]">
+        <Clock className="w-4 h-4 text-brand-gray-700" />
+        <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
           Jadwal Mitra
         </h3>
       </div>
 
-      <div className="divide-y divide-[#e5e2e1]">
+      <div className="divide-y divide-brand-gray-100">
         {sorted.map((wh) => (
           <div
             key={wh.id || wh.day_of_week}
             className="flex items-center justify-between py-1.5 text-[13px] sm:text-[14px]"
           >
-            <span className="font-medium text-[#1c1b1b] min-w-[60px]">
+            <span className="font-medium text-brand-gray-900 min-w-[60px]">
               {DAY_NAMES[wh.day_of_week] || wh.day_of_week}
             </span>
-            <span className="text-[#5b403e]">
+            <span className="text-brand-gray-700">
               {wh.is_open
                 ? `${formatTime(wh.open_time)} - ${formatTime(wh.close_time)}`
-                : '—'}
+                : 'â€”'}
             </span>
             <span
               className={`text-[12px] font-medium min-w-[44px] text-right ${

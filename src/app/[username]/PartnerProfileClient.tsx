@@ -27,8 +27,8 @@ export default function PartnerProfileClient({ username }: { username: string })
   // Show loading state
   if (isProfileLoading) {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-[#b51822] border-t-transparent rounded-md"></div>
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-brand-red border-t-transparent rounded-md"></div>
       </div>
     );
   }
@@ -39,22 +39,22 @@ export default function PartnerProfileClient({ username }: { username: string })
       (profileError.message.includes('Failed to fetch') || profileError.message.includes('NetworkError'));
 
     return (
-      <div className="page-h bg-[#f7f5f4] flex flex-col items-center justify-center p-4">
+      <div className="page-h bg-brand-gray-60 flex flex-col items-center justify-center p-4">
         <div className="text-center max-w-md">
           {isNetworkError ? (
             <>
-              <div className="w-16 h-16 mx-auto mb-4 rounded-md bg-[#FED7D7] flex items-center justify-center">
-                <WifiOff className="w-8 h-8 text-[#b51822]" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-md bg-brand-error-light flex items-center justify-center">
+                <WifiOff className="w-8 h-8 text-brand-red" />
               </div>
-              <h1 className="text-2xl font-bold text-[#1c1b1b] mb-2">Koneksi Gagal</h1>
-              <p className="text-[#5b403e] mb-6">
+              <h1 className="text-2xl font-bold text-brand-gray-900 mb-2">Koneksi Gagal</h1>
+              <p className="text-brand-gray-700 mb-6">
                 Tidak dapat terhubung ke server. Pastikan Anda terhubung ke internet dan coba lagi.
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-bold text-[#1c1b1b] mb-2">Mitra Tidak Ditemukan</h1>
-              <p className="text-[#5b403e] mb-6">
+              <h1 className="text-2xl font-bold text-brand-gray-900 mb-2">Mitra Tidak Ditemukan</h1>
+              <p className="text-brand-gray-700 mb-6">
                 Maaf, kami tidak dapat menemukan profil mitra &quot;{username}&quot;.
               </p>
             </>
@@ -71,21 +71,21 @@ export default function PartnerProfileClient({ username }: { username: string })
   }
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-20 sm:pb-12">
+    <div className="page-h bg-brand-gray-60 pb-20 sm:pb-12">
       {/* Header kontekstual (tombol kembali) — hanya mobile. Di desktop TopNavbar
           sudah jadi satu-satunya header.
           top-0, bukan top-16: HeaderWrapper menyembunyikan TopNavbar di mobile
           untuk rute profil mitra, jadi tidak ada apa pun di atas header ini.
           Sebelumnya top-16 menggeser header ini ke bawah TopNavbar — menambal
           tampilan dua header, bukan menghapusnya. */}
-      <div className="bg-white px-4 py-3 sticky top-0 z-10 border-b border-[#e5e2e1] flex items-center gap-3 lg:hidden">
+      <div className="bg-white px-4 py-3 sticky top-0 z-10 border-b border-brand-gray-100 flex items-center gap-3 lg:hidden">
         <button
           onClick={() => router.back()}
-          className="p-1.5 -ml-1 hover:bg-[#f7f5f4] rounded-md transition-colors"
+          className="p-1.5 -ml-1 hover:bg-brand-gray-60 rounded-md transition-colors"
         >
-          <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+          <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
         </button>
-        <span className="font-semibold text-[#1c1b1b] truncate">{profile.name}</span>
+        <span className="font-semibold text-brand-gray-900 truncate">{profile.name}</span>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-8">
@@ -96,13 +96,13 @@ export default function PartnerProfileClient({ username }: { username: string })
           <div className="space-y-4 sm:space-y-6">
             {/* Tabs: Layanan / Portofolio */}
             <div id="services-tabs" className="bg-white rounded-md shadow-sm mb-4 sm:mb-6">
-              <div className="flex border-b border-[#e5e2e1]">
+              <div className="flex border-b border-brand-gray-100">
                 <button
                   onClick={() => setActiveTab('services')}
                   className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${
                     activeTab === 'services'
-                      ? 'border-[#b51822] text-[#b51822]'
-                      : 'border-transparent text-[#8f6f6d] hover:text-[#1c1b1b]'
+                      ? 'border-brand-red text-brand-red'
+                      : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
                   }`}
                 >
                   Layanan
@@ -111,8 +111,8 @@ export default function PartnerProfileClient({ username }: { username: string })
                   onClick={() => setActiveTab('portfolio')}
                   className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${
                     activeTab === 'portfolio'
-                      ? 'border-[#b51822] text-[#b51822]'
-                      : 'border-transparent text-[#8f6f6d] hover:text-[#1c1b1b]'
+                      ? 'border-brand-red text-brand-red'
+                      : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
                   }`}
                 >
                   Portofolio
@@ -130,17 +130,17 @@ export default function PartnerProfileClient({ username }: { username: string })
             {/* Trust signals — pricing transparency + off-platform warning */}
             <div className="bg-white rounded-md shadow-sm p-4 sm:p-5 space-y-3">
               <div className="flex items-start gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-[#3182CE] mt-0.5 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-brand-info mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-[#2A6296] mb-0.5">Pembayaran Dilindungi Escrow</p>
-                  <p className="text-xs text-[#5b403e] leading-snug">
+                  <p className="text-xs font-semibold text-brand-info-dark mb-0.5">Pembayaran Dilindungi Escrow</p>
+                  <p className="text-xs text-brand-gray-700 leading-snug">
                     Harga yang tertera adalah biaya jasa dasar. Biaya material atau peralatan tambahan, jika dibutuhkan, akan diajukan secara terpisah oleh mitra dan <strong>harus kamu setujui sebelum dibayar</strong>.
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-2.5 pt-3 border-t border-[#e5e2e1]">
-                <AlertTriangle className="w-4 h-4 text-[#D69E2E] mt-0.5 shrink-0" />
-                <p className="text-xs text-[#744210] leading-snug">
+              <div className="flex items-start gap-2.5 pt-3 border-t border-brand-gray-100">
+                <AlertTriangle className="w-4 h-4 text-brand-warning mt-0.5 shrink-0" />
+                <p className="text-xs text-brand-warning-dark leading-snug">
                   <strong>Jangan bayar di luar platform.</strong> Semua transaksi harus melalui Posko Jasa untuk mendapat perlindungan escrow dan garansi layanan.
                 </p>
               </div>

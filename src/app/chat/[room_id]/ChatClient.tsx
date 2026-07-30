@@ -21,8 +21,8 @@ export default function ChatClient({ roomId }: { roomId: string }) {
 
   if (authLoading) {
     return (
-      <div className="page-h flex items-center justify-center bg-[#f7f5f4]">
-        <Loader2 className="w-8 h-8 text-[#b51822] animate-spin" />
+      <div className="page-h flex items-center justify-center bg-brand-gray-60">
+        <Loader2 className="w-8 h-8 text-brand-red animate-spin" />
       </div>
     );
   }

@@ -72,36 +72,36 @@ export default function AddressesPage() {
     }
   };
 
-  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
+  if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized) return null;
 
   return (
     // pb-20 untuk memberi ruang fixed action bar "Tambah Alamat" di semua breakpoint.
-    <div className="page-h bg-[#f7f5f4] pb-20">
+    <div className="page-h bg-brand-gray-60 pb-20">
 
       <MobilePageHeader title="Buku Alamat" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b]">Buku Alamat</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900">Buku Alamat</h1>
         {loading ? (
           [1, 2].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-3 animate-pulse">
-              <div className="h-4 bg-[#e5e2e1] rounded w-1/4" />
-              <div className="h-3 bg-[#e5e2e1] rounded w-full" />
-              <div className="h-3 bg-[#e5e2e1] rounded w-3/4" />
+            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3 animate-pulse">
+              <div className="h-4 bg-brand-gray-100 rounded w-1/4" />
+              <div className="h-3 bg-brand-gray-100 rounded w-full" />
+              <div className="h-3 bg-brand-gray-100 rounded w-3/4" />
             </div>
           ))
         ) : addresses.length === 0 ? (
-          <div className="text-center py-10 bg-white rounded-xl border border-[#e5e2e1]">
-            <MapPin className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
-            <p className="text-sm text-[#5b403e] mb-4">Belum ada alamat tersimpan.</p>
+          <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100">
+            <MapPin className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
+            <p className="text-sm text-brand-gray-700 mb-4">Belum ada alamat tersimpan.</p>
           </div>
         ) : (
           addresses.map(a => (
-            <div key={a.id} className={`bg-white rounded-xl border p-4 transition-colors ${a.is_default ? 'border-[#b51822]' : 'border-[#e5e2e1]'}`}>
+            <div key={a.id} className={`bg-white rounded-xl border p-4 transition-colors ${a.is_default ? 'border-brand-red' : 'border-brand-gray-100'}`}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-[#1c1b1b] flex items-center gap-1.5">
+                  <h3 className="font-bold text-brand-gray-900 flex items-center gap-1.5">
                     {(() => {
                       const l = a.label.toLowerCase();
                       const Icon = l.includes('rumah') || l.includes('home')
@@ -109,32 +109,32 @@ export default function AddressesPage() {
                         : l.includes('kantor') || l.includes('kerja') || l.includes('office')
                           ? Briefcase
                           : MapPin;
-                      return <Icon className="w-4 h-4 text-[#b51822] shrink-0" />;
+                      return <Icon className="w-4 h-4 text-brand-red shrink-0" />;
                     })()}
                     {a.label}
                   </h3>
                   {a.is_default && (
-                    <span className="bg-[#b51822] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
+                    <span className="bg-brand-red text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
                       Utama
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Link href={`/profile/addresses/edit/${a.id}`}>
-                    <button className="p-1.5 text-brand-gray-450 hover:text-[#5b403e] hover:bg-[#f7f5f4] rounded transition-colors">
+                    <button className="p-1.5 text-brand-gray-450 hover:text-brand-gray-700 hover:bg-brand-gray-60 rounded transition-colors">
                       <Pencil className="w-4 h-4" />
                     </button>
                   </Link>
                   <button
                     onClick={() => setDeleteId(a.id)}
-                    className="p-1.5 text-brand-gray-450 hover:text-[#E53E3E] hover:bg-brand-error-soft rounded transition-colors"
+                    className="p-1.5 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-              {a.address_detail && <p className="text-sm font-semibold text-[#5b403e]">{a.address_detail}</p>}
-              <p className="text-sm text-[#5b403e] mt-1 leading-relaxed">
+              {a.address_detail && <p className="text-sm font-semibold text-brand-gray-700">{a.address_detail}</p>}
+              <p className="text-sm text-brand-gray-700 mt-1 leading-relaxed">
                 {a.address}
                 {a.postal_code ? ` (Kode Pos: ${a.postal_code})` : ''}
               </p>
@@ -142,7 +142,7 @@ export default function AddressesPage() {
               {!a.is_default && (
                 <button
                   onClick={() => handleSetPrimary(a.id)}
-                  className="mt-3 text-sm font-semibold text-[#b51822] hover:underline"
+                  className="mt-3 text-sm font-semibold text-brand-red hover:underline"
                 >
                   Jadikan Alamat Utama
                 </button>
@@ -153,10 +153,10 @@ export default function AddressesPage() {
       </div>
 
       {/* Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-20">
         <div className="max-w-lg mx-auto">
           <Button
-            className="w-full bg-[#b51822] hover:bg-[#90121a] rounded"
+            className="w-full bg-brand-red hover:bg-brand-red-dark rounded"
             onClick={() => router.push('/profile/addresses/new')}
             disabled={addresses.length >= 5}
           >
@@ -170,19 +170,19 @@ export default function AddressesPage() {
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#1c1b1b]">Hapus Alamat?</h3>
+              <h3 className="text-base font-semibold text-brand-gray-900">Hapus Alamat?</h3>
               <button onClick={() => setDeleteId(null)}>
                 <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-6">
+            <p className="text-sm text-brand-gray-700 mb-6">
               Alamat ini akan dihapus permanen dari buku alamat Anda.
             </p>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setDeleteId(null)}>
+              <Button variant="outline" className="flex-1 rounded border-brand-gray-100" onClick={() => setDeleteId(null)}>
                 Batal
               </Button>
-              <Button className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded" onClick={handleDelete}>
+              <Button className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded" onClick={handleDelete}>
                 Ya, Hapus
               </Button>
             </div>

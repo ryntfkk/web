@@ -24,10 +24,10 @@ function formatTime(time?: string | null) {
 }
 
 const statusColor: Record<string, string> = {
-  OPEN: 'bg-[#FFFBEB] text-[#744210]',
-  REVIEWING: 'bg-[#EBF8FF] text-[#2A6296]',
-  ACTIONED: 'bg-[#F0FFF4] text-[#276749]',
-  DISMISSED: 'bg-[#f0eded] text-[#5b403e]',
+  OPEN: 'bg-brand-warning-soft text-brand-warning-dark',
+  REVIEWING: 'bg-brand-info-soft text-brand-info-dark',
+  ACTIONED: 'bg-brand-success-soft text-brand-success-dark',
+  DISMISSED: 'bg-brand-red-light text-brand-gray-700',
 };
 
 export default function SupportListPage() {
@@ -62,21 +62,21 @@ export default function SupportListPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#f7f5f4]">
+    <div className="min-h-[100dvh] bg-brand-gray-60">
       {/* Header */}
       <MobilePageHeader
         title="Chat Customer Service"
-        icon={<LifeBuoy className="w-5 h-5 text-[#b51822]" />}
+        icon={<LifeBuoy className="w-5 h-5 text-brand-red" />}
       />
 
       <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
-        <h1 className="hidden lg:flex items-center gap-2 text-xl font-bold text-[#1c1b1b]">
-          <LifeBuoy className="w-5 h-5 text-[#b51822]" /> Chat Customer Service
+        <h1 className="hidden lg:flex items-center gap-2 text-xl font-bold text-brand-gray-900">
+          <LifeBuoy className="w-5 h-5 text-brand-red" /> Chat Customer Service
         </h1>
         <button
           onClick={startNewChat}
           disabled={creating}
-          className="w-full flex items-center justify-center gap-2 bg-[#b51822] hover:bg-[#90121a] text-white text-sm font-semibold rounded-lg py-3 disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white text-sm font-semibold rounded-lg py-3 disabled:opacity-60"
         >
           {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           Mulai Chat Baru dengan CS
@@ -84,12 +84,12 @@ export default function SupportListPage() {
 
         {loading ? (
           <div className="flex justify-center py-16">
-            <div className="w-6 h-6 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
           </div>
         ) : threads.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <MessageSquare className="w-12 h-12 text-[#e5e2e1] mb-3" />
-            <p className="text-sm text-[#9e8e8c]">Belum ada percakapan dengan CS.</p>
+            <MessageSquare className="w-12 h-12 text-brand-gray-100 mb-3" />
+            <p className="text-sm text-brand-gray-450">Belum ada percakapan dengan CS.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -99,30 +99,30 @@ export default function SupportListPage() {
                 <Link
                   key={t.id}
                   href={`/bantuan/${t.id}`}
-                  className="block bg-white rounded-lg border border-[#e5e2e1] p-3 hover:border-[#b51822]/40 transition-colors"
+                  className="block bg-white rounded-lg border border-brand-gray-100 p-3 hover:border-brand-red/40 transition-colors"
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                        statusColor[t.status] || 'bg-[#f0eded] text-[#5b403e]'
+                        statusColor[t.status] || 'bg-brand-red-light text-brand-gray-700'
                       }`}
                     >
                       {SUPPORT_STATUS_LABEL[t.status] || t.status}
                     </span>
-                    <span className="text-[11px] text-[#9e8e8c]">
+                    <span className="text-[11px] text-brand-gray-450">
                       {formatTime(t.last_message_at || t.created_at)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <p
                       className={`text-sm truncate ${
-                        hasUnread ? 'font-bold text-[#1c1b1b]' : 'text-[#5b403e]'
+                        hasUnread ? 'font-bold text-brand-gray-900' : 'text-brand-gray-700'
                       }`}
                     >
                       {t.last_message || t.description || 'Percakapan CS'}
                     </p>
                     {hasUnread && (
-                      <span className="shrink-0 min-w-[18px] h-[18px] bg-[#b51822] text-white text-[10px] font-bold flex items-center justify-center rounded-full px-1">
+                      <span className="shrink-0 min-w-[18px] h-[18px] bg-brand-red text-white text-[10px] font-bold flex items-center justify-center rounded-full px-1">
                         {t.unread_count}
                       </span>
                     )}

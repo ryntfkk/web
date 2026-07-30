@@ -227,16 +227,16 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
   // ── No ID ───────────────────────────────────────────────────────
   if (!serviceId) {
     return (
-      <div className="page-h bg-[#fcf9f8] flex items-center justify-center p-4">
+      <div className="page-h bg-brand-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-14 h-14 rounded-full bg-[#f0eded] flex items-center justify-center mx-auto mb-3">
-            <svg className="w-7 h-7 text-[#5b403e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-14 h-14 rounded-full bg-brand-red-light flex items-center justify-center mx-auto mb-3">
+            <svg className="w-7 h-7 text-brand-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-[#1c1b1b] mb-1">Layanan Tidak Ditemukan</h2>
-          <p className="text-sm text-[#5b403e] mb-4">Pilih layanan dari katalog kami.</p>
-          <Button onClick={() => router.push('/')} className="bg-[#b51822] hover:bg-[#90121a] text-white h-9 px-5 rounded-md text-sm">
+          <h2 className="text-lg font-semibold text-brand-gray-900 mb-1">Layanan Tidak Ditemukan</h2>
+          <p className="text-sm text-brand-gray-700 mb-4">Pilih layanan dari katalog kami.</p>
+          <Button onClick={() => router.push('/')} className="bg-brand-red hover:bg-brand-red-dark text-white h-9 px-5 rounded-md text-sm">
             Kembali ke Beranda
           </Button>
         </div>
@@ -247,16 +247,16 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
   // ── Loading ──────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="page-h bg-[#fcf9f8]">
+      <div className="page-h bg-brand-gray-50">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2">
-              <div className="w-full aspect-square bg-[#e5e2e1] rounded-md animate-pulse" />
+              <div className="w-full aspect-square bg-brand-gray-100 rounded-md animate-pulse" />
             </div>
             <div className="w-full md:w-1/2 space-y-3">
-              <div className="h-6 bg-[#e5e2e1] rounded-md animate-pulse w-3/4" />
-              <div className="h-4 bg-[#e5e2e1] rounded-md animate-pulse w-1/2" />
-              <div className="h-10 bg-[#e5e2e1] rounded-md animate-pulse w-1/3 mt-6" />
+              <div className="h-6 bg-brand-gray-100 rounded-md animate-pulse w-3/4" />
+              <div className="h-4 bg-brand-gray-100 rounded-md animate-pulse w-1/2" />
+              <div className="h-10 bg-brand-gray-100 rounded-md animate-pulse w-1/3 mt-6" />
             </div>
           </div>
         </div>
@@ -267,18 +267,18 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
   // ── Error ───────────────────────────────────────────────────────
   if (isError || !service) {
     return (
-      <div className="page-h bg-[#fcf9f8] flex items-center justify-center p-4">
+      <div className="page-h bg-brand-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
             <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-[#1c1b1b] mb-1">Gagal Memuat</h2>
-          <p className="text-sm text-[#5b403e] mb-4">Tidak dapat memuat detail layanan.</p>
+          <h2 className="text-lg font-semibold text-brand-gray-900 mb-1">Gagal Memuat</h2>
+          <p className="text-sm text-brand-gray-700 mb-4">Tidak dapat memuat detail layanan.</p>
           <div className="flex gap-2 justify-center">
-            <Button variant="outline" onClick={() => refetch()} className="border-[#e5e2e1] h-9 px-4 rounded-md text-sm">Coba Lagi</Button>
-            <Button onClick={() => router.push('/')} className="bg-[#b51822] hover:bg-[#90121a] text-white h-9 px-4 rounded-md text-sm">Kembali</Button>
+            <Button variant="outline" onClick={() => refetch()} className="border-brand-gray-100 h-9 px-4 rounded-md text-sm">Coba Lagi</Button>
+            <Button onClick={() => router.push('/')} className="bg-brand-red hover:bg-brand-red-dark text-white h-9 px-4 rounded-md text-sm">Kembali</Button>
           </div>
         </div>
       </div>
@@ -318,7 +318,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
             {/* Left: Images */}
             <div className="w-full md:w-[42%] p-3 sm:p-4">
               {/* Main Image — swipeable carousel (all photos) */}
-              <div className="relative w-full aspect-square bg-[#fafafa] rounded-md overflow-hidden group">
+              <div className="relative w-full aspect-square bg-brand-gray-25 rounded-md overflow-hidden group">
                 {/* Distance Badge */}
                 {distance && (
                   <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded flex items-center gap-1 z-10">
@@ -392,17 +392,17 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
               )}
 
               {/* Share & Favorite */}
-              <div className="hidden sm:flex items-center gap-4 mt-4 pt-3 border-t border-[#e5e2e1]">
-                <span className="text-xs text-[#5b403e]">Bagikan:</span>
-                <button onClick={handleShare} className="flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#b51822]">
+              <div className="hidden sm:flex items-center gap-4 mt-4 pt-3 border-t border-brand-gray-100">
+                <span className="text-xs text-brand-gray-700">Bagikan:</span>
+                <button onClick={handleShare} className="flex items-center gap-1 text-xs text-brand-gray-700 hover:text-brand-red">
                   <Share2 className="w-3.5 h-3.5" />
                   {shareCopied ? 'Tersalin!' : 'Share'}
                 </button>
                 <button
                   onClick={handleFavToggle}
                   disabled={favBusy}
-                  className={`flex items-center gap-1 text-xs hover:text-[#b51822] disabled:opacity-50 ${
-                    isFav ? 'text-[#b51822]' : 'text-[#5b403e]'
+                  className={`flex items-center gap-1 text-xs hover:text-brand-red disabled:opacity-50 ${
+                    isFav ? 'text-brand-red' : 'text-brand-gray-700'
                   }`}
                 >
                   <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
@@ -415,10 +415,10 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
             <div className="flex-1 p-3 sm:p-4 sm:pl-0">
               {/* Title & Location */}
               <div className="mb-3">
-                <h1 className="text-lg sm:text-xl font-semibold text-[#1c1b1b] leading-tight mb-2">
+                <h1 className="text-lg sm:text-xl font-semibold text-brand-gray-900 leading-tight mb-2">
                   {service.name}
                 </h1>
-                <div className="flex items-center gap-3 text-xs text-[#5b403e]">
+                <div className="flex items-center gap-3 text-xs text-brand-gray-700">
                   <div className="flex items-center gap-1">
                     <Tag className="w-3 h-3" />
                     <span>{service.category_name}</span>
@@ -427,16 +427,16 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
               </div>
 
               {/* Rating, Reviews, Estimasi & Share */}
-              <div className="flex items-center justify-between gap-2 py-2.5 px-3 bg-[#fafafa] rounded-md mb-4">
+              <div className="flex items-center justify-between gap-2 py-2.5 px-3 bg-brand-gray-25 rounded-md mb-4">
                 <div className="flex items-center gap-3 flex-wrap min-w-0">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-[#D69E2E] text-[#D69E2E]" />
-                    <span className="font-semibold text-[#1c1b1b]">{(service.partner_avg_rating ?? 0).toFixed(1)}</span>
+                    <Star className="w-4 h-4 fill-brand-warning text-brand-warning" />
+                    <span className="font-semibold text-brand-gray-900">{(service.partner_avg_rating ?? 0).toFixed(1)}</span>
                   </div>
-                  <div className="w-px h-4 bg-[#e5e2e1]" />
-                  <span className="text-sm text-[#5b403e]">{service.partner_total_reviews} Ulasan</span>
-                  <div className="w-px h-4 bg-[#e5e2e1]" />
-                  <span className="flex items-center gap-1 text-sm text-[#5b403e]">
+                  <div className="w-px h-4 bg-brand-gray-100" />
+                  <span className="text-sm text-brand-gray-700">{service.partner_total_reviews} Ulasan</span>
+                  <div className="w-px h-4 bg-brand-gray-100" />
+                  <span className="flex items-center gap-1 text-sm text-brand-gray-700">
                     <Clock className="w-3.5 h-3.5" />
                     Estimasi {service.estimated_duration} menit
                   </span>
@@ -444,7 +444,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                 <button
                   onClick={handleShare}
                   aria-label="Bagikan layanan"
-                  className="flex-shrink-0 p-1.5 hover:bg-[#f0eded] rounded-full text-[#5b403e] hover:text-[#b51822] transition-colors"
+                  className="flex-shrink-0 p-1.5 hover:bg-brand-red-light rounded-full text-brand-gray-700 hover:text-brand-red transition-colors"
                 >
                   {shareCopied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
                 </button>
@@ -499,29 +499,29 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
               {/* Quick Info */}
               <div className="mb-4">
                 <button onClick={() => setShowSchedule(true)}
-                  className="inline-flex items-center gap-2 h-9 px-3 bg-white border border-[#e5e2e1] rounded-md hover:border-[#b51822] transition-colors text-sm text-[#1c1b1b]">
-                  <Calendar className="w-4 h-4 text-[#b51822]" />
+                  className="inline-flex items-center gap-2 h-9 px-3 bg-white border border-brand-gray-100 rounded-md hover:border-brand-red transition-colors text-sm text-brand-gray-900">
+                  <Calendar className="w-4 h-4 text-brand-red" />
                   Lihat Jadwal
                 </button>
               </div>
 
               {/* Partner */}
               <Link href={`/${service.partner_username}`}
-                className="flex items-center justify-between p-3 bg-[#fafafa] rounded-md hover:bg-[#f0eded] transition-colors mb-4">
+                className="flex items-center justify-between p-3 bg-brand-gray-25 rounded-md hover:bg-brand-red-light transition-colors mb-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-[#e5e2e1] overflow-hidden flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-brand-gray-100 overflow-hidden flex-shrink-0">
                     {service.partner_avatar_url ? (
                       <Image src={service.partner_avatar_url} alt={service.partner_name} width={48} height={48} className="object-cover w-full h-full" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-[#5b403e]">
+                      <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-brand-gray-700">
                         {getInitial(service.partner_name)}
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#1c1b1b] truncate">{service.partner_name}</p>
+                    <p className="text-sm font-semibold text-brand-gray-900 truncate">{service.partner_name}</p>
                     {service.partner_city && (
-                      <div className="flex items-center gap-1 text-xs text-[#5b403e] mt-0.5">
+                      <div className="flex items-center gap-1 text-xs text-brand-gray-700 mt-0.5">
                         <MapPin className="w-3 h-3 flex-shrink-0" />
                         <span className="truncate">{service.partner_city}</span>
                       </div>
@@ -529,7 +529,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                   </div>
                 </div>
                 <div className="flex-shrink-0 ml-2">
-                  <span className="text-[11px] font-medium text-[#b51822] bg-white border border-[#b51822] px-2.5 py-1.5 rounded-md">Lihat Profil</span>
+                  <span className="text-[11px] font-medium text-brand-red bg-white border border-brand-red px-2.5 py-1.5 rounded-md">Lihat Profil</span>
                 </div>
               </Link>
 
@@ -563,44 +563,44 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
           </div>
 
           {/* Bottom Section: Specs, Description & Details */}
-          <div className="border-t border-[#e5e2e1] p-4">
+          <div className="border-t border-brand-gray-100 p-4">
             {/* Informasi Layanan (spesifikasi lengkap dari database) */}
             <div className="mb-4">
-              <h3 className="text-sm font-semibold text-[#1c1b1b] mb-2">Informasi Layanan</h3>
-              <div className="divide-y divide-[#f0eded] text-sm">
+              <h3 className="text-sm font-semibold text-brand-gray-900 mb-2">Informasi Layanan</h3>
+              <div className="divide-y divide-brand-red-light text-sm">
                 <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Kategori</span>
-                  <span className="text-[#1c1b1b]">{service.category_name}</span>
+                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Kategori</span>
+                  <span className="text-brand-gray-900">{service.category_name}</span>
                 </div>
                 <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Estimasi Waktu Kerja</span>
-                  <span className="text-[#1c1b1b]">{service.estimated_duration} menit</span>
+                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Estimasi Waktu Kerja</span>
+                  <span className="text-brand-gray-900">{service.estimated_duration} menit</span>
                 </div>
                 <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Harga</span>
+                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Harga</span>
                   <span className="text-brand-gray-900">{formatRupiah(displayPrice)} <span className="text-brand-gray-700">/{unitLabel(service.unit)}</span></span>
                 </div>
                 {minOrder > 1 && (
                   <div className="flex py-2">
-                    <span className="w-40 flex-shrink-0 text-[#5b403e]">Minimal Order</span>
-                    <span className="text-[#1c1b1b]">{minOrder} {unitLabel(service.unit)}</span>
+                    <span className="w-40 flex-shrink-0 text-brand-gray-700">Minimal Order</span>
+                    <span className="text-brand-gray-900">{minOrder} {unitLabel(service.unit)}</span>
                   </div>
                 )}
                 <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Mitra</span>
-                  <Link href={`/${service.partner_username}`} className="text-[#b51822] hover:underline">
+                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Mitra</span>
+                  <Link href={`/${service.partner_username}`} className="text-brand-red hover:underline">
                     {service.partner_name}
                   </Link>
                 </div>
                 <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Rating Mitra</span>
-                  <span className="text-[#1c1b1b]">
+                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Rating Mitra</span>
+                  <span className="text-brand-gray-900">
                     {(service.partner_avg_rating ?? 0).toFixed(1)} ({service.partner_total_reviews} ulasan)
                   </span>
                 </div>
                 <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-[#5b403e]">Jumlah Foto</span>
-                  <span className="text-[#1c1b1b]">{allPhotos.length}</span>
+                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Jumlah Foto</span>
+                  <span className="text-brand-gray-900">{allPhotos.length}</span>
                 </div>
               </div>
             </div>
@@ -608,8 +608,8 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
             {/* Description */}
             {service.description && (
               <div className="mb-4">
-                <h3 className="text-sm font-semibold text-[#1c1b1b] mb-2">Deskripsi Layanan</h3>
-                <p className="text-sm text-[#5b403e] whitespace-pre-line leading-relaxed">
+                <h3 className="text-sm font-semibold text-brand-gray-900 mb-2">Deskripsi Layanan</h3>
+                <p className="text-sm text-brand-gray-700 whitespace-pre-line leading-relaxed">
                   {service.description}
                 </p>
               </div>
@@ -704,10 +704,10 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
             {/* top-0: sticky di sini relatif terhadap modal (max-h-[80vh]
                 overflow-auto), bukan terhadap viewport — top-16 membuat judulnya
                 mengambang 64px dari tepi atas modal saat isinya di-scroll. */}
-            <div className="sticky top-0 bg-white border-b border-[#e5e2e1] px-4 py-3 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[#1c1b1b]">Jadwal {service.partner_name}</h2>
-              <button onClick={() => setShowSchedule(false)} className="p-1 hover:bg-[#f0eded] rounded-full">
-                <X className="w-5 h-5 text-[#5b403e]" />
+            <div className="sticky top-0 bg-white border-b border-brand-gray-100 px-4 py-3 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-brand-gray-900">Jadwal {service.partner_name}</h2>
+              <button onClick={() => setShowSchedule(false)} className="p-1 hover:bg-brand-red-light rounded-full">
+                <X className="w-5 h-5 text-brand-gray-700" />
               </button>
             </div>
             <div className="p-4">

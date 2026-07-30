@@ -13,7 +13,7 @@ import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 export default function FeaturedServicesSection() {
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
 
-  // Lokasi = acuan. Ada lokasi → urut TERDEKAT; tanpa lokasi → terbaru.
+  // Lokasi = acuan. Ada lokasi â†’ urut TERDEKAT; tanpa lokasi â†’ terbaru.
   // Filter kota dihapus (jarak yang menentukan, bukan batas kota).
   const { data: partners, isLoading, isError, refetch } = usePartners({
     per_page: 6,
@@ -31,16 +31,16 @@ export default function FeaturedServicesSection() {
   return (
     <section className="mb-8 md:mb-12">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-[#1c1b1b]">
+        <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-brand-gray-900">
           Rekomendasi
         </h2>
-        <Link href="/search" className="text-[#b51822] font-bold text-[12px] sm:text-[14px] hover:bg-[#f0eded] px-3 py-1 rounded transition-colors">
+        <Link href="/search" className="text-brand-red font-bold text-[12px] sm:text-[14px] hover:bg-brand-red-light px-3 py-1 rounded transition-colors">
           Lihat Semua
         </Link>
       </div>
 
       {permissionStatus === 'denied' && (
-        <div className="mb-4 flex items-center gap-2 text-[12px] sm:text-[13px] text-[#5b403e] bg-[#fcf9f8] border border-[#e5e2e1] rounded-xs px-3 py-2">
+        <div className="mb-4 flex items-center gap-2 text-[12px] sm:text-[13px] text-brand-gray-700 bg-brand-gray-50 border border-brand-gray-100 rounded-xs px-3 py-2">
           <MapPinOff className="w-4 h-4 flex-shrink-0" />
           <span>Aktifkan lokasi untuk melihat rekomendasi mitra terdekat di sekitar Anda.</span>
         </div>
@@ -66,7 +66,7 @@ export default function FeaturedServicesSection() {
           </Button>
         </div>
       ) : partners?.length === 0 ? (
-        <div className="text-center text-[13px] sm:text-[14px] text-[#5b403e] py-8">
+        <div className="text-center text-[13px] sm:text-[14px] text-brand-gray-700 py-8">
           Belum ada mitra.
         </div>
       ) : (

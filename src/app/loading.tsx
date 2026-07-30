@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 export default function Loading() {
   return (
     <div className="page-h flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-[#b51822]" />
+      <Loader2 className="w-8 h-8 animate-spin text-brand-red" />
     </div>
   );
 }

@@ -46,7 +46,7 @@ export default function CategorySection() {
               aria-haspopup="dialog"
               className="group flex-shrink-0 w-[80px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
-              <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-[#fcf9f8] border border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:shadow-md transition-all relative overflow-hidden">
+              <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
                 <Image
                   src={cat.icon_url || '/icons/default.svg'}
                   alt={cat.name}
@@ -55,7 +55,7 @@ export default function CategorySection() {
                   sizes="(max-width: 640px) 64px, 72px"
                 />
               </div>
-              <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-[#1c1b1b] text-center leading-tight line-clamp-2 px-1">
+              <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-brand-gray-900 text-center leading-tight line-clamp-2 px-1">
                 {cat.name}
               </span>
             </button>
@@ -66,10 +66,10 @@ export default function CategorySection() {
             href="/categories"
             className="group flex-shrink-0 w-[80px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
           >
-            <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-[#f0eded] border border-dashed border-[#e5e2e1] rounded-2xl group-hover:border-[#b51822] group-hover:bg-[#fcf9f8] transition-all">
-              <span className="text-[#b51822] font-bold text-[24px]">+</span>
+            <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-2xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
+              <span className="text-brand-red font-bold text-[24px]">+</span>
             </div>
-            <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-[#b51822] text-center leading-tight px-1">
+            <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-brand-red text-center leading-tight px-1">
               Lainnya
             </span>
           </Link>
@@ -93,21 +93,21 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
       maxWidthClass="max-w-md"
       padded={false}
       header={
-        <div className="flex items-center justify-between border-b border-[#e5e2e1] px-5 pt-1 pb-3">
+        <div className="flex items-center justify-between border-b border-brand-gray-100 px-5 pt-1 pb-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[#e5e2e1] bg-[#fcf9f8]">
+            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-brand-gray-100 bg-brand-gray-50">
               <Image src={main.icon_url || '/icons/default.svg'} alt={main.name} fill className="object-cover" sizes="36px" />
             </div>
             <div className="min-w-0">
-              <h3 className="truncate text-[16px] font-bold text-[#1c1b1b]">{main.name}</h3>
-              <p className="text-[12px] text-[#8f6f6d]">Pilih subkategori</p>
+              <h3 className="truncate text-[16px] font-bold text-brand-gray-900">{main.name}</h3>
+              <p className="text-[12px] text-brand-gray-400">Pilih subkategori</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Tutup"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f5f3f2] text-[#5b403e] transition-colors hover:bg-[#e5e2e1]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gray-70 text-brand-gray-700 transition-colors hover:bg-brand-gray-100"
           >
             <X className="h-4 w-4" />
           </button>
@@ -119,7 +119,7 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
         <Link
           href={categoryHref(main)}
           onClick={onClose}
-          className="mb-3 flex items-center justify-between rounded-xl border border-[#b51822]/30 bg-[#b51822]/5 p-3 text-[13px] font-semibold text-[#b51822] transition-colors hover:bg-[#b51822]/10"
+          className="mb-3 flex items-center justify-between rounded-xl border border-brand-red/30 bg-brand-red/5 p-3 text-[13px] font-semibold text-brand-red transition-colors hover:bg-brand-red/10"
         >
           <span>Lihat semua di {main.name}</span>
           <ChevronRight className="h-4 w-4 shrink-0" />
@@ -135,7 +135,7 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
             ))}
           </div>
         ) : !subs || subs.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-[#8f6f6d]">
+          <p className="py-6 text-center text-[13px] text-brand-gray-400">
             Belum ada subkategori. Lihat semua layanan di {main.name} di atas.
           </p>
         ) : (
@@ -147,10 +147,10 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
                 onClick={onClose}
                 className="group flex flex-col items-center gap-2 p-1"
               >
-                <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-[#e5e2e1] bg-[#fcf9f8] transition-all group-hover:border-[#b51822] group-hover:shadow-md">
+                <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-brand-gray-100 bg-brand-gray-50 transition-all group-hover:border-brand-red group-hover:shadow-md">
                   <Image src={sub.icon_url || '/icons/default.svg'} alt={sub.name} fill className="object-cover" sizes="56px" />
                 </div>
-                <span className="line-clamp-2 text-center text-[11px] font-medium leading-tight text-[#1c1b1b]">
+                <span className="line-clamp-2 text-center text-[11px] font-medium leading-tight text-brand-gray-900">
                   {sub.name}
                 </span>
               </Link>

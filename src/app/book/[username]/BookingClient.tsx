@@ -576,7 +576,7 @@ export default function BookingClient() {
   }, []);
 
   if (!isAuthenticated) return null;
-  if (loading && step === 1) return <div className="page-h bg-[#f7f5f4] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading && step === 1) return <div className="page-h bg-brand-gray-60 flex items-center justify-center"><div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" /></div>;
 
 
   const selectedAddress = addresses.find((a) => a.id === addressId);
@@ -584,24 +584,24 @@ export default function BookingClient() {
 
   // Section Promo — dipakai di kolom kiri (mobile) & kolom kanan (desktop)
   const promoSection = (
-    <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-[#e5e2e1] flex items-center gap-2">
-        <Tag className="w-4 h-4 text-[#b51822]" />
-        <h2 className="text-sm font-bold text-[#1c1b1b]">Promo & Diskon</h2>
+    <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-brand-gray-100 flex items-center gap-2">
+        <Tag className="w-4 h-4 text-brand-red" />
+        <h2 className="text-sm font-bold text-brand-gray-900">Promo & Diskon</h2>
       </div>
       <div className="p-3 sm:p-4">
         <div className="flex gap-2">
-          <input type="text" value={promoCode} onChange={e => setPromoCode(e.target.value.toUpperCase())} placeholder="Masukkan kode promo" className="flex-1 min-w-0 p-2.5 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] uppercase" />
-          <Button variant="secondary" onClick={validatePromo} disabled={!promoCode} className="bg-[#e5e2e1] text-[#1c1b1b] hover:bg-[#d5d2d1] shrink-0">Gunakan</Button>
+          <input type="text" value={promoCode} onChange={e => setPromoCode(e.target.value.toUpperCase())} placeholder="Masukkan kode promo" className="flex-1 min-w-0 p-2.5 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red uppercase" />
+          <Button variant="secondary" onClick={validatePromo} disabled={!promoCode} className="bg-brand-gray-100 text-brand-gray-900 hover:bg-brand-gray-200 shrink-0">Gunakan</Button>
         </div>
         {promoDiscount > 0 && (
-          <div className="mt-3 p-2.5 bg-[#EBF8FF] border border-[#BEE3F8] rounded text-sm text-[#3182CE] flex items-center justify-between">
+          <div className="mt-3 p-2.5 bg-brand-info-soft border border-brand-info-light rounded text-sm text-brand-info flex items-center justify-between">
             <span className="flex items-center gap-1.5"><Tag className="w-4 h-4" /> Promo digunakan</span>
             <span className="font-semibold">- {formatPrice(promoDiscount)}</span>
           </div>
         )}
         {promoCode && promoDiscount === 0 && (
-          <p className="mt-2 text-xs text-[#9e8e8c]">
+          <p className="mt-2 text-xs text-brand-gray-450">
             Kode promo belum diterapkan — klik &quot;Gunakan&quot; untuk memvalidasi dan menerapkannya.
           </p>
         )}
@@ -611,37 +611,37 @@ export default function BookingClient() {
 
   // Section Kebijakan Pembatalan — ditampilkan di step 2 sebelum submit
   const cancelPolicySection = (
-    <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
+    <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
       <button
         className="w-full px-4 py-2.5 flex items-center justify-between gap-2 text-left"
         onClick={() => setShowCancelPolicy(v => !v)}
         aria-expanded={showCancelPolicy}
       >
         <div className="flex items-center gap-2">
-          <Info className="w-4 h-4 text-[#5b403e] shrink-0" />
-          <span className="text-sm font-semibold text-[#1c1b1b]">Kebijakan Pembatalan & Refund</span>
+          <Info className="w-4 h-4 text-brand-gray-700 shrink-0" />
+          <span className="text-sm font-semibold text-brand-gray-900">Kebijakan Pembatalan & Refund</span>
         </div>
-        {showCancelPolicy ? <ChevronUp className="w-4 h-4 text-[#9e8e8c]" /> : <ChevronDown className="w-4 h-4 text-[#9e8e8c]" />}
+        {showCancelPolicy ? <ChevronUp className="w-4 h-4 text-brand-gray-450" /> : <ChevronDown className="w-4 h-4 text-brand-gray-450" />}
       </button>
       {showCancelPolicy && (
-        <div className="px-4 pb-4 space-y-2 border-t border-[#e5e2e1] pt-3">
+        <div className="px-4 pb-4 space-y-2 border-t border-brand-gray-100 pt-3">
           <div className="flex items-start gap-2 text-sm">
-            <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
-            <span className="text-[#5b403e]"><strong>Kamu batalkan sebelum membayar</strong> → Gratis, belum ada biaya yang ditagihkan</span>
+            <span className="text-brand-success font-bold shrink-0 mt-0.5">✓</span>
+            <span className="text-brand-gray-700"><strong>Kamu batalkan sebelum membayar</strong> → Gratis, belum ada biaya yang ditagihkan</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
-            <span className="text-[#b51822] font-bold shrink-0 mt-0.5">✗</span>
-            <span className="text-[#5b403e]"><strong>Kamu batalkan setelah membayar</strong> → Tidak bisa batal sepihak; ajukan sengketa dan tim kami akan meninjau untuk menentukan refund</span>
+            <span className="text-brand-red font-bold shrink-0 mt-0.5">✗</span>
+            <span className="text-brand-gray-700"><strong>Kamu batalkan setelah membayar</strong> → Tidak bisa batal sepihak; ajukan sengketa dan tim kami akan meninjau untuk menentukan refund</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
-            <span className="text-[#38A169] font-bold shrink-0 mt-0.5">✓</span>
-            <span className="text-[#5b403e]"><strong>Mitra membatalkan / tidak datang (no-show)</strong> → Refund 100% biaya jasa + transport ke dompetmu</span>
+            <span className="text-brand-success font-bold shrink-0 mt-0.5">✓</span>
+            <span className="text-brand-gray-700"><strong>Mitra membatalkan / tidak datang (no-show)</strong> → Refund 100% biaya jasa + transport ke dompetmu</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
-            <span className="text-[#b51822] font-bold shrink-0 mt-0.5">✗</span>
-            <span className="text-[#5b403e]"><strong>Tidak konfirmasi dalam 24 jam</strong> setelah selesai → Dana cair ke mitra</span>
+            <span className="text-brand-red font-bold shrink-0 mt-0.5">✗</span>
+            <span className="text-brand-gray-700"><strong>Tidak konfirmasi dalam 24 jam</strong> setelah selesai → Dana cair ke mitra</span>
           </div>
-          <p className="text-xs text-[#9e8e8c] mt-2 pt-2 border-t border-[#e5e2e1]">Biaya admin/layanan platform tidak dikembalikan pada pembatalan.</p>
+          <p className="text-xs text-brand-gray-450 mt-2 pt-2 border-t border-brand-gray-100">Biaya admin/layanan platform tidak dikembalikan pada pembatalan.</p>
         </div>
       )}
     </div>
@@ -649,8 +649,8 @@ export default function BookingClient() {
 
   // Section Rincian Pembayaran — withAction=true menampilkan tombol submit (desktop)
   const summarySection = (withAction: boolean) => (
-    <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-3 shadow-sm">
-      <h3 className="text-sm font-bold text-[#1c1b1b] border-b border-[#e5e2e1] pb-2">Rincian Pembayaran</h3>
+    <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3 shadow-sm">
+      <h3 className="text-sm font-bold text-brand-gray-900 border-b border-brand-gray-100 pb-2">Rincian Pembayaran</h3>
 
       <div className="space-y-1.5">
         {selectedKeyList.map((k) => {
@@ -659,43 +659,43 @@ export default function BookingClient() {
           const v = variationOfKey(k);
           return (
             <div key={k} className="flex justify-between gap-3 text-sm">
-              <span className="text-[#5b403e] truncate">
+              <span className="text-brand-gray-700 truncate">
                 {s.name}
-                {v && <span className="text-[#9e8e8c]"> ({v.name})</span>}
-                <span className="text-[#9e8e8c]"> × {qtyOfKey(k)} {unitLabel(s.unit)}</span>
+                {v && <span className="text-brand-gray-450"> ({v.name})</span>}
+                <span className="text-brand-gray-450"> × {qtyOfKey(k)} {unitLabel(s.unit)}</span>
               </span>
-              <span className="font-medium text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOfKey(k) * qtyOfKey(k))}</span>
+              <span className="font-medium text-brand-gray-900 shrink-0">{formatPrice(unitPriceOfKey(k) * qtyOfKey(k))}</span>
             </div>
           );
         })}
       </div>
 
-      <div className="space-y-1.5 text-sm pt-2.5 border-t border-[#e5e2e1]">
-        <div className="flex justify-between text-[#5b403e]">
+      <div className="space-y-1.5 text-sm pt-2.5 border-t border-brand-gray-100">
+        <div className="flex justify-between text-brand-gray-700">
           <span>Subtotal Jasa</span>
           <span>{formatPrice(previewQuote ? previewQuote.total_service_price : subtotal)}</span>
         </div>
         {previewQuote && (
           <>
-            <div className="flex justify-between text-[#5b403e]">
+            <div className="flex justify-between text-brand-gray-700">
               <span>Biaya Transportasi</span>
               <span>{formatPrice(previewQuote.transport_fee)}</span>
             </div>
-            <div className="flex justify-between text-[#5b403e]">
+            <div className="flex justify-between text-brand-gray-700">
               <span>Biaya Layanan (Platform)</span>
               <span>{formatPrice(previewQuote.admin_fee)}</span>
             </div>
           </>
         )}
         {promoDiscount > 0 && (
-          <div className="flex justify-between text-[#38A169]">
+          <div className="flex justify-between text-brand-success">
             <span>Diskon Promo</span>
             <span>- {formatPrice(promoDiscount)}</span>
           </div>
         )}
-        <div className="flex justify-between font-bold text-base text-[#1c1b1b] pt-2 border-t border-[#e5e2e1]">
+        <div className="flex justify-between font-bold text-base text-brand-gray-900 pt-2 border-t border-brand-gray-100">
           <span>Total Bayar</span>
-          <span className="text-[#b51822]">
+          <span className="text-brand-red">
             {previewLoading ? 'Menghitung...' : formatPrice(previewQuote ? previewQuote.agreed_price : totalPayment)}
           </span>
         </div>
@@ -704,33 +704,33 @@ export default function BookingClient() {
       {withAction && (
         <div className="pt-1 space-y-2">
           {/* Escrow education banner */}
-          <div className="p-3 bg-[#EBF8FF] border border-[#BEE3F8] rounded-lg flex items-start gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#3182CE] shrink-0 mt-0.5" />
+          <div className="p-3 bg-brand-info-soft border border-brand-info-light rounded-lg flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-brand-info shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-[#2A6296]">Pembayaran 100% Aman — Escrow Posko Jasa</p>
-              <p className="text-[11px] text-[#3182CE] mt-0.5 leading-snug">
+              <p className="text-xs font-semibold text-brand-info-dark">Pembayaran 100% Aman — Escrow Posko Jasa</p>
+              <p className="text-[11px] text-brand-info mt-0.5 leading-snug">
                 Uangmu <strong>ditahan oleh Posko Jasa</strong>, bukan langsung ke mitra. Dana baru cair setelah kamu konfirmasi pekerjaan selesai.
               </p>
             </div>
           </div>
           {/* No off-platform payment warning */}
-          <div className="p-2.5 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg flex items-center gap-2">
-            <AlertTriangle className="w-3.5 h-3.5 text-[#D69E2E] shrink-0" />
-            <p className="text-[11px] text-[#744210]">
+          <div className="p-2.5 bg-brand-warning-soft border border-brand-warning-border rounded-lg flex items-center gap-2">
+            <AlertTriangle className="w-3.5 h-3.5 text-brand-warning shrink-0" />
+            <p className="text-[11px] text-brand-warning-dark">
               Selalu bayar melalui platform. <strong>Jangan bayar cash/transfer langsung</strong> ke mitra — tidak ada perlindungan escrow.
             </p>
           </div>
           {errorMsg && (
-            <div className="p-2.5 bg-[#FFF5F5] border border-[#FEB2B2] rounded text-xs text-[#E53E3E] flex items-center gap-2">
+            <div className="p-2.5 bg-brand-error-soft border border-brand-error-border rounded text-xs text-brand-error flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
           {successMsg && (
-            <div className="p-2.5 bg-[#F0FFF4] border border-[#9AE6B4] rounded text-xs text-[#38A169]">{successMsg}</div>
+            <div className="p-2.5 bg-brand-success-soft border border-brand-success-border rounded text-xs text-brand-success">{successMsg}</div>
           )}
           <Button
-            className="w-full bg-[#b51822] hover:bg-[#90121a] rounded py-5"
+            className="w-full bg-brand-red hover:bg-brand-red-dark rounded py-5"
             onClick={submitOrder}
             disabled={loading || !date || !time || !addressId || isOwnPartner}
           >
@@ -742,21 +742,21 @@ export default function BookingClient() {
   );
 
   return (
-    <div className={`page-h bg-[#f7f5f4] ${step === 2 ? 'pb-28 lg:pb-10' : 'pb-28'}`}>
+    <div className={`page-h bg-brand-gray-60 ${step === 2 ? 'pb-28 lg:pb-10' : 'pb-28'}`}>
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:relative lg:z-auto">
+      <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:relative lg:z-auto">
         <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto flex items-center gap-3`}>
-          <button onClick={() => step === 2 ? handlePrev() : router.back()} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+          <button onClick={() => step === 2 ? handlePrev() : router.back()} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <div>
-            <h1 className="text-base font-bold text-[#1c1b1b]">{step === 2 ? 'Lengkapi Pesanan' : 'Pilih Layanan'}</h1>
-            <p className="text-xs text-[#9e8e8c]">Langkah {step} dari 2</p>
+            <h1 className="text-base font-bold text-brand-gray-900">{step === 2 ? 'Lengkapi Pesanan' : 'Pilih Layanan'}</h1>
+            <p className="text-xs text-brand-gray-450">Langkah {step} dari 2</p>
           </div>
         </div>
         {/* Progress bar */}
-        <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto mt-4 bg-[#e5e2e1] h-1.5 rounded-full overflow-hidden`}>
-          <div className="bg-[#b51822] h-full transition-all duration-300" style={{ width: `${(step / 2) * 100}%` }} />
+        <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto mt-4 bg-brand-gray-100 h-1.5 rounded-full overflow-hidden`}>
+          <div className="bg-brand-red h-full transition-all duration-300" style={{ width: `${(step / 2) * 100}%` }} />
         </div>
       </div>
 
@@ -764,8 +764,8 @@ export default function BookingClient() {
         {step === 1 && (
           <div className="space-y-4">
             {/* Header mitra */}
-            <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 flex items-center gap-3">
-              <div className="relative w-11 h-11 rounded-full overflow-hidden bg-[#f0eded] shrink-0">
+            <div className="bg-white rounded-xl border border-brand-gray-100 p-4 flex items-center gap-3">
+              <div className="relative w-11 h-11 rounded-full overflow-hidden bg-brand-red-light shrink-0">
                 <Image
                   src={partner?.avatar_url || PLACEHOLDER_AVATAR}
                   alt={partner?.name || 'Mitra'}
@@ -775,15 +775,15 @@ export default function BookingClient() {
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-[#1c1b1b] truncate">{partner?.name}</p>
-                <p className="text-xs text-[#9e8e8c]">Pilih satu atau lebih layanan di bawah ini</p>
+                <p className="text-sm font-bold text-brand-gray-900 truncate">{partner?.name}</p>
+                <p className="text-xs text-brand-gray-450">Pilih satu atau lebih layanan di bawah ini</p>
               </div>
             </div>
 
             {isOwnPartner && (
-              <div className="p-3 bg-[#FFF5F5] border border-[#FEB2B2] rounded-xl flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-[#E53E3E] shrink-0 mt-0.5" />
-                <p className="text-xs text-[#742A2A] leading-snug">
+              <div className="p-3 bg-brand-error-soft border border-brand-error-border rounded-xl flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-brand-error shrink-0 mt-0.5" />
+                <p className="text-xs text-brand-error-dark leading-snug">
                   <strong>Ini profil mitra kamu sendiri.</strong> Kamu tidak dapat memesan layanan milikmu sendiri.
                 </p>
               </div>
@@ -814,18 +814,18 @@ export default function BookingClient() {
                 // aktif jadi baris pesanan sendiri (bisa 2 variasi sekaligus).
                 const anyActive = vars.some((v) => selectedLines[lineKey(s.id, v.id)]);
                 return (
-                  <div key={s.id} className={`rounded-xl border bg-white overflow-hidden ${anyActive ? 'border-[#b51822]' : 'border-[#e5e2e1]'}`}>
+                  <div key={s.id} className={`rounded-xl border bg-white overflow-hidden ${anyActive ? 'border-brand-red' : 'border-brand-gray-100'}`}>
                     <div className="flex items-center gap-3 p-3">
-                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#f0eded] shrink-0">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-brand-red-light shrink-0">
                         {servicePhoto(s) ? (
                           <Image src={servicePhoto(s)!} alt={s.name} fill className="object-cover" sizes="48px" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center"><Tag className="w-4 h-4 text-[#9e8e8c]" /></div>
+                          <div className="w-full h-full flex items-center justify-center"><Tag className="w-4 h-4 text-brand-gray-450" /></div>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#1c1b1b] truncate">{s.name}</p>
-                        <p className="text-xs text-[#9e8e8c]">
+                        <p className="text-sm font-semibold text-brand-gray-900 truncate">{s.name}</p>
+                        <p className="text-xs text-brand-gray-450">
                           Mulai Rp {Math.min(...vars.map((v) => v.price)).toLocaleString('id-ID')} · pilih variasi
                         </p>
                       </div>
@@ -838,7 +838,7 @@ export default function BookingClient() {
                             key={v.id}
                             type="button"
                             onClick={() => toggleLine(s.id, v.id)}
-                            className={`px-3 py-1.5 rounded border text-xs transition-colors ${active ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}
+                            className={`px-3 py-1.5 rounded border text-xs transition-colors ${active ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 text-brand-gray-700 hover:border-brand-red/50'}`}
                           >
                             {v.name} · Rp {v.price.toLocaleString('id-ID')}
                           </button>
@@ -858,14 +858,14 @@ export default function BookingClient() {
             <div className="space-y-3 lg:space-y-4">
 
               {/* Alamat (compact: hanya alamat terpilih + tombol Ganti) */}
-              <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-[#e5e2e1] flex items-center justify-between">
+              <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-brand-gray-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-[#b51822]" />
-                    <h2 className="text-sm font-bold text-[#1c1b1b]">Alamat Pengerjaan</h2>
+                    <MapPin className="w-4 h-4 text-brand-red" />
+                    <h2 className="text-sm font-bold text-brand-gray-900">Alamat Pengerjaan</h2>
                   </div>
                   {addresses.length > 0 && (
-                    <button onClick={() => setShowAddressList(v => !v)} className="text-xs font-semibold text-[#b51822] hover:underline">
+                    <button onClick={() => setShowAddressList(v => !v)} className="text-xs font-semibold text-brand-red hover:underline">
                       {showAddressList ? 'Tutup' : 'Ganti'}
                     </button>
                   )}
@@ -877,10 +877,10 @@ export default function BookingClient() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 mb-0.5">
-                              <span className="font-semibold text-[#1c1b1b] text-sm">{selectedAddress.label}</span>
-                              {selectedAddress.is_default && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                              <span className="font-semibold text-brand-gray-900 text-sm">{selectedAddress.label}</span>
+                              {selectedAddress.is_default && <span className="text-[10px] bg-brand-gray-100 text-brand-gray-700 px-1.5 py-0.5 rounded font-medium">Utama</span>}
                             </div>
-                            <p className="text-xs text-[#5b403e] leading-snug">{selectedAddress.address}</p>
+                            <p className="text-xs text-brand-gray-700 leading-snug">{selectedAddress.address}</p>
                           </div>
                           {/* Edit koordinat/alamat — buka di tab baru agar isian pesanan tidak hilang. */}
                           <a
@@ -888,7 +888,7 @@ export default function BookingClient() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => { addressEditedRef.current = true; }}
-                            className="text-xs font-semibold text-[#b51822] hover:underline shrink-0"
+                            className="text-xs font-semibold text-brand-red hover:underline shrink-0"
                           >
                             Edit
                           </a>
@@ -904,44 +904,44 @@ export default function BookingClient() {
                               className="h-40"
                               linkLabel="Buka di Google Maps"
                             />
-                            <p className="text-[11px] text-[#9e8e8c] leading-snug">
-                              Pastikan pin sudah tepat di lokasi pengerjaan — biaya transport dihitung dari titik ini. Jika kurang tepat, tekan <span className="font-semibold text-[#b51822]">Edit</span> untuk memindahkan pin.
+                            <p className="text-[11px] text-brand-gray-450 leading-snug">
+                              Pastikan pin sudah tepat di lokasi pengerjaan — biaya transport dihitung dari titik ini. Jika kurang tepat, tekan <span className="font-semibold text-brand-red">Edit</span> untuk memindahkan pin.
                             </p>
                           </>
                         ) : (
-                          <div className="p-2.5 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg flex items-start gap-2">
-                            <AlertTriangle className="w-3.5 h-3.5 text-[#D69E2E] shrink-0 mt-0.5" />
-                            <p className="text-[11px] text-[#744210] leading-snug">
+                          <div className="p-2.5 bg-brand-warning-soft border border-brand-warning-border rounded-lg flex items-start gap-2">
+                            <AlertTriangle className="w-3.5 h-3.5 text-brand-warning shrink-0 mt-0.5" />
+                            <p className="text-[11px] text-brand-warning-dark leading-snug">
                               Alamat ini belum memiliki titik koordinat di peta. Tekan <span className="font-semibold">Edit</span> untuk menandai lokasi agar biaya transport akurat.
                             </p>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <Button variant="outline" className="w-full border-dashed border-2 border-[#e5e2e1] text-[#b51822] hover:bg-[#FFF5F5] hover:border-[#b51822]/50 rounded-xl" onClick={() => router.push('/profile/addresses/new')}>
+                      <Button variant="outline" className="w-full border-dashed border-2 border-brand-gray-100 text-brand-red hover:bg-brand-error-soft hover:border-brand-red/50 rounded-xl" onClick={() => router.push('/profile/addresses/new')}>
                         + Tambah Alamat Baru
                       </Button>
                     )
                   ) : (
                     <div className="space-y-2">
                       {addresses.map(a => (
-                        <label key={a.id} className={`block p-3 rounded-lg border cursor-pointer transition-colors ${addressId === a.id ? 'border-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1] bg-white hover:border-[#b51822]/40'}`}>
+                        <label key={a.id} className={`block p-3 rounded-lg border cursor-pointer transition-colors ${addressId === a.id ? 'border-brand-red bg-brand-error-soft' : 'border-brand-gray-100 bg-white hover:border-brand-red/40'}`}>
                           <div className="flex gap-2.5 items-start">
-                            <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${addressId === a.id ? 'border-[#b51822]' : 'border-[#9e8e8c]'}`}>
-                              {addressId === a.id && <div className="w-2 h-2 bg-[#b51822] rounded-full" />}
+                            <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${addressId === a.id ? 'border-brand-red' : 'border-brand-gray-450'}`}>
+                              {addressId === a.id && <div className="w-2 h-2 bg-brand-red rounded-full" />}
                             </div>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2 mb-0.5">
-                                <span className="font-semibold text-[#1c1b1b] text-sm">{a.label}</span>
-                                {a.is_default && <span className="text-[10px] bg-[#e5e2e1] text-[#5b403e] px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                                <span className="font-semibold text-brand-gray-900 text-sm">{a.label}</span>
+                                {a.is_default && <span className="text-[10px] bg-brand-gray-100 text-brand-gray-700 px-1.5 py-0.5 rounded font-medium">Utama</span>}
                               </div>
-                              <p className="text-xs text-[#5b403e] leading-snug">{a.address}</p>
+                              <p className="text-xs text-brand-gray-700 leading-snug">{a.address}</p>
                             </div>
                           </div>
                           <input type="radio" name="address" className="hidden" checked={addressId === a.id} onChange={() => { setAddressId(a.id); setShowAddressList(false); }} />
                         </label>
                       ))}
-                      <button onClick={() => router.push('/profile/addresses/new')} className="w-full p-2.5 border-2 border-dashed border-[#e5e2e1] rounded-lg text-sm font-medium text-[#b51822] hover:bg-[#FFF5F5] hover:border-[#b51822]/50 transition-colors">
+                      <button onClick={() => router.push('/profile/addresses/new')} className="w-full p-2.5 border-2 border-dashed border-brand-gray-100 rounded-lg text-sm font-medium text-brand-red hover:bg-brand-error-soft hover:border-brand-red/50 transition-colors">
                         + Tambah Alamat Baru
                       </button>
                     </div>
@@ -950,22 +950,22 @@ export default function BookingClient() {
               </div>
 
               {/* Jadwal (tanggal & waktu berdampingan di layar >= sm) */}
-              <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-[#e5e2e1] flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#b51822]" />
-                  <h2 className="text-sm font-bold text-[#1c1b1b]">Jadwal Pengerjaan</h2>
+              <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-brand-gray-100 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-brand-red" />
+                  <h2 className="text-sm font-bold text-brand-gray-900">Jadwal Pengerjaan</h2>
                 </div>
                 <div className="p-3 sm:p-4 grid gap-3 sm:grid-cols-[170px_minmax(0,1fr)]">
                   <div>
-                    <label className="block text-xs font-semibold text-[#5b403e] mb-1.5">Tanggal</label>
-                    <input type="date" value={date} onChange={e => { setDate(e.target.value); setTime(''); }} className="w-full p-2.5 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]" min={new Date().toISOString().split('T')[0]} />
+                    <label className="block text-xs font-semibold text-brand-gray-700 mb-1.5">Tanggal</label>
+                    <input type="date" value={date} onChange={e => { setDate(e.target.value); setTime(''); }} className="w-full p-2.5 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red" min={new Date().toISOString().split('T')[0]} />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[#5b403e] mb-1.5">Waktu</label>
+                    <label className="block text-xs font-semibold text-brand-gray-700 mb-1.5">Waktu</label>
                     {slotsLoading ? (
-                      <div className="text-sm text-[#5b403e] py-2">Memuat jadwal...</div>
+                      <div className="text-sm text-brand-gray-700 py-2">Memuat jadwal...</div>
                     ) : !date ? (
-                      <div className="text-sm text-[#9e8e8c] py-2">Pilih tanggal terlebih dahulu</div>
+                      <div className="text-sm text-brand-gray-450 py-2">Pilih tanggal terlebih dahulu</div>
                     ) : availableSlots.length === 0 ? (
                       <div className="text-sm text-red-600 py-2">
                         {slotsReason === 'day_off' && 'Mitra libur pada hari ini. Silakan pilih tanggal lain.'}
@@ -983,7 +983,7 @@ export default function BookingClient() {
                           const isDisabled = slotInstant.getTime() < Date.now() + 2 * 60 * 60 * 1000;
 
                           return (
-                            <button key={t} onClick={() => setTime(t)} disabled={isDisabled} className={`py-1.5 rounded border text-sm font-medium transition-colors ${isDisabled ? 'border-[#e5e2e1] text-[#9e8e8c] bg-[#f7f5f4] opacity-50 cursor-not-allowed' : time === t ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]' : 'border-[#e5e2e1] text-[#5b403e] hover:border-[#b51822]/50'}`}>
+                            <button key={t} onClick={() => setTime(t)} disabled={isDisabled} className={`py-1.5 rounded border text-sm font-medium transition-colors ${isDisabled ? 'border-brand-gray-100 text-brand-gray-450 bg-brand-gray-60 opacity-50 cursor-not-allowed' : time === t ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 text-brand-gray-700 hover:border-brand-red/50'}`}>
                               {t}
                             </button>
                           );
@@ -995,12 +995,12 @@ export default function BookingClient() {
               </div>
 
               {/* Layanan dipesan (thumbnail ala marketplace) */}
-              <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-[#e5e2e1] flex items-center justify-between">
-                  <h2 className="text-sm font-bold text-[#1c1b1b]">Layanan Dipesan <span className="text-[#9e8e8c] font-normal">({selectedCount})</span></h2>
-                  <button onClick={handlePrev} className="text-xs font-semibold text-[#b51822] hover:underline">Ubah</button>
+              <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-brand-gray-100 flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-brand-gray-900">Layanan Dipesan <span className="text-brand-gray-450 font-normal">({selectedCount})</span></h2>
+                  <button onClick={handlePrev} className="text-xs font-semibold text-brand-red hover:underline">Ubah</button>
                 </div>
-                <div className="divide-y divide-[#f0eded]">
+                <div className="divide-y divide-brand-red-light">
                   {selectedKeyList.map((k) => {
                     const s = serviceById(parseKey(k).serviceId);
                     if (!s) return null;
@@ -1009,28 +1009,28 @@ export default function BookingClient() {
                     const dur = serviceDuration(s) || 0;
                     return (
                     <div key={k} className="flex items-center gap-3 px-3 sm:px-4 py-2.5">
-                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#f0eded] shrink-0">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-brand-red-light shrink-0">
                         {servicePhoto(s) ? (
                           <Image src={servicePhoto(s)!} alt={s.name} fill className="object-cover" sizes="48px" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center"><Tag className="w-4 h-4 text-[#9e8e8c]" /></div>
+                          <div className="w-full h-full flex items-center justify-center"><Tag className="w-4 h-4 text-brand-gray-450" /></div>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#1c1b1b] truncate">{s.name}</p>
-                        {v && <p className="text-xs text-[#b51822] truncate">{v.name}</p>}
-                        {dur ? <p className="text-xs text-[#9e8e8c]">± {dur * qty} menit</p> : null}
+                        <p className="text-sm font-semibold text-brand-gray-900 truncate">{s.name}</p>
+                        {v && <p className="text-xs text-brand-red truncate">{v.name}</p>}
+                        {dur ? <p className="text-xs text-brand-gray-450">± {dur * qty} menit</p> : null}
                         {/* Stepper kuantitas (jumlah jam / unit / jasa / kg) */}
                         <div className="flex items-center gap-2 mt-1.5">
                           <button type="button" aria-label="Kurangi" onClick={() => setQtyKey(k, qty - 1)} disabled={qty <= minOrderOfKey(k)}
-                            className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">−</button>
-                          <span className="text-xs font-semibold text-[#1c1b1b] min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
+                            className="w-6 h-6 rounded border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:border-brand-red/50 disabled:opacity-40 disabled:cursor-not-allowed">−</button>
+                          <span className="text-xs font-semibold text-brand-gray-900 min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
                           <button type="button" aria-label="Tambah" onClick={() => setQtyKey(k, qty + 1)} disabled={qty >= 100}
-                            className="w-6 h-6 rounded border border-[#e5e2e1] flex items-center justify-center text-[#5b403e] hover:border-[#b51822]/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
-                          {minOrderOfKey(k) > 1 && <span className="text-[10px] text-[#9e8e8c]">min {minOrderOfKey(k)}</span>}
+                            className="w-6 h-6 rounded border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:border-brand-red/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
+                          {minOrderOfKey(k) > 1 && <span className="text-[10px] text-brand-gray-450">min {minOrderOfKey(k)}</span>}
                         </div>
                       </div>
-                      <p className="text-sm font-bold text-[#1c1b1b] shrink-0">{formatPrice(unitPriceOfKey(k) * qty)}</p>
+                      <p className="text-sm font-bold text-brand-gray-900 shrink-0">{formatPrice(unitPriceOfKey(k) * qty)}</p>
                     </div>
                     );
                   })}
@@ -1038,14 +1038,14 @@ export default function BookingClient() {
               </div>
 
               {/* Catatan & Foto */}
-              <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-[#e5e2e1]">
-                  <h2 className="text-sm font-bold text-[#1c1b1b]">Catatan & Foto <span className="text-[#9e8e8c] font-normal text-xs">(Opsional)</span></h2>
+              <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-brand-gray-100">
+                  <h2 className="text-sm font-bold text-brand-gray-900">Catatan & Foto <span className="text-brand-gray-450 font-normal text-xs">(Opsional)</span></h2>
                 </div>
                 <div className="p-3 sm:p-4 space-y-3">
-                  <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Contoh: Titip kunci di satpam, ada anjing peliharaan..." className="w-full p-2.5 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] placeholder-[#9e8e8c] focus:outline-none focus:border-[#b51822] resize-none" />
+                  <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Contoh: Titip kunci di satpam, ada anjing peliharaan..." className="w-full p-2.5 border border-brand-gray-100 rounded text-sm text-brand-gray-900 placeholder-brand-gray-450 focus:outline-none focus:border-brand-red resize-none" />
                   <div>
-                    <label className="block text-xs font-semibold text-[#5b403e] mb-1.5">Upload Foto Kondisi</label>
+                    <label className="block text-xs font-semibold text-brand-gray-700 mb-1.5">Upload Foto Kondisi</label>
                     <PhotoUploader maxPhotos={3} value={photos} onChange={setPhotos} />
                   </div>
                 </div>

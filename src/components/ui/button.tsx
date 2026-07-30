@@ -14,39 +14,39 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       font-bold text-[14px] leading-none
       rounded-md border border-transparent
       transition-all duration-200
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b51822] focus-visible:ring-offset-2
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2
       disabled:opacity-40 disabled:cursor-not-allowed
       active:scale-[0.98]
     `;
 
     const variants = {
       primary: `
-        bg-[#b51822] text-white
-        hover:bg-[#90121a]
+        bg-brand-red text-white
+        hover:bg-brand-red-dark
         border-transparent
       `,
       secondary: `
-        bg-transparent text-[#b51822]
-        border-[#b51822]
-        hover:bg-[#f0eded]
+        bg-transparent text-brand-red
+        border-brand-red
+        hover:bg-brand-red-light
       `,
       outline: `
-        bg-transparent text-[#5b403e]
-        border-[#e5e2e1]
-        hover:bg-[#f7f5f4] hover:border-[#b51822]/50
+        bg-transparent text-brand-gray-700
+        border-brand-gray-100
+        hover:bg-brand-gray-60 hover:border-brand-red/50
       `,
       ghost: `
-        bg-transparent text-[#b51822]
+        bg-transparent text-brand-red
         border-transparent
-        hover:bg-[#f0eded]
+        hover:bg-brand-red-light
       `,
       danger: `
-        bg-[#E53E3E] text-white
-        hover:bg-[#c53030]
+        bg-brand-error text-white
+        hover:bg-brand-error-dark
         border-transparent
       `,
       link: `
-        bg-transparent text-[#b51822]
+        bg-transparent text-brand-red
         border-transparent
         hover:underline
         p-0 h-auto

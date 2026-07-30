@@ -116,50 +116,50 @@ export default async function LocalCategoryPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
+    <div className="min-h-screen bg-brand-gray-60 flex flex-col">
       <JsonLd data={breadcrumbSchema} />
       {serviceList.length > 0 && <JsonLd data={itemListSchema} />}
       <JsonLd data={faqJsonLd(faq)} />
       <MobilePageHeader title={`${cat.name} ${city}`} backHref={`/kategori/${cat.slug}`} maxWidthClass="max-w-6xl" />
 
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
-        <nav aria-label="Breadcrumb" className="mb-4 hidden sm:flex items-center gap-1.5 text-[13px] text-[#8f6f6d] flex-wrap">
+        <nav aria-label="Breadcrumb" className="mb-4 hidden sm:flex items-center gap-1.5 text-[13px] text-brand-gray-400 flex-wrap">
           {crumbs.map((c, i) => (
             <span key={c.href} className="flex items-center gap-1.5">
               {i > 0 && <ChevronRight className="w-3.5 h-3.5" />}
               {i < crumbs.length - 1 ? (
-                <Link href={c.href} className="hover:text-[#b51822] transition-colors">
+                <Link href={c.href} className="hover:text-brand-red transition-colors">
                   {c.name}
                 </Link>
               ) : (
-                <span className="font-semibold text-[#1c1b1b]">{c.name}</span>
+                <span className="font-semibold text-brand-gray-900">{c.name}</span>
               )}
             </span>
           ))}
         </nav>
 
         <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#1c1b1b]">
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-gray-900">
             Jasa {cat.name} di {city}
           </h1>
-          <p className="text-[13px] text-[#8f6f6d] flex items-center gap-1 mt-1">
+          <p className="text-[13px] text-brand-gray-400 flex items-center gap-1 mt-1">
             <MapPin className="w-3.5 h-3.5" /> Mitra terverifikasi di {city} &amp; sekitarnya
           </p>
         </div>
 
         {/* Intro unik (anti thin-content) */}
-        <p className="text-[14px] leading-relaxed text-[#5b403e] mb-8 max-w-3xl">{intro}</p>
+        <p className="text-[14px] leading-relaxed text-brand-gray-700 mb-8 max-w-3xl">{intro}</p>
 
         {serviceList.length === 0 ? (
-          <div className="text-center text-[#8f6f6d] py-12">
+          <div className="text-center text-brand-gray-400 py-12">
             <p className="text-[14px]">Belum ada layanan {cat.name} di {city}.</p>
-            <Link href={`/kategori/${cat.slug}`} className="inline-block mt-3 text-[13px] font-semibold text-[#b51822] hover:underline">
+            <Link href={`/kategori/${cat.slug}`} className="inline-block mt-3 text-[13px] font-semibold text-brand-red hover:underline">
               Lihat jasa {cat.name} di kota lain →
             </Link>
           </div>
         ) : (
           <>
-            <h2 className="text-[15px] font-bold text-[#1c1b1b] mb-4">
+            <h2 className="text-[15px] font-bold text-brand-gray-900 mb-4">
               {serviceList.length} layanan tersedia
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">

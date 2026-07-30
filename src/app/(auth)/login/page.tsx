@@ -53,12 +53,12 @@ function LoginContent() {
   return (
     // Mobile: rata atas dengan padding ringkas agar form langsung terlihat tanpa scroll.
     // Desktop (sm+): tetap terpusat vertikal; 4rem = tinggi TopNavbar (h-16).
-    <div className="min-h-[calc(100dvh-4rem)] bg-[#f7f5f4] flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
+    <div className="min-h-[calc(100dvh-4rem)] bg-brand-gray-60 flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
       {/* Back button khusus mobile — di mobile TopNavbar disembunyikan di halaman login. */}
       <Link
         href="/"
         aria-label="Kembali ke beranda"
-        className="lg:hidden absolute top-4 left-4 p-2 -ml-1 rounded hover:bg-black/5 text-[#5b403e]"
+        className="lg:hidden absolute top-4 left-4 p-2 -ml-1 rounded hover:bg-black/5 text-brand-gray-700"
       >
         <ArrowLeft className="w-5 h-5" />
       </Link>
@@ -67,15 +67,15 @@ function LoginContent() {
         <div className="flex justify-center mb-4">
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="POSKO JASA" width={32} height={32} className="w-8 h-8 object-contain" priority />
-            <span className="text-[22px] font-bold text-[#1c1b1b] tracking-[-0.5px]">POSKO</span>
+            <span className="text-[22px] font-bold text-brand-gray-900 tracking-[-0.5px]">POSKO</span>
           </div>
         </div>
-        <h2 className="text-center text-xl sm:text-3xl font-extrabold text-[#1c1b1b]">
+        <h2 className="text-center text-xl sm:text-3xl font-extrabold text-brand-gray-900">
           Masuk ke akun Anda
         </h2>
-        <p className="mt-1 sm:mt-2 text-center text-sm text-[#5b403e]">
+        <p className="mt-1 sm:mt-2 text-center text-sm text-brand-gray-700">
           Atau{' '}
-          <Link href="/register" className="font-medium text-[#b51822] hover:text-[#90121a]">
+          <Link href="/register" className="font-medium text-brand-red hover:text-brand-red-dark">
             daftar baru sekarang
           </Link>
         </p>
@@ -92,7 +92,7 @@ function LoginContent() {
             )}
 
             <div>
-              <label htmlFor="identifier" className="block text-sm font-medium text-[#1c1b1b]">
+              <label htmlFor="identifier" className="block text-sm font-medium text-brand-gray-900">
                 Email / Nomor HP / Username
               </label>
               <div className="mt-1">
@@ -104,14 +104,14 @@ function LoginContent() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822]"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red"
                   placeholder="08123456789 atau email Anda"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#1c1b1b]">
+              <label htmlFor="password" className="block text-sm font-medium text-brand-gray-900">
                 Password
               </label>
               <div className="mt-1 relative">
@@ -123,11 +123,11 @@ function LoginContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-[#e5e2e1] rounded-md shadow-sm placeholder-[#8f6f6d] focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] pr-10"
+                  className="appearance-none block w-full px-3 py-3 sm:py-2.5 text-base sm:text-sm bg-white border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red pr-10"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#8f6f6d] hover:text-[#5b403e]"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-brand-gray-400 hover:text-brand-gray-700"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -147,15 +147,15 @@ function LoginContent() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[#b51822] focus:ring-[#b51822] border-brand-gray-100 rounded-md"
+                  className="h-4 w-4 text-brand-red focus:ring-brand-red border-brand-gray-100 rounded-md"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-[#1c1b1b]">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-brand-gray-900">
                   Ingat saya
                 </label>
               </div>
 
               <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-[#b51822] hover:text-[#90121a]">
+                <Link href="/forgot-password" className="font-medium text-brand-red hover:text-brand-red-dark">
                   Lupa password?
                 </Link>
               </div>
@@ -165,7 +165,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center items-center py-3 sm:py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-[#b51822] hover:bg-[#90121a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] disabled:opacity-70 transition-all duration-200"
+                className="w-full flex justify-center items-center py-3 sm:py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
               >
                 {loading ? (
                   <Loader2 className="animate-spin h-5 w-5" />
@@ -177,10 +177,10 @@ function LoginContent() {
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[#e5e2e1]" />
+                <div className="w-full border-t border-brand-gray-100" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-3 text-[#8f6f6d]">atau masuk dengan</span>
+                <span className="bg-white px-3 text-brand-gray-400">atau masuk dengan</span>
               </div>
             </div>
 
@@ -199,7 +199,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#b51822]" /></div>}>
+    <Suspense fallback={<div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-brand-red" /></div>}>
       <LoginContent />
     </Suspense>
   );

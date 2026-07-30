@@ -60,20 +60,20 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#f7f5f4]">
+    <div className="flex flex-col h-[100dvh] bg-brand-gray-60">
       {/* Header */}
-      <div className="bg-white border-b border-[#e5e2e1] shrink-0 shadow-sm">
+      <div className="bg-white border-b border-brand-gray-100 shrink-0 shadow-sm">
         <div className="flex items-center gap-3 px-4 py-3 max-w-lg mx-auto">
-          <button onClick={() => router.push('/bantuan')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+          <button onClick={() => router.push('/bantuan')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full bg-[#FDECEC] flex items-center justify-center">
-              <LifeBuoy className="w-5 h-5 text-[#b51822]" />
+            <div className="w-9 h-9 rounded-full bg-brand-red-soft flex items-center justify-center">
+              <LifeBuoy className="w-5 h-5 text-brand-red" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-[#1c1b1b] leading-tight">Customer Service</h1>
-              <p className="text-[11px] text-[#9e8e8c]">Posko Jasa</p>
+              <h1 className="text-sm font-bold text-brand-gray-900 leading-tight">Customer Service</h1>
+              <p className="text-[11px] text-brand-gray-450">Posko Jasa</p>
             </div>
           </div>
         </div>
@@ -83,12 +83,12 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
       <div className="flex-1 overflow-y-auto p-4 space-y-3 max-w-lg mx-auto w-full">
         {loading ? (
           <div className="flex justify-center py-10">
-            <div className="w-6 h-6 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Send className="w-8 h-8 text-[#e5e2e1] mb-3" />
-            <p className="text-sm text-[#9e8e8c]">Mulai percakapan dengan tim CS kami.</p>
+            <Send className="w-8 h-8 text-brand-gray-100 mb-3" />
+            <p className="text-sm text-brand-gray-450">Mulai percakapan dengan tim CS kami.</p>
           </div>
         ) : (
           messages.map((m) => {
@@ -98,12 +98,12 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
                 key={m.id}
                 className={`flex flex-col max-w-[80%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}
               >
-                {!isMe && <span className="text-[10px] text-[#9e8e8c] mb-0.5 px-1">{m.sender_name || 'CS'}</span>}
+                {!isMe && <span className="text-[10px] text-brand-gray-450 mb-0.5 px-1">{m.sender_name || 'CS'}</span>}
                 <div
                   className={`px-3.5 py-2.5 rounded-2xl shadow-sm ${
                     isMe
-                      ? 'bg-[#b51822] text-white rounded-br-sm'
-                      : 'bg-white border border-[#e5e2e1] text-[#1c1b1b] rounded-bl-sm'
+                      ? 'bg-brand-red text-white rounded-br-sm'
+                      : 'bg-white border border-brand-gray-100 text-brand-gray-900 rounded-bl-sm'
                   }`}
                 >
                   {m.message_type === 'image' ? (
@@ -120,7 +120,7 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
                     <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{m.content}</p>
                   )}
                 </div>
-                <span className="text-[10px] text-[#9e8e8c] mt-1 px-1">
+                <span className="text-[10px] text-brand-gray-450 mt-1 px-1">
                   {new Date(m.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -131,17 +131,17 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-[#e5e2e1] shrink-0 pb-[env(safe-area-inset-bottom)]">
+      <div className="bg-white border-t border-brand-gray-100 shrink-0 pb-[env(safe-area-inset-bottom)]">
         <form onSubmit={send} className="p-3 max-w-lg mx-auto flex flex-col gap-2">
-          {error && <p className="text-xs text-[#E53E3E] px-1">{error}</p>}
+          {error && <p className="text-xs text-brand-error px-1">{error}</p>}
           <div className="flex items-end gap-2">
-            <div className="flex-1 bg-[#f7f5f4] border border-[#e5e2e1] rounded-2xl flex items-center pr-1 overflow-hidden focus-within:border-[#b51822]">
+            <div className="flex-1 bg-brand-gray-60 border border-brand-gray-100 rounded-2xl flex items-center pr-1 overflow-hidden focus-within:border-brand-red">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ketik pesan untuk CS…"
                 rows={1}
-                className="w-full bg-transparent p-3 text-base sm:text-sm text-[#1c1b1b] focus:outline-none resize-none max-h-32"
+                className="w-full bg-transparent p-3 text-base sm:text-sm text-brand-gray-900 focus:outline-none resize-none max-h-32"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -153,7 +153,7 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
                 type="submit"
                 disabled={!input.trim() || sending}
                 className={`p-2 rounded-xl shrink-0 ${
-                  input.trim() ? 'bg-[#b51822] text-white hover:bg-[#90121a]' : 'text-[#9e8e8c]'
+                  input.trim() ? 'bg-brand-red text-white hover:bg-brand-red-dark' : 'text-brand-gray-450'
                 }`}
               >
                 <Send className="w-4 h-4" />

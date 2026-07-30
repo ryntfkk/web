@@ -20,7 +20,7 @@ export default function SecurityPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
+  if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,24 +59,24 @@ export default function SecurityPage() {
   };
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-10">
+    <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       <MobilePageHeader title="Keamanan Akun" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Keamanan Akun</h1>
-        <div className="bg-white rounded-xl border border-[#e5e2e1] p-6 mb-6 text-center">
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Keamanan Akun</h1>
+        <div className="bg-white rounded-xl border border-brand-gray-100 p-6 mb-6 text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
-            <ShieldCheck className="w-8 h-8 text-[#38A169]" />
+            <ShieldCheck className="w-8 h-8 text-brand-success" />
           </div>
-          <h2 className="text-lg font-bold text-[#1c1b1b] mb-2">Ubah Password</h2>
-          <p className="text-sm text-[#5b403e]">
+          <h2 className="text-lg font-bold text-brand-gray-900 mb-2">Ubah Password</h2>
+          <p className="text-sm text-brand-gray-700">
             Gunakan password yang kuat dengan kombinasi huruf dan angka untuk keamanan akun Anda.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Password Saat Ini</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Password Saat Ini</label>
             <div className="relative">
               <Lock className="w-5 h-5 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -84,15 +84,15 @@ export default function SecurityPage() {
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 placeholder="Masukkan password saat ini"
-                className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
           </div>
 
-          <hr className="border-[#e5e2e1]" />
+          <hr className="border-brand-gray-100" />
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Password Baru</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Password Baru</label>
             <div className="relative">
               <Lock className="w-5 h-5 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -100,13 +100,13 @@ export default function SecurityPage() {
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder="Minimal 6 karakter"
-                className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Konfirmasi Password Baru</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Konfirmasi Password Baru</label>
             <div className="relative">
               <Lock className="w-5 h-5 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -114,17 +114,17 @@ export default function SecurityPage() {
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder="Ketik ulang password baru"
-                className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
           </div>
 
-          {error && <div className="bg-brand-error-soft text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
-          {success && <div className="bg-brand-success-soft text-[#38A169] text-sm p-3 rounded-lg border border-[#9AE6B4]">Password berhasil diubah.</div>}
+          {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
+          {success && <div className="bg-brand-success-soft text-brand-success text-sm p-3 rounded-lg border border-brand-success-border">Password berhasil diubah.</div>}
 
           <div className="pt-4">
             <Button
-              className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
+              className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
               onClick={handleSubmit}
               disabled={loading}
             >
@@ -134,9 +134,9 @@ export default function SecurityPage() {
         </form>
 
         {/* Login History */}
-        <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden mt-6">
-          <div className="p-4 border-b border-[#e5e2e1]">
-            <h3 className="font-semibold text-[#32201f]">Riwayat Login Terbaru</h3>
+        <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden mt-6">
+          <div className="p-4 border-b border-brand-gray-100">
+            <h3 className="font-semibold text-brand-gray-800">Riwayat Login Terbaru</h3>
           </div>
           <LoginHistoryList />
         </div>
@@ -181,20 +181,20 @@ function LoginHistoryList() {
   }
 
   return (
-    <div className="divide-y divide-[#e5e2e1]">
+    <div className="divide-y divide-brand-gray-100">
       {history.map((h, i) => {
         const ipStr = asText(h.ip_address);
         const uaStr = asText(h.user_agent);
         return (
         <div key={h.id || i} className="p-4 flex flex-col gap-1">
           <div className="flex justify-between items-start">
-            <span className="font-medium text-sm text-[#1c1b1b]">
+            <span className="font-medium text-sm text-brand-gray-900">
               {h.event_type === 'LOGIN' ? 'Login Berhasil' : h.event_type}
             </span>
             <span className="text-xs text-brand-gray-450">{formatDateShort(h.created_at)}</span>
           </div>
-          <div className="text-xs text-[#5b403e] flex gap-2 mt-1">
-            <span className="bg-[#f7f5f4] px-1.5 py-0.5 rounded border border-[#e5e2e1]">IP: {ipStr || '-'}</span>
+          <div className="text-xs text-brand-gray-700 flex gap-2 mt-1">
+            <span className="bg-brand-gray-60 px-1.5 py-0.5 rounded border border-brand-gray-100">IP: {ipStr || '-'}</span>
           </div>
           {uaStr && <p className="text-xs text-brand-gray-450 mt-1 truncate">{uaStr}</p>}
         </div>

@@ -101,28 +101,28 @@ export default function AccountPage() {
     }
   };
 
-  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
+  if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized || !user) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-10 relative">
+    <div className="page-h bg-brand-gray-60 pb-20 md:pb-10 relative">
 
       <MobilePageHeader title="Informasi Akun" backHref="/profile" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b]">Informasi Akun</h1>
+          <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900">Informasi Akun</h1>
           {!isEditing && (
-            <Button variant="outline" size="sm" onClick={handleEdit} className="text-[#b51822] border-[#b51822] hover:bg-brand-error-soft">
+            <Button variant="outline" size="sm" onClick={handleEdit} className="text-brand-red border-brand-red hover:bg-brand-error-soft">
               Ubah Profil
             </Button>
           )}
         </div>
 
         {/* Avatar Section */}
-        <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden mb-4 p-6 text-center">
+        <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden mb-4 p-6 text-center">
           <div className="relative inline-block mx-auto mb-4">
-            <div className="relative w-24 h-24 rounded-full bg-[#f7f5f4] flex items-center justify-center text-3xl font-bold text-[#b51822] overflow-hidden border-2 border-[#e5e2e1]">
+            <div className="relative w-24 h-24 rounded-full bg-brand-gray-60 flex items-center justify-center text-3xl font-bold text-brand-red overflow-hidden border-2 border-brand-gray-100">
               {user.avatar_url ? (
                 <Image src={user.avatar_url} alt="Avatar" fill sizes="96px" className="object-cover" />
               ) : (
@@ -132,7 +132,7 @@ export default function AccountPage() {
             <button 
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="absolute bottom-0 right-0 p-2 bg-[#b51822] text-white rounded-full hover:bg-[#90121a] transition-colors border-2 border-white shadow-sm disabled:opacity-50"
+              className="absolute bottom-0 right-0 p-2 bg-brand-red text-white rounded-full hover:bg-brand-red-dark transition-colors border-2 border-white shadow-sm disabled:opacity-50"
             >
               {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
             </button>
@@ -144,81 +144,81 @@ export default function AccountPage() {
               className="hidden" 
             />
           </div>
-          <p className="text-sm font-medium text-[#1c1b1b]">{user.name}</p>
-          <p className="text-xs text-[#8f6f6d]">{user.phone}</p>
+          <p className="text-sm font-medium text-brand-gray-900">{user.name}</p>
+          <p className="text-xs text-brand-gray-400">{user.phone}</p>
         </div>
 
         {/* Info / Edit Section */}
-        <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
-          <div className="p-4 border-b border-[#e5e2e1]">
-            <h3 className="font-semibold text-[#32201f]">Detail Akun</h3>
+        <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden">
+          <div className="p-4 border-b border-brand-gray-100">
+            <h3 className="font-semibold text-brand-gray-800">Detail Akun</h3>
           </div>
           
           {isEditing ? (
             <form onSubmit={handleSave} className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-[#1c1b1b] mb-1">Nama Lengkap</label>
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Nama Lengkap</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                  className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-[#1c1b1b] mb-1">Email</label>
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Opsional"
-                  className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                  className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-[#1c1b1b] mb-1">Nomor HP</label>
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Nomor HP</label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={e => setPhone(e.target.value.replace(/[^\d+]/g, ''))}
                   placeholder="08xxxxxxxxxx"
-                  className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                  className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
                 />
                 <p className="text-xs text-brand-gray-450 mt-1">Dipakai untuk kontak &amp; notifikasi. Login tetap memakai username.</p>
               </div>
 
-              {error && <div className="bg-brand-error-soft text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
+              {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
 
               <div className="flex gap-3 pt-2">
                 <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)} type="button">
                   Batal
                 </Button>
-                <Button className="flex-1 bg-[#b51822] hover:bg-[#90121a]" type="submit" disabled={saving}>
+                <Button className="flex-1 bg-brand-red hover:bg-brand-red-dark" type="submit" disabled={saving}>
                   {saving ? 'Menyimpan...' : 'Simpan'}
                 </Button>
               </div>
             </form>
           ) : (
-            <div className="divide-y divide-[#e5e2e1]">
+            <div className="divide-y divide-brand-gray-100">
               <div className="w-full flex items-center p-4 text-left">
-                <User className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                <User className="w-5 h-5 text-brand-gray-400 mr-3" />
                 <div className="flex-1">
-                  <span className="text-[#32201f] font-medium block text-sm">Nama Lengkap</span>
-                  <span className="text-sm text-[#8f6f6d]">{user.name}</span>
+                  <span className="text-brand-gray-800 font-medium block text-sm">Nama Lengkap</span>
+                  <span className="text-sm text-brand-gray-400">{user.name}</span>
                 </div>
               </div>
               <div className="w-full flex items-center p-4 text-left">
-                <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                <Phone className="w-5 h-5 text-brand-gray-400 mr-3" />
                 <div className="flex-1">
-                  <span className="text-[#32201f] font-medium block text-sm">Nomor HP</span>
-                  <span className="text-sm text-[#8f6f6d]">{user.phone}</span>
+                  <span className="text-brand-gray-800 font-medium block text-sm">Nomor HP</span>
+                  <span className="text-sm text-brand-gray-400">{user.phone}</span>
                 </div>
               </div>
               <div className="w-full flex items-center p-4 text-left">
-                <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                <Mail className="w-5 h-5 text-brand-gray-400 mr-3" />
                 <div className="flex-1">
-                  <span className="text-[#32201f] font-medium block text-sm">Email</span>
-                  <span className="text-sm text-[#8f6f6d]">{user.email || 'Belum diisi'}</span>
+                  <span className="text-brand-gray-800 font-medium block text-sm">Email</span>
+                  <span className="text-sm text-brand-gray-400">{user.email || 'Belum diisi'}</span>
                 </div>
               </div>
             </div>

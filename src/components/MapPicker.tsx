@@ -11,7 +11,7 @@ interface MapPickerProps {
   onChange: (lat: number, lng: number) => void;
 }
 
-// ── Loader Google Maps JS (singleton) ──
+// â”€â”€ Loader Google Maps JS (singleton) â”€â”€
 let mapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
   if (typeof window === 'undefined') return Promise.reject(new Error('no window'));
@@ -41,7 +41,7 @@ function loadGoogleMaps(): Promise<void> {
     document.head.appendChild(script);
   });
 
-  // Jangan cache promise yang gagal — supaya bisa retry saat mount berikutnya.
+  // Jangan cache promise yang gagal â€” supaya bisa retry saat mount berikutnya.
   mapsPromise = p;
   p.catch(() => { if (mapsPromise === p) mapsPromise = null; });
   return p;
@@ -135,8 +135,8 @@ export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
 
   if (error && !mapRef.current) {
     return (
-      <div className="w-full h-full min-h-[256px] bg-[#f7f5f4] border border-[#e5e2e1] rounded-lg flex items-center justify-center p-4 text-center">
-        <p className="text-sm text-[#E53E3E]">{error}</p>
+      <div className="w-full h-full min-h-[256px] bg-brand-gray-60 border border-brand-gray-100 rounded-lg flex items-center justify-center p-4 text-center">
+        <p className="text-sm text-brand-error">{error}</p>
       </div>
     );
   }
@@ -150,16 +150,16 @@ export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
         onClick={locateMe}
         disabled={locating}
         title="Gunakan lokasi saya"
-        className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 bg-white text-[#1c1b1b] text-xs font-semibold px-3 py-2 rounded-lg shadow-md border border-[#e5e2e1] hover:bg-[#f7f5f4] disabled:opacity-60"
+        className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 bg-white text-brand-gray-900 text-xs font-semibold px-3 py-2 rounded-lg shadow-md border border-brand-gray-100 hover:bg-brand-gray-60 disabled:opacity-60"
       >
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#b51822" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="3" />
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </svg>
-        {locating ? 'Mencari…' : 'Lokasi saya'}
+        {locating ? 'Mencariâ€¦' : 'Lokasi saya'}
       </button>
       {error && (
-        <div className="absolute top-2 left-2 right-2 z-10 bg-[#FFF5F5] border border-[#FEB2B2] text-[#C53030] text-xs px-3 py-2 rounded-md">
+        <div className="absolute top-2 left-2 right-2 z-10 bg-brand-error-soft border border-brand-error-border text-brand-error-dark text-xs px-3 py-2 rounded-md">
           {error}
         </div>
       )}

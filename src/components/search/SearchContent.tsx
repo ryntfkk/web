@@ -90,10 +90,10 @@ export default function SearchContent({ query }: SearchContentProps) {
       {mounted && !query && recentTerms.length > 0 && (
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="flex items-center gap-1.5 text-sm font-semibold text-[#5b403e]">
+            <span className="flex items-center gap-1.5 text-sm font-semibold text-brand-gray-700">
               <Clock className="w-4 h-4" /> Pencarian Terakhir
             </span>
-            <button onClick={clearSearches} className="text-xs font-medium text-[#8f6f6d] hover:text-[#b51822]">
+            <button onClick={clearSearches} className="text-xs font-medium text-brand-gray-400 hover:text-brand-red">
               Hapus semua
             </button>
           </div>
@@ -101,7 +101,7 @@ export default function SearchContent({ query }: SearchContentProps) {
             {recentTerms.map((term) => (
               <span
                 key={term}
-                className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 bg-white border border-[#e5e2e1] rounded-full text-sm text-[#1c1b1b] hover:border-[#b51822] transition-colors"
+                className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 bg-white border border-brand-gray-100 rounded-full text-sm text-brand-gray-900 hover:border-brand-red transition-colors"
               >
                 <button onClick={() => router.push(`/search?q=${encodeURIComponent(term)}`)} className="truncate max-w-[160px]">
                   {term}
@@ -109,7 +109,7 @@ export default function SearchContent({ query }: SearchContentProps) {
                 <button
                   onClick={() => removeSearch(term)}
                   aria-label={`Hapus ${term}`}
-                  className="p-0.5 rounded-full text-[#8f6f6d] hover:bg-[#f0eded] hover:text-[#b51822]"
+                  className="p-0.5 rounded-full text-brand-gray-400 hover:bg-brand-red-light hover:text-brand-red"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>

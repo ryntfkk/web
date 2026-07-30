@@ -41,22 +41,22 @@ export function DevNoticeModal() {
     <div className="fixed inset-0 bg-black/50 z-[70] flex items-end sm:items-center justify-center p-4">
       <div className="bg-white rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-6 animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0">
         <div className="flex items-start justify-between mb-4">
-          <div className="w-12 h-12 rounded-full bg-[#FFF5F5] flex items-center justify-center">
-            <Construction className="w-6 h-6 text-[#b51822]" />
+          <div className="w-12 h-12 rounded-full bg-brand-error-soft flex items-center justify-center">
+            <Construction className="w-6 h-6 text-brand-red" />
           </div>
           <button
             onClick={handleClose}
             aria-label="Close"
-            className="p-1 hover:bg-[#f7f5f4] rounded-full transition-colors"
+            className="p-1 hover:bg-brand-gray-60 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-[#9e8e8c]" />
+            <X className="w-5 h-5 text-brand-gray-450" />
           </button>
         </div>
 
-        <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">
+        <h3 className="text-lg font-bold text-brand-gray-900 mb-2">
           Website Under Development
         </h3>
-        <p className="text-sm text-[#5b403e] leading-relaxed">
+        <p className="text-sm text-brand-gray-700 leading-relaxed">
           Welcome to Posko Jasa! Please note that this website is still under
           active development. Some features may be incomplete or may not work as
           expected. Thank you for your patience and understanding.

@@ -58,24 +58,24 @@ export default function CitySelector() {
         onClick={() => setIsOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#e5e2e1] shadow-2xs hover:shadow-xs hover:border-[#b51822]/40 transition-all duration-200 cursor-pointer active:scale-95 text-left group shrink-0"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-brand-gray-100 shadow-2xs hover:shadow-xs hover:border-brand-red/40 transition-all duration-200 cursor-pointer active:scale-95 text-left group shrink-0"
       >
-        <div className="w-5 h-5 rounded-full bg-[#b51822]/10 flex items-center justify-center text-[#b51822] group-hover:bg-[#b51822] group-hover:text-white transition-colors duration-200 shrink-0">
+        <div className="w-5 h-5 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red group-hover:bg-brand-red group-hover:text-white transition-colors duration-200 shrink-0">
           <MapPin className="w-3 h-3" />
         </div>
         
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8f6f6d] shrink-0 hidden xs:inline">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-gray-400 shrink-0 hidden xs:inline">
             Lokasi:
           </span>
-          <span className="text-[12px] sm:text-[13px] font-bold text-[#1c1b1b] truncate max-w-[110px] xs:max-w-[140px] sm:max-w-[180px] leading-tight">
+          <span className="text-[12px] sm:text-[13px] font-bold text-brand-gray-900 truncate max-w-[110px] xs:max-w-[140px] sm:max-w-[180px] leading-tight">
             {city || 'Semua Kota'}
           </span>
         </div>
 
         <ChevronDown
-          className={`w-3.5 h-3.5 text-[#8f6f6d] group-hover:text-[#b51822] transition-transform duration-200 shrink-0 ${
-            isOpen ? 'rotate-180 text-[#b51822]' : ''
+          className={`w-3.5 h-3.5 text-brand-gray-400 group-hover:text-brand-red transition-transform duration-200 shrink-0 ${
+            isOpen ? 'rotate-180 text-brand-red' : ''
           }`}
         />
       </button>
@@ -96,52 +96,52 @@ export default function CitySelector() {
           {/* Modal Content Box */}
           <div
             ref={modalRef}
-            className="relative w-full max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl z-10 overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[75vh] border border-[#e5e2e1] animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200"
+            className="relative w-full max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl z-10 overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[75vh] border border-brand-gray-100 animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200"
           >
             {/* Mobile Drag Indicator */}
             <div className="sm:hidden w-full flex justify-center pt-2.5 pb-1">
-              <div className="w-10 h-1 bg-[#e5e2e1] rounded-full" />
+              <div className="w-10 h-1 bg-brand-gray-100 rounded-full" />
             </div>
 
             {/* Header */}
-            <div className="px-5 pt-2 sm:pt-4 pb-3 border-b border-[#e5e2e1] flex items-center justify-between shrink-0">
+            <div className="px-5 pt-2 sm:pt-4 pb-3 border-b border-brand-gray-100 flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-[16px] sm:text-[18px] font-bold text-[#1c1b1b] flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[#b51822]" />
+                <h3 className="text-[16px] sm:text-[18px] font-bold text-brand-gray-900 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-brand-red" />
                   Pilih Lokasi Jasa
                 </h3>
-                <p className="text-[12px] text-[#8f6f6d] mt-0.5">
+                <p className="text-[12px] text-brand-gray-400 mt-0.5">
                   Tampilkan mitra &amp; layanan terdekat di kota Anda
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#f5f3f2] hover:bg-[#e5e2e1] flex items-center justify-center text-[#5b403e] transition-colors shrink-0"
+                className="w-8 h-8 rounded-full bg-brand-gray-70 hover:bg-brand-gray-100 flex items-center justify-center text-brand-gray-700 transition-colors shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Search Input — tombol GPS dihapus: lokasi diminta OTOMATIS untuk
+            {/* Search Input â€” tombol GPS dihapus: lokasi diminta OTOMATIS untuk
                 menghitung jarak (lihat LocationNotice); pemilih kota ini murni
                 untuk memfilter wilayah, bukan menentukan lokasi presisi. */}
-            <div className="p-3 sm:p-4 bg-[#faf8f7] border-b border-[#e5e2e1] shrink-0">
+            <div className="p-3 sm:p-4 bg-brand-gray-50 border-b border-brand-gray-100 shrink-0">
               <div className="relative">
-                <Search className="w-4 h-4 text-[#8f6f6d] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className="w-4 h-4 text-brand-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Cari kota (misal: Jakarta, Surabaya)..."
-                  className="w-full bg-white border border-[#e5e2e1] rounded-xl pl-9 pr-8 py-2 text-[13px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:outline-none focus:border-[#b51822] focus:ring-1 focus:ring-[#b51822] transition-all"
+                  className="w-full bg-white border border-brand-gray-100 rounded-xl pl-9 pr-8 py-2 text-[13px] text-brand-gray-900 placeholder:text-brand-gray-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all"
                   autoFocus
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8f6f6d] hover:text-[#1c1b1b]"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-brand-gray-400 hover:text-brand-gray-900"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -157,37 +157,37 @@ export default function CitySelector() {
                 onClick={() => handleSelectCity('')}
                 className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
                   !city
-                    ? 'bg-[#b51822]/5 border-[#b51822] text-[#b51822] font-bold shadow-2xs'
-                    : 'border-transparent hover:bg-[#f5f3f2] text-[#1c1b1b]'
+                    ? 'bg-brand-red/5 border-brand-red text-brand-red font-bold shadow-2xs'
+                    : 'border-transparent hover:bg-brand-gray-70 text-brand-gray-900'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      !city ? 'bg-[#b51822] text-white' : 'bg-[#e5e2e1] text-[#5b403e]'
+                      !city ? 'bg-brand-red text-white' : 'bg-brand-gray-100 text-brand-gray-700'
                     }`}
                   >
                     <Globe className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="text-[13px] sm:text-[14px] font-semibold">Semua Kota</div>
-                    <div className="text-[11px] text-[#8f6f6d]">Tampilkan seluruh layanan di Indonesia</div>
+                    <div className="text-[11px] text-brand-gray-400">Tampilkan seluruh layanan di Indonesia</div>
                   </div>
                 </div>
-                {!city && <Check className="w-4 h-4 text-[#b51822] shrink-0" />}
+                {!city && <Check className="w-4 h-4 text-brand-red shrink-0" />}
               </button>
 
               {/* List Header */}
-              <div className="pt-2 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#8f6f6d]">
+              <div className="pt-2 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-brand-gray-400">
                 Kota Tersedia ({filteredCities.length})
               </div>
 
               {isLoading ? (
-                <div className="py-8 text-center text-[13px] text-[#8f6f6d] animate-pulse">
+                <div className="py-8 text-center text-[13px] text-brand-gray-400 animate-pulse">
                   Memuat daftar kota...
                 </div>
               ) : filteredCities.length === 0 ? (
-                <div className="py-8 text-center text-[13px] text-[#8f6f6d]">
+                <div className="py-8 text-center text-[13px] text-brand-gray-400">
                   Tidak ada kota &quot;{searchQuery}&quot; ditemukan.
                 </div>
               ) : (
@@ -200,21 +200,21 @@ export default function CitySelector() {
                       onClick={() => handleSelectCity(cityName)}
                       className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
                         isSelected
-                          ? 'bg-[#b51822]/5 border-[#b51822] text-[#b51822] font-bold shadow-2xs'
-                          : 'border-transparent hover:bg-[#f5f3f2] text-[#1c1b1b]'
+                          ? 'bg-brand-red/5 border-brand-red text-brand-red font-bold shadow-2xs'
+                          : 'border-transparent hover:bg-brand-gray-70 text-brand-gray-900'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                            isSelected ? 'bg-[#b51822] text-white' : 'bg-[#f5f3f2] text-[#8f6f6d]'
+                            isSelected ? 'bg-brand-red text-white' : 'bg-brand-gray-70 text-brand-gray-400'
                           }`}
                         >
                           <MapPin className="w-4 h-4" />
                         </div>
                         <span className="text-[13px] sm:text-[14px] font-medium">{cityName}</span>
                       </div>
-                      {isSelected && <Check className="w-4 h-4 text-[#b51822] shrink-0" />}
+                      {isSelected && <Check className="w-4 h-4 text-brand-red shrink-0" />}
                     </button>
                   );
                 })

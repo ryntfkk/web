@@ -18,12 +18,12 @@ export default function ProductsSection() {
   return (
     <section className="mb-8 md:mb-12">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-[#1c1b1b]">
+        <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-brand-gray-900">
           Produk & Layanan
         </h2>
         <Link
           href="/search"
-          className="text-[12px] sm:text-[14px] text-[#b51822] hover:underline font-medium"
+          className="text-[12px] sm:text-[14px] text-brand-red hover:underline font-medium"
         >
           Lihat Semua
         </Link>

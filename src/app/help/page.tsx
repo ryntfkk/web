@@ -73,21 +73,21 @@ export default function HelpPage() {
   const noResults = filtered.length === 0;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-16 lg:pb-10">
+    <div className="page-h bg-brand-gray-60 pb-16 lg:pb-10">
       {/* Hero + search */}
-      <div className="bg-[#b51822] text-white">
+      <div className="bg-brand-red text-white">
         <div className="max-w-2xl mx-auto px-4 py-8 text-center">
           <LifeBuoy className="w-10 h-10 mx-auto mb-3 opacity-90" />
           <h1 className="text-2xl font-bold">Bantuan &amp; Dukungan</h1>
           <p className="text-white/80 text-sm mt-1">Cari jawaban cepat, atau hubungi tim kami.</p>
           <div className="relative mt-5">
-            <Search className="w-5 h-5 text-[#8f6f6d] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-5 h-5 text-brand-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Cari pertanyaan… (mis. refund, komisi)"
-              className="w-full pl-10 pr-3 py-3 rounded-md text-sm text-[#1c1b1b] bg-white border border-transparent focus:outline-none focus:ring-2 focus:ring-white/40"
+              className="w-full pl-10 pr-3 py-3 rounded-md text-sm text-brand-gray-900 bg-white border border-transparent focus:outline-none focus:ring-2 focus:ring-white/40"
             />
           </div>
         </div>
@@ -95,22 +95,22 @@ export default function HelpPage() {
 
       {/* Hub bantuan — perjelas 3 kanal agar user tak bingung ke mana mengadu */}
       <div className="max-w-2xl mx-auto px-4 pt-6">
-        <h2 className="text-sm font-semibold text-[#8f6f6d] uppercase tracking-wide mb-2 px-1">Butuh bantuan apa?</h2>
+        <h2 className="text-sm font-semibold text-brand-gray-400 uppercase tracking-wide mb-2 px-1">Butuh bantuan apa?</h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          <Link href="/bantuan" className="bg-white rounded-lg border border-[#e5e2e1] p-4 hover:border-[#b51822]/40 transition-colors">
-            <MessageCircle className="w-6 h-6 text-[#b51822] mb-2" />
-            <p className="text-sm font-semibold text-[#1c1b1b]">Chat Customer Service</p>
-            <p className="text-xs text-[#5b403e] mt-1 leading-snug">Pertanyaan umum, akun, atau pembayaran. Tim CS membalas langsung di chat ini.</p>
+          <Link href="/bantuan" className="bg-white rounded-lg border border-brand-gray-100 p-4 hover:border-brand-red/40 transition-colors">
+            <MessageCircle className="w-6 h-6 text-brand-red mb-2" />
+            <p className="text-sm font-semibold text-brand-gray-900">Chat Customer Service</p>
+            <p className="text-xs text-brand-gray-700 mt-1 leading-snug">Pertanyaan umum, akun, atau pembayaran. Tim CS membalas langsung di chat ini.</p>
           </Link>
-          <Link href="/orders" className="bg-white rounded-lg border border-[#e5e2e1] p-4 hover:border-[#b51822]/40 transition-colors">
-            <Scale className="w-6 h-6 text-[#b51822] mb-2" />
-            <p className="text-sm font-semibold text-[#1c1b1b]">Sengketa Pesanan</p>
-            <p className="text-xs text-[#5b403e] mt-1 leading-snug">Mitra tak datang, hasil tak sesuai, atau soal dana. Buka <strong>Pesanan → detail → Ajukan Sengketa</strong> (dana ditahan sampai CS memutuskan).</p>
+          <Link href="/orders" className="bg-white rounded-lg border border-brand-gray-100 p-4 hover:border-brand-red/40 transition-colors">
+            <Scale className="w-6 h-6 text-brand-red mb-2" />
+            <p className="text-sm font-semibold text-brand-gray-900">Sengketa Pesanan</p>
+            <p className="text-xs text-brand-gray-700 mt-1 leading-snug">Mitra tak datang, hasil tak sesuai, atau soal dana. Buka <strong>Pesanan → detail → Ajukan Sengketa</strong> (dana ditahan sampai CS memutuskan).</p>
           </Link>
-          <div className="bg-white rounded-lg border border-[#e5e2e1] p-4">
-            <Flag className="w-6 h-6 text-[#b51822] mb-2" />
-            <p className="text-sm font-semibold text-[#1c1b1b]">Laporkan Mitra/Layanan</p>
-            <p className="text-xs text-[#5b403e] mt-1 leading-snug">Konten tak pantas atau pelanggaran. Buka halaman mitra/layanan lalu tekan tombol <strong>&quot;Laporkan&quot;</strong>.</p>
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-4">
+            <Flag className="w-6 h-6 text-brand-red mb-2" />
+            <p className="text-sm font-semibold text-brand-gray-900">Laporkan Mitra/Layanan</p>
+            <p className="text-xs text-brand-gray-700 mt-1 leading-snug">Konten tak pantas atau pelanggaran. Buka halaman mitra/layanan lalu tekan tombol <strong>&quot;Laporkan&quot;</strong>.</p>
           </div>
         </div>
       </div>
@@ -126,10 +126,10 @@ export default function HelpPage() {
         ) : (
           filtered.map((group) => (
             <section key={group.category}>
-              <h2 className="text-sm font-semibold text-[#8f6f6d] uppercase tracking-wide mb-2 px-1">
+              <h2 className="text-sm font-semibold text-brand-gray-400 uppercase tracking-wide mb-2 px-1">
                 {group.category}
               </h2>
-              <div className="bg-white rounded-lg border border-[#e5e2e1] divide-y divide-[#e5e2e1] overflow-hidden">
+              <div className="bg-white rounded-lg border border-brand-gray-100 divide-y divide-brand-gray-100 overflow-hidden">
                 {group.items.map((it) => {
                   const id = `${group.category}:${it.q}`;
                   const isOpen = open === id;
@@ -137,16 +137,16 @@ export default function HelpPage() {
                     <div key={id}>
                       <button
                         onClick={() => setOpen(isOpen ? null : id)}
-                        className="w-full flex items-center justify-between gap-3 text-left px-4 py-3.5 hover:bg-[#f7f5f4] transition-colors"
+                        className="w-full flex items-center justify-between gap-3 text-left px-4 py-3.5 hover:bg-brand-gray-60 transition-colors"
                         aria-expanded={isOpen}
                       >
-                        <span className="text-sm font-medium text-[#1c1b1b]">{it.q}</span>
+                        <span className="text-sm font-medium text-brand-gray-900">{it.q}</span>
                         <ChevronDown
-                          className={`w-4 h-4 text-[#8f6f6d] shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                          className={`w-4 h-4 text-brand-gray-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                         />
                       </button>
                       {isOpen && (
-                        <p className="px-4 pb-4 -mt-1 text-sm text-[#5b403e] leading-relaxed">{it.a}</p>
+                        <p className="px-4 pb-4 -mt-1 text-sm text-brand-gray-700 leading-relaxed">{it.a}</p>
                       )}
                     </div>
                   );
@@ -157,17 +157,17 @@ export default function HelpPage() {
         )}
 
         {/* Contact support */}
-        <div className="bg-white rounded-lg border border-[#e5e2e1] p-5 text-center">
-          <h3 className="text-base font-bold text-[#1c1b1b]">Masih butuh bantuan?</h3>
-          <p className="text-sm text-[#5b403e] mt-1 mb-4">Tim dukungan kami siap membantu Anda.</p>
+        <div className="bg-white rounded-lg border border-brand-gray-100 p-5 text-center">
+          <h3 className="text-base font-bold text-brand-gray-900">Masih butuh bantuan?</h3>
+          <p className="text-sm text-brand-gray-700 mt-1 mb-4">Tim dukungan kami siap membantu Anda.</p>
           <Link
             href="/bantuan"
-            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#b51822] text-white text-sm font-bold rounded-md hover:bg-[#90121a] transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-brand-red text-white text-sm font-bold rounded-md hover:bg-brand-red-dark transition-colors"
           >
             <MessageCircle className="w-4 h-4" /> Chat dengan Customer Service
           </Link>
           <div className="mt-3">
-            <Link href="/" className="text-sm font-medium text-[#8f6f6d] hover:text-[#5b403e]">
+            <Link href="/" className="text-sm font-medium text-brand-gray-400 hover:text-brand-gray-700">
               Kembali ke Beranda
             </Link>
           </div>

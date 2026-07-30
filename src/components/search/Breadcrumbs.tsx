@@ -7,18 +7,18 @@ interface BreadcrumbsProps {
 
 export default function Breadcrumbs({ query = "Semua Kategori" }: { query?: string }) {
   return (
-    <nav className="hidden md:flex items-center gap-[11px] text-[14px] text-[#8f6f6d] mb-[15px]">
-      <Link href="/" className="hover:text-[#b51822] transition-colors">
+    <nav className="hidden md:flex items-center gap-[11px] text-[14px] text-brand-gray-400 mb-[15px]">
+      <Link href="/" className="hover:text-brand-red transition-colors">
         Home
       </Link>
-      <ChevronRight className="w-3 h-3 text-[#5b403e]" />
-      <span className={query ? "text-[14px] text-[#5b403e]" : "text-[14px] text-[#1c1b1b]"}>
+      <ChevronRight className="w-3 h-3 text-brand-gray-700" />
+      <span className={query ? "text-[14px] text-brand-gray-700" : "text-[14px] text-brand-gray-900"}>
         Search
       </span>
       {query && (
         <>
-          <ChevronRight className="w-3 h-3 text-[#5b403e]" />
-          <span className="text-[14px] text-[#1c1b1b]">
+          <ChevronRight className="w-3 h-3 text-brand-gray-700" />
+          <span className="text-[14px] text-brand-gray-900">
             "{query}"
           </span>
         </>

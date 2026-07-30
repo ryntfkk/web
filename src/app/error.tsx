@@ -17,13 +17,13 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f7f5f4] px-4">
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-[#e5e2e1] max-w-md w-full text-center">
+    <div className="min-h-screen flex items-center justify-center bg-brand-gray-60 px-4">
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-brand-gray-100 max-w-md w-full text-center">
         <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6">
-          <AlertCircle className="w-8 h-8 text-[#b51822]" />
+          <AlertCircle className="w-8 h-8 text-brand-red" />
         </div>
-        <h2 className="text-xl font-bold text-[#1c1b1b] mb-2">Terjadi Kesalahan</h2>
-        <p className="text-sm text-[#5b403e] mb-6">
+        <h2 className="text-xl font-bold text-brand-gray-900 mb-2">Terjadi Kesalahan</h2>
+        <p className="text-sm text-brand-gray-700 mb-6">
           Maaf, terjadi kesalahan tak terduga pada sistem kami. Tim kami telah diberitahu.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -36,7 +36,7 @@ export default function GlobalError({
           </Button>
           <Button
             onClick={() => reset()}
-            className="w-full sm:w-auto bg-[#b51822] hover:bg-[#90121a] text-white"
+            className="w-full sm:w-auto bg-brand-red hover:bg-brand-red-dark text-white"
           >
             Coba Lagi
           </Button>

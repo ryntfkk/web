@@ -16,7 +16,7 @@ interface MapViewProps {
   linkLabel?: string;
 }
 
-// ── Loader Google Maps JS (singleton, berbagi script dengan MapPicker) ──
+// â”€â”€ Loader Google Maps JS (singleton, berbagi script dengan MapPicker) â”€â”€
 let mapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
   if (typeof window === 'undefined') return Promise.reject(new Error('no window'));
@@ -51,7 +51,7 @@ function loadGoogleMaps(): Promise<void> {
   return p;
 }
 
-// MapView — peta READ-ONLY (marker tidak bisa digeser) untuk menampilkan
+// MapView â€” peta READ-ONLY (marker tidak bisa digeser) untuk menampilkan
 // koordinat alamat pelanggan di detail pesanan mitra. Selalu menyertakan
 // tautan "Buka di Google Maps" sebagai fallback (mis. API key belum diset).
 export default function MapView({ lat, lng, label, className, linkLabel }: MapViewProps) {
@@ -62,7 +62,7 @@ export default function MapView({ lat, lng, label, className, linkLabel }: MapVi
 
   const hasCoords = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
   const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  // API_KEY konstan → turunkan saat render, jangan setState di dalam effect.
+  // API_KEY konstan â†’ turunkan saat render, jangan setState di dalam effect.
   const showError = error !== null || !API_KEY;
 
   useEffect(() => {
@@ -103,8 +103,8 @@ export default function MapView({ lat, lng, label, className, linkLabel }: MapVi
 
   if (!hasCoords) {
     return (
-      <div className={`bg-[#f7f5f4] border border-[#e5e2e1] rounded-lg flex items-center justify-center p-4 text-center ${className || 'h-40'}`}>
-        <p className="text-xs text-[#9e8e8c]">Koordinat lokasi tidak tersedia untuk pesanan ini.</p>
+      <div className={`bg-brand-gray-60 border border-brand-gray-100 rounded-lg flex items-center justify-center p-4 text-center ${className || 'h-40'}`}>
+        <p className="text-xs text-brand-gray-450">Koordinat lokasi tidak tersedia untuk pesanan ini.</p>
       </div>
     );
   }
@@ -112,14 +112,14 @@ export default function MapView({ lat, lng, label, className, linkLabel }: MapVi
   return (
     <div className="space-y-2">
       {showError ? (
-        <div className={`bg-[#f7f5f4] border border-[#e5e2e1] rounded-lg flex flex-col items-center justify-center gap-1.5 p-4 text-center ${className || 'h-40'}`}>
-          <MapPin className="w-5 h-5 text-[#b51822]" />
-          <p className="text-xs text-[#9e8e8c]">Peta tidak dapat dimuat.</p>
+        <div className={`bg-brand-gray-60 border border-brand-gray-100 rounded-lg flex flex-col items-center justify-center gap-1.5 p-4 text-center ${className || 'h-40'}`}>
+          <MapPin className="w-5 h-5 text-brand-red" />
+          <p className="text-xs text-brand-gray-450">Peta tidak dapat dimuat.</p>
         </div>
       ) : (
         <div
           ref={containerRef}
-          className={`w-full rounded-lg overflow-hidden border border-[#e5e2e1] ${className || 'h-48'}`}
+          className={`w-full rounded-lg overflow-hidden border border-brand-gray-100 ${className || 'h-48'}`}
           style={{ zIndex: 0 }}
         />
       )}
@@ -127,7 +127,7 @@ export default function MapView({ lat, lng, label, className, linkLabel }: MapVi
         href={gmapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#b51822] hover:underline"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-red hover:underline"
       >
         <ExternalLink className="w-3.5 h-3.5" />
         {linkLabel || 'Buka di Google Maps (navigasi)'}

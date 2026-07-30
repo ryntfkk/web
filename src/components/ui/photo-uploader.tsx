@@ -66,7 +66,7 @@ export function PhotoUploader({
             onClick={() => inputRef.current?.click()}
             className={cn(
               "w-20 h-20 rounded-md border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-colors shrink-0",
-              error ? "border-[#E53E3E] bg-[#FFF5F5] text-[#E53E3E]" : "border-[#e5e2e1] bg-[#f7f5f4] hover:bg-[#f4f0ef] text-[#9e8e8c]"
+              error ? "border-brand-error bg-brand-error-soft text-brand-error" : "border-brand-gray-100 bg-brand-gray-60 hover:bg-brand-surface-warm text-brand-gray-450"
             )}
           >
             <Camera className="w-5 h-5" />
@@ -76,7 +76,7 @@ export function PhotoUploader({
         )}
       </div>
       
-      {(error || internalError) && <p className="text-xs text-[#E53E3E] mt-1">{error || internalError}</p>}
+      {(error || internalError) && <p className="text-xs text-brand-error mt-1">{error || internalError}</p>}
       
       <input
         ref={inputRef}
@@ -104,7 +104,7 @@ function PhotoPreview({ file, onRemove }: { file: File, onRemove: () => void }) 
   }, [file]);
 
   return (
-    <div className="relative w-20 h-20 rounded-md border border-[#e5e2e1] overflow-hidden group shrink-0">
+    <div className="relative w-20 h-20 rounded-md border border-brand-gray-100 overflow-hidden group shrink-0">
       {url && <img src={url} alt={`Preview`} className="w-full h-full object-cover" />}
       <button
         type="button"

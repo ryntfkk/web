@@ -99,7 +99,7 @@ export default function ProfilePage() {
     cancelled: orders.filter(o => matchesFilter(o.status, 'cancelled')).length,
   };
 
-  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
+  if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized || !user) return null;
 
   const tabs = [
@@ -121,7 +121,7 @@ export default function ProfilePage() {
   const logoutButton = (
     <Button
       variant="secondary"
-      className="w-full py-4 text-[#b51822] border-[#b51822] hover:bg-[#fdf2f2]"
+      className="w-full py-4 text-brand-red border-brand-red hover:bg-brand-red-soft"
       onClick={logout}
       disabled={loading}
     >
@@ -131,9 +131,9 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
+    <div className="page-h bg-brand-gray-60 pb-20 md:pb-8">
       {/* Header - Full Width (shared mobile & desktop) */}
-      <div className="bg-gradient-to-br from-[#b51822] via-[#d63b45] to-[#b51822] text-white px-4 py-6 md:py-10 relative overflow-hidden shadow-md">
+      <div className="bg-gradient-to-br from-brand-red via-brand-red-accent to-brand-red text-white px-4 py-6 md:py-10 relative overflow-hidden shadow-md">
         {/* Decorative background shapes */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
@@ -182,7 +182,7 @@ export default function ProfilePage() {
 
         {logoutButton}
 
-        <p className="text-center text-xs text-[#8f6f6d]">Versi 1.0.0</p>
+        <p className="text-center text-xs text-brand-gray-400">Versi 1.0.0</p>
       </div>
 
       {/* Desktop (lg+) — Two Column Layout dengan tab */}
@@ -215,24 +215,24 @@ export default function ProfilePage() {
                 {/* Account Settings */}
                 <MenuCard title="Informasi Akun">
                   <div className="w-full flex items-center p-4 text-left">
-                    <User className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                    <User className="w-5 h-5 text-brand-gray-400 mr-3" />
                     <div className="flex-1">
-                      <span className="text-[#32201f] font-medium block text-sm">Nama</span>
-                      <span className="text-xs text-[#8f6f6d]">{user.name}</span>
+                      <span className="text-brand-gray-800 font-medium block text-sm">Nama</span>
+                      <span className="text-xs text-brand-gray-400">{user.name}</span>
                     </div>
                   </div>
                   <div className="w-full flex items-center p-4 text-left">
-                    <Phone className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                    <Phone className="w-5 h-5 text-brand-gray-400 mr-3" />
                     <div className="flex-1">
-                      <span className="text-[#32201f] font-medium block text-sm">Nomor HP</span>
-                      <span className="text-xs text-[#8f6f6d]">{user.phone}</span>
+                      <span className="text-brand-gray-800 font-medium block text-sm">Nomor HP</span>
+                      <span className="text-xs text-brand-gray-400">{user.phone}</span>
                     </div>
                   </div>
                   <div className="w-full flex items-center p-4 text-left">
-                    <Mail className="w-5 h-5 text-[#8f6f6d] mr-3" />
+                    <Mail className="w-5 h-5 text-brand-gray-400 mr-3" />
                     <div className="flex-1">
-                      <span className="text-[#32201f] font-medium block text-sm">Email</span>
-                      <span className="text-xs text-[#8f6f6d]">{user.email || 'Belum diisi'}</span>
+                      <span className="text-brand-gray-800 font-medium block text-sm">Email</span>
+                      <span className="text-xs text-brand-gray-400">{user.email || 'Belum diisi'}</span>
                     </div>
                   </div>
                   <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
@@ -242,7 +242,7 @@ export default function ProfilePage() {
 
                 {logoutButton}
 
-                <p className="text-center text-xs text-[#8f6f6d]">Versi 1.0.0</p>
+                <p className="text-center text-xs text-brand-gray-400">Versi 1.0.0</p>
               </div>
             )}
 
@@ -250,7 +250,7 @@ export default function ProfilePage() {
             {activeTab === 'orders' && (
               <div className="space-y-4">
                 {/* Filter Chips - Horizontal */}
-                <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden p-4">
+                <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden p-4">
                   <div className="flex flex-wrap gap-2">
                     {[
                       { key: 'all' as FilterStatus, label: 'Semua' },
@@ -264,15 +264,15 @@ export default function ProfilePage() {
                         onClick={() => setActiveFilter(filter.key)}
                         className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded border transition-colors ${
                           activeFilter === filter.key
-                            ? 'bg-[#b51822] text-white border-[#b51822]'
-                            : 'bg-white text-[#5b403e] border-[#e5e2e1] hover:border-[#b51822]'
+                            ? 'bg-brand-red text-white border-brand-red'
+                            : 'bg-white text-brand-gray-700 border-brand-gray-100 hover:border-brand-red'
                         }`}
                       >
                         {filter.label}
                         <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                           activeFilter === filter.key
                             ? 'bg-white/20 text-white'
-                            : 'bg-[#e5e2e1] text-[#5b403e]'
+                            : 'bg-brand-gray-100 text-brand-gray-700'
                         }`}>
                           {filterCounts[filter.key]}
                         </span>
@@ -287,28 +287,28 @@ export default function ProfilePage() {
                     // Loading skeletons
                     <>
                       {[1, 2].map(i => (
-                        <div key={i} className="bg-white rounded-lg border border-[#e5e2e1] p-4 animate-pulse">
+                        <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 animate-pulse">
                           <div className="flex justify-between items-start mb-4">
                             <div>
-                              <div className="h-4 w-32 bg-[#e5e2e1] rounded mb-2"></div>
-                              <div className="h-3 w-24 bg-[#e5e2e1] rounded"></div>
+                              <div className="h-4 w-32 bg-brand-gray-100 rounded mb-2"></div>
+                              <div className="h-3 w-24 bg-brand-gray-100 rounded"></div>
                             </div>
-                            <div className="h-6 w-20 bg-[#e5e2e1] rounded"></div>
+                            <div className="h-6 w-20 bg-brand-gray-100 rounded"></div>
                           </div>
                           <div className="space-y-2">
-                            <div className="h-3 w-full bg-[#e5e2e1] rounded"></div>
+                            <div className="h-3 w-full bg-brand-gray-100 rounded"></div>
                           </div>
                         </div>
                       ))}
                     </>
                   ) : filteredOrders.length === 0 ? (
                     // Empty state
-                    <div className="bg-white rounded-lg border border-[#e5e2e1] p-8 text-center">
-                      <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-[#32201f] mb-2">
+                    <div className="bg-white rounded-lg border border-brand-gray-100 p-8 text-center">
+                      <Package className="w-16 h-16 text-brand-gray-400/50 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-brand-gray-800 mb-2">
                         {activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
                       </h3>
-                      <p className="text-sm text-[#8f6f6d] mb-4">
+                      <p className="text-sm text-brand-gray-400 mb-4">
                         {activeFilter === 'all'
                           ? 'Anda belum memiliki pesanan.'
                           : 'Tidak ada pesanan dengan status ini.'}
@@ -323,13 +323,13 @@ export default function ProfilePage() {
                     // Orders list
                     filteredOrders.map(order => {
                       return (
-                        <div key={order.id} className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
+                        <div key={order.id} className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden">
                           {/* Order Header */}
-                          <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
+                          <div className="p-4 border-b border-brand-gray-100 bg-brand-gray-60">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-sm font-semibold text-[#32201f]">{order.order_number}</p>
-                                <p className="text-xs text-[#8f6f6d] flex items-center gap-1 mt-1">
+                                <p className="text-sm font-semibold text-brand-gray-800">{order.order_number}</p>
+                                <p className="text-xs text-brand-gray-400 flex items-center gap-1 mt-1">
                                   <Calendar className="w-3 h-3" />
                                   {formatDateOnly(order.created_at)}
                                 </p>
@@ -345,33 +345,33 @@ export default function ProfilePage() {
                               {order.items?.slice(0, 2).map(item => (
                                 <div key={item.id} className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 bg-[#f7f5f4] rounded flex items-center justify-center">
-                                      <Package className="w-4 h-4 text-[#8f6f6d]" />
+                                    <div className="w-8 h-8 bg-brand-gray-60 rounded flex items-center justify-center">
+                                      <Package className="w-4 h-4 text-brand-gray-400" />
                                     </div>
                                     <div>
-                                      <p className="text-sm font-medium text-[#32201f]">{item.service_name}</p>
-                                      <p className="text-xs text-[#8f6f6d]">x{item.quantity}</p>
+                                      <p className="text-sm font-medium text-brand-gray-800">{item.service_name}</p>
+                                      <p className="text-xs text-brand-gray-400">x{item.quantity}</p>
                                     </div>
                                   </div>
-                                  <p className="text-sm font-semibold text-[#32201f]">
+                                  <p className="text-sm font-semibold text-brand-gray-800">
                                     {formatPrice(item.price * item.quantity)}
                                   </p>
                                 </div>
                               ))}
                               {order.items && order.items.length > 2 && (
-                                <p className="text-xs text-[#8f6f6d] pl-10">
+                                <p className="text-xs text-brand-gray-400 pl-10">
                                   +{order.items.length - 2} layanan lainnya
                                 </p>
                               )}
                             </div>
 
                             {/* Footer */}
-                            <div className="flex items-center justify-between pt-3 border-t border-[#e5e2e1]">
+                            <div className="flex items-center justify-between pt-3 border-t border-brand-gray-100">
                               <div>
-                                <p className="text-xs text-[#8f6f6d]">Total</p>
-                                <p className="text-lg font-bold text-[#b51822]">{formatPrice(order.total_amount)}</p>
+                                <p className="text-xs text-brand-gray-400">Total</p>
+                                <p className="text-lg font-bold text-brand-red">{formatPrice(order.total_amount)}</p>
                               </div>
-                              <Button size="sm" className="bg-[#b51822] hover:bg-[#90121a]" onClick={() => router.push(`/orders/${order.id}`)}>
+                              <Button size="sm" className="bg-brand-red hover:bg-brand-red-dark" onClick={() => router.push(`/orders/${order.id}`)}>
                                 Detail
                                 <ChevronRight className="w-4 h-4 ml-1" />
                               </Button>

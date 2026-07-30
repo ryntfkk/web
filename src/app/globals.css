@@ -114,6 +114,23 @@
   --color-brand-info-soft: #ebf8ff;
   --color-brand-surface-warm: #f4f0ef;
 
+  /* Fase-0 hex sweep round 2: token untuk hex yang muncul berulang tapi
+     belum punya rumah. Dilarang menambah hex baru di luar daftar ini. */
+  --color-brand-gray-800: #32201f; /* foreground gelap alternatif (label/heading) */
+  --color-brand-gray-200: #d5d2d1; /* border muted sedang */
+  --color-brand-gray-70: #f5f3f2; /* surface antara gray-60 & gray-50 */
+  --color-brand-gray-55: #fcfafa; /* surface sangat halus */
+  --color-brand-gray-25: #fafafa; /* surface netral hampir putih */
+  --color-brand-gray-80: #f0eceb; /* surface warm gelap */
+  --color-brand-red-soft: #fdf2f2; /* hover/soft red (juga #fff0f0 #fdeaea #fdf1f1 #fce5e5 #fff9f9) */
+  --color-brand-red-accent: #d63b45; /* gradient accent red */
+  --color-brand-warning-soft: #fffbeb; /* warning bg soft (#FFFBEB) */
+  --color-brand-warning-border: #f6e05e; /* warning border */
+  --color-brand-warning-dark: #744210; /* warning text dark (#92400E #B45309) */
+  --color-brand-error-border: #feb2b2; /* error border light (#FECACA) */
+  --color-brand-success-border: #9ae6b4; /* success border light */
+  --color-brand-orange-soft: #fffaf0; /* orange bg soft */
+
   /* Spacing Tokens (4px base) */
   --space-1: 4px;
   --space-2: 8px;

@@ -49,10 +49,10 @@ export default function ServicesListClient({
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f5f4] flex flex-col">
+    <div className="min-h-screen bg-brand-gray-60 flex flex-col">
       <MobilePageHeader title="Semua Layanan" backHref="/" maxWidthClass="max-w-6xl" />
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Semua Layanan</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Semua Layanan</h1>
 
         {/* Filter kategori */}
         <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
@@ -61,7 +61,7 @@ export default function ServicesListClient({
             className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${
               !activeCategory
                 ? 'bg-brand-blue text-white border-brand-blue'
-                : 'bg-white text-[#1c1b1b] border-[#e5e2e1] hover:border-brand-blue'
+                : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-blue'
             }`}
           >
             Semua
@@ -73,7 +73,7 @@ export default function ServicesListClient({
               className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${
                 activeCategory === cat.id
                   ? 'bg-brand-blue text-white border-brand-blue'
-                  : 'bg-white text-[#1c1b1b] border-[#e5e2e1] hover:border-brand-blue'
+                  : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-blue'
               }`}
             >
               {cat.name}
@@ -106,7 +106,7 @@ export default function ServicesListClient({
                 <button
                   onClick={loadMore}
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-md border border-[#e5e2e1] bg-white text-[14px] font-medium text-[#1c1b1b] hover:border-brand-blue disabled:opacity-60"
+                  className="px-6 py-2.5 rounded-md border border-brand-gray-100 bg-white text-[14px] font-medium text-brand-gray-900 hover:border-brand-blue disabled:opacity-60"
                 >
                   {loading ? 'Memuat…' : 'Muat lebih banyak'}
                 </button>

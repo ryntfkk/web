@@ -21,7 +21,7 @@ interface Address {
 
 /**
  * Pemilih lokasi home ala Grab/ShopeeFood. Koordinat aktif (GPS / alamat
- * tersimpan) men-drive JARAK di kartu jasa & mitra — menggantikan filter kota.
+ * tersimpan) men-drive JARAK di kartu jasa & mitra â€” menggantikan filter kota.
  */
 export default function LocationPicker() {
   // Picu permintaan lokasi OTOMATIS saat home dimuat (dulu tugas LocationNotice
@@ -41,7 +41,7 @@ export default function LocationPicker() {
   const [loadingAddr, setLoadingAddr] = useState(false);
   const [locating, setLocating] = useState(false);
 
-  // Muat alamat tersimpan saat modal dibuka (best-effort; tamu → kosong).
+  // Muat alamat tersimpan saat modal dibuka (best-effort; tamu â†’ kosong).
   useEffect(() => {
     if (!open) return;
     let alive = true;
@@ -74,13 +74,13 @@ export default function LocationPicker() {
   const handleGPS = () => {
     setLocating(true);
     // Paksa ambil ulang GPS meski sudah ada lokasi (guard requestLocation skip
-    // saat sudah punya lokasi) → reset dulu.
+    // saat sudah punya lokasi) â†’ reset dulu.
     useLocationStore.getState().resetLocation();
     useLocationStore.getState().requestLocation();
   };
 
   const pickAddress = (a: Address) => {
-    setManualLocation(a.lat, a.lon, a.label ? `${a.label} — ${a.address}` : a.address);
+    setManualLocation(a.lat, a.lon, a.label ? `${a.label} â€” ${a.address}` : a.address);
     setOpen(false);
   };
 
@@ -90,15 +90,15 @@ export default function LocationPicker() {
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className="group relative flex w-full cursor-pointer items-center justify-between gap-2 sm:gap-3 rounded-xl border border-[#e5e2e1] bg-white px-3.5 py-2.5 sm:px-4 shadow-2xs transition-all duration-200 hover:border-[#b51822]/40 hover:shadow-xs active:scale-[0.995]"
+        className="group relative flex w-full cursor-pointer items-center justify-between gap-2 sm:gap-3 rounded-xl border border-brand-gray-100 bg-white px-3.5 py-2.5 sm:px-4 shadow-2xs transition-all duration-200 hover:border-brand-red/40 hover:shadow-xs active:scale-[0.995]"
       >
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#b51822]/10 text-[#b51822] transition-colors group-hover:bg-[#b51822] group-hover:text-white">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-red/10 text-brand-red transition-colors group-hover:bg-brand-red group-hover:text-white">
             <MapPin className="h-3.5 w-3.5" />
           </div>
 
           <div className="flex min-w-0 flex-1 items-center text-left">
-            <span className="truncate text-[12px] sm:text-[13px] font-bold text-[#1c1b1b]">
+            <span className="truncate text-[12px] sm:text-[13px] font-bold text-brand-gray-900">
               {hasLocation
                 ? (label === 'Lokasi saat ini' ? 'Lokasi GPS saat ini' : label) || 'Lokasi Terpilih'
                 : 'Tentukan lokasi kamu untuk melihat estimasi jarak'}
@@ -106,24 +106,24 @@ export default function LocationPicker() {
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1 text-[11px] sm:text-[12px] font-semibold text-[#8f6f6d] transition-colors group-hover:text-[#b51822]">
+        <div className="flex shrink-0 items-center gap-1 text-[11px] sm:text-[12px] font-semibold text-brand-gray-400 transition-colors group-hover:text-brand-red">
           <span>Ganti</span>
           <ChevronDown className="h-3.5 w-3.5" />
         </div>
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Lokasi Kamu">
-        <p className="mb-4 text-[12px] leading-relaxed text-[#8f6f6d]">
+        <p className="mb-4 text-[12px] leading-relaxed text-brand-gray-400">
           Jarak pada kartu jasa &amp; mitra dihitung dari lokasi ini ke basecamp mitra. Pilih lokasi
           saat ini atau salah satu alamat tersimpan.
         </p>
 
         {/* Notice lokasi tidak aktif (dilebur dari LocationNotice home) */}
         {isResolved && !hasLocation && (
-          <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-[#FEB2B2] bg-[#FFF5F5] p-3">
-            <MapPinOff className="mt-0.5 h-4 w-4 shrink-0 text-[#b51822]" />
-            <p className="text-[12px] leading-snug text-[#5b403e]">
-              <span className="font-semibold text-[#1c1b1b]">Lokasi tidak aktif — jarak tidak ditampilkan.</span>{' '}
+          <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-brand-error-border bg-brand-error-soft p-3">
+            <MapPinOff className="mt-0.5 h-4 w-4 shrink-0 text-brand-red" />
+            <p className="text-[12px] leading-snug text-brand-gray-700">
+              <span className="font-semibold text-brand-gray-900">Lokasi tidak aktif â€” jarak tidak ditampilkan.</span>{' '}
               {permissionStatus === 'denied'
                 ? 'Kamu menolak izin lokasi. Tekan "Gunakan lokasi saat ini" di bawah, atau ubah izin lokasi di pengaturan browser lalu muat ulang.'
                 : 'Aktifkan GPS/izin lokasi, lalu tekan "Gunakan lokasi saat ini" di bawah.'}
@@ -133,7 +133,7 @@ export default function LocationPicker() {
 
         {/* Mini-map lokasi aktif */}
         {hasLocation && latitude != null && longitude != null && (
-          <div className="mb-4 overflow-hidden rounded-xl border border-[#e5e2e1]">
+          <div className="mb-4 overflow-hidden rounded-xl border border-brand-gray-100">
             <MapView lat={latitude} lng={longitude} label={label} className="h-40" />
           </div>
         )}
@@ -143,37 +143,37 @@ export default function LocationPicker() {
           type="button"
           onClick={handleGPS}
           disabled={locating}
-          className="mb-2 flex w-full items-center gap-3 rounded-xl border border-[#e5e2e1] p-3 text-left transition-colors hover:border-[#b51822]/50 disabled:opacity-60"
+          className="mb-2 flex w-full items-center gap-3 rounded-xl border border-brand-gray-100 p-3 text-left transition-colors hover:border-brand-red/50 disabled:opacity-60"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#b51822]/10 text-[#b51822]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
             {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-semibold text-[#1c1b1b]">Gunakan lokasi saat ini</p>
-            <p className="text-[12px] text-[#8f6f6d]">
+            <p className="text-[14px] font-semibold text-brand-gray-900">Gunakan lokasi saat ini</p>
+            <p className="text-[12px] text-brand-gray-400">
               {locating
-                ? 'Mengambil lokasi…'
+                ? 'Mengambil lokasiâ€¦'
                 : permissionStatus === 'denied'
-                  ? 'Izin lokasi ditolak — aktifkan di pengaturan browser'
+                  ? 'Izin lokasi ditolak â€” aktifkan di pengaturan browser'
                   : 'Deteksi otomatis via GPS'}
             </p>
           </div>
           {useLocationStore.getState().source === 'gps' && hasLocation && (
-            <Check className="h-4 w-4 shrink-0 text-[#b51822]" />
+            <Check className="h-4 w-4 shrink-0 text-brand-red" />
           )}
         </button>
 
         {/* Alamat tersimpan */}
         <div className="mt-3">
-          <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-[#8f6f6d]">
+          <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-brand-gray-400">
             Alamat tersimpan
           </p>
           {loadingAddr ? (
-            <div className="py-6 text-center text-[13px] text-[#8f6f6d]">
-              <Loader2 className="mx-auto h-5 w-5 animate-spin text-[#b51822]" />
+            <div className="py-6 text-center text-[13px] text-brand-gray-400">
+              <Loader2 className="mx-auto h-5 w-5 animate-spin text-brand-red" />
             </div>
           ) : addresses.length === 0 ? (
-            <p className="px-1 py-3 text-[12px] text-[#8f6f6d]">
+            <p className="px-1 py-3 text-[12px] text-brand-gray-400">
               Belum ada alamat tersimpan berkoordinat. Tambahkan di menu Alamat pada profil.
             </p>
           ) : (
@@ -187,24 +187,24 @@ export default function LocationPicker() {
                     type="button"
                     onClick={() => pickAddress(a)}
                     className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
-                      active ? 'border-[#b51822] bg-[#b51822]/5' : 'border-[#e5e2e1] hover:border-[#b51822]/50'
+                      active ? 'border-brand-red bg-brand-red/5' : 'border-brand-gray-100 hover:border-brand-red/50'
                     }`}
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f5f3f2] text-[#5b403e]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-gray-70 text-brand-gray-700">
                       <Home className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-semibold text-[#1c1b1b]">
+                      <p className="truncate text-[14px] font-semibold text-brand-gray-900">
                         {a.label || 'Alamat'}
                         {a.is_default && (
-                          <span className="ml-2 rounded bg-[#f5f3f2] px-1.5 py-0.5 text-[10px] font-medium text-[#8f6f6d]">
+                          <span className="ml-2 rounded bg-brand-gray-70 px-1.5 py-0.5 text-[10px] font-medium text-brand-gray-400">
                             Utama
                           </span>
                         )}
                       </p>
-                      <p className="truncate text-[12px] text-[#8f6f6d]">{a.address}</p>
+                      <p className="truncate text-[12px] text-brand-gray-400">{a.address}</p>
                     </div>
-                    {active && <Check className="h-4 w-4 shrink-0 text-[#b51822]" />}
+                    {active && <Check className="h-4 w-4 shrink-0 text-brand-red" />}
                   </button>
                 );
               })}
