@@ -7,10 +7,9 @@ import Image from 'next/image';
 import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton, PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
 
 
 interface OrderInfo {
@@ -82,7 +81,7 @@ export default function ReviewClient() {
     setSubmitting(false);
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
   if (loading) {
     return (

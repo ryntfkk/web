@@ -11,6 +11,7 @@ import { payOrderWithWallet, payOrderWithSnap } from '@/lib/payment';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { formatRupiah } from '@/lib/format';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
+import { PageSkeleton, Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 
 
@@ -94,10 +95,22 @@ export default function PaymentClient() {
     // status 'redirecting' → browser berpindah halaman; biarkan processing.
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
   if (loading) {
-    return <div className="page-h bg-brand-gray-60 flex items-center justify-center"><div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" /></div>;
+    return (
+      <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
+        <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+          <Skeleton className="h-8 w-40" />
+          <div className="rounded-lg border border-brand-gray-100 bg-white p-6 space-y-4">
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const amountToPay = order?.agreed_price || order?.total_amount || 0;

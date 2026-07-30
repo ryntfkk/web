@@ -4,6 +4,7 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -157,6 +158,29 @@ export default function ProfilePage() {
 
       {/* Mobile Hub (< lg) — tiap menu navigasi ke halamannya sendiri */}
       <div className="lg:hidden max-w-lg mx-auto px-4 py-6 space-y-4">
+        {/* Transaction Summary — Item 19 */}
+        {orders.length > 0 && (
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-brand-gray-900">Ringkasan Pesanan</h3>
+              <Link href="/orders" className="text-xs text-brand-red font-medium hover:underline">Lihat semua</Link>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {([
+                { count: filterCounts.pending, label: 'Menunggu', color: 'text-brand-orange' },
+                { count: filterCounts.processing, label: 'Berjalan', color: 'text-brand-info' },
+                { count: filterCounts.completed, label: 'Selesai', color: 'text-brand-success' },
+                { count: filterCounts.cancelled, label: 'Batal', color: 'text-brand-error' },
+              ]).map(s => (
+                <Link key={s.label} href="/orders" className="flex flex-col items-center gap-0.5">
+                  <span className={`text-xl font-bold ${s.color} leading-none`}>{s.count}</span>
+                  <span className="text-[11px] text-brand-gray-400 leading-none">{s.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {partnerCard}
 
         <MenuCard title="Akun">
@@ -212,6 +236,29 @@ export default function ProfilePage() {
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="space-y-4">
+                {/* Transaction Summary — Item 19 */}
+                {orders.length > 0 && (
+                  <div className="bg-white rounded-lg border border-brand-gray-100 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-brand-gray-900">Ringkasan Pesanan</h3>
+                      <Link href="/orders" className="text-xs text-brand-red font-medium hover:underline">Lihat semua</Link>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {([
+                        { count: filterCounts.pending, label: 'Menunggu', color: 'text-brand-orange' },
+                        { count: filterCounts.processing, label: 'Berjalan', color: 'text-brand-info' },
+                        { count: filterCounts.completed, label: 'Selesai', color: 'text-brand-success' },
+                        { count: filterCounts.cancelled, label: 'Batal', color: 'text-brand-error' },
+                      ]).map(s => (
+                        <Link key={s.label} href="/orders" className="flex flex-col items-center gap-0.5">
+                          <span className={`text-xl font-bold ${s.color} leading-none`}>{s.count}</span>
+                          <span className="text-[11px] text-brand-gray-400 leading-none">{s.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Account Settings */}
                 <MenuCard title="Informasi Akun">
                   <div className="w-full flex items-center p-4 text-left">

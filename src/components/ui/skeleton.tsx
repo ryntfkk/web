@@ -10,6 +10,22 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
   );
 }
 
+/** Skeleton level halaman untuk authLoading / gate check. Ringkas, bukan spinner. */
+export function PageSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn('page-h bg-brand-gray-60', className)}>
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="rounded-lg border border-brand-gray-100 bg-white p-4 space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Skeleton kartu layanan — bentuk mengikuti ServiceCard vertikal. */
 export function ServiceCardSkeleton() {
   return (

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 
 // Petakan status dari Midtrans finish-redirect (transaction_status) ke status UI.
@@ -88,7 +89,7 @@ export default function PaymentStatusClient() {
     }
   }, [verifiedSuccess, orderId, router]);
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   if (status === 'success' && verify === 'checking') {
@@ -162,8 +163,16 @@ export default function PaymentStatusClient() {
           <p className="text-sm text-brand-gray-700 mb-6">
             Selesaikan pembayaran Anda sesuai instruksi (mis. transfer ke Virtual Account). Pesanan akan otomatis diproses setelah pembayaran kami terima.
           </p>
+          {orderId && (
+            <p className="text-xs text-brand-gray-450 mb-6">
+              No. Pesanan: <span className="font-semibold text-brand-gray-700">{orderId}</span>
+            </p>
+          )}
           <div className="space-y-3">
-            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace(`/orders/${orderId}`)}>
+            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace(`/payment/${orderId}`)}>
+              Bayar Sekarang
+            </Button>
+            <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.replace(`/orders/${orderId}`)}>
               Lihat Detail Pesanan
             </Button>
             <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.push('/')}>
@@ -184,9 +193,19 @@ export default function PaymentStatusClient() {
           <p className="text-sm text-brand-gray-700 mb-6">
             Batas waktu pembayaran telah habis. Pesanan ini akan dibatalkan otomatis oleh sistem.
           </p>
-          <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.push('/')}>
-            Kembali ke Beranda
-          </Button>
+          {orderId && (
+            <p className="text-xs text-brand-gray-450 mb-6">
+              No. Pesanan: <span className="font-semibold text-brand-gray-700">{orderId}</span>
+            </p>
+          )}
+          <div className="space-y-3">
+            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.push('/')}>
+              Cari Jasa Lain
+            </Button>
+            <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.replace(`/orders/${orderId}`)}>
+              Lihat Detail Pesanan
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -201,9 +220,17 @@ export default function PaymentStatusClient() {
         <p className="text-sm text-brand-gray-700 mb-6">
           {message || 'Maaf, terjadi kesalahan saat memproses pembayaran Anda. Silakan coba lagi.'}
         </p>
+        {orderId && (
+          <p className="text-xs text-brand-gray-450 mb-6">
+            No. Pesanan: <span className="font-semibold text-brand-gray-700">{orderId}</span>
+          </p>
+        )}
         <div className="space-y-3">
           <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace(`/payment/${orderId}`)}>
-            Coba Lagi
+            Coba Bayar Lagi
+          </Button>
+          <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.replace(`/orders/${orderId}`)}>
+            Lihat Detail Pesanan
           </Button>
           <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.push('/')}>
             Kembali ke Beranda

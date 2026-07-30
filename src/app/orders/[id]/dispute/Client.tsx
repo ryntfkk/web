@@ -9,6 +9,7 @@ import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { PageSkeleton, Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 
 
@@ -99,12 +100,21 @@ export default function DisputeClient() {
     }
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
   if (loading) {
-    return <div className="page-h bg-brand-gray-60 flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
-    </div>;
+    return (
+      <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
+        <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+          <Skeleton className="h-8 w-40" />
+          <div className="rounded-lg border border-brand-gray-100 bg-white p-6 space-y-4">
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

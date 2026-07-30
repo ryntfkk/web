@@ -6,7 +6,7 @@ import { MessageSquare } from 'lucide-react';
 import ChatRoomList from '@/components/chat/ChatRoomList';
 import ChatConversation from '@/components/chat/ChatConversation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
+import { ListItemSkeleton } from '@/components/ui/skeleton';
 
 export default function ChatListPage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -26,7 +26,7 @@ export default function ChatListPage() {
     }
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h bg-brand-gray-60"><ListItemSkeleton count={8} /></div>;
   if (!isAuthorized) return null;
 
   return (

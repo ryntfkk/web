@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Loader2, ChevronRight } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useCategories, useSubcategories } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
 
@@ -22,8 +23,23 @@ export default function CategoriesClient() {
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-8">Semua Kategori</h1>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-brand-red" />
+          <div className="space-y-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <section key={i}>
+                <div className="flex items-center gap-3 mb-4">
+                  <Skeleton className="w-11 h-11 rounded-xl shrink-0" />
+                  <Skeleton className="h-5 w-32" />
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6">
+                  {Array.from({ length: 8 }).map((_, j) => (
+                    <div key={j} className="flex flex-col items-center gap-2">
+                      <Skeleton className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl" />
+                      <Skeleton className="w-12 h-3" />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
         ) : isError ? (
           <div className="text-center text-red-500 py-10">Gagal memuat kategori.</div>

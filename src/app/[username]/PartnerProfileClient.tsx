@@ -12,6 +12,7 @@ import ServicesList from '@/components/partner/ServicesList';
 import PortfolioGrid from '@/components/partner/PortfolioGrid';
 import ReviewSection from '@/components/partner/ReviewSection';
 import { Button } from '@/components/ui/button';
+import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, WifiOff, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -26,11 +27,7 @@ export default function PartnerProfileClient({ username }: { username: string })
 
   // Show loading state
   if (isProfileLoading) {
-    return (
-      <div className="page-h bg-brand-gray-60 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-brand-red border-t-transparent rounded-md"></div>
-      </div>
-    );
+    return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   }
 
   // Show error state when API is unreachable or partner not found

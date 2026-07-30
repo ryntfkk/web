@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store, CheckCircle2, Check, Clock, AlertCircle } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
+import { OrderCardSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { formatRupiah as formatPrice, formatDateOnly as formatDate } from '@/lib/format';
@@ -169,7 +170,13 @@ export default function OrdersPage() {
   };
 
   if (authLoading) {
-    return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    return (
+      <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => <OrderCardSkeleton key={i} />)}
+        </div>
+      </div>
+    );
   }
   if (!isAuthorized) {
     return null;
@@ -225,6 +232,33 @@ export default function OrdersPage() {
           </div>
 
           <div className="flex-1 space-y-4 min-w-0">
+            {/* Quick Status Summary — kartu statistik cepat (Item 17) */}
+            {!loading && orders.length > 0 && (
+              <div className="grid grid-cols-4 gap-2">
+                {([
+                  { key: 'pending' as FilterStatus, label: 'Menunggu', icon: Clock, color: 'text-brand-orange' },
+                  { key: 'processing' as FilterStatus, label: 'Berlangsung', icon: Package, color: 'text-brand-info' },
+                  { key: 'completed' as FilterStatus, label: 'Selesai', icon: CheckCircle2, color: 'text-brand-success' },
+                  { key: 'cancelled' as FilterStatus, label: 'Batal', icon: AlertCircle, color: 'text-brand-error' },
+                ]).map(s => {
+                  const Icon = s.icon;
+                  const count = filterCounts[s.key];
+                  const active = activeFilter === s.key;
+                  return (
+                    <button
+                      key={s.key}
+                      onClick={() => setActiveFilter(s.key)}
+                      className={`flex flex-col items-center justify-center gap-1 rounded-lg border p-3 transition-colors ${active ? 'border-brand-red bg-brand-red-soft' : 'border-brand-gray-100 bg-white hover:border-brand-gray-200'}`}
+                    >
+                      <Icon className={`w-5 h-5 ${s.color}`} />
+                      <span className="text-lg font-bold text-brand-gray-900 leading-none">{count}</span>
+                      <span className="text-[11px] text-brand-gray-400 leading-none">{s.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Search */}
             <div className="relative">
               <Search className="w-4 h-4 text-brand-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
