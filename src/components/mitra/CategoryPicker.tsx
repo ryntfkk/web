@@ -35,7 +35,7 @@ export default function CategoryPicker({
   const interacted = useRef(false);
 
   const selectCls =
-    'w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white';
+    'w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white';
 
   // Muat kategori utama sekali.
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function CategoryPicker({
   return (
     <div className="space-y-3">
       <div>
-        <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Kategori Utama</label>
+        <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Kategori Utama</label>
         <select value={mainId} onChange={(e) => handleMain(e.target.value)} className={selectCls}>
           <option value="">Pilih Kategori</option>
           {mains.map((c) => (
@@ -110,8 +110,8 @@ export default function CategoryPicker({
 
       {subs.length > 0 && (
         <div>
-          <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">
-            Subkategori <span className="font-normal text-[#8f6f6d]">(opsional, lebih spesifik)</span>
+          <label className="block text-sm font-semibold text-brand-gray-900 mb-2">
+            Subkategori <span className="font-normal text-brand-gray-400">(opsional, lebih spesifik)</span>
           </label>
           <select value={subId} onChange={(e) => handleSub(e.target.value)} className={selectCls}>
             <option value="">— Umum (tanpa subkategori) —</option>

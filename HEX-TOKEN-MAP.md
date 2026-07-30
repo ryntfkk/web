@@ -8,7 +8,7 @@
 
 1. Ganti `bg-[#xxxx]` → `bg-brand-xxx`, `text-[#xxxx]` → `text-brand-xxx`, `border-[#xxxx]` → `border-brand-xxx`.
 2. Jika hex TIDAK ada di tabel di bawah, JANGAN tebak — catat di laporan akhir dengan path:line:hex supaya ditambahkan ke token.
-3. Jangan sentuh `globals.css`, `manifest.ts`, atau file di `src/app/mitra/*` (di luar scope).
+3. Jangan sentuh `globals.css`, `manifest.ts`.
 4. Jangan ganti hex di inline `style={{ color: '#...' }}` jika itu nilai dinamis dari API/data — hanya ganti yang literal statis.
 5. `#fff`/`#ffffff` → `bg-white`/`text-white` (bukan token). `#000`/`#000000` → `bg-black`/`text-black`.
 6. Setelah edit, jalankan `npx tsc --noEmit -p web` dari root untuk verifikasi tidak ada error tipe baru.
@@ -101,6 +101,17 @@
 | `#718096` | `brand-slate` | mirip #4a5568, pakai slate |
 | `#C05621` | `brand-orange` | mirip #DD6B20, pakai orange |
 | `#FFFAF0` | `brand-orange-soft` | orange bg soft |
+
+## Round 3 — token tambahan untuk hex mitra (sweep mitra)
+
+| Hex | Token utility | Catatan |
+|-----|---------------|---------|
+| `#8f131b` | `brand-red-dark` | mirip #90121a, pakai red-dark |
+| `#96121a` | `brand-red-dark` | mirip #90121a, pakai red-dark |
+| `#975A16` | `brand-amber-dark` | mirip #B7791F, pakai amber-dark |
+| `#FEEBD8` | `brand-orange-light` | mirip #FEEBC8, pakai orange-light |
+| `#fff8f2` | `brand-orange-soft` | mirip #FFFAF0, pakai orange-soft |
+| `#E5F3EB` | `brand-success-soft` | light green badge, mirip #f0fff4 |
 
 ## Hex yang masih TIDAK ada token (laporkan, jangan tebak)
 

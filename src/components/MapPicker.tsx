@@ -152,7 +152,7 @@ export default function MapPicker({ lat, lng, onChange }: MapPickerProps) {
         title="Gunakan lokasi saya"
         className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 bg-white text-brand-gray-900 text-xs font-semibold px-3 py-2 rounded-lg shadow-md border border-brand-gray-100 hover:bg-brand-gray-60 disabled:opacity-60"
       >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#b51822" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-red">
           <circle cx="12" cy="12" r="3" />
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </svg>

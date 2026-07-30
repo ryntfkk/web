@@ -13,6 +13,7 @@ import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import { useUpload } from '@/hooks/useUpload';
 import { useAuthStore } from '@/lib/store/authStore';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
@@ -61,7 +62,7 @@ export default function MitraProfilePage() {
 
   const handleLogout = () => logout();
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   const vs = (verificationStatus || '').toUpperCase();
@@ -69,9 +70,9 @@ export default function MitraProfilePage() {
   const isPending = vs === 'PENDING';
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
       {/* Header — hero premium */}
-      <div className="bg-gradient-to-br from-[#b51822] via-[#d63b45] to-[#b51822] text-white px-4 py-6 md:py-10 relative overflow-hidden shadow-md">
+      <div className="bg-gradient-to-br from-brand-red via-brand-red-accent to-brand-red text-white px-4 py-6 md:py-10 relative overflow-hidden shadow-md">
         {/* Decorative background shapes */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
@@ -98,9 +99,9 @@ export default function MitraProfilePage() {
               </span>
               {verificationStatus !== null && (
                 <span className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${
-                  isVerified ? 'bg-[#F0FFF4]/90 backdrop-blur-sm text-[#276749] border-[#C6F6D5]' :
-                  isPending ? 'bg-[#FFFAF0]/90 backdrop-blur-sm text-[#975A16] border-[#FEEBC8]' :
-                  'bg-white/90 backdrop-blur-sm text-[#9B2C2C] border-[#FED7D7]'
+                  isVerified ? 'bg-brand-success-soft/90 backdrop-blur-sm text-brand-success-dark border-brand-success-light' :
+                  isPending ? 'bg-brand-orange-soft/90 backdrop-blur-sm text-brand-amber-dark border-brand-orange-light' :
+                  'bg-white/90 backdrop-blur-sm text-brand-error-dark border-brand-error-light'
                 }`}>
                   {isVerified && <CheckCircle className="w-3.5 h-3.5" />}
                   {isVerified ? 'Terverifikasi' : isPending ? 'Menunggu Verifikasi' : 'Ditolak'}
@@ -134,12 +135,12 @@ export default function MitraProfilePage() {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 bg-white py-4 rounded border border-[#b51822] text-[#b51822] font-semibold hover:bg-[#fdf2f2] transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-white py-4 rounded border border-brand-red text-brand-red font-semibold hover:bg-brand-red-soft transition-colors"
         >
           <LogOut className="w-5 h-5" /> Keluar dari Akun
         </button>
 
-        <p className="text-center text-xs text-[#8f6f6d]">Versi 1.0.0</p>
+        <p className="text-center text-xs text-brand-gray-400">Versi 1.0.0</p>
       </div>
 
       <SwitchRoleModal isOpen={showSwitchModal} onClose={() => setShowSwitchModal(false)} />

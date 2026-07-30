@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ImagePlus, X, Loader2 } from 'lucide-react';
+import { ImagePlus, X } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import { VariationsEditor } from '@/components/ui/variations-editor';
 import CategoryPicker from '@/components/mitra/CategoryPicker';
 import { fetchAPI } from '@/lib/api';
@@ -46,7 +47,7 @@ export default function NewMitraServicePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   const handleAddPhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,20 +195,20 @@ export default function NewMitraServicePage() {
   };
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
       {/* Header */}
       <MobilePageHeader alwaysShow title="Tambah Layanan Baru" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nama Layanan</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Layanan</label>
             <input
               type="text"
               placeholder="Contoh: Cuci AC 0.5 - 1 PK"
               value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
@@ -217,7 +218,7 @@ export default function NewMitraServicePage() {
           />
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Satuan Harga</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Satuan Harga</label>
             <select
               value={form.unit}
               onChange={e => {
@@ -225,14 +226,14 @@ export default function NewMitraServicePage() {
                 // per_hour: estimasi otomatis dikunci ke 60 menit (1 jam).
                 setForm(f => ({ ...f, unit, duration_minutes: unit === 'per_hour' ? '60' : f.duration_minutes }));
               }}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white"
             >
               <option value="per_service">Per Jasa (borongan)</option>
               <option value="per_hour">Per Jam</option>
               <option value="per_unit">Per Unit</option>
               <option value="per_kg">Per Kg</option>
             </select>
-            <p className="text-xs text-[#9e8e8c] mt-1">Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.</p>
+            <p className="text-xs text-brand-gray-450 mt-1">Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.</p>
           </div>
 
           {/* Variasi (opsional) — bila diisi, harga tunggal disembunyikan */}
@@ -241,43 +242,43 @@ export default function NewMitraServicePage() {
           <div className="grid grid-cols-2 gap-4">
             {variations.length === 0 ? (
               <div>
-                <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Harga</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1c1b1b] font-bold text-sm">Rp</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray-900 font-bold text-sm">Rp</span>
                   <input
                     type="text"
                     value={form.price}
                     onChange={handlePriceChange}
                     placeholder="0"
-                    className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-sm font-bold text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                    className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
                   />
                 </div>
-                <p className="text-xs text-[#9e8e8c] mt-1">Minimal Rp 50.000</p>
+                <p className="text-xs text-brand-gray-450 mt-1">Minimal Rp 50.000</p>
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
-                <div className="w-full p-3 border border-dashed border-[#e5e2e1] rounded text-sm text-[#9e8e8c] bg-[#f7f5f4]">
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Harga</label>
+                <div className="w-full p-3 border border-dashed border-brand-gray-100 rounded text-sm text-brand-gray-450 bg-brand-gray-60">
                   Otomatis dari variasi termurah
                 </div>
               </div>
             )}
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Minimal Order</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Minimal Order</label>
               <input
                 type="number"
                 min="1"
                 step="1"
                 value={form.min_order}
                 onChange={e => setForm({ ...form, min_order: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
-              <p className="text-xs text-[#9e8e8c] mt-1">Jumlah minimal per pesanan ({unitLabel(form.unit)})</p>
+              <p className="text-xs text-brand-gray-450 mt-1">Jumlah minimal per pesanan ({unitLabel(form.unit)})</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Estimasi Durasi (Menit)</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Estimasi Durasi (Menit)</label>
             <input
               type="number"
               min="15"
@@ -285,32 +286,33 @@ export default function NewMitraServicePage() {
               value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
               disabled={form.unit === 'per_hour'}
               onChange={e => setForm({ ...form, duration_minutes: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] disabled:bg-[#f7f5f4] disabled:text-[#9e8e8c]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red disabled:bg-brand-gray-60 disabled:text-brand-gray-450"
             />
-            <p className="text-xs text-[#9e8e8c] mt-1">
+            <p className="text-xs text-brand-gray-450 mt-1">
               {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
             </p>
           </div>
 
           {/* Foto Layanan */}
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">
-              Foto Layanan <span className="text-[#9e8e8c] font-normal">(opsional, maks {MAX_PHOTOS})</span>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">
+              Foto Layanan <span className="text-brand-gray-450 font-normal">(opsional, maks {MAX_PHOTOS})</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
               {photos.map((p, idx) => (
-                <div key={p.preview} className="relative aspect-square rounded-lg overflow-hidden border border-[#e5e2e1]">
+                <div key={p.preview} className="relative aspect-square rounded-lg overflow-hidden border border-brand-gray-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={p.preview} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(idx)}
                     className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/80"
+                    aria-label="Hapus"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                   {idx === 0 && (
-                    <span className="absolute bottom-1 left-1 bg-[#b51822] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">UTAMA</span>
+                    <span className="absolute bottom-1 left-1 bg-brand-red text-white text-[9px] font-bold px-1.5 py-0.5 rounded">UTAMA</span>
                   )}
                 </div>
               ))}
@@ -318,7 +320,7 @@ export default function NewMitraServicePage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="aspect-square rounded-lg border-2 border-dashed border-[#e5e2e1] flex flex-col items-center justify-center gap-1 text-[#9e8e8c] hover:border-[#b51822] hover:text-[#b51822] transition-colors"
+                  className="aspect-square rounded-lg border-2 border-dashed border-brand-gray-100 flex flex-col items-center justify-center gap-1 text-brand-gray-450 hover:border-brand-red hover:text-brand-red transition-colors"
                 >
                   <ImagePlus className="w-6 h-6" />
                   <span className="text-[10px] font-semibold">Tambah</span>
@@ -336,44 +338,44 @@ export default function NewMitraServicePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Termasuk (Include) <span className="text-[#9e8e8c] font-normal">(1 per baris)</span></label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Termasuk (Include) <span className="text-brand-gray-450 font-normal">(1 per baris)</span></label>
             <textarea
               placeholder={"Pengecekan AC\nCuci Indoor\nCuci Outdoor"}
               value={form.included_items}
               onChange={e => setForm({ ...form, included_items: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Tidak Termasuk (Exclude) <span className="text-[#9e8e8c] font-normal">(1 per baris)</span></label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Tidak Termasuk (Exclude) <span className="text-brand-gray-450 font-normal">(1 per baris)</span></label>
             <textarea
               placeholder={"Penambahan Freon\nPerbaikan Sparepart"}
               value={form.excluded_items}
               onChange={e => setForm({ ...form, excluded_items: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Deskripsi <span className="text-[#9e8e8c] font-normal">(opsional)</span></label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Deskripsi <span className="text-brand-gray-450 font-normal">(opsional)</span></label>
             <textarea
               placeholder="Deskripsi detail tentang layanan ini..."
               value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
-          {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
+          {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
 
-          <div className="pt-4 border-t border-[#e5e2e1]">
+          <div className="pt-4 border-t border-brand-gray-100">
             <Button
               type="submit"
-              className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
+              className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
               disabled={loading}
             >
               {loading ? (progress || 'Menyimpan...') : 'Simpan Layanan'}

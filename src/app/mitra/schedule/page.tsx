@@ -10,6 +10,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
 import { unwrapData } from '@/lib/order-utils';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 
 const DAYS = [
@@ -148,19 +149,19 @@ export default function MitraSchedulePage() {
   };
 
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
       <MobilePageHeader alwaysShow title="Atur Jadwal Operasional" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
-        <div className="bg-[#FFF5F5] border border-[#FEB2B2] rounded-lg p-4 flex gap-3 items-start mb-2">
-          <Clock className="w-5 h-5 text-[#E53E3E] shrink-0 mt-0.5" />
-          <p className="text-sm text-[#E53E3E] font-medium leading-relaxed">
+        <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-4 flex gap-3 items-start mb-2">
+          <Clock className="w-5 h-5 text-brand-error shrink-0 mt-0.5" />
+          <p className="text-sm text-brand-error font-medium leading-relaxed">
             Tentukan hari dan jam Anda bersedia menerima pesanan. Pelanggan hanya bisa memesan pada jam operasional yang aktif.
           </p>
         </div>
@@ -177,23 +178,23 @@ export default function MitraSchedulePage() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5, 6, 7].map(i => (
-              <div key={i} className="bg-white rounded-xl border border-[#e5e2e1] p-4 h-16 animate-pulse" />
+              <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-16 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-[#e5e2e1] overflow-hidden">
+          <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
             {DAYS.map((day, index) => {
               const dayData = schedule[day.id];
               return (
-                <div key={day.id} className={`p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${index < DAYS.length - 1 ? 'border-b border-[#e5e2e1]' : ''}`}>
+                <div key={day.id} className={`p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${index < DAYS.length - 1 ? 'border-b border-brand-gray-100' : ''}`}>
                   <label className="flex items-center gap-3 cursor-pointer min-w-[120px]">
                     <input
                       type="checkbox"
                       checked={dayData.is_active}
                       onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, is_active: e.target.checked } })}
-                      className="w-4 h-4 text-[#b51822] rounded focus:ring-[#b51822]"
+                      className="w-4 h-4 text-brand-red rounded focus:ring-brand-red"
                     />
-                    <span className="font-semibold text-[#1c1b1b]">{day.label}</span>
+                    <span className="font-semibold text-brand-gray-900">{day.label}</span>
                   </label>
 
                   {dayData.is_active ? (
@@ -202,19 +203,19 @@ export default function MitraSchedulePage() {
                         type="time"
                         value={dayData.start_time}
                         onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, start_time: e.target.value } })}
-                        className="p-2 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                        className="p-2 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
                       />
-                      <span className="text-[#9e8e8c] font-medium">-</span>
+                      <span className="text-brand-gray-450 font-medium">-</span>
                       <input
                         type="time"
                         value={dayData.end_time}
                         onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, end_time: e.target.value } })}
-                        className="p-2 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                        className="p-2 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
                       />
                     </div>
                   ) : (
                     <div className="pl-7 sm:pl-0">
-                      <span className="text-sm font-semibold text-[#9e8e8c] bg-[#f7f5f4] px-3 py-1.5 rounded">Tutup</span>
+                      <span className="text-sm font-semibold text-brand-gray-450 bg-brand-gray-60 px-3 py-1.5 rounded">Tutup</span>
                     </div>
                   )}
                 </div>
@@ -234,10 +235,10 @@ export default function MitraSchedulePage() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] p-4 z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 p-4 z-50">
         <div className="max-w-lg mx-auto">
           <Button 
-            className="w-full bg-[#b51822] hover:bg-[#8f131b] text-white rounded-xl h-12 text-sm font-bold shadow-sm"
+            className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-xl h-12 text-sm font-bold shadow-sm"
             onClick={confirmSave}
             disabled={loading || saving}
           >
@@ -250,13 +251,13 @@ export default function MitraSchedulePage() {
       {showWarningModal && (
         <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl p-6 max-w-sm w-full animate-in zoom-in-95">
-            <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Konfirmasi Perubahan</h3>
-            <p className="text-sm text-[#5b403e] mb-6">
+            <h3 className="text-lg font-bold text-brand-gray-900 mb-2">Konfirmasi Perubahan</h3>
+            <p className="text-sm text-brand-gray-700 mb-6">
               Perubahan jam operasional tidak akan memengaruhi <strong>{activeOrderCount}</strong> pesanan aktif/terjadwal yang sudah ada. Tetap simpan?
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setShowWarningModal(false)}>Batal</Button>
-              <Button className="flex-1 bg-[#b51822] text-white rounded-xl" onClick={() => { setShowWarningModal(false); handleSave(); }}>Simpan</Button>
+              <Button className="flex-1 bg-brand-red text-white rounded-xl" onClick={() => { setShowWarningModal(false); handleSave(); }}>Simpan</Button>
             </div>
           </div>
         </div>

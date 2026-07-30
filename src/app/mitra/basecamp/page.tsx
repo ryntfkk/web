@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, MapPin, AlertCircle } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import RegionSelect from '@/components/ui/RegionSelect';
@@ -98,28 +99,28 @@ export default function MitraBasecampPage() {
     }
   };
 
-  if (authLoading || loading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading || loading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
-  const inputCls = "w-full p-3 border border-[#e5e2e1] rounded-md text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]";
+  const inputCls = "w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red";
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
       <MobilePageHeader alwaysShow title="Alamat Basecamp" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
-        <div className="bg-[#FFF5F5] border border-[#FEB2B2] rounded-lg p-3 flex gap-3">
-          <AlertCircle className="w-5 h-5 text-[#E53E3E] shrink-0" />
-          <p className="text-xs text-[#C53030] leading-relaxed">
+        <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-3 flex gap-3">
+          <AlertCircle className="w-5 h-5 text-brand-error shrink-0" />
+          <p className="text-xs text-brand-error-dark leading-relaxed">
             Perubahan basecamp hanya memengaruhi perhitungan jarak & biaya transport pada pesanan <strong>BARU</strong>.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-4">
+        <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-4">
           <div>
-            <h3 className="font-bold text-[#1c1b1b] mb-1">Titik Lokasi Basecamp</h3>
-            <p className="text-xs text-[#8f6f6d] mb-3">Ketuk/geser pin, atau tekan tombol “Lokasi saya” untuk memakai GPS.</p>
-            <div className="h-64 rounded-lg overflow-hidden border border-[#e5e2e1]">
+            <h3 className="font-bold text-brand-gray-900 mb-1">Titik Lokasi Basecamp</h3>
+            <p className="text-xs text-brand-gray-400 mb-3">Ketuk/geser pin, atau tekan tombol “Lokasi saya” untuk memakai GPS.</p>
+            <div className="h-64 rounded-lg overflow-hidden border border-brand-gray-100">
               <MapPicker lat={basecamp.lat} lng={basecamp.lon} onChange={(lat, lng) => setBasecamp({ lat, lon: lng })} />
             </div>
           </div>
@@ -130,13 +131,13 @@ export default function MitraBasecampPage() {
             selectClassName={inputCls + ' bg-white'}
           />
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Detail Alamat (opsional)</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Detail Alamat (opsional)</label>
             <input className={inputCls} placeholder="Nama jalan, patokan, dsb." value={detail} onChange={(e) => setDetail(e.target.value)} />
           </div>
 
-          {error && <div className="text-sm text-[#E53E3E]">{error}</div>}
+          {error && <div className="text-sm text-brand-error">{error}</div>}
 
-          <Button className="w-full bg-[#b51822] hover:bg-[#96121a] text-white py-6" onClick={handleSave} disabled={submitting}>
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-6" onClick={handleSave} disabled={submitting}>
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Simpan Basecamp'}
           </Button>
         </div>

@@ -9,7 +9,7 @@ import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { getErrorMessage } from '@/types/api';
-import { Loader2 } from 'lucide-react';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 interface SavedBank {
   bank_code?: string;
@@ -73,11 +73,7 @@ export default function WithdrawPage() {
   const isSubmittingRef = useRef(false);
 
   if (authLoading) {
-    return (
-      <div className="page-h flex items-center justify-center bg-[#f7f5f4]">
-        <Loader2 className="w-8 h-8 text-[#b51822] animate-spin" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (!isAuthorized) {
@@ -155,18 +151,18 @@ export default function WithdrawPage() {
 
   if (success) {
     return (
-      <div className="page-h bg-[#f7f5f4] flex flex-col justify-center px-4">
-        <div className="bg-white rounded-xl shadow-sm border border-[#e5e2e1] p-6 max-w-sm w-full mx-auto text-center">
-          <div className="w-16 h-16 bg-[#F0FFF4] rounded-full flex items-center justify-center mx-auto mb-4">
-            <Landmark className="w-8 h-8 text-[#38A169]" />
+      <div className="page-h bg-brand-gray-60 flex flex-col justify-center px-4">
+        <div className="bg-white rounded-xl shadow-sm border border-brand-gray-100 p-6 max-w-sm w-full mx-auto text-center">
+          <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
+            <Landmark className="w-8 h-8 text-brand-success" />
           </div>
-          <h2 className="text-xl font-bold text-[#1c1b1b] mb-2">Penarikan Berhasil Diajukan</h2>
-          <p className="text-sm text-[#5b403e] mb-6">
+          <h2 className="text-xl font-bold text-brand-gray-900 mb-2">Penarikan Berhasil Diajukan</h2>
+          <p className="text-sm text-brand-gray-700 mb-6">
             Dana akan masuk ke rekening Anda dalam 1-2 hari kerja.
           </p>
           {/* replace: layar sukses ini transien — back dari dompet tidak boleh
               memantulkan pengguna kembali ke "Penarikan Berhasil" yang basi. */}
-          <Button className="w-full bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.replace('/mitra/wallet')}>
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace('/mitra/wallet')}>
             Kembali ke Dompet
           </Button>
         </div>
@@ -175,78 +171,78 @@ export default function WithdrawPage() {
   }
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
       <MobilePageHeader title="Tarik Dana" backHref="/mitra/wallet" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Tarik Dana</h1>
-        <div className="bg-[#b51822] text-white p-4 rounded-xl mb-6 shadow-sm">
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Tarik Dana</h1>
+        <div className="bg-brand-red text-white p-4 rounded-xl mb-6 shadow-sm">
           <p className="text-sm text-white/80 mb-1">Saldo Tersedia</p>
           <p className="text-2xl font-bold">{formatPrice(walletBalance)}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-white rounded-xl border border-[#e5e2e1] p-4">
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nominal Penarikan</label>
+          <div className="bg-white rounded-xl border border-brand-gray-100 p-4">
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nominal Penarikan</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1c1b1b] font-bold">Rp</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray-900 font-bold">Rp</span>
               <input
                 type="text"
                 value={amount}
                 onChange={handleAmountChange}
                 placeholder="0"
-                className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-lg font-bold text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-lg font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
-            <p className="text-xs text-[#9e8e8c] mt-2 flex items-center gap-1 mb-4">
+            <p className="text-xs text-brand-gray-450 mt-2 flex items-center gap-1 mb-4">
               <AlertCircle className="w-3.5 h-3.5" /> Minimal {formatPrice(platformConfig?.min_transaction || 50000)}
             </p>
             
-            <div className="border-t border-[#e5e2e1] pt-3 space-y-2">
-              <div className="flex justify-between text-sm text-[#5b403e]">
+            <div className="border-t border-brand-gray-100 pt-3 space-y-2">
+              <div className="flex justify-between text-sm text-brand-gray-700">
                 <span>Biaya Admin</span>
                 <span>{formatPrice(platformConfig?.withdrawal_fee || 3000)}</span>
               </div>
-              <div className="flex justify-between text-sm font-bold text-[#1c1b1b]">
+              <div className="flex justify-between text-sm font-bold text-brand-gray-900">
                 <span>Total Diterima</span>
                 <span>{amount ? formatPrice(Math.max(0, parseInt(amount.replace(/\D/g, ''), 10) - (platformConfig?.withdrawal_fee || 3000))) : 'Rp 0'}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 space-y-4">
+          <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-4">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="font-bold text-[#1c1b1b]">Rekening Tujuan</h3>
+              <h3 className="font-bold text-brand-gray-900">Rekening Tujuan</h3>
               <button 
                 type="button" 
                 onClick={() => router.push('/mitra/bank-account')}
-                className="text-sm font-semibold text-[#b51822] hover:underline"
+                className="text-sm font-semibold text-brand-red hover:underline"
               >
                 Ubah Rekening
               </button>
             </div>
             
             {savedBank ? (
-              <div className="bg-[#f7f5f4] border border-[#e5e2e1] p-4 rounded-xl">
+              <div className="bg-brand-gray-60 border border-brand-gray-100 p-4 rounded-xl">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-bold text-[#1c1b1b]">{savedBank.bank_name || savedBank.bank_code}</p>
-                    <p className="text-sm text-[#5b403e] font-mono mt-1">{savedBank.account_number || savedBank.bank_account_number}</p>
-                    <p className="text-sm text-[#9e8e8c] uppercase mt-0.5">{savedBank.account_name || savedBank.bank_account_name}</p>
+                    <p className="font-bold text-brand-gray-900">{savedBank.bank_name || savedBank.bank_code}</p>
+                    <p className="text-sm text-brand-gray-700 font-mono mt-1">{savedBank.account_number || savedBank.bank_account_number}</p>
+                    <p className="text-sm text-brand-gray-450 uppercase mt-0.5">{savedBank.account_name || savedBank.bank_account_name}</p>
                   </div>
-                  <div className="bg-[#E5F3EB] text-[#38A169] text-[10px] font-bold px-2 py-1 rounded uppercase">
+                  <div className="bg-brand-success-soft text-brand-success text-[10px] font-bold px-2 py-1 rounded uppercase">
                     Tersimpan
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-[#FFF5F5] border border-[#FEB2B2] p-4 rounded-xl text-center">
-                <p className="text-sm text-[#E53E3E] font-medium mb-2">Rekening belum ditambahkan.</p>
+              <div className="bg-brand-error-soft border border-brand-error-border p-4 rounded-xl text-center">
+                <p className="text-sm text-brand-error font-medium mb-2">Rekening belum ditambahkan.</p>
                 <Button 
                   type="button"
                   variant="outline"
                   onClick={() => router.push('/mitra/bank-account')}
-                  className="w-full text-sm border-[#E53E3E] text-[#E53E3E] hover:bg-[#FFF5F5]"
+                  className="w-full text-sm border-brand-error text-brand-error hover:bg-brand-error-soft"
                 >
                   Tambah Rekening (Butuh OTP)
                 </Button>
@@ -254,12 +250,12 @@ export default function WithdrawPage() {
             )}
           </div>
 
-          {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
+          {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
 
           <div className="pt-4">
             <Button
               type="submit"
-              className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
+              className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
               disabled={loading}
             >
               {loading ? 'Memproses...' : 'Tarik Dana'}

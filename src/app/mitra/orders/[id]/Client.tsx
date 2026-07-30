@@ -13,6 +13,7 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
 import { getErrorMessage } from '@/types/api';
 import dynamic from 'next/dynamic';
@@ -100,47 +101,47 @@ const ADDITIONAL_FEE_LABEL: Record<string, string> = {
  *  apa yang harus mitra lakukan sekarang. */
 const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> = {
   WAITING_CONFIRMATION: {
-    tone: 'from-[#D69E2E] to-[#B7791F]',
+    tone: 'from-brand-warning to-brand-amber-dark',
     title: 'Pesanan baru menunggu jawabanmu',
     desc: 'Terima atau tolak sebelum waktu habis. Tanpa respons, pesanan batal otomatis.',
   },
   WAITING_PAYMENT: {
-    tone: 'from-[#DD6B20] to-[#B75415]',
+    tone: 'from-brand-orange to-brand-orange-dark',
     title: 'Menunggu pelanggan membayar',
     desc: 'Kamu sudah menerima pesanan ini. Jadwalmu sudah dikunci sampai pembayaran masuk.',
   },
   PAID: {
-    tone: 'from-[#3182CE] to-[#2A6296]',
+    tone: 'from-brand-info to-brand-info-dark',
     title: 'Sudah dibayar — siap dikerjakan',
     desc: 'Dana ditahan aman oleh Posko Jasa. Datang sesuai jadwal, lalu tekan "Mulai Kerjakan".',
   },
   IN_PROGRESS: {
-    tone: 'from-[#805AD5] to-[#5F3DC4]',
+    tone: 'from-brand-purple to-brand-purple',
     title: 'Sedang kamu kerjakan',
     desc: 'Tekan "Selesai" bila pekerjaan rampung. Butuh material tambahan? Ajukan biaya tambahan.',
   },
   WAITING_ADDITIONAL_PAY: {
-    tone: 'from-[#DD6B20] to-[#B75415]',
+    tone: 'from-brand-orange to-brand-orange-dark',
     title: 'Menunggu persetujuan biaya tambahan',
     desc: 'Pekerjaan tertahan sampai pelanggan menyetujui atau menolak tagihan tambahanmu.',
   },
   WAITING_CUSTOMER_CONFIRM: {
-    tone: 'from-[#5A67D8] to-[#434190]',
+    tone: 'from-brand-blue-dark to-brand-purple-dark',
     title: 'Menunggu konfirmasi pelanggan',
     desc: 'Bila pelanggan tidak merespons dalam 24 jam, dana cair otomatis ke saldomu.',
   },
   COMPLETED: {
-    tone: 'from-[#38A169] to-[#276749]',
+    tone: 'from-brand-success to-brand-success-dark',
     title: 'Pesanan selesai',
     desc: 'Pendapatan sudah masuk ke saldomu.',
   },
   CANCELLED: {
-    tone: 'from-[#718096] to-[#4A5568]',
+    tone: 'from-brand-slate to-brand-slate',
     title: 'Pesanan dibatalkan',
     desc: 'Pesanan ini sudah tidak berjalan dan jadwalmu kembali terbuka.',
   },
   DISPUTED: {
-    tone: 'from-[#E53E3E] to-[#9B2C2C]',
+    tone: 'from-brand-error to-brand-error-dark',
     title: 'Pesanan dalam sengketa',
     desc: 'Dana dibekukan hingga Tim CS menyelesaikan sengketa (maks. 3×24 jam).',
   },
@@ -188,10 +189,10 @@ function Section({ title, icon: Icon, children, className = '' }: {
   className?: string;
 }) {
   return (
-    <section className={`bg-white rounded-xl border border-[#e5e2e1] p-4 sm:p-5 ${className}`}>
+    <section className={`bg-white rounded-xl border border-brand-gray-100 p-4 sm:p-5 ${className}`}>
       {title && (
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-[#1c1b1b] mb-3">
-          {Icon && <Icon className="w-4 h-4 text-[#b51822]" />}
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-brand-gray-900 mb-3">
+          {Icon && <Icon className="w-4 h-4 text-brand-red" />}
           {title}
         </h2>
       )}
@@ -293,22 +294,22 @@ export default function MitraOrderDetailClient() {
   };
 
   if (authLoading) {
-    return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    return <PageSkeleton />;
   }
   if (!isAuthorized) return null;
 
   if (loading) {
     return (
-      <div className="page-h bg-[#f7f5f4] pb-20">
-        <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 lg:hidden">
-          <div className="h-6 w-40 bg-[#e5e2e1] rounded animate-pulse" />
+      <div className="page-h bg-brand-gray-60 pb-20">
+        <div className="bg-white border-b border-brand-gray-100 px-4 py-4 lg:hidden">
+          <div className="h-6 w-40 bg-brand-gray-100 rounded animate-pulse" />
         </div>
         <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
-          <div className="h-28 bg-[#e5e2e1] rounded-xl animate-pulse" />
+          <div className="h-28 bg-brand-gray-100 rounded-xl animate-pulse" />
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-[#e5e2e1] p-4 animate-pulse">
-              <div className="h-4 w-3/4 bg-[#e5e2e1] rounded mb-3" />
-              <div className="h-4 w-1/2 bg-[#e5e2e1] rounded" />
+            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 animate-pulse">
+              <div className="h-4 w-3/4 bg-brand-gray-100 rounded mb-3" />
+              <div className="h-4 w-1/2 bg-brand-gray-100 rounded" />
             </div>
           ))}
         </div>
@@ -318,9 +319,9 @@ export default function MitraOrderDetailClient() {
 
   if (!order) {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[#5b403e] mb-4">Pesanan tidak ditemukan.</p>
+          <p className="text-brand-gray-700 mb-4">Pesanan tidak ditemukan.</p>
           <Button onClick={() => router.push('/mitra/orders')}>Kembali ke Daftar</Button>
         </div>
       </div>
@@ -370,10 +371,10 @@ export default function MitraOrderDetailClient() {
     <>
       {status === 'WAITING_CONFIRMATION' && (
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg" onClick={() => setShowRejectModal(true)} disabled={actionLoading}>
+          <Button variant="outline" className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg" onClick={() => setShowRejectModal(true)} disabled={actionLoading}>
             Tolak
           </Button>
-          <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg" onClick={() => setShowAcceptModal(true)} disabled={actionLoading}>
+          <Button className="flex-1 bg-brand-success hover:bg-brand-success-dark rounded-lg" onClick={() => setShowAcceptModal(true)} disabled={actionLoading}>
             Terima
           </Button>
         </div>
@@ -387,14 +388,14 @@ export default function MitraOrderDetailClient() {
         return (
           <div>
             <Button
-              className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-lg"
+              className="w-full bg-brand-red hover:bg-brand-red-dark rounded-lg"
               onClick={() => handleAction('start')}
               disabled={actionLoading || tooEarly}
             >
               Mulai Kerjakan
             </Button>
             {tooEarly && (
-              <p className="mt-1.5 text-xs text-[#9e8e8c] text-center">
+              <p className="mt-1.5 text-xs text-brand-gray-450 text-center">
                 Bisa dimulai paling awal <strong>2 jam sebelum jadwal</strong> ({formatDate(startEarliest.toISOString())}).
               </p>
             )}
@@ -405,34 +406,34 @@ export default function MitraOrderDetailClient() {
       {status === 'IN_PROGRESS' && (
         <>
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e] rounded-lg" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)} disabled={actionLoading}>
+            <Button variant="outline" className="flex-1 border-brand-gray-100 text-brand-gray-700 rounded-lg" onClick={() => router.push(`/mitra/orders/${order.id}/additional-fee`)} disabled={actionLoading}>
               + Biaya Tambahan
             </Button>
-            <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg" onClick={() => { setCompleteAttestation(false); setShowCompleteModal(true); }} disabled={actionLoading}>
+            <Button className="flex-1 bg-brand-success hover:bg-brand-success-dark rounded-lg" onClick={() => { setCompleteAttestation(false); setShowCompleteModal(true); }} disabled={actionLoading}>
               Selesai
             </Button>
           </div>
-          <Button variant="outline" className="w-full border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg flex items-center justify-center gap-2" onClick={() => setShowDisputeModal(true)} disabled={actionLoading}>
+          <Button variant="outline" className="w-full border-brand-error text-brand-error hover:bg-red-50 rounded-lg flex items-center justify-center gap-2" onClick={() => setShowDisputeModal(true)} disabled={actionLoading}>
             <AlertTriangle className="w-4 h-4" /> Lapor Masalah
           </Button>
         </>
       )}
 
       {status === 'WAITING_ADDITIONAL_PAY' && (
-        <Button variant="outline" className="w-full border-[#e5e2e1] text-[#5b403e] rounded-lg" disabled>
+        <Button variant="outline" className="w-full border-brand-gray-100 text-brand-gray-700 rounded-lg" disabled>
           Menunggu Pembayaran Biaya Tambahan
         </Button>
       )}
 
       {status === 'WAITING_CUSTOMER_CONFIRM' && (
-        <Button variant="outline" className="w-full border-[#e5e2e1] text-[#5b403e] rounded-lg" disabled>
+        <Button variant="outline" className="w-full border-brand-gray-100 text-brand-gray-700 rounded-lg" disabled>
           Menunggu Konfirmasi Pelanggan
         </Button>
       )}
 
       {status === 'DISPUTED' && (
         <Button
-          className="w-full bg-[#b51822] hover:bg-[#90121a] rounded-lg flex items-center justify-center gap-2"
+          className="w-full bg-brand-red hover:bg-brand-red-dark rounded-lg flex items-center justify-center gap-2"
           onClick={async () => {
             const res = await fetchAPI<{ id: string }>(`/disputes/order/${order.id}`);
             if (res.success && res.data?.id) router.push(`/disputes/${res.data.id}`);
@@ -450,13 +451,13 @@ export default function MitraOrderDetailClient() {
   const earningsCard = (
     <Section title="Rincian Pendapatan" icon={Wallet}>
       {order.total_service_price !== undefined && (
-        <div className="flex justify-between text-sm text-[#5b403e]">
+        <div className="flex justify-between text-sm text-brand-gray-700">
           <span>Nilai Jasa (dasar komisi)</span>
-          <span className="text-[#1c1b1b]">{formatPrice(order.total_service_price + paidServiceFee)}</span>
+          <span className="text-brand-gray-900">{formatPrice(order.total_service_price + paidServiceFee)}</span>
         </div>
       )}
 
-      <div className="mt-1 flex justify-between text-sm text-[#E53E3E]">
+      <div className="mt-1 flex justify-between text-sm text-brand-error">
         {/* Nilai komisi diambil dari backend (order.platform_fee); persentase tidak
             di-hardcode di label agar tetap benar bila rate platform berubah. */}
         <span>Komisi Platform</span>
@@ -464,28 +465,28 @@ export default function MitraOrderDetailClient() {
       </div>
 
       {paidMaterialFee > 0 && (
-        <div className="mt-1 flex justify-between text-sm text-[#5b403e]">
+        <div className="mt-1 flex justify-between text-sm text-brand-gray-700">
           <span>Biaya Material</span>
-          <span className="text-[#1c1b1b]">+ {formatPrice(paidMaterialFee)}</span>
+          <span className="text-brand-gray-900">+ {formatPrice(paidMaterialFee)}</span>
         </div>
       )}
 
       {order.transport_fee !== undefined && order.transport_fee > 0 && (
-        <div className="mt-1 flex justify-between text-sm text-[#5b403e]">
+        <div className="mt-1 flex justify-between text-sm text-brand-gray-700">
           <span>Biaya Transport</span>
-          <span className="text-[#1c1b1b]">+ {formatPrice(order.transport_fee)}</span>
+          <span className="text-brand-gray-900">+ {formatPrice(order.transport_fee)}</span>
         </div>
       )}
 
-      <div className="mt-2 pt-2 border-t border-dashed border-[#e5e2e1] flex justify-between font-bold text-base">
-        <span className="text-[#1c1b1b]">
+      <div className="mt-2 pt-2 border-t border-dashed border-brand-gray-100 flex justify-between font-bold text-base">
+        <span className="text-brand-gray-900">
           {status === 'COMPLETED' ? 'Pendapatan Bersih' : 'Estimasi Pendapatan'}
         </span>
-        <span className="text-[#b51822]">{formatPrice(partnerNet)}</span>
+        <span className="text-brand-red">{formatPrice(partnerNet)}</span>
       </div>
 
       {order.partner_amount_estimated && (
-        <p className="mt-1.5 text-xs text-[#9e8e8c] flex items-start gap-1">
+        <p className="mt-1.5 text-xs text-brand-gray-450 flex items-start gap-1">
           <Clock className="w-3 h-3 mt-0.5 shrink-0" />
           Angka estimasi — dikonfirmasi saat pesanan selesai.
         </p>
@@ -494,20 +495,20 @@ export default function MitraOrderDetailClient() {
   );
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-40 lg:pb-10">
+    <div className="page-h bg-brand-gray-60 pb-40 lg:pb-10">
 
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-3 sticky top-0 z-30 lg:hidden">
+      <div className="bg-white border-b border-brand-gray-100 px-4 py-3 sticky top-0 z-30 lg:hidden">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/mitra/orders')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-lg" aria-label="Kembali">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+          <button onClick={() => router.push('/mitra/orders')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-lg" aria-label="Kembali">
+            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <div className="min-w-0">
-            <h1 className="text-base font-bold text-[#1c1b1b] leading-tight">Detail Pesanan</h1>
-            <p className="text-xs text-[#9e8e8c] truncate">{order.order_number}</p>
+            <h1 className="text-base font-bold text-brand-gray-900 leading-tight">Detail Pesanan</h1>
+            <p className="text-xs text-brand-gray-450 truncate">{order.order_number}</p>
           </div>
           <button
             onClick={() => setHelpOpen(true)}
-            className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-[#5b403e] hover:bg-[#f7f5f4]"
+            className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-brand-gray-700 hover:bg-brand-gray-60"
             aria-label="Bantuan"
           >
             <HelpCircle className="w-5 h-5" />
@@ -519,18 +520,18 @@ export default function MitraOrderDetailClient() {
       <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6">
         <div className="hidden lg:flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-[#1c1b1b]">Detail Pesanan</h1>
-            <p className="text-sm text-[#9e8e8c] mt-1">{order.order_number}</p>
+            <h1 className="text-2xl font-bold text-brand-gray-900">Detail Pesanan</h1>
+            <p className="text-sm text-brand-gray-450 mt-1">{order.order_number}</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              className="rounded-lg border-[#e5e2e1] text-[#5b403e]"
+              className="rounded-lg border-brand-gray-100 text-brand-gray-700"
               onClick={() => setHelpOpen(true)}
             >
               <HelpCircle className="w-4 h-4 mr-1.5" /> Bantuan
             </Button>
-            <Button variant="outline" className="rounded-lg border-[#e5e2e1] text-[#5b403e]" onClick={() => router.push('/mitra/orders')}>
+            <Button variant="outline" className="rounded-lg border-brand-gray-100 text-brand-gray-700" onClick={() => router.push('/mitra/orders')}>
               <ArrowLeft className="w-4 h-4 mr-1.5" /> Semua Pesanan
             </Button>
           </div>
@@ -611,16 +612,16 @@ export default function MitraOrderDetailClient() {
                 return (
                   <div key={label} className="flex-1 flex flex-col items-center relative">
                     {i > 0 && (
-                      <div className={`absolute top-[11px] right-1/2 w-full h-0.5 ${i <= step ? 'bg-[#38A169]' : 'bg-[#e5e2e1]'}`} aria-hidden />
+                      <div className={`absolute top-[11px] right-1/2 w-full h-0.5 ${i <= step ? 'bg-brand-success' : 'bg-brand-gray-100'}`} aria-hidden />
                     )}
                     <div className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${
-                      done ? 'bg-[#38A169] border-[#38A169] text-white'
-                      : active ? 'bg-white border-[#b51822] text-[#b51822]'
-                      : 'bg-white border-[#e5e2e1] text-[#9e8e8c]'
+                      done ? 'bg-brand-success border-brand-success text-white'
+                      : active ? 'bg-white border-brand-red text-brand-red'
+                      : 'bg-white border-brand-gray-100 text-brand-gray-450'
                     }`}>
-                      {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-[#b51822] animate-pulse' : 'bg-[#e5e2e1]'}`} />}
+                      {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-brand-red animate-pulse' : 'bg-brand-gray-100'}`} />}
                     </div>
-                    <span className={`mt-1.5 text-[10px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-[#1c1b1b]' : done ? 'text-[#5b403e]' : 'text-[#9e8e8c]'}`}>
+                    <span className={`mt-1.5 text-[10px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-brand-gray-900' : done ? 'text-brand-gray-700' : 'text-brand-gray-450'}`}>
                       {label}
                     </span>
                   </div>
@@ -636,22 +637,22 @@ export default function MitraOrderDetailClient() {
             {order.customer_info && (
               <Section title="Pemesan" icon={User}>
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#e5e2e1] flex items-center justify-center text-lg font-bold text-[#5b403e] shrink-0 overflow-hidden">
+                  <div className="w-12 h-12 rounded-full bg-brand-gray-100 flex items-center justify-center text-lg font-bold text-brand-gray-700 shrink-0 overflow-hidden">
                     {order.customer_info.avatar_url
                       ? <img src={order.customer_info.avatar_url} alt={order.customer_info.name} className="w-full h-full object-cover" />
                       : getInitial(order.customer_info.name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[#1c1b1b] truncate">{order.customer_info.name}</p>
+                    <p className="font-semibold text-brand-gray-900 truncate">{order.customer_info.name}</p>
                     {order.customer_info.username && (
-                      <p className="text-xs text-[#9e8e8c] truncate">@{order.customer_info.username}</p>
+                      <p className="text-xs text-brand-gray-450 truncate">@{order.customer_info.username}</p>
                     )}
 
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1 text-xs border-[#e5e2e1] text-[#5b403e] rounded-lg shrink-0"
+                    className="gap-1 text-xs border-brand-gray-100 text-brand-gray-700 rounded-lg shrink-0"
                     onClick={handleChat}
                     disabled={isChatLoading}
                   >
@@ -666,22 +667,22 @@ export default function MitraOrderDetailClient() {
             <Section title="Jadwal & Lokasi" icon={MapPin}>
               <div className="space-y-3">
                 <div className="flex items-start gap-2.5 text-sm">
-                  <Calendar className="w-4 h-4 text-[#b51822] mt-0.5 shrink-0" />
+                  <Calendar className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-[#1c1b1b]">{formatDate(order.scheduled_at)}</p>
-                    <p className="text-xs text-[#9e8e8c] mt-0.5">Waktu kamu dijadwalkan datang</p>
+                    <p className="text-brand-gray-900">{formatDate(order.scheduled_at)}</p>
+                    <p className="text-xs text-brand-gray-450 mt-0.5">Waktu kamu dijadwalkan datang</p>
                   </div>
                 </div>
                 {order.service_address && (
                   <div className="flex items-start gap-2.5 text-sm">
-                    <MapPin className="w-4 h-4 text-[#b51822] mt-0.5 shrink-0" />
+                    <MapPin className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-[#1c1b1b]">{order.service_address}</p>
+                      <p className="text-brand-gray-900">{order.service_address}</p>
                       {order.address_detail && (
-                        <p className="text-xs text-[#9e8e8c] mt-0.5">{order.address_detail}</p>
+                        <p className="text-xs text-brand-gray-450 mt-0.5">{order.address_detail}</p>
                       )}
                       {(order.district || order.city || order.province) && (
-                        <p className="text-xs text-[#5b403e] mt-0.5">
+                        <p className="text-xs text-brand-gray-700 mt-0.5">
                           {[order.district, order.city, order.province].filter(Boolean).join(', ')}
                         </p>
                       )}
@@ -701,19 +702,19 @@ export default function MitraOrderDetailClient() {
               </div>
 
               {order.notes && (
-                <div className="mt-3 pt-3 border-t border-[#e5e2e1]">
-                  <p className="text-xs text-[#9e8e8c] mb-1">Catatan dari pelanggan</p>
-                  <p className="text-sm text-[#1c1b1b]">{order.notes}</p>
+                <div className="mt-3 pt-3 border-t border-brand-gray-100">
+                  <p className="text-xs text-brand-gray-450 mb-1">Catatan dari pelanggan</p>
+                  <p className="text-sm text-brand-gray-900">{order.notes}</p>
                 </div>
               )}
 
               {order.photos && order.photos.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-[#e5e2e1]">
-                  <p className="text-xs text-[#9e8e8c] mb-2">Foto dari pelanggan</p>
+                <div className="mt-3 pt-3 border-t border-brand-gray-100">
+                  <p className="text-xs text-brand-gray-450 mb-2">Foto dari pelanggan</p>
                   <div className="flex gap-2 flex-wrap">
                     {order.photos.map((photo, i) => (
                       <a key={i} href={photo} target="_blank" rel="noopener noreferrer">
-                        <img src={photo} alt={`Foto pesanan ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[#e5e2e1] hover:opacity-90 transition-opacity" />
+                        <img src={photo} alt={`Foto pesanan ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-brand-gray-100 hover:opacity-90 transition-opacity" />
                       </a>
                     ))}
                   </div>
@@ -723,17 +724,17 @@ export default function MitraOrderDetailClient() {
 
             {/* Layanan */}
             <Section title="Layanan Dipesan" icon={ClipboardList}>
-              <div className="divide-y divide-[#e5e2e1]">
+              <div className="divide-y divide-brand-gray-100">
                 {order.items?.map(item => (
                   <div key={item.id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
-                    <div className="w-14 h-14 rounded-lg bg-[#f7f5f4] border border-[#e5e2e1] overflow-hidden shrink-0 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-lg bg-brand-gray-60 border border-brand-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
                       {item.photo_url
                         ? <img src={item.photo_url} alt={item.service_name} className="w-full h-full object-cover" />
-                        : <ClipboardList className="w-5 h-5 text-[#c9bcba]" />}
+                        : <ClipboardList className="w-5 h-5 text-brand-gray-300" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1c1b1b] leading-snug">{item.service_name}</p>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-[#9e8e8c]">
+                      <p className="text-sm font-medium text-brand-gray-900 leading-snug">{item.service_name}</p>
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-brand-gray-450">
                         <span>{item.quantity}x</span>
                         <span>·</span>
                         <span>{formatPrice(item.price)}</span>
@@ -745,7 +746,7 @@ export default function MitraOrderDetailClient() {
                         ) : null}
                       </div>
                     </div>
-                    <span className="text-sm font-semibold text-[#1c1b1b] shrink-0">
+                    <span className="text-sm font-semibold text-brand-gray-900 shrink-0">
                       {formatPrice(item.price * item.quantity)}
                     </span>
                   </div>
@@ -761,19 +762,19 @@ export default function MitraOrderDetailClient() {
                     <div key={fee.id} className="flex justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className={`font-medium truncate ${
-                          fee.status === 'REJECTED' ? 'text-[#9e8e8c] line-through'
-                          : fee.status === 'PENDING' ? 'text-[#DD6B20]' : 'text-[#1c1b1b]'
+                          fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
+                          : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
                         }`}>
                           {fee.item_name}
                           <span className="ml-1 text-xs font-normal">({fee.quantity}× {formatPrice(fee.price)})</span>
                         </p>
-                        <p className="text-xs text-[#9e8e8c]">
+                        <p className="text-xs text-brand-gray-450">
                           {fee.type === 'material' ? 'Material' : 'Jasa'} · {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
                         </p>
                       </div>
                       <span className={`font-medium shrink-0 ${
-                        fee.status === 'REJECTED' ? 'text-[#9e8e8c] line-through'
-                        : fee.status === 'PENDING' ? 'text-[#DD6B20]' : 'text-[#1c1b1b]'
+                        fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
+                        : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
                       }`}>
                         + {formatPrice(fee.total)}
                       </span>
@@ -781,7 +782,7 @@ export default function MitraOrderDetailClient() {
                   ))}
                 </div>
                 {pendingFees.length > 0 && (
-                  <p className="mt-3 pt-3 border-t border-[#e5e2e1] text-xs text-[#DD6B20]">
+                  <p className="mt-3 pt-3 border-t border-brand-gray-100 text-xs text-brand-orange">
                     {pendingFees.length} tagihan menunggu keputusan pelanggan. Biaya jasa tambahan kena komisi 12%; material dibayar penuh ke kamu.
                   </p>
                 )}
@@ -792,35 +793,35 @@ export default function MitraOrderDetailClient() {
             <Section title="Yang Dibayar Pelanggan" icon={Wallet}>
               <div className="space-y-1.5 text-sm">
                 {order.total_service_price !== undefined && (
-                  <div className="flex justify-between text-[#5b403e]">
+                  <div className="flex justify-between text-brand-gray-700">
                     <span>Subtotal Jasa</span>
-                    <span className="text-[#1c1b1b]">{formatPrice(order.total_service_price)}</span>
+                    <span className="text-brand-gray-900">{formatPrice(order.total_service_price)}</span>
                   </div>
                 )}
                 {order.promo_discount !== undefined && order.promo_discount > 0 && (
-                  <div className="flex justify-between text-[#38A169]">
+                  <div className="flex justify-between text-brand-success">
                     <span>Diskon Promo</span>
                     <span>− {formatPrice(order.promo_discount)}</span>
                   </div>
                 )}
                 {order.transport_fee !== undefined && (
-                  <div className="flex justify-between text-[#5b403e]">
+                  <div className="flex justify-between text-brand-gray-700">
                     <span>Biaya Transport</span>
-                    <span className="text-[#1c1b1b]">{order.transport_fee === 0 ? 'Gratis' : formatPrice(order.transport_fee)}</span>
+                    <span className="text-brand-gray-900">{order.transport_fee === 0 ? 'Gratis' : formatPrice(order.transport_fee)}</span>
                   </div>
                 )}
                 {order.admin_fee !== undefined && order.admin_fee > 0 && (
-                  <div className="flex justify-between text-[#9e8e8c] text-sm">
+                  <div className="flex justify-between text-brand-gray-450 text-sm">
                     <span className="italic">Biaya Layanan (ditanggung pelanggan)</span>
                     <span>{formatPrice(order.admin_fee)}</span>
                   </div>
                 )}
-                <div className="mt-2 pt-2 border-t border-[#e5e2e1] flex justify-between font-semibold">
-                  <span className="text-[#1c1b1b]">Total Dibayar Pelanggan</span>
-                  <span className="text-[#1c1b1b]">{formatPrice(order.total_amount)}</span>
+                <div className="mt-2 pt-2 border-t border-brand-gray-100 flex justify-between font-semibold">
+                  <span className="text-brand-gray-900">Total Dibayar Pelanggan</span>
+                  <span className="text-brand-gray-900">{formatPrice(order.total_amount)}</span>
                 </div>
                 {order.refunded_amount !== undefined && order.refunded_amount > 0 && (
-                  <div className="flex justify-between text-[#38A169] font-medium border-t border-[#e5e2e1] pt-2 mt-2">
+                  <div className="flex justify-between text-brand-success font-medium border-t border-brand-gray-100 pt-2 mt-2">
                     <span>Dikembalikan ke pelanggan</span>
                     <span>{formatPrice(order.refunded_amount)}</span>
                   </div>
@@ -833,16 +834,16 @@ export default function MitraOrderDetailClient() {
               <Section title="Ulasan Pelanggan" icon={Star}>
                 <div className="flex items-center gap-1 mb-2">
                   {[1, 2, 3, 4, 5].map(s => (
-                    <Star key={s} className={`w-4 h-4 ${s <= order.review!.rating ? 'fill-[#D69E2E] text-[#D69E2E]' : 'text-[#e5e2e1]'}`} />
+                    <Star key={s} className={`w-4 h-4 ${s <= order.review!.rating ? 'fill-brand-warning text-brand-warning' : 'text-brand-gray-100'}`} />
                   ))}
-                  <span className="text-sm text-[#5b403e] ml-1">{order.review.rating}/5</span>
-                  <span className="text-xs text-[#9e8e8c] ml-auto">{formatShort(order.review.created_at)}</span>
+                  <span className="text-sm text-brand-gray-700 ml-1">{order.review.rating}/5</span>
+                  <span className="text-xs text-brand-gray-450 ml-auto">{formatShort(order.review.created_at)}</span>
                 </div>
-                {order.review.comment && <p className="text-sm text-[#1c1b1b]">&ldquo;{order.review.comment}&rdquo;</p>}
+                {order.review.comment && <p className="text-sm text-brand-gray-900">&ldquo;{order.review.comment}&rdquo;</p>}
                 {order.review.image_urls && order.review.image_urls.length > 0 && (
                   <div className="flex gap-2 flex-wrap mt-3">
                     {order.review.image_urls.map((img, i) => (
-                      <img key={i} src={img} alt={`Foto ulasan ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-[#e5e2e1]" />
+                      <img key={i} src={img} alt={`Foto ulasan ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-brand-gray-100" />
                     ))}
                   </div>
                 )}
@@ -851,19 +852,19 @@ export default function MitraOrderDetailClient() {
 
             {/* Info + riwayat */}
             <Section title="Info Pesanan" icon={ClipboardList}>
-              <div className="flex items-center justify-between text-sm mb-3 pb-3 border-b border-[#e5e2e1]">
-                <span className="text-[#9e8e8c]">Nomor Pesanan</span>
-                <button onClick={copyOrderNumber} className="flex items-center gap-1.5 font-medium text-[#1c1b1b] hover:text-[#b51822]">
+              <div className="flex items-center justify-between text-sm mb-3 pb-3 border-b border-brand-gray-100">
+                <span className="text-brand-gray-450">Nomor Pesanan</span>
+                <button onClick={copyOrderNumber} className="flex items-center gap-1.5 font-medium text-brand-gray-900 hover:text-brand-red">
                   {order.order_number}
-                  {copied ? <Check className="w-3.5 h-3.5 text-[#38A169]" /> : <Copy className="w-3.5 h-3.5 text-[#9e8e8c]" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-brand-success" /> : <Copy className="w-3.5 h-3.5 text-brand-gray-450" />}
                 </button>
               </div>
               <ol className="space-y-2.5">
                 {timeline.map((t, i) => (
                   <li key={t.label} className="flex items-start gap-2.5 text-sm">
-                    <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${i === timeline.length - 1 ? 'bg-[#b51822]' : 'bg-[#c9bcba]'}`} />
-                    <span className="text-[#5b403e] flex-1">{t.label}</span>
-                    <span className="text-xs text-[#9e8e8c] shrink-0">{formatShort(t.at)}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${i === timeline.length - 1 ? 'bg-brand-red' : 'bg-brand-gray-300'}`} />
+                    <span className="text-brand-gray-700 flex-1">{t.label}</span>
+                    <span className="text-xs text-brand-gray-450 shrink-0">{formatShort(t.at)}</span>
                   </li>
                 ))}
               </ol>
@@ -874,7 +875,7 @@ export default function MitraOrderDetailClient() {
           <div className="space-y-4 lg:sticky lg:top-20">
             {earningsCard}
             {hasActions && (
-              <div className="hidden lg:block bg-white rounded-xl border border-[#e5e2e1] p-4">
+              <div className="hidden lg:block bg-white rounded-xl border border-brand-gray-100 p-4">
                 <div className="flex flex-col gap-2">{actions}</div>
               </div>
             )}
@@ -884,7 +885,7 @@ export default function MitraOrderDetailClient() {
 
       {/* Action bar mobile */}
       {hasActions && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20 lg:hidden pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-20 lg:hidden pb-safe">
           <div className="flex flex-col gap-2">{actions}</div>
         </div>
       )}
@@ -901,19 +902,19 @@ export default function MitraOrderDetailClient() {
       {showAcceptModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4">
           <div className="bg-white rounded-xl w-full max-w-sm p-6">
-            <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Terima Pesanan?</h3>
-            <p className="text-sm text-[#5b403e] mb-4">
+            <h3 className="text-lg font-bold text-brand-gray-900 mb-2">Terima Pesanan?</h3>
+            <p className="text-sm text-brand-gray-700 mb-4">
               Pastikan kamu siap mengerjakan pesanan sesuai jadwal dan harga yang disepakati.
             </p>
-            <div className="bg-[#f7f5f4] rounded-lg p-3 mb-6 text-sm">
+            <div className="bg-brand-gray-60 rounded-lg p-3 mb-6 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#5b403e]">Estimasi pendapatanmu</span>
-                <span className="font-bold text-[#b51822]">{formatPrice(partnerNet)}</span>
+                <span className="text-brand-gray-700">Estimasi pendapatanmu</span>
+                <span className="font-bold text-brand-red">{formatPrice(partnerNet)}</span>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 border-[#e5e2e1] text-[#5b403e]" onClick={() => setShowAcceptModal(false)} disabled={actionLoading}>Batal</Button>
-              <Button className="flex-1 bg-[#38A169] hover:bg-[#2F855A]" onClick={() => handleAction('confirm')} disabled={actionLoading}>
+              <Button variant="outline" className="flex-1 border-brand-gray-100 text-brand-gray-700" onClick={() => setShowAcceptModal(false)} disabled={actionLoading}>Batal</Button>
+              <Button className="flex-1 bg-brand-success hover:bg-brand-success-dark" onClick={() => handleAction('confirm')} disabled={actionLoading}>
                 {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Terima'}
               </Button>
             </div>
@@ -926,18 +927,18 @@ export default function MitraOrderDetailClient() {
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
           <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-[#1c1b1b]">Tolak Pesanan</h3>
+              <h3 className="text-lg font-bold text-brand-gray-900">Tolak Pesanan</h3>
               <button onClick={() => setShowRejectModal(false)} className="p-1 hover:bg-gray-100 rounded-full" aria-label="Tutup">
-                <X className="w-5 h-5 text-[#9e8e8c]" />
+                <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-4">Silakan pilih alasan penolakan. Ini membantu kami meningkatkan kualitas layanan.</p>
+            <p className="text-sm text-brand-gray-700 mb-4">Silakan pilih alasan penolakan. Ini membantu kami meningkatkan kualitas layanan.</p>
 
             <div className="space-y-2 mb-6">
               {['Harga tidak sesuai', 'Jadwal bentrok', 'Di luar area layanan', 'Lainnya'].map(reason => (
                 <button
                   key={reason}
-                  className={`w-full text-left px-4 py-3 border rounded-lg text-sm transition-colors ${rejectReason === reason ? 'border-[#b51822] bg-red-50 text-[#b51822] font-medium' : 'border-[#e5e2e1] text-[#1c1b1b] hover:border-gray-300'}`}
+                  className={`w-full text-left px-4 py-3 border rounded-lg text-sm transition-colors ${rejectReason === reason ? 'border-brand-red bg-red-50 text-brand-red font-medium' : 'border-brand-gray-100 text-brand-gray-900 hover:border-gray-300'}`}
                   onClick={() => setRejectReason(reason)}
                 >
                   {reason}
@@ -946,7 +947,7 @@ export default function MitraOrderDetailClient() {
             </div>
 
             <Button
-              className="w-full bg-[#E53E3E] hover:bg-[#C53030]"
+              className="w-full bg-brand-error hover:bg-brand-error-dark"
               disabled={!rejectReason || actionLoading}
               onClick={() => handleAction('reject', { reason: rejectReason })}
             >
@@ -961,18 +962,18 @@ export default function MitraOrderDetailClient() {
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
           <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-[#1c1b1b]">Lapor Masalah</h3>
-              <button onClick={() => setShowDisputeModal(false)} className="p-2 -mr-2 text-[#9e8e8c] hover:text-[#5b403e]" aria-label="Tutup">
+              <h3 className="text-lg font-bold text-brand-gray-900">Lapor Masalah</h3>
+              <button onClick={() => setShowDisputeModal(false)} className="p-2 -mr-2 text-brand-gray-450 hover:text-brand-gray-700" aria-label="Tutup">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-4 mb-6">
-              <p className="text-sm text-[#5b403e]">
+              <p className="text-sm text-brand-gray-700">
                 Pesanan akan dihentikan sementara (Dispute) dan tim CS akan menengahinya. Berikan alasan masalahmu:
               </p>
               <textarea
-                className="w-full border border-[#e5e2e1] rounded-lg p-3 text-sm focus:outline-none focus:border-[#b51822]"
+                className="w-full border border-brand-gray-100 rounded-lg p-3 text-sm focus:outline-none focus:border-brand-red"
                 placeholder="Tuliskan kendala kamu secara detail..."
                 rows={4}
                 value={disputeReason}
@@ -981,7 +982,7 @@ export default function MitraOrderDetailClient() {
             </div>
 
             <Button
-              className="w-full bg-[#E53E3E] hover:bg-[#C53030] text-white rounded-xl h-12 font-bold"
+              className="w-full bg-brand-error hover:bg-brand-error-dark text-white rounded-xl h-12 font-bold"
               disabled={!disputeReason.trim() || actionLoading}
               onClick={() => handleAction('dispute')}
             >
@@ -996,19 +997,19 @@ export default function MitraOrderDetailClient() {
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
           <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-xl p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-base font-bold text-[#1c1b1b]">Tandai Pekerjaan Selesai</h3>
-              <button onClick={() => setShowCompleteModal(false)} className="p-2 -mr-2 text-[#9e8e8c] hover:text-[#5b403e]" aria-label="Tutup">
+              <h3 className="text-base font-bold text-brand-gray-900">Tandai Pekerjaan Selesai</h3>
+              <button onClick={() => setShowCompleteModal(false)} className="p-2 -mr-2 text-brand-gray-450 hover:text-brand-gray-700" aria-label="Tutup">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-sm text-[#5b403e] mb-4">
+            <p className="text-sm text-brand-gray-700 mb-4">
               Setelah ditandai selesai, pelanggan akan diminta mengkonfirmasi hasil pekerjaan. Dana akan cair setelah pelanggan mengkonfirmasi (atau otomatis dalam 24 jam).
             </p>
 
-            <div className="p-3 bg-[#FFFBEB] border border-[#F6E05E] rounded-lg mb-4">
-              <p className="text-xs text-[#744210] font-medium mb-1">💡 Tips:</p>
-              <p className="text-xs text-[#5b403e]">Pastikan kamu sudah mengambil foto hasil pekerjaan sebagai bukti. Upload di bagian foto pesanan jika diperlukan.</p>
+            <div className="p-3 bg-brand-warning-soft border border-brand-warning-border rounded-lg mb-4">
+              <p className="text-xs text-brand-warning-dark font-medium mb-1">💡 Tips:</p>
+              <p className="text-xs text-brand-gray-700">Pastikan kamu sudah mengambil foto hasil pekerjaan sebagai bukti. Upload di bagian foto pesanan jika diperlukan.</p>
             </div>
 
             <label className="flex items-start gap-2.5 cursor-pointer mb-5">
@@ -1016,19 +1017,19 @@ export default function MitraOrderDetailClient() {
                 type="checkbox"
                 checked={completeAttestation}
                 onChange={e => setCompleteAttestation(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-[#38A169] shrink-0"
+                className="mt-0.5 w-4 h-4 accent-brand-success shrink-0"
               />
-              <span className="text-sm text-[#5b403e]">
+              <span className="text-sm text-brand-gray-700">
                 Saya menyatakan pekerjaan sudah <strong>selesai sepenuhnya</strong> sesuai permintaan pelanggan.
               </span>
             </label>
 
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded-lg border-[#e5e2e1]" onClick={() => setShowCompleteModal(false)}>
+              <Button variant="outline" className="flex-1 rounded-lg border-brand-gray-100" onClick={() => setShowCompleteModal(false)}>
                 Batal
               </Button>
               <Button
-                className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg"
+                className="flex-1 bg-brand-success hover:bg-brand-success-dark rounded-lg"
                 disabled={!completeAttestation || actionLoading}
                 onClick={() => { setShowCompleteModal(false); handleAction('complete'); }}
               >

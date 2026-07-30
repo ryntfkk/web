@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Loader2, X, Trash2 } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import { VariationsEditor } from '@/components/ui/variations-editor';
 import CategoryPicker from '@/components/mitra/CategoryPicker';
 import { fetchAPI } from '@/lib/api';
@@ -93,7 +94,7 @@ export default function EditMitraServicePage() {
     }
   }, [isAuthorized, serviceId]);
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -212,28 +213,24 @@ export default function EditMitraServicePage() {
   };
 
   if (fetchLoading) {
-    return (
-      <div className="page-h bg-[#f7f5f4] flex justify-center items-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#b51822]" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
       {/* Header */}
       <MobilePageHeader alwaysShow title="Edit Layanan" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nama Layanan</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Layanan</label>
             <input
               type="text"
               placeholder="Contoh: Cuci AC 0.5 - 1 PK"
               value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
@@ -243,21 +240,21 @@ export default function EditMitraServicePage() {
           />
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Satuan Harga</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Satuan Harga</label>
             <select
               value={form.unit}
               onChange={e => {
                 const unit = e.target.value;
                 setForm(f => ({ ...f, unit, duration_minutes: unit === 'per_hour' ? '60' : f.duration_minutes }));
               }}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white"
             >
               <option value="per_service">Per Jasa (borongan)</option>
               <option value="per_hour">Per Jam</option>
               <option value="per_unit">Per Unit</option>
               <option value="per_kg">Per Kg</option>
             </select>
-            <p className="text-xs text-[#9e8e8c] mt-1">Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.</p>
+            <p className="text-xs text-brand-gray-450 mt-1">Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.</p>
           </div>
 
           {/* Variasi (opsional) — bila diisi, harga tunggal disembunyikan */}
@@ -266,42 +263,42 @@ export default function EditMitraServicePage() {
           <div className="grid grid-cols-2 gap-4">
             {variations.length === 0 ? (
               <div>
-                <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Harga</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1c1b1b] font-bold text-sm">Rp</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray-900 font-bold text-sm">Rp</span>
                   <input
                     type="text"
                     value={form.price}
                     onChange={handlePriceChange}
                     placeholder="0"
-                    className="w-full p-3 pl-10 border border-[#e5e2e1] rounded text-sm font-bold text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                    className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
                   />
                 </div>
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Harga</label>
-                <div className="w-full p-3 border border-dashed border-[#e5e2e1] rounded text-sm text-[#9e8e8c] bg-[#f7f5f4]">
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Harga</label>
+                <div className="w-full p-3 border border-dashed border-brand-gray-100 rounded text-sm text-brand-gray-450 bg-brand-gray-60">
                   Otomatis dari variasi termurah
                 </div>
               </div>
             )}
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Minimal Order</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Minimal Order</label>
               <input
                 type="number"
                 min="1"
                 step="1"
                 value={form.min_order}
                 onChange={e => setForm({ ...form, min_order: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
-              <p className="text-xs text-[#9e8e8c] mt-1">Jumlah minimal per pesanan ({unitLabel(form.unit)})</p>
+              <p className="text-xs text-brand-gray-450 mt-1">Jumlah minimal per pesanan ({unitLabel(form.unit)})</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Estimasi Durasi (Menit)</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Estimasi Durasi (Menit)</label>
             <input
               type="number"
               min="15"
@@ -309,56 +306,57 @@ export default function EditMitraServicePage() {
               value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
               disabled={form.unit === 'per_hour'}
               onChange={e => setForm({ ...form, duration_minutes: e.target.value })}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] disabled:bg-[#f7f5f4] disabled:text-[#9e8e8c]"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red disabled:bg-brand-gray-60 disabled:text-brand-gray-450"
             />
-            <p className="text-xs text-[#9e8e8c] mt-1">
+            <p className="text-xs text-brand-gray-450 mt-1">
               {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Termasuk (Include) <span className="text-[#9e8e8c] font-normal">(1 per baris)</span></label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Termasuk (Include) <span className="text-brand-gray-450 font-normal">(1 per baris)</span></label>
             <textarea
               placeholder={"Pengecekan AC\nCuci Indoor\nCuci Outdoor"}
               value={form.included_items}
               onChange={e => setForm({ ...form, included_items: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Tidak Termasuk (Exclude) <span className="text-[#9e8e8c] font-normal">(1 per baris)</span></label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Tidak Termasuk (Exclude) <span className="text-brand-gray-450 font-normal">(1 per baris)</span></label>
             <textarea
               placeholder={"Penambahan Freon\nPerbaikan Sparepart"}
               value={form.excluded_items}
               onChange={e => setForm({ ...form, excluded_items: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Deskripsi <span className="text-[#9e8e8c] font-normal">(opsional)</span></label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Deskripsi <span className="text-brand-gray-450 font-normal">(opsional)</span></label>
             <textarea
               placeholder="Deskripsi detail tentang layanan ini..."
               value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
               rows={3}
-              className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Foto Layanan</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Foto Layanan</label>
             <div className="flex flex-wrap gap-3 mb-3">
               {existingPhotos.map(photo => (
-                <div key={photo.id} className="relative w-20 h-20 rounded-md border border-[#e5e2e1] overflow-hidden group">
+                <div key={photo.id} className="relative w-20 h-20 rounded-md border border-brand-gray-100 overflow-hidden group">
                   <img src={photo.photo_url} alt="Service" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => setDeletePhotoId(photo.id)}
                     className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Hapus"
                   >
                     <Trash2 className="w-5 h-5 text-white" />
                   </button>
@@ -371,15 +369,15 @@ export default function EditMitraServicePage() {
               onChange={setNewPhotos}
               maxPhotos={5 - existingPhotos.length}
             />
-            <p className="text-xs text-[#9e8e8c] mt-2">Format: JPG, PNG. Maks. 5MB per foto. Maksimal 5 foto ({existingPhotos.length + newPhotos.length}/5).</p>
+            <p className="text-xs text-brand-gray-450 mt-2">Format: JPG, PNG. Maks. 5MB per foto. Maksimal 5 foto ({existingPhotos.length + newPhotos.length}/5).</p>
           </div>
 
-          {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
+          {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
 
-          <div className="pt-4 border-t border-[#e5e2e1]">
+          <div className="pt-4 border-t border-brand-gray-100">
             <Button
               type="submit"
-              className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
+              className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
               disabled={loading}
             >
               {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
@@ -393,19 +391,19 @@ export default function EditMitraServicePage() {
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#1c1b1b]">Hapus Foto?</h3>
-              <button type="button" onClick={() => setDeletePhotoId(null)}>
-                <X className="w-5 h-5 text-[#9e8e8c]" />
+              <h3 className="text-base font-semibold text-brand-gray-900">Hapus Foto?</h3>
+              <button type="button" onClick={() => setDeletePhotoId(null)} aria-label="Tutup">
+                <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-6">
+            <p className="text-sm text-brand-gray-700 mb-6">
               Foto ini akan dihapus permanen dari layanan Anda.
             </p>
             <div className="flex gap-3">
-              <Button type="button" variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setDeletePhotoId(null)}>
+              <Button type="button" variant="outline" className="flex-1 rounded border-brand-gray-100" onClick={() => setDeletePhotoId(null)}>
                 Batal
               </Button>
-              <Button type="button" className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded" onClick={handleDeletePhoto}>
+              <Button type="button" className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded" onClick={handleDeletePhoto}>
                 Hapus
               </Button>
             </div>

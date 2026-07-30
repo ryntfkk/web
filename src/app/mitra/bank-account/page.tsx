@@ -6,7 +6,7 @@ import { CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { getErrorMessage } from '@/types/api';
 
@@ -106,71 +106,71 @@ export default function MitraBankAccountPage() {
   };
 
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
       <MobilePageHeader alwaysShow title="Rekening Bank Utama" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <div className="bg-white rounded-xl border border-[#e5e2e1] p-6 mb-6 text-center">
-          <div className="w-16 h-16 bg-[#F0FFF4] rounded-full flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-8 h-8 text-[#38A169]" />
+        <div className="bg-white rounded-xl border border-brand-gray-100 p-6 mb-6 text-center">
+          <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
+            <CreditCard className="w-8 h-8 text-brand-success" />
           </div>
-          <h2 className="text-lg font-bold text-[#1c1b1b] mb-2">Pencairan Dana</h2>
-          <p className="text-sm text-[#5b403e]">
+          <h2 className="text-lg font-bold text-brand-gray-900 mb-2">Pencairan Dana</h2>
+          <p className="text-sm text-brand-gray-700">
             Rekening ini akan menjadi tujuan utama saat Anda melakukan penarikan dana dari Dompet Posko.
           </p>
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-[#e5e2e1] p-6 h-64 animate-pulse" />
+          <div className="bg-white rounded-xl border border-brand-gray-100 p-6 h-64 animate-pulse" />
         ) : (
-          <form onSubmit={handleInitiateSave} className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-4">
+          <form onSubmit={handleInitiateSave} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Pilih Bank</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Pilih Bank</label>
               <select
                 value={form.bank_code}
                 onChange={e => setForm({ ...form, bank_code: e.target.value })}
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] bg-white"
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white"
               >
                 {BANKS.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nomor Rekening</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nomor Rekening</label>
               <input
                 type="text"
                 value={form.account_number}
                 onChange={e => setForm({ ...form, account_number: e.target.value.replace(/\D/g, '') })}
                 placeholder="Hanya angka"
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">Nama Pemilik Rekening</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Pemilik Rekening</label>
               <input
                 type="text"
                 value={form.account_name}
                 onChange={e => setForm({ ...form, account_name: e.target.value.toUpperCase() })}
                 placeholder="SESUAI BUKU TABUNGAN"
-                className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822] uppercase"
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red uppercase"
               />
-              <p className="text-xs text-[#9e8e8c] mt-2">
+              <p className="text-xs text-brand-gray-450 mt-2">
                 Pastikan nama sesuai dengan yang terdaftar di bank untuk menghindari kegagalan transfer.
               </p>
             </div>
 
-            {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
+            {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
 
-            <div className="pt-4 border-t border-[#e5e2e1]">
+            <div className="pt-4 border-t border-brand-gray-100">
               <Button
-                className="w-full bg-[#b51822] hover:bg-[#90121a] rounded h-12 text-base font-bold"
+                className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
                 type="submit"
                 disabled={saving}
               >
@@ -185,8 +185,8 @@ export default function MitraBankAccountPage() {
       {showOtp && (
         <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-sm w-full p-6 text-center animate-in zoom-in-95">
-            <h3 className="text-lg font-bold text-[#1c1b1b] mb-2">Verifikasi Keamanan</h3>
-            <p className="text-sm text-[#5b403e] mb-6">
+            <h3 className="text-lg font-bold text-brand-gray-900 mb-2">Verifikasi Keamanan</h3>
+            <p className="text-sm text-brand-gray-700 mb-6">
               Masukkan 6 digit kode OTP yang dikirim ke nomor Anda untuk menyetujui perubahan rekening.
             </p>
             
@@ -195,7 +195,7 @@ export default function MitraBankAccountPage() {
               maxLength={6}
               value={otp}
               onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
-              className="w-full text-center text-2xl tracking-widest p-3 border border-[#e5e2e1] rounded-lg mb-6 focus:outline-none focus:border-[#b51822] font-mono"
+              className="w-full text-center text-2xl tracking-widest p-3 border border-brand-gray-100 rounded-lg mb-6 focus:outline-none focus:border-brand-red font-mono"
               placeholder="••••••"
               autoFocus
             />
@@ -209,7 +209,7 @@ export default function MitraBankAccountPage() {
                 Batal
               </Button>
               <Button 
-                className="flex-1 bg-[#b51822] hover:bg-[#90121a]" 
+                className="flex-1 bg-brand-red hover:bg-brand-red-dark" 
                 onClick={handleConfirmOtp}
                 disabled={otp.length < 4}
               >

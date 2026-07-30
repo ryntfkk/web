@@ -8,7 +8,7 @@ import { Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 
@@ -72,11 +72,11 @@ export default function MitraServicesPage() {
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
       <MobilePageHeader
@@ -86,7 +86,7 @@ export default function MitraServicesPage() {
           <Link
             href="/mitra/services/new"
             aria-label="Tambah layanan"
-            className="text-[#b51822] hover:bg-[#FFF5F5] p-2 rounded-full transition-colors inline-flex"
+            className="text-brand-red hover:bg-brand-error-soft p-2 rounded-full transition-colors inline-flex"
           >
             <Plus className="w-5 h-5" />
           </Link>
@@ -96,51 +96,51 @@ export default function MitraServicesPage() {
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {loading ? (
           [1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-[#e5e2e1] p-4 h-24 animate-pulse" />
+            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-24 animate-pulse" />
           ))
         ) : services.length === 0 ? (
-          <div className="text-center py-10 bg-white rounded-xl border border-[#e5e2e1]">
-            <Wrench className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
-            <p className="text-sm text-[#5b403e] mb-4">Anda belum menambahkan layanan.</p>
-            <Button onClick={() => router.push('/mitra/services/new')} className="bg-[#b51822] hover:bg-[#90121a]">
+          <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100">
+            <Wrench className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
+            <p className="text-sm text-brand-gray-700 mb-4">Anda belum menambahkan layanan.</p>
+            <Button onClick={() => router.push('/mitra/services/new')} className="bg-brand-red hover:bg-brand-red-dark">
               Tambah Layanan
             </Button>
           </div>
         ) : (
           services.map(s => (
-            <div key={s.id} className={`bg-white rounded-xl border p-4 transition-colors ${s.is_active ? 'border-[#e5e2e1]' : 'border-[#e5e2e1] opacity-70 bg-[#f7f5f4]'}`}>
+            <div key={s.id} className={`bg-white rounded-xl border p-4 transition-colors ${s.is_active ? 'border-brand-gray-100' : 'border-brand-gray-100 opacity-70 bg-brand-gray-60'}`}>
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h3 className="font-bold text-[#1c1b1b]">{s.name}</h3>
-                  <p className="text-xs text-[#9e8e8c] mt-0.5">{s.estimated_duration} Menit</p>
+                  <h3 className="font-bold text-brand-gray-900">{s.name}</h3>
+                  <p className="text-xs text-brand-gray-450 mt-0.5">{s.estimated_duration} Menit</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-[#b51822]">{formatPrice(s.price)}</p>
+                  <p className="font-bold text-brand-red">{formatPrice(s.price)}</p>
                 </div>
               </div>
               
               {s.description && (
-                <p className="text-sm text-[#5b403e] mb-3 line-clamp-2">{s.description}</p>
+                <p className="text-sm text-brand-gray-700 mb-3 line-clamp-2">{s.description}</p>
               )}
 
-              <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#e5e2e1]">
+              <div className="flex justify-between items-center mt-3 pt-3 border-t border-brand-gray-100">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={s.is_active}
                     onChange={() => handleToggleActive(s.id, s.is_active)}
-                    className="w-4 h-4 text-[#38A169] rounded focus:ring-[#38A169]"
+                    className="w-4 h-4 text-brand-success rounded focus:ring-brand-success"
                   />
-                  <span className="text-xs font-semibold text-[#5b403e]">{s.is_active ? 'Aktif' : 'Nonaktif'}</span>
+                  <span className="text-xs font-semibold text-brand-gray-700">{s.is_active ? 'Aktif' : 'Nonaktif'}</span>
                 </label>
                 
                 <div className="flex items-center gap-1">
                   <Link href={`/mitra/services/${s.id}/edit`}>
-                    <button className="p-2 text-[#9e8e8c] hover:text-[#b51822] hover:bg-[#FFF5F5] rounded transition-colors">
+                    <button className="p-2 text-brand-gray-450 hover:text-brand-red hover:bg-brand-error-soft rounded transition-colors" aria-label="Edit">
                       <Pencil className="w-4 h-4" />
                     </button>
                   </Link>
-                  <button onClick={() => setDeleteId(s.id)} className="p-2 text-[#9e8e8c] hover:text-[#E53E3E] hover:bg-[#FFF5F5] rounded transition-colors">
+                  <button onClick={() => setDeleteId(s.id)} className="p-2 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded transition-colors" aria-label="Hapus">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -155,19 +155,19 @@ export default function MitraServicesPage() {
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#1c1b1b]">Hapus Layanan?</h3>
-              <button onClick={() => setDeleteId(null)}>
-                <X className="w-5 h-5 text-[#9e8e8c]" />
+              <h3 className="text-base font-semibold text-brand-gray-900">Hapus Layanan?</h3>
+              <button onClick={() => setDeleteId(null)} aria-label="Tutup">
+                <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-6">
+            <p className="text-sm text-brand-gray-700 mb-6">
               Layanan yang dihapus tidak akan tersedia lagi untuk dipesan oleh pelanggan.
             </p>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setDeleteId(null)}>
+              <Button variant="outline" className="flex-1 rounded border-brand-gray-100" onClick={() => setDeleteId(null)}>
                 Batal
               </Button>
-              <Button className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded" onClick={handleDelete}>
+              <Button className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded" onClick={handleDelete}>
                 Ya, Hapus
               </Button>
             </div>

@@ -7,7 +7,7 @@ import { Calendar, Package, ArrowLeft, Search } from 'lucide-react';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Loader2 } from 'lucide-react';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 interface Order {
   id: string;
@@ -118,42 +118,42 @@ export default function MitraOrdersPage() {
     { key: 'cancelled', label: 'Dibatalkan' },
   ];
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
-      <div className="bg-white border-b border-[#e5e2e1] sticky top-0 z-10">
+    <div className="page-h bg-brand-gray-60 pb-24">
+      <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 py-4">
-            <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+            <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
+              <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
             </button>
-            <h1 className="text-base font-bold text-[#1c1b1b]">Daftar Pesanan</h1>
+            <h1 className="text-base font-bold text-brand-gray-900">Daftar Pesanan</h1>
           </div>
 
           <div className="px-4 pb-3 flex gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-[#9e8e8c] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Cari pesanan..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full bg-[#f7f5f4] border border-[#e5e2e1] rounded-lg p-2.5 pl-9 text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
+                className="w-full bg-brand-gray-60 border border-brand-gray-100 rounded-lg p-2.5 pl-9 text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
           </div>
 
-          <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide border-t border-[#e5e2e1] pt-3">
+          <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide border-t border-brand-gray-100 pt-3">
             {FILTERS.map(f => (
               <button
                 key={f.key}
                 onClick={() => setActiveFilter(f.key)}
-                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${activeFilter === f.key ? 'bg-[#b51822] text-white border-[#b51822]' : 'bg-white text-[#5b403e] border-[#e5e2e1]'}`}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${activeFilter === f.key ? 'bg-brand-red text-white border-brand-red' : 'bg-white text-brand-gray-700 border-brand-gray-100'}`}
               >
                 {f.label}
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeFilter === f.key ? 'bg-white/25 text-white' : 'bg-[#e5e2e1] text-[#5b403e]'}`}>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeFilter === f.key ? 'bg-white/25 text-white' : 'bg-brand-gray-100 text-brand-gray-700'}`}>
                   {filterCounts[f.key]}
                 </span>
               </button>
@@ -165,37 +165,37 @@ export default function MitraOrdersPage() {
       <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
         {loading ? (
           [1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-[#e5e2e1] p-4 h-28 animate-pulse" />
+            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-28 animate-pulse" />
           ))
         ) : filteredOrders.length === 0 ? (
           <div className="text-center py-10">
-            <Package className="w-12 h-12 text-[#e5e2e1] mx-auto mb-3" />
-            <p className="text-sm text-[#5b403e]">Belum ada pesanan{activeFilter !== 'all' ? ' dengan status ini' : ''}.</p>
+            <Package className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
+            <p className="text-sm text-brand-gray-700">Belum ada pesanan{activeFilter !== 'all' ? ' dengan status ini' : ''}.</p>
           </div>
         ) : (
           filteredOrders.map(order => (
-            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-[#e5e2e1] rounded-md p-4 hover:border-[#b51822] transition-colors">
+            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-brand-gray-100 rounded-md p-4 hover:border-brand-red transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="text-xs text-[#9e8e8c] font-medium mb-0.5">No. {order.order_number}</p>
-                  <p className="font-bold text-[#1c1b1b]">{customerName(order)}</p>
+                  <p className="text-xs text-brand-gray-450 font-medium mb-0.5">No. {order.order_number}</p>
+                  <p className="font-bold text-brand-gray-900">{customerName(order)}</p>
                 </div>
                 <StatusBadge status={order.status} size="sm" />
               </div>
 
-              <div className="flex justify-between items-end border-t border-[#e5e2e1] pt-3">
-                <div className="flex items-center gap-1.5 text-sm text-[#5b403e]">
-                  <Calendar className="w-4 h-4 text-[#9e8e8c]" />
+              <div className="flex justify-between items-end border-t border-brand-gray-100 pt-3">
+                <div className="flex items-center gap-1.5 text-sm text-brand-gray-700">
+                  <Calendar className="w-4 h-4 text-brand-gray-450" />
                   <span>{formatTime(order.scheduled_at)}</span>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-[#b51822]">
+                  <p className="font-bold text-brand-red">
                     {formatPrice(order.partner_amount ?? 0)}
                     {order.partner_amount_estimated && (
-                      <span className="ml-1 text-[10px] font-normal text-[#9e8e8c]">est.</span>
+                      <span className="ml-1 text-[10px] font-normal text-brand-gray-450">est.</span>
                     )}
                   </p>
-                  <p className="text-[10px] text-[#9e8e8c] mt-0.5">Pendapatan mitra</p>
+                  <p className="text-[10px] text-brand-gray-450 mt-0.5">Pendapatan mitra</p>
                 </div>
               </div>
             </Link>
