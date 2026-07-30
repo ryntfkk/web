@@ -64,7 +64,7 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
       {/* Header */}
       <div className="bg-white border-b border-brand-gray-100 shrink-0 shadow-sm">
         <div className="flex items-center gap-3 px-4 py-3 max-w-lg mx-auto">
-          <button onClick={() => router.push('/bantuan')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+          <button onClick={() => router.push('/bantuan')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
             <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <div className="flex items-center gap-2">
@@ -152,6 +152,7 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
               <button
                 type="submit"
                 disabled={!input.trim() || sending}
+                aria-label="Kirim pesan"
                 className={`p-2 rounded-xl shrink-0 ${
                   input.trim() ? 'bg-brand-red text-white hover:bg-brand-red-dark' : 'text-brand-gray-450'
                 }`}

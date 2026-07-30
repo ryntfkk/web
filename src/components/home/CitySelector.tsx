@@ -117,6 +117,7 @@ export default function CitySelector() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
+                aria-label="Tutup pemilih kota"
                 className="w-8 h-8 rounded-full bg-brand-gray-70 hover:bg-brand-gray-100 flex items-center justify-center text-brand-gray-700 transition-colors shrink-0"
               >
                 <X className="w-4 h-4" />
@@ -141,6 +142,7 @@ export default function CitySelector() {
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
+                    aria-label="Hapus pencarian"
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-brand-gray-400 hover:text-brand-gray-900"
                   >
                     <X className="w-3.5 h-3.5" />

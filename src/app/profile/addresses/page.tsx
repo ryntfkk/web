@@ -121,12 +121,13 @@ export default function AddressesPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Link href={`/profile/addresses/edit/${a.id}`}>
-                    <button className="p-1.5 text-brand-gray-450 hover:text-brand-gray-700 hover:bg-brand-gray-60 rounded transition-colors">
+                    <button aria-label="Edit alamat" className="p-1.5 text-brand-gray-450 hover:text-brand-gray-700 hover:bg-brand-gray-60 rounded transition-colors">
                       <Pencil className="w-4 h-4" />
                     </button>
                   </Link>
                   <button
                     onClick={() => setDeleteId(a.id)}
+                    aria-label="Hapus alamat"
                     className="p-1.5 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />

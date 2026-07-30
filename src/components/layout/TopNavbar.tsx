@@ -73,6 +73,7 @@ export default function TopNavbar() {
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Tutup pencarian"
                 onClick={() => setIsMobileSearchOpen(false)}
                 className="text-brand-gray-700 hover:text-brand-red shrink-0"
               >
@@ -121,6 +122,7 @@ export default function TopNavbar() {
                 <Button
                   variant="ghost"
                   size="icon"
+                  aria-label="Cari jasa"
                   className="lg:hidden text-brand-gray-700 hover:text-brand-red"
                   onClick={() => setIsMobileSearchOpen(true)}
                 >
@@ -140,6 +142,7 @@ export default function TopNavbar() {
                       {/* Cart Icon */}
                       <button
                         className="text-brand-gray-700 hover:text-brand-red transition-colors relative"
+                        aria-label={`Keranjang${itemCount > 0 ? ` (${itemCount})` : ''}`}
                         onClick={() => router.push('/cart')}
                       >
                         <ShoppingCart className="h-[20px] w-[19.98px]" />

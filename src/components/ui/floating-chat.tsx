@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { MessageCircle, Maximize2, ArrowLeft, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useChatUiStore } from '@/lib/store/chatUiStore';
+import { useUnreadChatCount } from '@/hooks/useChatRooms';
 import ChatRoomList from '@/components/chat/ChatRoomList';
 import ChatConversation from '@/components/chat/ChatConversation';
 
@@ -16,6 +17,9 @@ export default function FloatingChat() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isInitializing = useAuthStore((s) => s.isInitializing);
   const { isPanelOpen, activeRoomId, openPanel, closePanel, selectRoom, backToList } = useChatUiStore();
+  // Badge unread realtime: key ['chat-rooms'] di-invalidate ChatProvider saat
+  // pesan WS masuk. Hook disabled otomatis saat belum login.
+  const unreadCount = useUnreadChatCount();
 
   // Hide (don't redirect!) when not authenticated or still loading
   if (isInitializing || !isAuthenticated) return null;
@@ -84,6 +88,11 @@ export default function FloatingChat() {
         >
           <MessageCircle className="w-5 h-5" />
           Chat
+          {unreadCount > 0 && (
+            <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1.5 rounded-full bg-white text-brand-red text-[11px] font-bold flex items-center justify-center border-2 border-brand-red">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
       )}
     </div>

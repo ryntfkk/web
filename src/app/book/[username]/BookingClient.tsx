@@ -529,10 +529,14 @@ export default function BookingClient() {
     }
   };
 
+  // Debounce 400ms: perubahan cepat (mis. klik +/- kuantitas berkali-kali)
+  // tidak menembakkan /orders/preview per klik — hanya state akhir yang dihitung.
   useEffect(() => {
-    if (step === 2) {
+    if (step !== 2) return;
+    const t = setTimeout(() => {
       fetchPreview(promoDiscount > 0 ? promoCode : undefined);
-    }
+    }, 400);
+    return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, addressId, date, time, selectedLines, quantities]);
 
@@ -746,7 +750,7 @@ export default function BookingClient() {
       {/* Header */}
       <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:relative lg:z-auto">
         <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto flex items-center gap-3`}>
-          <button onClick={() => step === 2 ? handlePrev() : router.back()} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+          <button onClick={() => step === 2 ? handlePrev() : router.back()} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
             <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <div>

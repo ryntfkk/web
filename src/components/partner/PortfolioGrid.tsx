@@ -73,22 +73,22 @@ export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridPr
 
       {selectedIndex !== null && (
         <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" onClick={() => setSelectedIndex(null)}>
-          <button onClick={() => setSelectedIndex(null)} className="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
+          <button onClick={() => setSelectedIndex(null)} aria-label="Tutup" className="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
             <X className="w-6 h-6" />
           </button>
-          
+
           {validPortfolios.length > 1 && (
-            <button onClick={prevPhoto} className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
+            <button onClick={prevPhoto} aria-label="Foto sebelumnya" className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
               <ChevronLeft className="w-6 h-6" />
             </button>
           )}
-          
+
           <div className="relative w-full h-full max-w-3xl max-h-[80vh]" onClick={e => e.stopPropagation()}>
             <Image src={validPortfolios[selectedIndex].photo_url} alt={validPortfolios[selectedIndex].caption || 'Portfolio'} fill className="object-contain" sizes="100vw" />
           </div>
-          
+
           {validPortfolios.length > 1 && (
-            <button onClick={nextPhoto} className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
+            <button onClick={nextPhoto} aria-label="Foto berikutnya" className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
               <ChevronRight className="w-6 h-6" />
             </button>
           )}

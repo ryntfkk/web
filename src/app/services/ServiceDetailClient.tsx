@@ -355,11 +355,11 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                 {/* Navigation */}
                 {hasMultiplePhotos && (
                   <>
-                    <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
+                    <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }} aria-label="Foto sebelumnya"
                       className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
                       <ChevronLeft className="w-4 h-4 text-white" />
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
+                    <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }} aria-label="Foto berikutnya"
                       className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
                       <ChevronRight className="w-4 h-4 text-white" />
                     </button>
@@ -706,7 +706,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                 mengambang 64px dari tepi atas modal saat isinya di-scroll. */}
             <div className="sticky top-0 bg-white border-b border-brand-gray-100 px-4 py-3 flex items-center justify-between">
               <h2 className="text-base font-semibold text-brand-gray-900">Jadwal {service.partner_name}</h2>
-              <button onClick={() => setShowSchedule(false)} className="p-1 hover:bg-brand-red-light rounded-full">
+              <button onClick={() => setShowSchedule(false)} aria-label="Tutup jadwal" className="p-1 hover:bg-brand-red-light rounded-full">
                 <X className="w-5 h-5 text-brand-gray-700" />
               </button>
             </div>
@@ -721,16 +721,16 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
       {/* Gallery Modal */}
       {showGallery && hasMultiplePhotos && (
         <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" onClick={() => setShowGallery(false)}>
-          <button onClick={() => setShowGallery(false)} className="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
+          <button onClick={() => setShowGallery(false)} aria-label="Tutup galeri" className="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white z-10">
             <X className="w-6 h-6" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }} className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
+          <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }} aria-label="Foto sebelumnya" className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
             <ChevronLeft className="w-6 h-6" />
           </button>
           <div className="relative w-full h-full max-w-3xl max-h-[80vh]" onClick={e => e.stopPropagation()}>
             <Image src={allPhotos[currentPhotoIndex].photo_url} alt={`Foto ${currentPhotoIndex + 1}`} fill className="object-contain" sizes="100vw" />
           </div>
-          <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }} className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
+          <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }} aria-label="Foto berikutnya" className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
             <ChevronRight className="w-6 h-6" />
           </button>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">

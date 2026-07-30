@@ -50,7 +50,7 @@ export default function FilterPanel({
             <Filter className="w-4 h-4 text-brand-gray-900" />
             <h3 className="text-[16px] font-semibold text-brand-gray-900">Filter</h3>
           </div>
-          <button onClick={onClose} className="md:hidden text-brand-gray-900">
+          <button onClick={onClose} className="md:hidden text-brand-gray-900" aria-label="Tutup filter">
             <X className="w-5 h-5" />
           </button>
         </div>

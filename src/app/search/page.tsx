@@ -16,7 +16,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10 lg:relative lg:z-auto">
         <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6">
           <div className="flex items-center gap-3 py-4">
-            <Link href="/" className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-md transition-colors">
+            <Link href="/" aria-label="Kembali ke beranda" className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-md transition-colors">
               <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
             </Link>
             <h1 className="text-base font-bold text-brand-gray-900 truncate">

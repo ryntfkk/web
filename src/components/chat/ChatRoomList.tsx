@@ -4,7 +4,7 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Search, MessageSquare } from 'lucide-react';
-import { fetchAPI } from '@/lib/api';
+import { useChatRooms } from '@/hooks/useChatRooms';
 import { useAuthStore } from '@/lib/store/authStore';
 import { ROLE_PARTNER } from '@/lib/constants';
 
@@ -51,29 +51,20 @@ function formatTime(time?: string) {
  */
 export default function ChatRoomList({ onSelect, selectedRoomId, compact = false, onFirstRoom }: ChatRoomListProps) {
   const user = useAuthStore((s) => s.user);
-  const [chats, setChats] = useState<ChatRoom[]>([]);
-  const [loading, setLoading] = useState(true);
+  // React Query key ['chat-rooms'] — di-invalidate ChatProvider saat pesan WS
+  // masuk, sehingga daftar & unread badge ter-update realtime tanpa polling.
+  const { data, isLoading: loading } = useChatRooms();
+  const chats = data ?? [];
   const [search, setSearch] = useState('');
   const firstRoomNotified = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const res = await fetchAPI<any>('/chat/rooms');
-      if (!cancelled && res.success && res.data) {
-        const data: ChatRoom[] = res.data;
-        setChats(data);
-        if (data.length > 0 && !firstRoomNotified.current) {
-          firstRoomNotified.current = true;
-          onFirstRoom?.(data[0].room_id);
-        }
-      }
-      if (!cancelled) setLoading(false);
-    })();
-    return () => { cancelled = true; };
+    if (chats.length > 0 && !firstRoomNotified.current) {
+      firstRoomNotified.current = true;
+      onFirstRoom?.(chats[0].room_id);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [chats.length]);
 
   const isMitra = user?.active_role === ROLE_PARTNER;
 

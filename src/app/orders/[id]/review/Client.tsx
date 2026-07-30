@@ -152,7 +152,7 @@ export default function ReviewClient() {
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+          <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
             <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <h1 className="text-base font-bold text-brand-gray-900">Beri Ulasan</h1>

@@ -289,7 +289,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         <div className={`flex items-center justify-between px-4 py-3 ${embedded ? '' : 'max-w-lg mx-auto'}`}>
           <div className="flex items-center gap-3">
             {!embedded && (
-              <button onClick={onBack || (() => router.back())} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+              <button onClick={onBack || (() => router.back())} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
                 <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
               </button>
             )}

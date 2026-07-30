@@ -4,11 +4,14 @@ import Link from 'next/link';
 import { Home, ClipboardList, MessageSquare, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useUnreadChatCount } from '@/hooks/useChatRooms';
 import MitraBottomNav from './MitraBottomNav';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const activeRole = useAuthStore((s) => s.user?.active_role);
+  // Badge unread realtime pada tab Chat (key ['chat-rooms'] di-invalidate WS).
+  const unreadCount = useUnreadChatCount();
 
   // Sembunyikan BottomNav pada:
   // 1. Room chat (/chat/{id}) â€” area percakapan penuh; daftar chat (/chat) tetap tampil.
@@ -95,10 +98,17 @@ export default function BottomNav() {
                 }
               `}
             >
-              <Icon
-                className="h-5 w-5"
-                strokeWidth={isActive ? 2.5 : 2}
-              />
+              <span className="relative">
+                <Icon
+                  className="h-5 w-5"
+                  strokeWidth={isActive ? 2.5 : 2}
+                />
+                {item.href === '/chat' && unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2.5 min-w-4 h-4 px-1 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </span>
               <span className="text-[12px] font-medium leading-none">
                 {item.label}
               </span>

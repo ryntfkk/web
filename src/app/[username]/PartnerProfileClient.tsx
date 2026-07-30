@@ -78,6 +78,7 @@ export default function PartnerProfileClient({ username }: { username: string })
       <div className="bg-white px-4 py-3 sticky top-0 z-10 border-b border-brand-gray-100 flex items-center gap-3 lg:hidden">
         <button
           onClick={() => router.back()}
+          aria-label="Kembali"
           className="p-1.5 -ml-1 hover:bg-brand-gray-60 rounded-md transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-brand-gray-700" />

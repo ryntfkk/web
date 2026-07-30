@@ -47,11 +47,11 @@ export default function MobilePageHeader({
     <div className={`bg-white border-b border-brand-gray-100 sticky top-0 z-10 ${alwaysShow ? '' : 'lg:hidden'}`}>
       <div className={`${maxWidthClass} mx-auto flex items-center px-4 py-4 gap-3`}>
         {backHref ? (
-          <Link href={backHref} className={backClass}>
+          <Link href={backHref} className={backClass} aria-label="Kembali">
             {arrow}
           </Link>
         ) : (
-          <button onClick={onBack ?? (() => router.back())} className={backClass}>
+          <button onClick={onBack ?? (() => router.back())} className={backClass} aria-label="Kembali">
             {arrow}
           </button>
         )}
