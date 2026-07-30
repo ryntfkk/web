@@ -26,9 +26,9 @@ export function Stepper({ steps, current, className }: StepperProps) {
               <div
                 className={cn(
                   'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
-                  done && 'bg-[#b51822] text-white',
-                  active && 'bg-[#b51822] text-white ring-4 ring-[#b51822]/15',
-                  !done && !active && 'bg-white text-[#8f6f6d] border border-[#e5e2e1]',
+                  done && 'bg-brand-red text-white',
+                  active && 'bg-brand-red text-white ring-4 ring-brand-red/15',
+                  !done && !active && 'bg-white text-brand-gray-400 border border-brand-gray-100',
                 )}
               >
                 {done ? <Check className="w-4 h-4" /> : n}
@@ -36,14 +36,14 @@ export function Stepper({ steps, current, className }: StepperProps) {
               <span
                 className={cn(
                   'text-[11px] font-medium whitespace-nowrap',
-                  active || done ? 'text-[#1c1b1b]' : 'text-[#8f6f6d]',
+                  active || done ? 'text-brand-gray-900' : 'text-brand-gray-400',
                 )}
               >
                 {label}
               </span>
             </div>
             {i < steps.length - 1 && (
-              <div className={cn('h-0.5 flex-1 mx-2 -mt-5 rounded-full transition-colors', done ? 'bg-[#b51822]' : 'bg-[#e5e2e1]')} />
+              <div className={cn('h-0.5 flex-1 mx-2 -mt-5 rounded-full transition-colors', done ? 'bg-brand-red' : 'bg-brand-gray-100')} />
             )}
           </div>
         );

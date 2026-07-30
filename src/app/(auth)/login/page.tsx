@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
@@ -65,8 +66,7 @@ function LoginContent() {
         {/* Brand Logo */}
         <div className="flex justify-center mb-4">
           <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="POSKO JASA" className="w-8 h-8 object-contain" />
+            <Image src="/logo.png" alt="POSKO JASA" width={32} height={32} className="w-8 h-8 object-contain" priority />
             <span className="text-[22px] font-bold text-[#1c1b1b] tracking-[-0.5px]">POSKO</span>
           </div>
         </div>
@@ -131,9 +131,9 @@ function LoginContent() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-neutral-400" />
+                    <EyeOff className="h-5 w-5 text-brand-gray-400" />
                   ) : (
-                    <Eye className="h-5 w-5 text-neutral-400" />
+                    <Eye className="h-5 w-5 text-brand-gray-400" />
                   )}
                 </button>
               </div>
@@ -147,7 +147,7 @@ function LoginContent() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[#b51822] focus:ring-[#b51822] border-neutral-300 rounded-md"
+                  className="h-4 w-4 text-[#b51822] focus:ring-[#b51822] border-brand-gray-100 rounded-md"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-[#1c1b1b]">
                   Ingat saya

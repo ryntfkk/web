@@ -4,10 +4,12 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Loader2, Wallet } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
+import { ProfileSkeleton } from '@/components/ui/skeleton';
+import { formatDateOnly, formatPrice } from '@/lib/format';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -97,23 +99,7 @@ export default function ProfilePage() {
     cancelled: orders.filter(o => matchesFilter(o.status, 'cancelled')).length,
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
   if (!isAuthorized || !user) return null;
 
   const tabs = [
@@ -264,7 +250,7 @@ export default function ProfilePage() {
             {activeTab === 'orders' && (
               <div className="space-y-4">
                 {/* Filter Chips - Horizontal */}
-                <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden p-4">
+                <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden p-4">
                   <div className="flex flex-wrap gap-2">
                     {[
                       { key: 'all' as FilterStatus, label: 'Semua' },
@@ -301,7 +287,7 @@ export default function ProfilePage() {
                     // Loading skeletons
                     <>
                       {[1, 2].map(i => (
-                        <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 animate-pulse">
+                        <div key={i} className="bg-white rounded-lg border border-[#e5e2e1] p-4 animate-pulse">
                           <div className="flex justify-between items-start mb-4">
                             <div>
                               <div className="h-4 w-32 bg-[#e5e2e1] rounded mb-2"></div>
@@ -317,7 +303,7 @@ export default function ProfilePage() {
                     </>
                   ) : filteredOrders.length === 0 ? (
                     // Empty state
-                    <div className="bg-white rounded border border-[#e5e2e1] p-8 text-center">
+                    <div className="bg-white rounded-lg border border-[#e5e2e1] p-8 text-center">
                       <Package className="w-16 h-16 text-[#8f6f6d]/50 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-[#32201f] mb-2">
                         {activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
@@ -337,7 +323,7 @@ export default function ProfilePage() {
                     // Orders list
                     filteredOrders.map(order => {
                       return (
-                        <div key={order.id} className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
+                        <div key={order.id} className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
                           {/* Order Header */}
                           <div className="p-4 border-b border-[#e5e2e1] bg-[#f7f5f4]">
                             <div className="flex items-center justify-between">
@@ -345,7 +331,7 @@ export default function ProfilePage() {
                                 <p className="text-sm font-semibold text-[#32201f]">{order.order_number}</p>
                                 <p className="text-xs text-[#8f6f6d] flex items-center gap-1 mt-1">
                                   <Calendar className="w-3 h-3" />
-                                  {formatDate(order.created_at)}
+                                  {formatDateOnly(order.created_at)}
                                 </p>
                               </div>
                               <StatusBadge status={order.status as never} size="sm" />

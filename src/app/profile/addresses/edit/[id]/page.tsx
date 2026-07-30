@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { unwrapData } from '@/lib/order-utils';
 import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
-import { Loader2 } from 'lucide-react';
 
 // Leaflet mengakses `window` saat import → dynamic + ssr:false.
 const MapPicker = dynamic(() => import('@/components/MapPicker'), {
@@ -89,7 +89,7 @@ export default function EditAddressPage() {
   }, [isAuthorized, id]);
 
   if (authLoading || loading) {
-    return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
   }
   if (!isAuthorized) return null;
 
@@ -133,7 +133,8 @@ export default function EditAddressPage() {
   };
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    // pb-20 untuk memberi ruang fixed action bar "Simpan Perubahan" di semua breakpoint.
+    <div className="page-h bg-[#f7f5f4] pb-20">
       <MobilePageHeader title="Edit Alamat" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
@@ -218,7 +219,7 @@ export default function EditAddressPage() {
             <span className="text-sm font-semibold text-[#1c1b1b]">Jadikan Alamat Utama</span>
           </label>
 
-          {error && <p className="text-sm text-[#E53E3E] bg-[#FFF5F5] p-3 rounded">{error}</p>}
+          {error && <p className="text-sm text-[#E53E3E] bg-brand-error-soft p-3 rounded-lg">{error}</p>}
         </form>
       </div>
 

@@ -63,10 +63,10 @@ export function CountdownTimer({
     <span
       className={cn(
         'inline-flex items-center gap-1 font-semibold tabular-nums',
-        isCritical && !isExpired && 'text-[#E53E3E] animate-pulse',
-        isWarning && 'text-[#DD6B20]',
-        !isCritical && !isWarning && 'text-[#1c1b1b]',
-        isExpired && 'text-[#9e8e8c]',
+        isCritical && !isExpired && 'text-brand-error animate-pulse',
+        isWarning && 'text-brand-orange',
+        !isCritical && !isWarning && 'text-brand-gray-900',
+        isExpired && 'text-brand-gray-450',
         className
       )}
     >

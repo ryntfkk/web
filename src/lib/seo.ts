@@ -2,16 +2,13 @@
 // layanan (harga mulai, jumlah) + FAQ ber-data → konten unik per halaman
 // (hindari "thin content" pada halaman programmatic) + eligible FAQ rich result.
 
+import { formatRupiah } from './format';
+
+// Re-export agar impor lama dari '@/lib/seo' tetap jalan; definisi kanonis di lib/format.ts.
+export { formatRupiah };
+
 interface PricedService {
   price: number;
-}
-
-export function formatRupiah(n: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(n);
 }
 
 /** Harga terendah (> 0) dari daftar layanan, atau null bila kosong. */

@@ -9,6 +9,8 @@ import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { payOrderWithWallet, payOrderWithSnap } from '@/lib/payment';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { formatRupiah } from '@/lib/format';
+import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Loader2 } from 'lucide-react';
 
 
@@ -92,12 +94,10 @@ export default function PaymentClient() {
     // status 'redirecting' → browser berpindah halaman; biarkan processing.
   };
 
-  const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
-
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
   if (loading) {
-    return <div className="page-h bg-[#f7f5f4] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" /></div>;
+    return <div className="page-h bg-brand-gray-60 flex items-center justify-center"><div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" /></div>;
   }
 
   const amountToPay = order?.agreed_price || order?.total_amount || 0;
@@ -105,16 +105,16 @@ export default function PaymentClient() {
 
   return (
     <>
-      <div className="page-h bg-[#f7f5f4] pb-24">
+      <div className="page-h bg-brand-gray-60 pb-24">
         {/* Header */}
         {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-        <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
+        <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+            <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+              <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
             </button>
-            <h1 className="text-base font-bold text-[#1c1b1b]">Pembayaran Pesanan</h1>
+            <h1 className="text-base font-bold text-brand-gray-900">Pembayaran Pesanan</h1>
           </div>
           {order?.payment_expired_at && !isNaN(Date.parse(order.payment_expired_at)) && (
             <CountdownTimer 
@@ -127,10 +127,10 @@ export default function PaymentClient() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Judul desktop — countdown ikut dipindah agar tidak hilang saat header mobile disembunyikan. */}
         <div className="hidden lg:flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-[#1c1b1b]">Pembayaran Pesanan</h1>
+          <h1 className="text-2xl font-bold text-brand-gray-900">Pembayaran Pesanan</h1>
           {order?.payment_expired_at && !isNaN(Date.parse(order.payment_expired_at)) && (
             <CountdownTimer
               targetDate={order.payment_expired_at}
@@ -142,63 +142,63 @@ export default function PaymentClient() {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-xl border border-[#e5e2e1] p-4 text-center space-y-2">
-          <p className="text-sm text-[#5b403e]">Total Pembayaran</p>
-          <p className="text-3xl font-bold text-[#b51822]">{formatPrice(amountToPay)}</p>
-          <p className="text-xs text-[#9e8e8c]">Pesanan #{order?.order_number}</p>
+        <div className="bg-white rounded-lg border border-brand-gray-100 p-4 text-center space-y-2">
+          <p className="text-sm text-brand-gray-700">Total Pembayaran</p>
+          <p className="text-3xl font-bold text-brand-red">{formatRupiah(amountToPay)}</p>
+          <p className="text-xs text-brand-gray-450">Pesanan #{order?.order_number}</p>
         </div>
 
         {/* Payment Methods */}
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-[#1c1b1b]">Pilih Metode Pembayaran</h2>
-          
+          <h2 className="text-sm font-semibold text-brand-gray-900">Pilih Metode Pembayaran</h2>
+
           {/* Wallet */}
-          <label className={`block p-4 rounded-xl border cursor-pointer transition-colors ${selectedMethod === 'wallet' ? 'border-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1] bg-white'} ${isWalletDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+          <label className={`block p-4 rounded-lg border cursor-pointer transition-colors ${selectedMethod === 'wallet' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'} ${isWalletDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Wallet className={`w-5 h-5 ${selectedMethod === 'wallet' ? 'text-[#b51822]' : 'text-[#5b403e]'}`} />
+                <Wallet className={`w-5 h-5 ${selectedMethod === 'wallet' ? 'text-brand-red' : 'text-brand-gray-700'}`} />
                 <div>
-                  <p className="font-semibold text-[#1c1b1b]">Saldo Dompet</p>
-                  <p className="text-xs text-[#9e8e8c]">Saldo: {formatPrice(walletBalance)}</p>
+                  <p className="font-semibold text-brand-gray-900">Saldo Dompet</p>
+                  <p className="text-xs text-brand-gray-450">Saldo: {formatRupiah(walletBalance)}</p>
                 </div>
               </div>
               <input type="radio" name="payment_method" className="hidden" disabled={isWalletDisabled} checked={selectedMethod === 'wallet'} onChange={() => setSelectedMethod('wallet')} />
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'wallet' ? 'border-[#b51822] bg-[#b51822]' : 'border-[#e5e2e1]'}`}>
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'wallet' ? 'border-brand-red bg-brand-red' : 'border-brand-gray-100'}`}>
                 {selectedMethod === 'wallet' && <div className="w-2 h-2 rounded-full bg-white" />}
               </div>
             </div>
-            {isWalletDisabled && <p className="text-xs text-[#E53E3E] mt-2">Saldo tidak mencukupi</p>}
+            {isWalletDisabled && <p className="text-xs text-brand-error mt-2">Saldo tidak mencukupi</p>}
           </label>
 
           {/* E-Wallet & QRIS */}
-          <label className={`block p-4 rounded-xl border cursor-pointer transition-colors ${selectedMethod === 'qris' ? 'border-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1] bg-white'}`}>
+          <label className={`block p-4 rounded-lg border cursor-pointer transition-colors ${selectedMethod === 'qris' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <QrCode className={`w-5 h-5 ${selectedMethod === 'qris' ? 'text-[#b51822]' : 'text-[#5b403e]'}`} />
+                <QrCode className={`w-5 h-5 ${selectedMethod === 'qris' ? 'text-brand-red' : 'text-brand-gray-700'}`} />
                 <div>
-                  <p className="font-semibold text-[#1c1b1b]">QRIS & E-Wallet</p>
-                  <p className="text-xs text-[#9e8e8c]">GoPay, OVO, Dana, ShopeePay</p>
+                  <p className="font-semibold text-brand-gray-900">QRIS & E-Wallet</p>
+                  <p className="text-xs text-brand-gray-450">GoPay, OVO, Dana, ShopeePay</p>
                 </div>
               </div>
               <input type="radio" name="payment_method" className="hidden" checked={selectedMethod === 'qris'} onChange={() => setSelectedMethod('qris')} />
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'qris' ? 'border-[#b51822] bg-[#b51822]' : 'border-[#e5e2e1]'}`}>
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'qris' ? 'border-brand-red bg-brand-red' : 'border-brand-gray-100'}`}>
                 {selectedMethod === 'qris' && <div className="w-2 h-2 rounded-full bg-white" />}
               </div>
             </div>
           </label>
 
           {/* Virtual Account */}
-          <label className={`block p-4 rounded-xl border cursor-pointer transition-colors ${selectedMethod === 'bank_transfer' ? 'border-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1] bg-white'}`}>
+          <label className={`block p-4 rounded-lg border cursor-pointer transition-colors ${selectedMethod === 'bank_transfer' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <CreditCard className={`w-5 h-5 ${selectedMethod === 'bank_transfer' ? 'text-[#b51822]' : 'text-[#5b403e]'}`} />
+                <CreditCard className={`w-5 h-5 ${selectedMethod === 'bank_transfer' ? 'text-brand-red' : 'text-brand-gray-700'}`} />
                 <div>
-                  <p className="font-semibold text-[#1c1b1b]">Virtual Account</p>
-                  <p className="text-xs text-[#9e8e8c]">BCA, Mandiri, BNI, BRI</p>
+                  <p className="font-semibold text-brand-gray-900">Virtual Account</p>
+                  <p className="text-xs text-brand-gray-450">BCA, Mandiri, BNI, BRI</p>
                 </div>
               </div>
               <input type="radio" name="payment_method" className="hidden" checked={selectedMethod === 'bank_transfer'} onChange={() => setSelectedMethod('bank_transfer')} />
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'bank_transfer' ? 'border-[#b51822] bg-[#b51822]' : 'border-[#e5e2e1]'}`}>
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'bank_transfer' ? 'border-brand-red bg-brand-red' : 'border-brand-gray-100'}`}>
                 {selectedMethod === 'bank_transfer' && <div className="w-2 h-2 rounded-full bg-white" />}
               </div>
             </div>
@@ -207,29 +207,31 @@ export default function PaymentClient() {
       </div>
 
       {/* Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
-        {error && (
-          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-[#FFF5F5] border border-[#FEB2B2] rounded text-xs text-[#E53E3E]">
-            {error}
+      <StickyActionBar desktop className="px-0 pt-0">
+        <div className="w-full max-w-2xl mx-auto px-4 pt-3">
+          {error && (
+            <div className="mb-2 p-2.5 bg-brand-error-soft border border-brand-error/40 rounded-md text-xs text-brand-error">
+              {error}
+            </div>
+          )}
+          <div className="flex items-center gap-3 pb-1">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={fetchOrder} // Check status manual
+            >
+              Cek Status
+            </Button>
+            <Button
+              className="flex-[2]"
+              onClick={handlePay}
+              disabled={!selectedMethod || processing}
+            >
+              {processing ? 'Memproses...' : 'Bayar Sekarang'}
+            </Button>
           </div>
-        )}
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <Button
-            variant="outline"
-            className="flex-1 rounded border-[#5b403e] text-[#5b403e]"
-            onClick={fetchOrder} // Check status manual
-          >
-            Cek Status
-          </Button>
-          <Button
-            className="flex-[2] bg-[#b51822] hover:bg-[#90121a] rounded"
-            onClick={handlePay}
-            disabled={!selectedMethod || processing}
-          >
-            {processing ? 'Memproses...' : 'Bayar Sekarang'}
-          </Button>
         </div>
-      </div>
+      </StickyActionBar>
       </div>
     </>
   );

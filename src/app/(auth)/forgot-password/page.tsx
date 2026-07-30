@@ -72,12 +72,12 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="page-h bg-neutral-50 flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
+    <div className="page-h bg-brand-gray-60 flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <h2 className="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-neutral-900">
+        <h2 className="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-brand-gray-900">
           Lupa Password
         </h2>
-        <p className="mt-2 text-center text-sm text-neutral-600">
+        <p className="mt-2 text-center text-sm text-brand-gray-700">
           {step === 1 ? 'Masukkan identitas akun untuk pemulihan' : 'Verifikasi token dan buat password baru'}
         </p>
       </div>
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
           {step === 1 ? (
             <form className="space-y-6" onSubmit={handleRequestOTP}>
               <div>
-                <label htmlFor="identifier" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="identifier" className="block text-sm font-medium text-brand-gray-900">
                   Email / Nomor HP / Username
                 </label>
                 <div className="mt-1">
@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
                     required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm"
                     placeholder="08123456789 atau email Anda"
                   />
                 </div>
@@ -128,7 +128,7 @@ export default function ForgotPasswordPage() {
                 
                 <Link
                   href="/login"
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-md shadow-sm text-sm font-bold text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Kembali ke Login
@@ -138,7 +138,7 @@ export default function ForgotPasswordPage() {
           ) : (
             <form className="space-y-6" onSubmit={handleResetPassword}>
               <div>
-                <label htmlFor="token" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="token" className="block text-sm font-medium text-brand-gray-900">
                   Kode Token / OTP
                 </label>
                 <div className="mt-1">
@@ -152,14 +152,14 @@ export default function ForgotPasswordPage() {
                     maxLength={6}
                     value={token}
                     onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm tracking-widest text-center"
+                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm tracking-widest text-center"
                     placeholder="Masukkan kode 6 digit dari email/SMS"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-neutral-700">
+                <label htmlFor="password" className="block text-sm font-medium text-brand-gray-900">
                   Password Baru
                 </label>
                 <div className="mt-1 relative">
@@ -171,7 +171,7 @@ export default function ForgotPasswordPage() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-neutral-300 rounded-md shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
+                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-[#b51822] focus:border-[#b51822] sm:text-sm pr-10"
                     placeholder="Minimal 8 karakter"
                   />
                   <button
@@ -180,9 +180,9 @@ export default function ForgotPasswordPage() {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-neutral-400" />
+                      <EyeOff className="h-5 w-5 text-brand-gray-400" />
                     ) : (
-                      <Eye className="h-5 w-5 text-neutral-400" />
+                      <Eye className="h-5 w-5 text-brand-gray-400" />
                     )}
                   </button>
                 </div>
@@ -204,7 +204,7 @@ export default function ForgotPasswordPage() {
                     setSuccess('');
                     setError('');
                   }}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-neutral-300 rounded-md shadow-sm text-sm font-bold text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
+                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b51822] transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Ganti Identitas

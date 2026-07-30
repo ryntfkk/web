@@ -12,6 +12,7 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCartStore } from '@/lib/store/cartStore';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
+import { formatRupiah as formatPrice } from '@/lib/format';
 import { getErrorMessage } from '@/types/api';
 import dynamic from 'next/dynamic';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
@@ -577,7 +578,6 @@ export default function BookingClient() {
   if (!isAuthenticated) return null;
   if (loading && step === 1) return <div className="page-h bg-[#f7f5f4] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" /></div>;
 
-  const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
   const selectedAddress = addresses.find((a) => a.id === addressId);
   const selectedKeyList = activeKeys();
@@ -1070,15 +1070,15 @@ export default function BookingClient() {
       </div>
 
       {/* Action Bar */}
-      <div className={`fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] ${step === 2 ? 'lg:hidden' : ''}`}>
+      <div className={`fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-40 shadow-top ${step === 2 ? 'lg:hidden' : ''}`}>
         {errorMsg && (
-          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-[#FFF5F5] border border-[#FEB2B2] rounded text-xs text-[#E53E3E] flex items-center gap-2">
+          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-brand-error-soft border border-brand-error/40 rounded-md text-xs text-brand-error flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
         {successMsg && (
-          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-[#F0FFF4] border border-[#9AE6B4] rounded text-xs text-[#38A169]">
+          <div className="max-w-lg mx-auto mb-2 p-2.5 bg-brand-success-soft border border-brand-success/40 rounded-md text-xs text-brand-success-dark">
             {successMsg}
           </div>
         )}
@@ -1086,11 +1086,11 @@ export default function BookingClient() {
           {step === 1 ? (
             <>
               <div className="flex-1">
-                <p className="text-xs text-[#9e8e8c]">Subtotal <span className="text-[10px] italic">(belum term. ongkos & admin)</span></p>
-                <p className="text-lg font-bold text-[#b51822]">{formatPrice(subtotal)}</p>
+                <p className="text-xs text-brand-gray-450">Subtotal <span className="text-[10px] italic">(belum term. ongkos & admin)</span></p>
+                <p className="text-lg font-bold text-brand-red">{formatPrice(subtotal)}</p>
               </div>
               <Button
-                className="bg-[#b51822] hover:bg-[#90121a] rounded px-8"
+                className="px-8"
                 onClick={handleNext}
                 disabled={selectedCount === 0 || isOwnPartner}
               >
@@ -1100,13 +1100,13 @@ export default function BookingClient() {
           ) : (
             <>
               <div className="flex-1">
-                <p className="text-xs text-[#9e8e8c]">Total Bayar</p>
-                <p className="text-lg font-bold text-[#b51822]">
+                <p className="text-xs text-brand-gray-450">Total Bayar</p>
+                <p className="text-lg font-bold text-brand-red">
                   {previewLoading ? '...' : formatPrice(previewQuote ? previewQuote.agreed_price : totalPayment)}
                 </p>
               </div>
               <Button
-                className="bg-[#b51822] hover:bg-[#90121a] rounded px-8"
+                className="px-8"
                 onClick={submitOrder}
                 disabled={loading || !date || !time || !addressId || isOwnPartner}
               >

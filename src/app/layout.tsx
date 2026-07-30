@@ -8,6 +8,7 @@ import QueryProvider from "@/components/providers/query-provider";
 import AuthProvider from "@/components/providers/auth-provider";
 import { ChatProvider } from "@/components/providers/chat-provider";
 import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { Toaster } from "@/components/ui/toast";
 
 // Load Inter font with proper weights
@@ -87,7 +88,7 @@ export default function RootLayout({
             <ChatProvider>
               <HeaderWrapper />
               <main className="flex-1">
-                {children}
+                <ErrorBoundary>{children}</ErrorBoundary>
               </main>
               <Footer />
               <BottomNav />

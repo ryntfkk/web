@@ -3,14 +3,7 @@
 import Image from 'next/image';
 import { Check, Clock } from 'lucide-react';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(p);
-}
+import { Price } from '@/components/ui/price';
 
 export interface ServiceItemCardProps {
   name: string;
@@ -63,7 +56,7 @@ export function ServiceItemCard({
             <Clock className="w-3 h-3" /> {durationMinutes} menit
           </p>
         )}
-        <p className="text-sm font-bold text-[#b51822] mt-1">{formatPrice(price)}</p>
+        <Price price={price} size="sm" className="mt-1" />
       </div>
 
       {/* Kanan: checkbox (selectable) atau slot aksi */}
@@ -82,7 +75,7 @@ export function ServiceItemCard({
     </>
   );
 
-  const baseClass = `flex items-center gap-3 p-3 rounded-xl border transition-colors ${
+  const baseClass = `flex items-center gap-3 p-3 rounded-lg border transition-colors ${
     selectable
       ? selected
         ? 'border-[#b51822] bg-[#FFF5F5]'

@@ -2,15 +2,9 @@ import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import { Star, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-/** Ringkas jumlah pesanan: 1.200 → "1,2rb+", 15 → "15". */
-function formatOrderCount(n: number): string {
-  if (n >= 1000) {
-    const k = n / 1000;
-    return `${k.toFixed(k >= 10 || Number.isInteger(k) ? 0 : 1).replace('.', ',')}rb+`;
-  }
-  return `${n}`;
-}
+import { Badge } from '@/components/ui/badge';
+import { Price } from '@/components/ui/price';
+import { formatCompactNumber } from '@/lib/format';
 
 interface ServiceCardProps {
   vendorName: string;
@@ -49,7 +43,7 @@ export function ServiceCard({
   return (
     <div
       className={cn(
-        "flex flex-col bg-white border border-brand-gray-100 rounded-xs overflow-hidden cursor-pointer hover:shadow-md transition-all",
+        "flex flex-col bg-white border border-brand-gray-100 rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-all",
         className
       )}
     >
@@ -64,9 +58,9 @@ export function ServiceCard({
         />
         {/* PRO Badge - top left */}
         {isPro && (
-          <div className="absolute top-2 left-2 bg-brand-red text-white px-2 py-0.5 rounded-md">
-            <span className="text-[12px] sm:text-[14px] font-semibold leading-none">PRO</span>
-          </div>
+          <Badge variant="pro" className="absolute top-2 left-2">
+            PRO
+          </Badge>
         )}
         {/* Distance Badge - top right */}
         {distance && (
@@ -113,7 +107,7 @@ export function ServiceCard({
             <span className="text-[12px] font-medium text-brand-gray-900">{Number(rating).toFixed(1)}</span>
             {typeof orderCount === 'number' && orderCount > 0 && (
               <span className="text-[10px] sm:text-[11px] text-brand-gray-400 truncate">
-                · {formatOrderCount(orderCount)} pesanan
+                · {formatCompactNumber(orderCount)} pesanan
               </span>
             )}
           </div>
@@ -127,9 +121,7 @@ export function ServiceCard({
 
         {/* Price Row */}
         <div className="flex items-end gap-0.5 sm:gap-1 mt-1 sm:mt-2">
-          <span className="text-[14px] sm:text-[16px] font-semibold text-brand-red leading-none">
-            Rp {price.toLocaleString('id-ID')}
-          </span>
+          <Price price={price} size="sm" className="text-[14px] sm:text-[16px] font-semibold leading-none" />
           <span className="text-[11px] sm:text-[12px] font-normal text-brand-gray-700 mb-0.5">
             /{unit}
           </span>

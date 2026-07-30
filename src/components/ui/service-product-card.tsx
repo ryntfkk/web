@@ -12,15 +12,9 @@ import { formatDistanceMeters } from '@/lib/distance';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
 import { useToast } from '@/components/ui/toast';
-
-/** Ringkas jumlah pesanan: 1.200 → "1,2rb+", 15 → "15". */
-function formatOrderCount(n: number): string {
-  if (n >= 1000) {
-    const k = n / 1000;
-    return `${k.toFixed(k >= 10 || Number.isInteger(k) ? 0 : 1).replace('.', ',')}rb+`;
-  }
-  return `${n}`;
-}
+import { Badge } from '@/components/ui/badge';
+import { Price } from '@/components/ui/price';
+import { formatCompactNumber } from '@/lib/format';
 
 // Ambang badge "Terpercaya" (gaya Star Seller / Power Merchant): performa nyata
 // (banyak pesanan selesai + rating tinggi), bukan sekadar terdaftar — jadi badge
@@ -64,7 +58,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
 
   return (
     <Link href={`/services/${service.id}?distance=${service.distance_meters || 0}`} className="block">
-      <div className="bg-white border border-brand-gray-100 rounded-xs overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
+      <div className="bg-white border border-brand-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
         {/* Image */}
         <div className="relative w-full aspect-square bg-brand-gray-100 flex-shrink-0">
           <Image
@@ -76,16 +70,16 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
           />
           {/* Availability badge - top left */}
           {service.partner_is_online && (
-            <div className="absolute top-1.5 left-1.5 bg-brand-success/90 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-semibold leading-none">
+            <Badge variant="success" className="absolute top-1.5 left-1.5">
               Tersedia Hari Ini
-            </div>
+            </Badge>
           )}
           {/* Verified badge - top left (only if no availability badge overlaps) */}
           {service.partner_is_verified && !service.partner_is_online && (
-            <div className="absolute top-1.5 left-1.5 bg-brand-info/90 backdrop-blur-sm text-white px-1.5 py-0.5 rounded flex items-center gap-0.5">
+            <Badge variant="verified" className="absolute top-1.5 left-1.5">
               <ShieldCheck className="w-2.5 h-2.5" />
-              <span className="text-[9px] sm:text-[10px] font-semibold leading-none">Terverifikasi</span>
-            </div>
+              Terverifikasi
+            </Badge>
           )}
 
           {/* Favorite heart - top right (aksi cepat simpan favorit dari daftar) */}
@@ -137,13 +131,14 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
               {service.partner_name}
             </span>
             {isTrusted && (
-              <span
+              <Badge
+                variant="verified"
                 title="Mitra Terpercaya: banyak pesanan selesai & rating tinggi"
-                className="flex-shrink-0 inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-semibold text-brand-success bg-brand-success/10 px-1 py-0.5 rounded"
+                className="flex-shrink-0"
               >
                 <ShieldCheck className="w-2.5 h-2.5" />
                 Terpercaya
-              </span>
+              </Badge>
             )}
           </div>
 
@@ -157,7 +152,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             </div>
             {orderCount > 0 && (
               <span className="text-[11px] sm:text-[12px] text-brand-gray-400 truncate">
-                · {formatOrderCount(orderCount)} pesanan
+                · {formatCompactNumber(orderCount)} pesanan
               </span>
             )}
             {service.partner_city && (
@@ -172,11 +167,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
 
           {/* Price - pushed to bottom */}
           <div className="mt-auto">
-            <div className="flex items-baseline gap-0.5">
-              <span className="text-[14px] sm:text-[16px] font-semibold text-brand-red">
-                Rp {(service.price || 0).toLocaleString('id-ID')}
-              </span>
-            </div>
+            <Price price={service.price || 0} size="sm" className="text-[14px] sm:text-[16px] font-semibold" />
           </div>
         </div>
       </div>

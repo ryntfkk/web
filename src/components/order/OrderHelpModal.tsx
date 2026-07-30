@@ -47,13 +47,13 @@ export default function OrderHelpModal({
 
   return (
     <Modal open={open} onClose={onClose} title="Hubungi Admin">
-      <div className="mb-4 flex items-start gap-3 rounded-xl bg-[#f7f5f4] p-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#b51822]/10 text-[#b51822]">
+      <div className="mb-4 flex items-start gap-3 rounded-xl bg-brand-gray-60 p-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
           <HeadphonesIcon className="h-4 w-4" />
         </div>
-        <p className="text-[13px] leading-relaxed text-[#5b403e]">
+        <p className="text-[13px] leading-relaxed text-brand-gray-700">
           Kamu akan memulai percakapan dengan admin terkait{' '}
-          <span className="font-semibold text-[#1c1b1b]">Pesanan #{orderNumber}</span>. Ceritakan
+          <span className="font-semibold text-brand-gray-900">Pesanan #{orderNumber}</span>. Ceritakan
           masalahnya (opsional) agar admin lebih cepat membantu.
         </p>
       </div>
@@ -63,16 +63,16 @@ export default function OrderHelpModal({
         onChange={(e) => setMessage(e.target.value)}
         rows={4}
         placeholder="Tulis masalah/pertanyaanmu (opsional)…"
-        className="w-full rounded-xl border border-[#e5e2e1] p-3 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
+        className="w-full rounded-xl border border-brand-gray-100 p-3 text-[14px] text-brand-gray-900 placeholder:text-brand-gray-400 focus:border-brand-red focus:outline-none focus:ring-1 focus:ring-brand-red"
       />
 
-      {error && <p className="mt-2 text-[12px] text-[#E53E3E]">{error}</p>}
+      {error && <p className="mt-2 text-[12px] text-brand-error">{error}</p>}
 
       <div className="mt-4 flex justify-end gap-2">
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg border border-[#e5e2e1] px-4 py-2 text-[13px] font-medium text-[#5b403e] hover:bg-[#f7f5f4]"
+          className="rounded-lg border border-brand-gray-100 px-4 py-2 text-[13px] font-medium text-brand-gray-700 hover:bg-brand-gray-60"
         >
           Batal
         </button>
@@ -80,7 +80,7 @@ export default function OrderHelpModal({
           type="button"
           onClick={send}
           disabled={sending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#b51822] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#90121a] disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-red-dark disabled:opacity-60"
         >
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <HeadphonesIcon className="h-4 w-4" />}
           {sending ? 'Memulai…' : 'Mulai Chat dengan Admin'}

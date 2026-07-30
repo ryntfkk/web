@@ -4,6 +4,7 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Send, Camera, Image as ImageIcon, Loader2 as UploadSpinner } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
@@ -294,9 +295,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             )}
             {partner ? (
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#e5e2e1] flex items-center justify-center text-sm font-bold text-[#5b403e] shrink-0 overflow-hidden">
+                <div className="relative w-10 h-10 rounded-full bg-[#e5e2e1] flex items-center justify-center text-sm font-bold text-[#5b403e] shrink-0 overflow-hidden">
                   {partner.avatar_url ? (
-                    <img src={partner.avatar_url} alt={partner.name} className="w-full h-full object-cover" />
+                    <Image src={partner.avatar_url} alt={partner.name} fill sizes="40px" className="object-cover" />
                   ) : (
                     getInitial(partner.name)
                   )}
@@ -374,9 +375,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-16 h-16 rounded-full bg-[#e5e2e1] flex items-center justify-center mb-4">
-              <Send className="w-6 h-6 text-[#9e8e8c]" />
+              <Send className="w-6 h-6 text-brand-gray-450" />
             </div>
-            <p className="text-sm text-[#9e8e8c]">Belum ada pesan. Mulai percakapan!</p>
+            <p className="text-sm text-brand-gray-450">Belum ada pesan. Mulai percakapan!</p>
           </div>
         ) : (
           messages.map((msg, i) => {
@@ -408,23 +409,35 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                   >
                     {msg.message_type === 'image' && (
                       <a href={msg.content} target="_blank" rel="noopener noreferrer">
-                        <img
-                          src={msg.content}
-                          alt="Foto lampiran dalam percakapan"
-                          loading="lazy"
-                          className="max-w-full max-h-64 object-contain rounded border border-black/10"
-                        />
+                        {msg.content.startsWith('blob:') ? (
+                          // Preview optimistic lokal (blob:) tidak bisa lewat optimizer next/image.
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={msg.content}
+                            alt="Foto lampiran dalam percakapan"
+                            loading="lazy"
+                            className="max-w-full max-h-64 object-contain rounded border border-black/10"
+                          />
+                        ) : (
+                          <Image
+                            src={msg.content}
+                            alt="Foto lampiran dalam percakapan"
+                            width={480}
+                            height={360}
+                            className="max-w-full max-h-64 w-auto h-auto object-contain rounded border border-black/10"
+                          />
+                        )}
                       </a>
                     )}
                     {msg.message_type === 'text' && <p className="text-[14px] leading-relaxed">{msg.content}</p>}
                   </div>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="text-[10px] text-[#9e8e8c]">{formatTime(msg.created_at)}</span>
+                    <span className="text-[10px] text-brand-gray-450">{formatTime(msg.created_at)}</span>
                     {isMe && msg.status === 'pending' && (
-                      <span className="text-[10px] text-[#9e8e8c]">...</span>
+                      <span className="text-[10px] text-brand-gray-450">...</span>
                     )}
                     {isMe && msg.status !== 'pending' && (
-                      <span className={`text-[10px] font-medium ${msg.is_read ? 'text-[#38A169]' : 'text-[#9e8e8c]'}`}>
+                      <span className={`text-[10px] font-medium ${msg.is_read ? 'text-[#38A169]' : 'text-brand-gray-450'}`}>
                         {msg.is_read ? '✓✓' : '✓'}
                       </span>
                     )}
@@ -441,7 +454,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       <div className={`bg-white border-t border-[#e5e2e1] mt-auto shrink-0 flex flex-col ${embedded ? '' : 'pb-[env(safe-area-inset-bottom)]'}`}>
         {isArchived ? (
           <div className={`p-4 text-center ${embedded ? '' : 'max-w-lg mx-auto'}`}>
-            <p className="text-sm text-[#9e8e8c] font-medium">Sesi chat ini telah diarsipkan karena pesanan selesai.</p>
+            <p className="text-sm text-brand-gray-450 font-medium">Sesi chat ini telah diarsipkan karena pesanan selesai.</p>
           </div>
         ) : (
           <div className={`flex flex-col w-full ${embedded ? '' : 'max-w-lg mx-auto'}`}>
@@ -462,7 +475,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             )}
             <form onSubmit={handleSend} className="p-3 flex flex-col gap-2 w-full">
               {sendError && (
-                <div className="text-xs text-[#E53E3E] px-2 font-medium bg-[#FFF5F5] py-1.5 rounded-lg border border-[#FEB2B2]">
+                <div className="text-xs text-[#E53E3E] px-2 font-medium bg-brand-error-soft py-1.5 rounded-lg border border-[#FEB2B2]">
                   {sendError}
                 </div>
               )}
@@ -519,7 +532,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 type="submit"
                 disabled={!input.trim()}
                 className={`p-2 rounded-xl transition-colors shrink-0 ${
-                  input.trim() ? 'bg-[#b51822] text-white hover:bg-[#90121a] shadow-sm' : 'text-[#9e8e8c]'
+                  input.trim() ? 'bg-[#b51822] text-white hover:bg-[#90121a] shadow-sm' : 'text-brand-gray-450'
                 }`}
               >
                 <Send className="w-4 h-4" />

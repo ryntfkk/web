@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, Pencil, Trash2, X, Home, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
-import { Loader2 } from 'lucide-react';
 import { unwrapData } from '@/lib/order-utils';
 
 
@@ -72,11 +72,12 @@ export default function AddressesPage() {
     }
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    // pb-20 untuk memberi ruang fixed action bar "Tambah Alamat" di semua breakpoint.
+    <div className="page-h bg-[#f7f5f4] pb-20">
 
       <MobilePageHeader title="Buku Alamat" />
 
@@ -120,13 +121,13 @@ export default function AddressesPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Link href={`/profile/addresses/edit/${a.id}`}>
-                    <button className="p-1.5 text-[#9e8e8c] hover:text-[#5b403e] hover:bg-[#f7f5f4] rounded transition-colors">
+                    <button className="p-1.5 text-brand-gray-450 hover:text-[#5b403e] hover:bg-[#f7f5f4] rounded transition-colors">
                       <Pencil className="w-4 h-4" />
                     </button>
                   </Link>
                   <button
                     onClick={() => setDeleteId(a.id)}
-                    className="p-1.5 text-[#9e8e8c] hover:text-[#E53E3E] hover:bg-[#FFF5F5] rounded transition-colors"
+                    className="p-1.5 text-brand-gray-450 hover:text-[#E53E3E] hover:bg-brand-error-soft rounded transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -171,7 +172,7 @@ export default function AddressesPage() {
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-base font-semibold text-[#1c1b1b]">Hapus Alamat?</h3>
               <button onClick={() => setDeleteId(null)}>
-                <X className="w-5 h-5 text-[#9e8e8c]" />
+                <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
             <p className="text-sm text-[#5b403e] mb-6">

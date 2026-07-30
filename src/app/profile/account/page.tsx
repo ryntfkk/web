@@ -2,10 +2,12 @@
 import { useToast } from '@/components/ui/toast';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import { User, Phone, Mail, Loader2, Camera } from 'lucide-react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
+import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useUpload } from '@/hooks/useUpload';
 import { getInitial } from '@/lib/utils';
@@ -99,11 +101,11 @@ export default function AccountPage() {
     }
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
   if (!isAuthorized || !user) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24 relative">
+    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-10 relative">
 
       <MobilePageHeader title="Informasi Akun" backHref="/profile" />
 
@@ -111,18 +113,18 @@ export default function AccountPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b]">Informasi Akun</h1>
           {!isEditing && (
-            <Button variant="outline" size="sm" onClick={handleEdit} className="text-[#b51822] border-[#b51822] hover:bg-[#FFF5F5]">
+            <Button variant="outline" size="sm" onClick={handleEdit} className="text-[#b51822] border-[#b51822] hover:bg-brand-error-soft">
               Ubah Profil
             </Button>
           )}
         </div>
 
         {/* Avatar Section */}
-        <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden mb-4 p-6 text-center">
+        <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden mb-4 p-6 text-center">
           <div className="relative inline-block mx-auto mb-4">
-            <div className="w-24 h-24 rounded-full bg-[#f7f5f4] flex items-center justify-center text-3xl font-bold text-[#b51822] overflow-hidden border-2 border-[#e5e2e1]">
+            <div className="relative w-24 h-24 rounded-full bg-[#f7f5f4] flex items-center justify-center text-3xl font-bold text-[#b51822] overflow-hidden border-2 border-[#e5e2e1]">
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                <Image src={user.avatar_url} alt="Avatar" fill sizes="96px" className="object-cover" />
               ) : (
                 getInitial(user.name)
               )}
@@ -147,7 +149,7 @@ export default function AccountPage() {
         </div>
 
         {/* Info / Edit Section */}
-        <div className="bg-white rounded border border-[#e5e2e1] overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
           <div className="p-4 border-b border-[#e5e2e1]">
             <h3 className="font-semibold text-[#32201f]">Detail Akun</h3>
           </div>
@@ -182,10 +184,10 @@ export default function AccountPage() {
                   placeholder="08xxxxxxxxxx"
                   className="w-full p-3 border border-[#e5e2e1] rounded text-sm text-[#1c1b1b] focus:outline-none focus:border-[#b51822]"
                 />
-                <p className="text-xs text-[#9e8e8c] mt-1">Dipakai untuk kontak &amp; notifikasi. Login tetap memakai username.</p>
+                <p className="text-xs text-brand-gray-450 mt-1">Dipakai untuk kontak &amp; notifikasi. Login tetap memakai username.</p>
               </div>
 
-              {error && <div className="bg-[#FFF5F5] text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
+              {error && <div className="bg-brand-error-soft text-[#E53E3E] text-sm p-3 rounded-lg border border-[#FEB2B2]">{error}</div>}
 
               <div className="flex gap-3 pt-2">
                 <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)} type="button">

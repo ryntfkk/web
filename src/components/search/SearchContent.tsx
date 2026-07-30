@@ -2,8 +2,10 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RefreshCw, Clock, X } from 'lucide-react';
+import { RefreshCw, Clock, X, SearchX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
+import { ServiceGridSkeleton } from '@/components/ui/skeleton';
 import Breadcrumbs from '@/components/search/Breadcrumbs';
 import FilterPanel from '@/components/search/FilterPanel';
 import SortBar from '@/components/search/SortBar';
@@ -138,62 +140,55 @@ export default function SearchContent({ query }: SearchContentProps) {
 
           {/* Service Grid */}
           {isLoading && page === 1 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-[250px] bg-[#e5e2e1] animate-pulse rounded-md" />
-              ))}
+            <div className="mt-4 md:mt-6">
+              <ServiceGridSkeleton count={8} />
             </div>
           ) : isError ? (
-            <div className="flex flex-col items-center gap-3 py-10 text-center mt-4 md:mt-6">
-              <p className="text-sm text-[#b51822]">Gagal memuat hasil pencarian.</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetch()}
-                className="text-[12px] sm:text-[13px] h-auto py-1.5 px-4"
-              >
-                <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-                Coba Lagi
-              </Button>
+            <div className="mt-4 md:mt-6">
+              <EmptyState
+                variant="error"
+                icon={RefreshCw}
+                title="Gagal memuat hasil pencarian"
+                action={
+                  <Button variant="outline" size="sm" onClick={() => refetch()}>
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    Coba Lagi
+                  </Button>
+                }
+              />
             </div>
           ) : visibleServices.length === 0 ? (
-            <div className="mt-8 flex flex-col items-center justify-center text-center py-12 px-4">
-              <div className="w-16 h-16 rounded-full bg-[#f0eded] flex items-center justify-center mb-4">
-                <RefreshCw className="w-7 h-7 text-[#9e8e8c]" />
-              </div>
-              <h3 className="text-base font-semibold text-[#1c1b1b] mb-1">
-                {query ? `Tidak ada hasil untuk "${query}"` : 'Tidak ada mitra tersedia'}
-              </h3>
-              <p className="text-sm text-[#5b403e] mb-5 max-w-xs">
-                {city
-                  ? `Belum ada mitra di ${city} yang cocok dengan filter kamu. Coba kota lain atau ubah filter rating.`
-                  : 'Coba ubah filter atau kata kunci pencarian.'}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                {minRating > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setMinRating(0)}
-                    className="text-xs border-[#e5e2e1] text-[#5b403e]"
-                  >
-                    Hapus Filter Rating
-                  </Button>
-                )}
-                {city && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCity('')}
-                    className="text-xs border-[#e5e2e1] text-[#5b403e]"
-                  >
-                    Semua Kota
-                  </Button>
-                )}
-              </div>
+            <div className="mt-4 md:mt-6">
+              <EmptyState
+                variant="search"
+                icon={SearchX}
+                title={query ? `Tidak ada hasil untuk "${query}"` : 'Tidak ada mitra tersedia'}
+                description={
+                  city
+                    ? `Belum ada mitra di ${city} yang cocok dengan filter kamu. Coba kota lain atau ubah filter rating.`
+                    : 'Coba ubah filter atau kata kunci pencarian.'
+                }
+                action={
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {minRating > 0 && (
+                      <Button variant="outline" size="sm" onClick={() => setMinRating(0)}>
+                        Hapus Filter Rating
+                      </Button>
+                    )}
+                    {city && (
+                      <Button variant="outline" size="sm" onClick={() => setCity('')}>
+                        Semua Kota
+                      </Button>
+                    )}
+                    <Button size="sm" onClick={() => router.push('/categories')}>
+                      Jelajahi Kategori
+                    </Button>
+                  </div>
+                }
+              />
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 mt-4 md:mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-4 md:mt-6">
               {visibleServices.map((service) => (
                 <ServiceProductCard key={service.id} service={service} />
               ))}

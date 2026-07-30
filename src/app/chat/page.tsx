@@ -13,9 +13,13 @@ export default function ChatListPage() {
   const router = useRouter();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
+  // Desktop/tablet (md+): tampilkan di panel kanan; Mobile: navigasi ke halaman room.
+  // matchMedia mengikuti breakpoint Tailwind `md` (768px) — satu sumber kebenaran.
+  const isDesktopViewport = () =>
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
+
   const handleSelectChat = (roomId: string) => {
-    // Desktop/tablet (md+): tampilkan di panel kanan; Mobile: navigasi ke halaman room
-    if (window.innerWidth >= 768) {
+    if (isDesktopViewport()) {
       setSelectedRoomId(roomId);
     } else {
       router.push(`/chat/${roomId}`);
@@ -32,9 +36,9 @@ export default function ChatListPage() {
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List ===== */}
-        <div className="w-full md:w-[320px] lg:w-[360px] xl:w-[400px] md:min-w-[300px] flex flex-col border-r border-[#e5e2e1] bg-white shrink-0 min-h-0">
+        <div className="w-full md:w-96 flex flex-col border-r border-brand-gray-100 bg-white shrink-0 min-h-0">
           <div className="px-4 pt-4 shrink-0">
-            <h1 className="text-lg font-bold text-[#1c1b1b] mb-1">Chat</h1>
+            <h1 className="text-lg font-bold text-brand-gray-900 mb-1">Chat</h1>
           </div>
           <div className="flex-1 min-h-0">
             <ChatRoomList
@@ -42,7 +46,7 @@ export default function ChatListPage() {
               selectedRoomId={selectedRoomId}
               onFirstRoom={(roomId) => {
                 // Auto-select percakapan pertama hanya di layar md+
-                if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+                if (isDesktopViewport()) {
                   setSelectedRoomId((prev) => prev ?? roomId);
                 }
               }}
@@ -59,12 +63,12 @@ export default function ChatListPage() {
               embedded
             />
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-8 bg-[#fafafa]">
-              <div className="w-20 h-20 rounded-full bg-[#f0eded] flex items-center justify-center mb-5">
-                <MessageSquare className="w-9 h-9 text-[#c4b8b6]" />
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-8 bg-brand-gray-60">
+              <div className="w-16 h-16 rounded-full bg-brand-red-light flex items-center justify-center mb-4">
+                <MessageSquare className="w-8 h-8 text-brand-gray-400" />
               </div>
-              <h2 className="text-base font-bold text-[#5b403e] mb-2">Pilih percakapan</h2>
-              <p className="text-sm text-[#9e8e8c] max-w-xs">
+              <h2 className="text-base font-bold text-brand-gray-700 mb-2">Pilih percakapan</h2>
+              <p className="text-sm text-brand-gray-450 max-w-xs">
                 Pilih salah satu percakapan dari daftar di sebelah kiri untuk mulai chat.
               </p>
             </div>

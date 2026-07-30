@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ArrowLeft, Send, LifeBuoy } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -107,8 +108,13 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
                 >
                   {m.message_type === 'image' ? (
                     <a href={m.content} target="_blank" rel="noopener noreferrer">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={m.content} alt="Lampiran" className="max-w-full max-h-64 rounded" />
+                      <Image
+                        src={m.content}
+                        alt="Lampiran"
+                        width={480}
+                        height={360}
+                        className="max-w-full max-h-64 w-auto h-auto object-contain rounded"
+                      />
                     </a>
                   ) : (
                     <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{m.content}</p>

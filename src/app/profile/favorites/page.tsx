@@ -2,27 +2,21 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Heart, Star, Trash2, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { Heart, Star, Trash2 } from 'lucide-react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { useToast } from '@/components/ui/toast';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton, ProfileSkeleton } from '@/components/ui/skeleton';
 import {
   useFavoriteServices,
   useFavoritePartners,
   useFavoritesActions,
 } from '@/hooks/useFavorites';
+import { formatRupiah as formatPrice } from '@/lib/format';
 
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(p);
-}
 
 export default function FavoritesPage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -35,7 +29,7 @@ export default function FavoritesPage() {
   // Semua hook dipanggil di atas guard — jangan pernah return sebelum hook
   // terpanggil (dulu useState di bawah guard ini → crash "rendered more hooks").
   if (authLoading || !isAuthorized) {
-    return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
   }
 
   const handleRemoveService = async (id: string) => {
@@ -54,7 +48,7 @@ export default function FavoritesPage() {
   const empty = !loading && sCount === 0 && pCount === 0;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-10">
       <MobilePageHeader title="Favorit Saya" icon={<Heart className="w-5 h-5 text-[#b51822]" />} />
 
       <div className="max-w-lg mx-auto px-4 py-6">
@@ -123,20 +117,24 @@ export default function FavoritesPage() {
                 className="flex items-center gap-3 border border-[#e5e2e1] rounded-lg p-3 bg-white"
               >
                 <Link href={`/services/${f.service_id}`} className="flex items-center gap-3 flex-1 min-w-0">
-                  <img
-                    src={f.photo_url || PLACEHOLDER_IMG}
-                    alt={f.service_name}
-                    className="w-14 h-14 rounded-md object-cover flex-shrink-0"
-                  />
+                  <span className="relative w-14 h-14 rounded-md overflow-hidden flex-shrink-0">
+                    <Image
+                      src={f.photo_url || PLACEHOLDER_IMG}
+                      alt={f.service_name}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  </span>
                   <div className="min-w-0">
                     <p className="font-medium text-[#1c1b1b] truncate">{f.service_name}</p>
-                    <p className="text-xs text-[#9e8e8c] truncate">{f.category_name} · {f.partner_name}</p>
+                    <p className="text-xs text-brand-gray-450 truncate">{f.category_name} · {f.partner_name}</p>
                     <p className="text-sm font-semibold text-[#b51822]">{formatPrice(f.price)}</p>
                   </div>
                 </Link>
                 <button
                   onClick={() => handleRemoveService(f.service_id)}
-                  className="text-[#9e8e8c] hover:text-[#b51822] p-1"
+                  className="text-brand-gray-450 hover:text-[#b51822] p-1"
                   aria-label="Hapus favorit"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -157,23 +155,27 @@ export default function FavoritesPage() {
                 className="flex items-center gap-3 border border-[#e5e2e1] rounded-lg p-3 bg-white"
               >
                 <Link href={`/${f.partner_username}`} className="flex items-center gap-3 flex-1 min-w-0">
-                  <img
-                    src={f.avatar_url || PLACEHOLDER_IMG}
-                    alt={f.partner_name}
-                    className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                  />
+                  <span className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                    <Image
+                      src={f.avatar_url || PLACEHOLDER_IMG}
+                      alt={f.partner_name}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
+                  </span>
                   <div className="min-w-0">
                     <p className="font-medium text-[#1c1b1b] truncate">{f.partner_name}</p>
-                    <p className="text-xs text-[#9e8e8c] truncate">@{f.partner_username}</p>
+                    <p className="text-xs text-brand-gray-450 truncate">@{f.partner_username}</p>
                     <p className="text-xs text-[#5b403e] flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-current text-yellow-500" />
+                      <Star className="w-3 h-3 fill-current text-brand-warning" />
                       {Number(f.avg_rating).toFixed(1)} ({f.total_reviews})
                     </p>
                   </div>
                 </Link>
                 <button
                   onClick={() => handleRemovePartner(f.partner_id)}
-                  className="text-[#9e8e8c] hover:text-[#b51822] p-1"
+                  className="text-brand-gray-450 hover:text-[#b51822] p-1"
                   aria-label="Hapus favorit"
                 >
                   <Trash2 className="w-4 h-4" />

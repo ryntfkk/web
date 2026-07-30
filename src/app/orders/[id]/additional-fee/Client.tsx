@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
+import { formatRupiah as formatPrice } from '@/lib/format';
 import { isInsufficientBalance, payAdditionalFeeWithSnap } from '@/lib/payment';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -33,10 +34,6 @@ interface OrderInfo {
   total_amount: number;
   partner_name?: string;
   additional_fees?: AdditionalFee[];
-}
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 }
 
 export default function AdditionalFeeClient() {
@@ -137,8 +134,8 @@ export default function AdditionalFeeClient() {
 
   if (loading) {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -147,9 +144,9 @@ export default function AdditionalFeeClient() {
   const fee = pendingFees[0];
   if (!fee) {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center p-4">
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-[#5b403e] mb-4">Tidak ada tagihan tambahan yang menunggu persetujuan.</p>
+          <p className="text-brand-gray-700 mb-4">Tidak ada tagihan tambahan yang menunggu persetujuan.</p>
           <Button onClick={() => router.push(`/orders/${orderId}`)}>Kembali</Button>
         </div>
       </div>
@@ -163,17 +160,17 @@ export default function AdditionalFeeClient() {
   const amountDue = fee.total;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:hidden">
+      <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-              <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+            <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+              <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
             </button>
-            <h1 className="text-base font-bold text-[#1c1b1b]">
+            <h1 className="text-base font-bold text-brand-gray-900">
               Tagihan Tambahan {pendingFees.length > 1 ? `(1/${pendingFees.length})` : ''}
             </h1>
           </div>
@@ -186,79 +183,79 @@ export default function AdditionalFeeClient() {
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {/* Judul desktop — countdown ikut dipindah agar tidak hilang saat header mobile disembunyikan. */}
         <div className="hidden lg:flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-[#1c1b1b]">
+          <h1 className="text-2xl font-bold text-brand-gray-900">
             Tagihan Tambahan {pendingFees.length > 1 ? `(1 dari ${pendingFees.length})` : ''}
           </h1>
           {fee.expired_at && (
             <CountdownTimer targetDate={fee.expired_at} format="hh:mm:ss" criticalThresholdSeconds={3600} warningThresholdSeconds={10800} />
           )}
         </div>
-        <p className="text-sm text-[#5b403e]">
-          <span className="font-semibold text-[#1c1b1b]">{order?.partner_name ?? 'Mitra'}</span> mengajukan biaya tambahan:
+        <p className="text-sm text-brand-gray-700">
+          <span className="font-semibold text-brand-gray-900">{order?.partner_name ?? 'Mitra'}</span> mengajukan biaya tambahan:
         </p>
         {fee.expired_at && (
-          <p className="text-xs text-[#9e8e8c]">
+          <p className="text-xs text-brand-gray-450">
             Tagihan yang tidak direspon dalam 24 jam akan otomatis ditolak dan pengerjaan dilanjutkan tanpa biaya tambahan ini.
           </p>
         )}
 
         {/* Fee Detail Card */}
-        <div className="bg-[#f4f0ef] rounded-xl p-4 space-y-2.5">
+        <div className="bg-brand-surface-warm rounded-lg p-4 space-y-2.5">
           <div className="flex justify-between text-sm">
-            <span className="text-[#9e8e8c]">Tipe</span>
-            <span className="font-medium text-[#1c1b1b]">
+            <span className="text-brand-gray-450">Tipe</span>
+            <span className="font-medium text-brand-gray-900">
               {fee.type === 'material' ? 'Material' : 'Jasa Ekstra'}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[#9e8e8c]">Item</span>
-            <span className="font-medium text-[#1c1b1b]">{fee.item_name}</span>
+            <span className="text-brand-gray-450">Item</span>
+            <span className="font-medium text-brand-gray-900">{fee.item_name}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[#9e8e8c]">Harga Satuan</span>
-            <span className="font-medium text-[#1c1b1b]">{formatPrice(fee.price)}</span>
+            <span className="text-brand-gray-450">Harga Satuan</span>
+            <span className="font-medium text-brand-gray-900">{formatPrice(fee.price)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[#9e8e8c]">Qty</span>
-            <span className="font-medium text-[#1c1b1b]">{fee.quantity}</span>
+            <span className="text-brand-gray-450">Qty</span>
+            <span className="font-medium text-brand-gray-900">{fee.quantity}</span>
           </div>
-          <div className="border-t border-[#e5e2e1] pt-2.5 flex justify-between text-sm font-semibold">
-            <span className="text-[#1c1b1b]">Total Tambahan</span>
-            <span className="text-[#DD6B20]">{formatPrice(fee.total)}</span>
+          <div className="border-t border-brand-gray-100 pt-2.5 flex justify-between text-sm font-semibold">
+            <span className="text-brand-gray-900">Total Tambahan</span>
+            <span className="text-brand-orange">{formatPrice(fee.total)}</span>
           </div>
         </div>
 
         {/* Summary */}
-        <div className="bg-white rounded border border-[#e5e2e1] p-4 space-y-2 text-sm">
-          <div className="flex justify-between text-[#5b403e]">
+        <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-2 text-sm">
+          <div className="flex justify-between text-brand-gray-700">
             <span>Pesanan asal (sudah dibayar)</span>
             <span>{formatPrice(originalPaid)}</span>
           </div>
-          <div className="flex justify-between text-[#DD6B20]">
+          <div className="flex justify-between text-brand-orange">
             <span>Biaya tambahan</span>
             <span>+ {formatPrice(amountDue)}</span>
           </div>
-          <div className="border-t border-[#e5e2e1] pt-2 flex justify-between font-bold text-base">
-            <span className="text-[#1c1b1b]">Yang harus dibayar sekarang</span>
-            <span className="text-[#b51822]">{formatPrice(amountDue)}</span>
+          <div className="border-t border-brand-gray-100 pt-2 flex justify-between font-bold text-base">
+            <span className="text-brand-gray-900">Yang harus dibayar sekarang</span>
+            <span className="text-brand-red">{formatPrice(amountDue)}</span>
           </div>
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 pt-3 pb-safe z-20 shadow-top">
         <div className="max-w-lg mx-auto space-y-2">
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1 rounded border-[#5b403e] text-[#5b403e]"
+              className="flex-1"
               onClick={() => setShowRejectDialog(true)}
               disabled={actionLoading}
             >
               Tolak
             </Button>
             <Button
-              className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded"
+              className="flex-1"
               onClick={handleApprove}
               disabled={actionLoading}
             >
@@ -267,7 +264,7 @@ export default function AdditionalFeeClient() {
           </div>
           <Button
             variant="outline"
-            className="w-full rounded border-[#DD6B20] text-[#DD6B20] hover:bg-[#FFFAF0]"
+            className="w-full border-brand-orange text-brand-orange hover:bg-brand-orange-light"
             onClick={handlePayWithSnap}
             disabled={actionLoading}
           >
@@ -281,19 +278,19 @@ export default function AdditionalFeeClient() {
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#1c1b1b]">Tolak Biaya Tambahan?</h3>
+              <h3 className="text-base font-semibold text-brand-gray-900">Tolak Biaya Tambahan?</h3>
               <button onClick={() => setShowRejectDialog(false)}>
-                <X className="w-5 h-5 text-[#9e8e8c]" />
+                <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-6">
+            <p className="text-sm text-brand-gray-700 mb-6">
               Mitra dapat memilih untuk tetap melanjutkan pekerjaan atau mengajukan laporan masalah.
             </p>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded border-[#e5e2e1]" onClick={() => setShowRejectDialog(false)}>
+              <Button variant="outline" className="flex-1" onClick={() => setShowRejectDialog(false)}>
                 Batal
               </Button>
-              <Button className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded" onClick={handleReject}>
+              <Button variant="danger" className="flex-1" onClick={handleReject}>
                 Ya, Tolak
               </Button>
             </div>

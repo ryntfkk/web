@@ -102,36 +102,36 @@ export default function DisputeClient() {
   if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!isAuthorized) return null;
   if (loading) {
-    return <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#b51822] border-t-transparent rounded-full animate-spin" />
+    return <div className="page-h bg-brand-gray-60 flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
     </div>;
   }
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       {/* Header */}
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 sticky top-0 z-10 lg:hidden">
+      <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+          <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
+            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
-          <h1 className="text-base font-bold text-[#1c1b1b]">Lapor Masalah</h1>
+          <h1 className="text-base font-bold text-brand-gray-900">Lapor Masalah</h1>
         </div>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Lapor Masalah</h1>
-        <div className="bg-[#FFF5F5] border border-[#FEB2B2] rounded-lg p-4 flex gap-3 items-start mb-6">
-          <AlertTriangle className="w-5 h-5 text-[#E53E3E] shrink-0 mt-0.5" />
-          <p className="text-sm text-[#E53E3E] font-medium leading-relaxed">
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Lapor Masalah</h1>
+        <div className="bg-brand-error-soft border border-brand-error/40 rounded-lg p-4 flex gap-3 items-start mb-6">
+          <AlertTriangle className="w-5 h-5 text-brand-error shrink-0 mt-0.5" />
+          <p className="text-sm text-brand-error font-medium leading-relaxed">
             Pesanan akan masuk ke status Sengketa. Dana akan dibekukan sementara hingga Tim CS kami memfasilitasi penyelesaian.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#e5e2e1] p-6 space-y-6">
+        <div className="bg-white rounded-lg border border-brand-gray-100 p-6 space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">
               Ceritakan Detail Masalah *
             </label>
             <textarea
@@ -139,31 +139,32 @@ export default function DisputeClient() {
               onChange={e => setReason(e.target.value)}
               maxLength={500}
               rows={5}
-              className="w-full border border-[#e5e2e1] rounded p-3 text-sm text-[#1c1b1b] placeholder-[#9e8e8c] focus:outline-none focus:border-[#b51822] resize-none"
+              className="w-full border border-brand-gray-100 rounded-md p-3 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red resize-none"
               placeholder="Contoh: Pekerjaan tidak selesai, hasil kurang bersih, atau mitra merusak barang..."
             />
             <div className="flex justify-between items-center mt-1">
-              <p className="text-xs text-[#9e8e8c]">Minimal 20 karakter</p>
-              <p className="text-xs text-[#9e8e8c]">{reason.length}/500</p>
+              <p className="text-xs text-brand-gray-450">Minimal 20 karakter</p>
+              <p className="text-xs text-brand-gray-450">{reason.length}/500</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1c1b1b] mb-2">
-              Unggah Bukti Foto <span className="text-[#9e8e8c] font-normal">(opsional)</span>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">
+              Unggah Bukti Foto <span className="text-brand-gray-450 font-normal">(opsional)</span>
             </label>
-            <p className="text-xs text-[#9e8e8c] mb-3">
+            <p className="text-xs text-brand-gray-450 mb-3">
               Foto bukti akan sangat membantu tim CS menyelesaikan masalah dengan cepat. Maksimal 3 foto.
             </p>
             <PhotoUploader value={photos} onChange={setPhotos} maxPhotos={3} />
           </div>
 
           {error && (
-            <p className="text-sm text-[#E53E3E] bg-[#FFF5F5] p-3 rounded">{error}</p>
+            <p className="text-sm text-brand-error bg-brand-error-soft p-3 rounded-md">{error}</p>
           )}
 
           <Button
-            className="w-full bg-[#E53E3E] hover:bg-[#C53030] rounded"
+            variant="danger"
+            className="w-full"
             onClick={handleSubmit}
             disabled={submitting || reason.length < 20}
           >

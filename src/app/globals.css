@@ -93,6 +93,27 @@
   --color-brand-orange: #DD6B20;
   --color-brand-orange-light: #FEEBC8;
 
+  /* Fase-0 token extension: warna-warna ini sudah de-facto dipakai di 20+ file
+     tapi belum punya token. Jangan tambah hex baru di luar daftar ini —
+     warna baru WAJIB lewat token di sini dulu. */
+  --color-brand-gray-300: #c9bcba; /* timeline dots, border muted */
+  --color-brand-gray-450: #9e8e8c; /* muted text (pengganti hardcode #9e8e8c) */
+  --color-brand-gray-60: #f7f5f4; /* page background (pengganti hardcode #f7f5f4) */
+  --color-brand-amber-dark: #b7791f;
+  --color-brand-orange-dark: #b75415;
+  --color-brand-info-dark: #2a6296;
+  --color-brand-success-dark: #276749;
+  --color-brand-error-dark: #9b2c2c;
+  --color-brand-purple: #5f3dc4;
+  --color-brand-purple-dark: #434190;
+  --color-brand-purple-light: #e9e3fa;
+  --color-brand-slate: #4a5568;
+  /* Soft backgrounds untuk banner/alert */
+  --color-brand-error-soft: #fff5f5;
+  --color-brand-success-soft: #f0fff4;
+  --color-brand-info-soft: #ebf8ff;
+  --color-brand-surface-warm: #f4f0ef;
+
   /* Spacing Tokens (4px base) */
   --space-1: 4px;
   --space-2: 8px;

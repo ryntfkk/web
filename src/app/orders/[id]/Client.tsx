@@ -5,6 +5,7 @@ import { getInitial } from '@/lib/utils';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft, MapPin, Calendar, MessageSquare, Star, AlertTriangle,
   Phone, CheckCircle2, X, Copy, Check, ChevronRight, Clock,
@@ -13,6 +14,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
+import { StickyActionBar } from '@/components/ui/sticky-action-bar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { formatPrice, formatDate, formatDateShort, formatDuration } from '@/lib/format';
 import { fetchAPI } from '@/lib/api';
 import { printOrderReceipt } from '@/lib/receipt';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
@@ -96,75 +100,51 @@ interface OrderDetail {
   };
 }
 
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
-}
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('id-ID', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
-
-function formatShort(d: string) {
-  return new Date(d).toLocaleDateString('id-ID', {
-    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-}
-
-function formatDuration(minutes: number) {
-  if (minutes < 60) return `${minutes} menit`;
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return m === 0 ? `${h} jam` : `${h} jam ${m} menit`;
-}
-
 /** Tampilan hero per status: warna band + kalimat yang menjelaskan
  *  apa yang terjadi dan apa yang harus dilakukan pelanggan. */
 const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> = {
   WAITING_CONFIRMATION: {
-    tone: 'from-[#D69E2E] to-[#B7791F]',
+    tone: 'from-brand-warning to-brand-amber-dark',
     title: 'Menunggu konfirmasi mitra',
     desc: 'Mitra sedang meninjau pesananmu. Kamu belum dikenakan biaya apapun.',
   },
   WAITING_PAYMENT: {
-    tone: 'from-[#DD6B20] to-[#B75415]',
+    tone: 'from-brand-orange to-brand-orange-dark',
     title: 'Selesaikan pembayaran',
     desc: 'Mitra sudah menerima pesananmu. Bayar sebelum waktu habis agar jadwal tidak hangus.',
   },
   PAID: {
-    tone: 'from-[#3182CE] to-[#2A6296]',
+    tone: 'from-brand-info to-brand-info-dark',
     title: 'Pembayaran berhasil',
     desc: 'Dana ditahan aman oleh Posko Jasa. Mitra akan datang sesuai jadwal.',
   },
   IN_PROGRESS: {
-    tone: 'from-[#805AD5] to-[#5F3DC4]',
+    tone: 'from-[#805AD5] to-brand-purple',
     title: 'Mitra sedang bekerja',
     desc: 'Pekerjaan sedang berlangsung. Hubungi mitra lewat chat bila ada yang perlu disampaikan.',
   },
   WAITING_ADDITIONAL_PAY: {
-    tone: 'from-[#DD6B20] to-[#B75415]',
+    tone: 'from-brand-orange to-brand-orange-dark',
     title: 'Ada tagihan tambahan',
     desc: 'Mitra mengajukan biaya tambahan. Tinjau dan setujui agar pekerjaan bisa dilanjutkan.',
   },
   WAITING_CUSTOMER_CONFIRM: {
-    tone: 'from-[#5A67D8] to-[#434190]',
+    tone: 'from-[#5A67D8] to-brand-purple-dark',
     title: 'Pekerjaan selesai — mohon konfirmasi',
     desc: 'Mitra menyatakan pekerjaan sudah selesai. Periksa hasilnya, lalu tekan Konfirmasi Selesai untuk mencairkan dana. Tanpa konfirmasi dalam 24 jam, dana cair otomatis ke mitra.',
   },
   COMPLETED: {
-    tone: 'from-[#38A169] to-[#276749]',
+    tone: 'from-brand-success to-brand-success-dark',
     title: 'Pesanan selesai',
     desc: 'Terima kasih! Ceritakan pengalamanmu lewat ulasan untuk membantu pelanggan lain.',
   },
   CANCELLED: {
-    tone: 'from-[#718096] to-[#4A5568]',
+    tone: 'from-[#718096] to-brand-slate',
     title: 'Pesanan dibatalkan',
     desc: 'Pesanan ini sudah tidak berjalan.',
   },
   DISPUTED: {
-    tone: 'from-[#E53E3E] to-[#9B2C2C]',
+    tone: 'from-brand-error to-brand-error-dark',
     title: 'Pesanan dalam sengketa',
     desc: 'Dana escrow dibekukan hingga Tim CS menyelesaikan sengketa (maks. 3×24 jam).',
   },
@@ -194,10 +174,10 @@ function Section({ title, icon: Icon, children, className = '' }: {
   className?: string;
 }) {
   return (
-    <section className={`bg-white rounded-xl border border-[#e5e2e1] p-4 sm:p-5 ${className}`}>
+    <section className={`bg-white rounded-xl border border-brand-gray-100 p-4 sm:p-5 ${className}`}>
       {title && (
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-[#1c1b1b] mb-3">
-          {Icon && <Icon className="w-4 h-4 text-[#b51822]" />}
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-brand-gray-900 mb-3">
+          {Icon && <Icon className="w-4 h-4 text-brand-red" />}
           {title}
         </h2>
       )}
@@ -316,16 +296,16 @@ export default function OrderDetailClient() {
 
   if (loading) {
     return (
-      <div className="page-h bg-[#f7f5f4] pb-20">
-        <div className="bg-white border-b border-[#e5e2e1] px-4 py-4 lg:hidden">
-          <div className="h-6 w-40 bg-[#e5e2e1] rounded animate-pulse" />
+      <div className="page-h bg-brand-gray-60 pb-20">
+        <div className="bg-white border-b border-brand-gray-100 px-4 py-4 lg:hidden">
+          <Skeleton className="h-6 w-40" />
         </div>
         <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
-          <div className="h-28 bg-[#e5e2e1] rounded-xl animate-pulse" />
+          <Skeleton className="h-28 w-full rounded-xl" />
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-[#e5e2e1] p-4 animate-pulse">
-              <div className="h-4 w-3/4 bg-[#e5e2e1] rounded mb-3" />
-              <div className="h-4 w-1/2 bg-[#e5e2e1] rounded" />
+            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
             </div>
           ))}
         </div>
@@ -335,9 +315,9 @@ export default function OrderDetailClient() {
 
   if (!order) {
     return (
-      <div className="page-h bg-[#f7f5f4] flex items-center justify-center">
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[#5b403e] mb-4">Pesanan tidak ditemukan.</p>
+          <p className="text-brand-gray-700 mb-4">Pesanan tidak ditemukan.</p>
           <Button onClick={() => router.push('/orders')}>Kembali ke Pesanan</Button>
         </div>
       </div>
@@ -368,7 +348,7 @@ export default function OrderDetailClient() {
     <>
       {status === 'WAITING_PAYMENT' && (
         <Button
-          className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded-lg"
+          className="flex-1 bg-brand-red hover:bg-brand-red-dark rounded-lg"
           onClick={() => router.push(`/payment/${orderId}`)}
         >
           <Wallet className="w-4 h-4 mr-1.5" /> Bayar Sekarang
@@ -377,7 +357,7 @@ export default function OrderDetailClient() {
 
       {status === 'WAITING_ADDITIONAL_PAY' && (
         <Button
-          className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded-lg"
+          className="flex-1 bg-brand-red hover:bg-brand-red-dark rounded-lg"
           onClick={() => router.push(`/orders/${order.id}/additional-fee`)}
         >
           Lihat Detail Tagihan
@@ -388,13 +368,13 @@ export default function OrderDetailClient() {
         <>
           <Button
             variant="outline"
-            className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg"
+            className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
             onClick={() => router.push(`/orders/${order.id}/dispute`)}
           >
             Lapor Masalah
           </Button>
           <Button
-            className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg"
+            className="flex-1 bg-brand-success hover:bg-[#2F855A] rounded-lg"
             onClick={() => { setFinishChecked(false); setShowFinishConfirm(true); }}
             disabled={actionLoading}
           >
@@ -406,7 +386,7 @@ export default function OrderDetailClient() {
       {status === 'IN_PROGRESS' && (
         <Button
           variant="outline"
-          className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg"
+          className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
           onClick={() => router.push(`/orders/${order.id}/dispute`)}
         >
           <AlertTriangle className="w-4 h-4 mr-1.5" /> Lapor Masalah
@@ -417,7 +397,7 @@ export default function OrderDetailClient() {
       {(status === 'WAITING_CONFIRMATION' || status === 'WAITING_PAYMENT') && (
         <Button
           variant="outline"
-          className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg"
+          className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
           onClick={() => setShowCancelDialog(true)}
           disabled={actionLoading}
         >
@@ -430,7 +410,7 @@ export default function OrderDetailClient() {
       {status === 'PAID' && (
         <Button
           variant="outline"
-          className="flex-1 border-[#E53E3E] text-[#E53E3E] hover:bg-red-50 rounded-lg"
+          className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
           onClick={() => router.push(`/orders/${order.id}/dispute`)}
         >
           <AlertTriangle className="w-4 h-4 mr-1.5" /> Ajukan Sengketa
@@ -439,7 +419,7 @@ export default function OrderDetailClient() {
 
       {status === 'COMPLETED' && !order.review && (
         <Button
-          className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded-lg"
+          className="flex-1 bg-brand-red hover:bg-brand-red-dark rounded-lg"
           onClick={() => router.push(`/orders/${order.id}/review`)}
         >
           <Star className="w-4 h-4 mr-1.5" /> Beri Ulasan
@@ -448,7 +428,7 @@ export default function OrderDetailClient() {
 
       {status === 'DISPUTED' && (
         <Button
-          className="flex-1 bg-[#b51822] hover:bg-[#90121a] rounded-lg flex items-center justify-center gap-1.5"
+          className="flex-1 bg-brand-red hover:bg-brand-red-dark rounded-lg flex items-center justify-center gap-1.5"
           onClick={async () => {
             const res = await fetchAPI<{ id: string }>(`/disputes/order/${order.id}`);
             if (res.success && res.data?.id) router.push(`/disputes/${res.data.id}`);
@@ -469,63 +449,63 @@ export default function OrderDetailClient() {
   const paymentSummary = (
     <Section title="Ringkasan Pembayaran" icon={Wallet}>
       <div className="space-y-2 text-sm">
-        <div className="flex justify-between text-[#5b403e]">
+        <div className="flex justify-between text-brand-gray-700">
           <span>Subtotal Layanan</span>
-          <span className="text-[#1c1b1b]">{formatPrice(order.total_service_price)}</span>
+          <span className="text-brand-gray-900">{formatPrice(order.total_service_price)}</span>
         </div>
         {order.promo_discount > 0 && (
-          <div className="flex justify-between text-[#38A169]">
+          <div className="flex justify-between text-brand-success">
             <span>Diskon Promo</span>
             <span>− {formatPrice(order.promo_discount)}</span>
           </div>
         )}
-        <div className="flex justify-between text-[#5b403e]">
+        <div className="flex justify-between text-brand-gray-700">
           <span>Biaya Transport</span>
-          <span className={order.transport_fee === 0 ? 'text-[#38A169] font-medium' : 'text-[#1c1b1b]'}>
+          <span className={order.transport_fee === 0 ? 'text-brand-success font-medium' : 'text-brand-gray-900'}>
             {order.transport_fee === 0 ? 'Gratis' : formatPrice(order.transport_fee)}
           </span>
         </div>
-        <div className="flex justify-between text-[#5b403e]">
+        <div className="flex justify-between text-brand-gray-700">
           <span>Biaya Layanan (Platform)</span>
-          <span className="text-[#1c1b1b]">{formatPrice(order.admin_fee)}</span>
+          <span className="text-brand-gray-900">{formatPrice(order.admin_fee)}</span>
         </div>
 
-        <div className="border-t border-dashed border-[#e5e2e1] pt-2 mt-2 flex justify-between font-semibold">
-          <span className="text-[#1c1b1b]">Total Pesanan</span>
-          <span className="text-[#1c1b1b]">{formatPrice(order.total_amount)}</span>
+        <div className="border-t border-dashed border-brand-gray-100 pt-2 mt-2 flex justify-between font-semibold">
+          <span className="text-brand-gray-900">Total Pesanan</span>
+          <span className="text-brand-gray-900">{formatPrice(order.total_amount)}</span>
         </div>
 
         {paidFees.length > 0 && (
           <>
             {paidFees.map(f => (
-              <div key={f.id} className="flex justify-between text-[#5b403e]">
+              <div key={f.id} className="flex justify-between text-brand-gray-700">
                 <span className="truncate pr-2">Biaya tambahan · {f.item_name}</span>
-                <span className="text-[#1c1b1b] shrink-0">{formatPrice(f.total)}</span>
+                <span className="text-brand-gray-900 shrink-0">{formatPrice(f.total)}</span>
               </div>
             ))}
-            <div className="border-t border-dashed border-[#e5e2e1] pt-2 mt-2 flex justify-between font-bold text-base">
-              <span className="text-[#1c1b1b]">Total Dibayar</span>
-              <span className="text-[#b51822]">{formatPrice(grandTotal)}</span>
+            <div className="border-t border-dashed border-brand-gray-100 pt-2 mt-2 flex justify-between font-bold text-base">
+              <span className="text-brand-gray-900">Total Dibayar</span>
+              <span className="text-brand-red">{formatPrice(grandTotal)}</span>
             </div>
           </>
         )}
 
         {paidFees.length === 0 && (
           <div className="flex justify-between font-bold text-base pt-1">
-            <span className="text-[#1c1b1b]">Total Dibayar</span>
-            <span className="text-[#b51822]">{formatPrice(order.total_amount)}</span>
+            <span className="text-brand-gray-900">Total Dibayar</span>
+            <span className="text-brand-red">{formatPrice(order.total_amount)}</span>
           </div>
         )}
 
         {order.refunded_amount !== undefined && order.refunded_amount > 0 && (
           <>
-            <div className="flex justify-between text-[#38A169] font-medium border-t border-[#e5e2e1] pt-2 mt-2">
+            <div className="flex justify-between text-brand-success font-medium border-t border-brand-gray-100 pt-2 mt-2">
               <span>Dana Dikembalikan</span>
               <span>{formatPrice(order.refunded_amount)}</span>
             </div>
             <button
               onClick={() => router.push('/profile/wallet')}
-              className="w-full mt-1 text-left text-xs text-[#3182CE] hover:underline"
+              className="w-full mt-1 text-left text-xs text-brand-info hover:underline"
             >
               Dana masuk ke saldo dompetmu — lihat di Dompet →
             </button>
@@ -536,7 +516,7 @@ export default function OrderDetailClient() {
         {order.paid_at && (
           <button
             onClick={() => printOrderReceipt(order)}
-            className="w-full mt-3 inline-flex items-center justify-center gap-2 h-10 rounded-md border border-[#e5e2e1] bg-white text-sm font-semibold text-[#1c1b1b] hover:border-brand-blue hover:text-brand-blue transition-colors"
+            className="w-full mt-3 inline-flex items-center justify-center gap-2 h-10 rounded-md border border-brand-gray-100 bg-white text-sm font-semibold text-brand-gray-900 hover:border-brand-blue hover:text-brand-blue transition-colors"
           >
             <Printer className="w-4 h-4" /> Unduh / Cetak Struk
           </button>
@@ -546,23 +526,23 @@ export default function OrderDetailClient() {
   );
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-28 lg:pb-10">
+    <div className="page-h bg-brand-gray-60 pb-28 lg:pb-10">
       {/* Header mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-[#e5e2e1] px-4 py-3 sticky top-0 z-30 lg:hidden">
+      <div className="bg-white border-b border-brand-gray-100 px-4 py-3 sticky top-0 z-30 lg:hidden">
         <div className="flex items-center gap-3">
           {/* Tujuan tetap (bukan router.back): pengguna bisa tiba di sini dari
               halaman transien (status pembayaran sukses, form booking) — back
               berbasis history akan memantulkan mereka ke halaman itu lagi. */}
-          <button onClick={() => router.push('/orders')} className="p-2 -ml-2 hover:bg-[#f7f5f4] rounded-lg" aria-label="Kembali">
-            <ArrowLeft className="w-5 h-5 text-[#5b403e]" />
+          <button onClick={() => router.push('/orders')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-lg" aria-label="Kembali">
+            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <div className="min-w-0">
-            <h1 className="text-base font-bold text-[#1c1b1b] leading-tight">Detail Pesanan</h1>
-            <p className="text-xs text-[#9e8e8c] truncate">{order.order_number}</p>
+            <h1 className="text-base font-bold text-brand-gray-900 leading-tight">Detail Pesanan</h1>
+            <p className="text-xs text-brand-gray-450 truncate">{order.order_number}</p>
           </div>
           <button
             onClick={() => setHelpOpen(true)}
-            className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-[#5b403e] hover:bg-[#f7f5f4]"
+            className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-brand-gray-700 hover:bg-brand-gray-60"
             aria-label="Bantuan"
           >
             <HelpCircle className="w-5 h-5" />
@@ -574,18 +554,18 @@ export default function OrderDetailClient() {
       <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6">
         <div className="hidden lg:flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-[#1c1b1b]">Detail Pesanan</h1>
-            <p className="text-sm text-[#9e8e8c] mt-1">{order.order_number}</p>
+            <h1 className="text-2xl font-bold text-brand-gray-900">Detail Pesanan</h1>
+            <p className="text-sm text-brand-gray-450 mt-1">{order.order_number}</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              className="rounded-lg border-[#e5e2e1] text-[#5b403e]"
+              className="rounded-lg border-brand-gray-100 text-brand-gray-700"
               onClick={() => setHelpOpen(true)}
             >
               <HelpCircle className="w-4 h-4 mr-1.5" /> Bantuan
             </Button>
-            <Button variant="outline" className="rounded-lg border-[#e5e2e1] text-[#5b403e]" onClick={() => router.push('/orders')}>
+            <Button variant="outline" className="rounded-lg border-brand-gray-100 text-brand-gray-700" onClick={() => router.push('/orders')}>
               <ArrowLeft className="w-4 h-4 mr-1.5" /> Semua Pesanan
             </Button>
           </div>
@@ -663,22 +643,22 @@ export default function OrderDetailClient() {
                   <div key={label} className="flex-1 flex flex-col items-center relative">
                     {i > 0 && (
                       <div
-                        className={`absolute top-[11px] right-1/2 w-full h-0.5 ${i <= step ? 'bg-[#38A169]' : 'bg-[#e5e2e1]'}`}
+                        className={`absolute top-[11px] right-1/2 w-full h-0.5 ${i <= step ? 'bg-brand-success' : 'bg-brand-gray-100'}`}
                         aria-hidden
                       />
                     )}
                     <div
                       className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${
                         done
-                          ? 'bg-[#38A169] border-[#38A169] text-white'
+                          ? 'bg-brand-success border-brand-success text-white'
                           : active
-                          ? 'bg-white border-[#b51822] text-[#b51822]'
-                          : 'bg-white border-[#e5e2e1] text-[#9e8e8c]'
+                          ? 'bg-white border-brand-red text-brand-red'
+                          : 'bg-white border-brand-gray-100 text-brand-gray-450'
                       }`}
                     >
-                      {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-[#b51822] animate-pulse' : 'bg-[#e5e2e1]'}`} />}
+                      {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-brand-red animate-pulse' : 'bg-brand-gray-100'}`} />}
                     </div>
-                    <span className={`mt-1.5 text-[10px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-[#1c1b1b]' : done ? 'text-[#5b403e]' : 'text-[#9e8e8c]'}`}>
+                    <span className={`mt-1.5 text-[10px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-brand-gray-900' : done ? 'text-brand-gray-700' : 'text-brand-gray-450'}`}>
                       {label}
                     </span>
                   </div>
@@ -696,14 +676,14 @@ export default function OrderDetailClient() {
               <Section title="Mitra" icon={ShieldCheck}>
                 <div className="flex items-start gap-3">
                   <div className="relative shrink-0">
-                    <div className="w-14 h-14 rounded-full bg-[#e5e2e1] flex items-center justify-center text-xl font-bold text-[#5b403e] overflow-hidden">
+                    <div className="relative w-14 h-14 rounded-full bg-brand-gray-100 flex items-center justify-center text-xl font-bold text-brand-gray-700 overflow-hidden">
                       {order.partner.avatar_url
-                        ? <img src={order.partner.avatar_url} alt={order.partner.name} className="w-full h-full object-cover" />
+                        ? <Image src={order.partner.avatar_url} alt={order.partner.name} fill sizes="56px" className="object-cover" />
                         : getInitial(order.partner.name)}
                     </div>
                     {order.partner.is_online && (
                       <span
-                        className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[#38A169] border-2 border-white"
+                        className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-brand-success border-2 border-white"
                         title="Sedang online"
                       />
                     )}
@@ -711,30 +691,30 @@ export default function OrderDetailClient() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-[#1c1b1b] truncate">{order.partner.name}</p>
+                      <p className="font-semibold text-brand-gray-900 truncate">{order.partner.name}</p>
                       {order.partner.is_online && (
-                        <span className="text-[10px] font-medium text-[#38A169] bg-[#38A169]/10 px-1.5 py-0.5 rounded">Online</span>
+                        <span className="text-[10px] font-medium text-brand-success bg-brand-success/10 px-1.5 py-0.5 rounded">Online</span>
                       )}
                     </div>
 
                     {order.partner.username && (
-                      <p className="text-xs text-[#9e8e8c] truncate">@{order.partner.username}</p>
+                      <p className="text-xs text-brand-gray-450 truncate">@{order.partner.username}</p>
                     )}
 
                     <div className="flex items-center gap-3 mt-1.5 text-sm flex-wrap">
                       {order.partner.rating !== undefined && order.partner.rating > 0 ? (
-                        <span className="flex items-center gap-1 text-[#1c1b1b]">
-                          <Star className="w-3.5 h-3.5 fill-[#D69E2E] text-[#D69E2E]" />
+                        <span className="flex items-center gap-1 text-brand-gray-900">
+                          <Star className="w-3.5 h-3.5 fill-brand-warning text-brand-warning" />
                           <span className="font-semibold">{order.partner.rating.toFixed(1)}</span>
                           {order.partner.total_reviews !== undefined && (
-                            <span className="text-[#9e8e8c] text-xs">({order.partner.total_reviews} ulasan)</span>
+                            <span className="text-brand-gray-450 text-xs">({order.partner.total_reviews} ulasan)</span>
                           )}
                         </span>
                       ) : (
-                        <span className="text-xs text-[#9e8e8c]">Belum ada ulasan</span>
+                        <span className="text-xs text-brand-gray-450">Belum ada ulasan</span>
                       )}
                       {order.partner.total_orders !== undefined && order.partner.total_orders > 0 && (
-                        <span className="text-xs text-[#9e8e8c]">{order.partner.total_orders} pesanan selesai</span>
+                        <span className="text-xs text-brand-gray-450">{order.partner.total_orders} pesanan selesai</span>
                       )}
                     </div>
 
@@ -743,12 +723,12 @@ export default function OrderDetailClient() {
                     {order.partner.service_area && order.partner.service_area.length > 0 && (
                       <div className="flex gap-1 flex-wrap mt-2">
                         {order.partner.service_area.slice(0, 3).map(area => (
-                          <span key={area} className="text-[10px] text-[#5b403e] bg-[#f7f5f4] border border-[#e5e2e1] px-1.5 py-0.5 rounded">
+                          <span key={area} className="text-[10px] text-brand-gray-700 bg-brand-gray-60 border border-brand-gray-100 px-1.5 py-0.5 rounded">
                             {area}
                           </span>
                         ))}
                         {order.partner.service_area.length > 3 && (
-                          <span className="text-[10px] text-[#9e8e8c] px-1">+{order.partner.service_area.length - 3}</span>
+                          <span className="text-[10px] text-brand-gray-450 px-1">+{order.partner.service_area.length - 3}</span>
                         )}
                       </div>
                     )}
@@ -757,7 +737,7 @@ export default function OrderDetailClient() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1 text-xs border-[#e5e2e1] text-[#5b403e] rounded-lg shrink-0"
+                    className="gap-1 text-xs border-brand-gray-100 text-brand-gray-700 rounded-lg shrink-0"
                     onClick={handleChat}
                     disabled={isChatLoading || !order.partner.user_id}
                   >
@@ -769,7 +749,7 @@ export default function OrderDetailClient() {
                 {order.partner.username && (
                   <Link
                     href={`/${order.partner.username}`}
-                    className="mt-3 pt-3 border-t border-[#e5e2e1] flex items-center justify-between text-sm text-[#b51822] font-medium hover:underline"
+                    className="mt-3 pt-3 border-t border-brand-gray-100 flex items-center justify-between text-sm text-brand-red font-medium hover:underline"
                   >
                     Lihat profil & portofolio mitra
                     <ChevronRight className="w-4 h-4" />
@@ -780,17 +760,17 @@ export default function OrderDetailClient() {
 
             {/* Layanan */}
             <Section title="Detail Layanan" icon={ClipboardList}>
-              <div className="divide-y divide-[#e5e2e1]">
+              <div className="divide-y divide-brand-gray-100">
                 {order.items?.map(item => (
                   <div key={item.id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
-                    <div className="w-14 h-14 rounded-lg bg-[#f7f5f4] border border-[#e5e2e1] overflow-hidden shrink-0 flex items-center justify-center">
+                    <div className="relative w-14 h-14 rounded-lg bg-brand-gray-60 border border-brand-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
                       {item.photo_url
-                        ? <img src={item.photo_url} alt={item.service_name} className="w-full h-full object-cover" />
-                        : <ClipboardList className="w-5 h-5 text-[#c9bcba]" />}
+                        ? <Image src={item.photo_url} alt={item.service_name} fill sizes="56px" className="object-cover" />
+                        : <ClipboardList className="w-5 h-5 text-brand-gray-300" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1c1b1b] leading-snug">{item.service_name}</p>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-[#9e8e8c]">
+                      <p className="text-sm font-medium text-brand-gray-900 leading-snug">{item.service_name}</p>
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-brand-gray-450">
                         <span>{item.quantity}x</span>
                         <span>·</span>
                         <span>{formatPrice(item.price)}</span>
@@ -804,7 +784,7 @@ export default function OrderDetailClient() {
                         ) : null}
                       </div>
                     </div>
-                    <span className="text-sm font-semibold text-[#1c1b1b] shrink-0">
+                    <span className="text-sm font-semibold text-brand-gray-900 shrink-0">
                       {formatPrice(item.price * (item.quantity || 1))}
                     </span>
                   </div>
@@ -819,17 +799,17 @@ export default function OrderDetailClient() {
                   {order.additional_fees!.map(fee => (
                     <div key={fee.id} className="flex items-start justify-between gap-3 text-sm">
                       <div className="min-w-0">
-                        <p className="text-[#1c1b1b] truncate">{fee.item_name}</p>
-                        <p className="text-xs text-[#9e8e8c]">
+                        <p className="text-brand-gray-900 truncate">{fee.item_name}</p>
+                        <p className="text-xs text-brand-gray-450">
                           {fee.type === 'material' ? 'Material' : 'Jasa'} · {fee.quantity}x {formatPrice(fee.price)}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="font-semibold text-[#1c1b1b]">{formatPrice(fee.total)}</p>
+                        <p className="font-semibold text-brand-gray-900">{formatPrice(fee.total)}</p>
                         <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                          fee.status === 'PAID' ? 'text-[#38A169] bg-[#38A169]/10'
-                          : fee.status === 'REJECTED' ? 'text-[#9e8e8c] bg-[#f7f5f4]'
-                          : 'text-[#DD6B20] bg-[#DD6B20]/10'
+                          fee.status === 'PAID' ? 'text-brand-success bg-brand-success/10'
+                          : fee.status === 'REJECTED' ? 'text-brand-gray-450 bg-brand-gray-60'
+                          : 'text-brand-orange bg-brand-orange/10'
                         }`}>
                           {fee.status === 'PAID' ? 'Dibayar' : fee.status === 'REJECTED' ? 'Ditolak' : 'Menunggu persetujuan'}
                         </span>
@@ -840,7 +820,7 @@ export default function OrderDetailClient() {
                 {pendingFees.length > 0 && (
                   <button
                     onClick={() => router.push(`/orders/${order.id}/additional-fee`)}
-                    className="mt-3 pt-3 border-t border-[#e5e2e1] w-full flex items-center justify-between text-sm text-[#b51822] font-medium"
+                    className="mt-3 pt-3 border-t border-brand-gray-100 w-full flex items-center justify-between text-sm text-brand-red font-medium"
                   >
                     Tinjau {pendingFees.length} tagihan menunggu persetujuan
                     <ChevronRight className="w-4 h-4" />
@@ -853,22 +833,22 @@ export default function OrderDetailClient() {
             <Section title="Jadwal & Lokasi" icon={MapPin}>
               <div className="space-y-3">
                 <div className="flex items-start gap-2.5 text-sm">
-                  <Calendar className="w-4 h-4 text-[#b51822] mt-0.5 shrink-0" />
+                  <Calendar className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-[#1c1b1b]">{formatDate(order.scheduled_at)}</p>
-                    <p className="text-xs text-[#9e8e8c] mt-0.5">Waktu mitra dijadwalkan datang</p>
+                    <p className="text-brand-gray-900">{formatDate(order.scheduled_at)}</p>
+                    <p className="text-xs text-brand-gray-450 mt-0.5">Waktu mitra dijadwalkan datang</p>
                   </div>
                 </div>
                 {order.service_address && (
                   <div className="flex items-start gap-2.5 text-sm">
-                    <MapPin className="w-4 h-4 text-[#b51822] mt-0.5 shrink-0" />
+                    <MapPin className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-[#1c1b1b]">{order.service_address}</p>
+                      <p className="text-brand-gray-900">{order.service_address}</p>
                       {order.address_detail && (
-                        <p className="text-xs text-[#9e8e8c] mt-0.5">{order.address_detail}</p>
+                        <p className="text-xs text-brand-gray-450 mt-0.5">{order.address_detail}</p>
                       )}
                       {(order.district || order.city || order.province) && (
-                        <p className="text-xs text-[#5b403e] mt-0.5">
+                        <p className="text-xs text-brand-gray-700 mt-0.5">
                           {[order.district, order.city, order.province].filter(Boolean).join(', ')}
                         </p>
                       )}
@@ -889,22 +869,30 @@ export default function OrderDetailClient() {
               </div>
 
               {order.notes && (
-                <div className="mt-3 pt-3 border-t border-[#e5e2e1]">
-                  <p className="text-xs text-[#9e8e8c] mb-1">Catatan untuk mitra</p>
-                  <p className="text-sm text-[#1c1b1b]">{order.notes}</p>
+                <div className="mt-3 pt-3 border-t border-brand-gray-100">
+                  <p className="text-xs text-brand-gray-450 mb-1">Catatan untuk mitra</p>
+                  <p className="text-sm text-brand-gray-900">{order.notes}</p>
                 </div>
               )}
 
               {order.photos && order.photos.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-[#e5e2e1]">
-                  <p className="text-xs text-[#9e8e8c] mb-2">Foto dari kamu</p>
+                <div className="mt-3 pt-3 border-t border-brand-gray-100">
+                  <p className="text-xs text-brand-gray-450 mb-2">Foto dari kamu</p>
                   <div className="flex gap-2 flex-wrap">
                     {order.photos.map((photo, i) => (
-                      <a key={i} href={photo} target="_blank" rel="noopener noreferrer">
-                        <img
+                      <a
+                        key={i}
+                        href={photo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative block w-20 h-20 rounded-lg border border-brand-gray-100 overflow-hidden hover:opacity-90 transition-opacity"
+                      >
+                        <Image
                           src={photo}
                           alt={`Foto pesanan ${i + 1}`}
-                          className="w-20 h-20 object-cover rounded-lg border border-[#e5e2e1] hover:opacity-90 transition-opacity"
+                          fill
+                          sizes="80px"
+                          className="object-cover"
                         />
                       </a>
                     ))}
@@ -918,18 +906,20 @@ export default function OrderDetailClient() {
               <Section title="Ulasan Kamu" icon={Star}>
                 <div className="flex items-center gap-1 mb-2">
                   {[1, 2, 3, 4, 5].map(s => (
-                    <Star key={s} className={`w-4 h-4 ${s <= order.review!.rating ? 'fill-[#D69E2E] text-[#D69E2E]' : 'text-[#e5e2e1]'}`} />
+                    <Star key={s} className={`w-4 h-4 ${s <= order.review!.rating ? 'fill-brand-warning text-brand-warning' : 'text-brand-gray-100'}`} />
                   ))}
-                  <span className="text-sm text-[#5b403e] ml-1">{order.review.rating}/5</span>
-                  <span className="text-xs text-[#9e8e8c] ml-auto">{formatShort(order.review.created_at)}</span>
+                  <span className="text-sm text-brand-gray-700 ml-1">{order.review.rating}/5</span>
+                  <span className="text-xs text-brand-gray-450 ml-auto">{formatDateShort(order.review.created_at)}</span>
                 </div>
                 {order.review.comment && (
-                  <p className="text-sm text-[#1c1b1b]">&ldquo;{order.review.comment}&rdquo;</p>
+                  <p className="text-sm text-brand-gray-900">&ldquo;{order.review.comment}&rdquo;</p>
                 )}
                 {order.review.image_urls && order.review.image_urls.length > 0 && (
                   <div className="flex gap-2 flex-wrap mt-3">
                     {order.review.image_urls.map((img, i) => (
-                      <img key={i} src={img} alt={`Foto ulasan ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-[#e5e2e1]" />
+                      <div key={i} className="relative w-16 h-16 rounded-lg border border-brand-gray-100 overflow-hidden">
+                        <Image src={img} alt={`Foto ulasan ${i + 1}`} fill sizes="64px" className="object-cover" />
+                      </div>
                     ))}
                   </div>
                 )}
@@ -938,19 +928,19 @@ export default function OrderDetailClient() {
 
             {/* Riwayat + info pesanan */}
             <Section title="Info Pesanan" icon={ClipboardList}>
-              <div className="flex items-center justify-between text-sm mb-3 pb-3 border-b border-[#e5e2e1]">
-                <span className="text-[#9e8e8c]">Nomor Pesanan</span>
-                <button onClick={copyOrderNumber} className="flex items-center gap-1.5 font-medium text-[#1c1b1b] hover:text-[#b51822]">
+              <div className="flex items-center justify-between text-sm mb-3 pb-3 border-b border-brand-gray-100">
+                <span className="text-brand-gray-450">Nomor Pesanan</span>
+                <button onClick={copyOrderNumber} className="flex items-center gap-1.5 font-medium text-brand-gray-900 hover:text-brand-red">
                   {order.order_number}
-                  {copied ? <Check className="w-3.5 h-3.5 text-[#38A169]" /> : <Copy className="w-3.5 h-3.5 text-[#9e8e8c]" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-brand-success" /> : <Copy className="w-3.5 h-3.5 text-brand-gray-450" />}
                 </button>
               </div>
               <ol className="space-y-2.5">
                 {timeline.map((t, i) => (
                   <li key={t.label} className="flex items-start gap-2.5 text-sm">
-                    <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${i === timeline.length - 1 ? 'bg-[#b51822]' : 'bg-[#c9bcba]'}`} />
-                    <span className="text-[#5b403e] flex-1">{t.label}</span>
-                    <span className="text-xs text-[#9e8e8c] shrink-0">{formatShort(t.at)}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${i === timeline.length - 1 ? 'bg-brand-red' : 'bg-brand-gray-300'}`} />
+                    <span className="text-brand-gray-700 flex-1">{t.label}</span>
+                    <span className="text-xs text-brand-gray-450 shrink-0">{formatDateShort(t.at)}</span>
                   </li>
                 ))}
               </ol>
@@ -961,7 +951,7 @@ export default function OrderDetailClient() {
           <div className="space-y-4 lg:sticky lg:top-20">
             {paymentSummary}
             {hasActions && (
-              <div className="hidden lg:block bg-white rounded-xl border border-[#e5e2e1] p-4">
+              <div className="hidden lg:block bg-white rounded-xl border border-brand-gray-100 p-4">
                 <div className="flex flex-col gap-2">{actions}</div>
               </div>
             )}
@@ -971,9 +961,9 @@ export default function OrderDetailClient() {
 
       {/* Action bar mobile */}
       {hasActions && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e2e1] px-4 py-3 z-20 lg:hidden pb-safe">
-          <div className="flex gap-2">{actions}</div>
-        </div>
+        <StickyActionBar>
+          {actions}
+        </StickyActionBar>
       )}
 
       {/* Konfirmasi Hubungi Admin (tak lagi langsung kirim laporan) */}
@@ -988,25 +978,25 @@ export default function OrderDetailClient() {
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#1c1b1b]">Batalkan Pesanan?</h3>
+              <h3 className="text-base font-semibold text-brand-gray-900">Batalkan Pesanan?</h3>
               <button onClick={() => setShowCancelDialog(false)} aria-label="Tutup">
-                <X className="w-5 h-5 text-[#9e8e8c]" />
+                <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
 
             {/* Dialog ini hanya dibuka saat WAITING_CONFIRMATION / WAITING_PAYMENT
                 (lihat gate tombol di atas) -- status PAID pakai alur sengketa terpisah. */}
-            <p className="text-sm text-[#5b403e] mb-4">
+            <p className="text-sm text-brand-gray-700 mb-4">
               Pesanan masih menunggu konfirmasi. Pembatalan gratis — kamu belum dikenakan biaya apapun.
             </p>
 
             <div className="mb-6">
-              <label htmlFor="cancel-reason" className="block text-sm font-medium text-[#1c1b1b] mb-1">
+              <label htmlFor="cancel-reason" className="block text-sm font-medium text-brand-gray-900 mb-1">
                 Alasan Pembatalan
               </label>
               <select
                 id="cancel-reason"
-                className="w-full px-3 py-2 border border-[#e5e2e1] rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full px-3 py-2 border border-brand-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
               >
@@ -1019,10 +1009,10 @@ export default function OrderDetailClient() {
               </select>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded-lg border-[#e5e2e1]" onClick={() => setShowCancelDialog(false)}>
+              <Button variant="outline" className="flex-1 rounded-lg border-brand-gray-100" onClick={() => setShowCancelDialog(false)}>
                 Batal
               </Button>
-              <Button className="flex-1 bg-[#E53E3E] hover:bg-[#C53030] rounded-lg" onClick={handleCancel} disabled={actionLoading}>
+              <Button className="flex-1 bg-brand-error hover:bg-[#C53030] rounded-lg" onClick={handleCancel} disabled={actionLoading}>
                 {actionLoading ? 'Memproses...' : 'Ya, Batalkan'}
               </Button>
             </div>
@@ -1035,37 +1025,37 @@ export default function OrderDetailClient() {
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-sm w-full p-6">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#1c1b1b]">Konfirmasi Pekerjaan Selesai</h3>
+              <h3 className="text-base font-semibold text-brand-gray-900">Konfirmasi Pekerjaan Selesai</h3>
               <button onClick={() => setShowFinishConfirm(false)} aria-label="Tutup">
-                <X className="w-5 h-5 text-[#9e8e8c]" />
+                <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
-            <p className="text-sm text-[#5b403e] mb-4">
+            <p className="text-sm text-brand-gray-700 mb-4">
               Setelah dikonfirmasi, <strong>dana akan segera dicairkan ke mitra</strong> dan tidak dapat ditarik kembali.
             </p>
             <div className="space-y-2.5 mb-5">
-              <p className="text-xs font-semibold text-[#1c1b1b] uppercase tracking-wide">Checklist sebelum konfirmasi:</p>
+              <p className="text-xs font-semibold text-brand-gray-900 uppercase tracking-wide">Checklist sebelum konfirmasi:</p>
               <label className="flex items-start gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={finishChecked}
                   onChange={e => setFinishChecked(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 accent-[#38A169] shrink-0"
+                  className="mt-0.5 w-4 h-4 accent-brand-success shrink-0"
                 />
-                <span className="text-sm text-[#5b403e]">
+                <span className="text-sm text-brand-gray-700">
                   Saya sudah memeriksa hasil pekerjaan dan semuanya sesuai dengan yang dijanjikan.
                 </span>
               </label>
             </div>
-            <div className="p-2.5 bg-[#F0FFF4] border border-[#9AE6B4] rounded-lg mb-4 text-xs text-[#276749]">
+            <div className="p-2.5 bg-brand-success-soft border border-brand-success-light rounded-lg mb-4 text-xs text-brand-success-dark">
               Jika ada masalah yang baru terlihat setelah konfirmasi, kamu masih dapat menghubungi CS kami dalam <strong>3 hari</strong> ke depan.
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded-lg border-[#e5e2e1]" onClick={() => setShowFinishConfirm(false)}>
+              <Button variant="outline" className="flex-1 rounded-lg border-brand-gray-100" onClick={() => setShowFinishConfirm(false)}>
                 Periksa Lagi
               </Button>
               <Button
-                className="flex-1 bg-[#38A169] hover:bg-[#2F855A] rounded-lg"
+                className="flex-1 bg-brand-success hover:bg-[#2F855A] rounded-lg"
                 onClick={() => { setShowFinishConfirm(false); handleAction('finish'); }}
                 disabled={!finishChecked || actionLoading}
               >

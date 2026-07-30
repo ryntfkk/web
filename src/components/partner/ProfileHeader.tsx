@@ -55,7 +55,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   const handleChat = async () => {
     if (!isAuthenticated) {
-      alert('Silakan login terlebih dahulu untuk memulai chat.');
+      showToast('Silakan login terlebih dahulu untuk memulai chat.', 'info');
       router.push('/login');
       return;
     }
@@ -69,11 +69,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       if (res.success && res.data?.room_id) {
         router.push(`/chat/${res.data.room_id}`);
       } else {
-        alert('Gagal memulai obrolan');
+        showToast('Gagal memulai obrolan', 'error');
       }
     } catch (error) {
       console.error('Error creating chat room:', error);
-      alert('Terjadi kesalahan saat memulai obrolan');
+      showToast('Terjadi kesalahan saat memulai obrolan', 'error');
     } finally {
       setIsChatLoading(false);
     }
@@ -81,13 +81,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   return (
     <div className="bg-white rounded-md p-4 sm:p-6 shadow-sm mb-4 sm:mb-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-      <div className="relative w-20 h-20 sm:w-32 sm:h-32 shrink-0">
+      <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0">
         <Image
           src={avatarUrl}
           alt={profile.name}
           fill
-          className="object-cover rounded-md border-4 border-white shadow-md"
-          sizes="(max-width: 640px) 80px, 128px"
+          className="object-cover rounded-full border-4 border-white shadow-md"
+          sizes="(max-width: 640px) 80px, 96px"
         />
         {profile.is_online && (
           <div className="absolute bottom-1 right-1 w-4 h-4 bg-[#38A169] rounded-full border-2 border-white" />

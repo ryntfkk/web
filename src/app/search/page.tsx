@@ -27,7 +27,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
 
       {/* Main Content Area */}
-      <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6 py-4 md:py-6 flex-1 pb-24 md:pb-8">
+      <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6 py-4 md:py-6 flex-1 pb-20 md:pb-10">
         <SearchContent query={query} />
       </div>
 

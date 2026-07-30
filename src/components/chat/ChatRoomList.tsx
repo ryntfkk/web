@@ -2,6 +2,7 @@
 
 import { getInitial } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { Search, MessageSquare } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
@@ -166,10 +167,9 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
                     <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-[#b51822] rounded-r" />
                   )}
 
-                  <div className={`${avatarSize} rounded-full bg-[#e5e2e1] flex items-center justify-center text-base font-bold text-[#5b403e] shrink-0 overflow-hidden relative`}>
+                  <div className={`${avatarSize} rounded-full bg-brand-gray-100 flex items-center justify-center text-base font-bold text-brand-gray-700 shrink-0 overflow-hidden relative`}>
                     {displayAvatar ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={displayAvatar} alt={displayName} className="w-full h-full object-cover" />
+                      <Image src={displayAvatar} alt={displayName} fill sizes="48px" className="object-cover" />
                     ) : (
                       getInitial(displayName)
                     )}

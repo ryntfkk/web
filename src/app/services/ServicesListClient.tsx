@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
+import { ServiceCardSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import type { PublicService } from '@/hooks/usePublicServices';
 import type { Category } from '@/types/category';
@@ -87,10 +87,12 @@ export default function ServicesListClient({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
               {items.map((service) => (
                 <ServiceProductCard key={service.id} service={service} />
               ))}
+              {/* Skeleton di dalam grid yang sama saat load-more (kolom mengikuti). */}
+              {loading && Array.from({ length: 5 }).map((_, i) => <ServiceCardSkeleton key={`sk-${i}`} />)}
             </div>
 
             {error && (
@@ -104,9 +106,8 @@ export default function ServicesListClient({
                 <button
                   onClick={loadMore}
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-md border border-[#e5e2e1] bg-white text-[14px] font-medium text-[#1c1b1b] hover:border-brand-blue disabled:opacity-60 inline-flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-md border border-[#e5e2e1] bg-white text-[14px] font-medium text-[#1c1b1b] hover:border-brand-blue disabled:opacity-60"
                 >
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {loading ? 'Memuat…' : 'Muat lebih banyak'}
                 </button>
               </div>

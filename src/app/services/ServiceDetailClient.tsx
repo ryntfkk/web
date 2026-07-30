@@ -20,8 +20,12 @@ import {
   Share2,
   X,
   MapPin,
+  MessageSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { StickyActionBar } from '@/components/ui/sticky-action-bar';
+import { fetchAPI } from '@/lib/api';
+import { formatRupiah } from '@/lib/format';
 import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDetail';
 import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
 import { useCartStore } from '@/lib/store/cartStore';
@@ -156,6 +160,32 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
     router.push(`/book/${service.partner_username}?service_id=${service.id}${q}`);
   };
 
+  // Chat langsung dengan mitra dari halaman detail (pola sama dengan ProfileHeader).
+  const [chatBusy, setChatBusy] = useState(false);
+  const handleChat = async () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent(`/services/${serviceId}`)}`);
+      return;
+    }
+    if (!service || chatBusy) return;
+    setChatBusy(true);
+    try {
+      const res = await fetchAPI<{ room_id: string }>('/chat/rooms', {
+        method: 'POST',
+        body: JSON.stringify({ partner_id: service.partner_id }),
+      });
+      if (res.success && res.data?.room_id) {
+        router.push(`/chat/${res.data.room_id}`);
+      } else {
+        showToast('Gagal memulai obrolan', 'error');
+      }
+    } catch {
+      showToast('Terjadi kesalahan saat memulai obrolan', 'error');
+    } finally {
+      setChatBusy(false);
+    }
+  };
+
   const photoCount = service?.photos?.length ?? 0;
 
   const scrollToPhoto = (idx: number) => {
@@ -271,15 +301,15 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
   const minOrder = service.min_order ?? 1;
 
   return (
-    <div className="page-h bg-[#f0f0f0] pb-20 sm:pb-4">
+    <div className="page-h bg-brand-gray-60 pb-20 sm:pb-4">
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-3">
         {/* Breadcrumb */}
-        <div className="hidden sm:flex items-center gap-2 text-xs text-[#5b403e] mb-3 px-4 py-2">
-          <Link href="/" className="hover:text-[#b51822]">Beranda</Link>
+        <div className="hidden sm:flex items-center gap-2 text-xs text-brand-gray-700 mb-3 px-4 py-2">
+          <Link href="/" className="hover:text-brand-red">Beranda</Link>
           <span>/</span>
-          <Link href="/search" className="hover:text-[#b51822]">Layanan</Link>
+          <Link href="/search" className="hover:text-brand-red">Layanan</Link>
           <span>/</span>
-          <span className="text-[#1c1b1b]">{service.category_name}</span>
+          <span className="text-brand-gray-900">{service.category_name}</span>
         </div>
 
         {/* Main Content - Shopee Style */}
@@ -351,10 +381,10 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                 <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
                   {allPhotos.map((photo, idx) => (
                     <button key={photo.id} onClick={() => scrollToPhoto(idx)}
-                      className={`relative flex-shrink-0 w-14 h-14 rounded-md overflow-hidden transition-all ${idx === currentPhotoIndex ? '' : 'opacity-60 hover:opacity-100'}`}>
-                      <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" sizes="56px" />
+                      className={`relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden transition-all ${idx === currentPhotoIndex ? '' : 'opacity-60 hover:opacity-100'}`}>
+                      <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" sizes="64px" />
                       {idx === currentPhotoIndex && (
-                        <div className="absolute inset-0 rounded-md ring-2 ring-inset ring-[#b51822] pointer-events-none" aria-hidden="true" />
+                        <div className="absolute inset-0 rounded-md ring-2 ring-inset ring-brand-red pointer-events-none" aria-hidden="true" />
                       )}
                     </button>
                   ))}
@@ -421,16 +451,16 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
               </div>
 
               {/* Price */}
-              <div className="bg-[#fafafa] p-3 rounded-md mb-4">
-                <span className="text-xs text-[#5b403e]">Harga</span>
+              <div className="bg-brand-gray-60 p-3 rounded-md mb-4">
+                <span className="text-xs text-brand-gray-700">Harga</span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-2xl sm:text-3xl font-bold text-[#b51822]">
-                    Rp {displayPrice.toLocaleString('id-ID')}
+                  <span className="text-2xl sm:text-3xl font-bold text-brand-red">
+                    {formatRupiah(displayPrice)}
                   </span>
-                  <span className="text-sm font-normal text-[#5b403e]">/{unitLabel(service.unit)}</span>
+                  <span className="text-sm font-normal text-brand-gray-700">/{unitLabel(service.unit)}</span>
                 </div>
                 {minOrder > 1 && (
-                  <p className="text-xs text-[#5b403e] mt-1">Min. order {minOrder} {unitLabel(service.unit)}</p>
+                  <p className="text-xs text-brand-gray-700 mt-1">Min. order {minOrder} {unitLabel(service.unit)}</p>
                 )}
               </div>
 
@@ -438,9 +468,9 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
               {hasVariations && (
                 <div className="mb-4">
                   <div className="flex items-baseline justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-[#1c1b1b]">Pilih Variasi</h3>
+                    <h3 className="text-sm font-semibold text-brand-gray-900">Pilih Variasi</h3>
                     {!selectedVariation && (
-                      <span className="text-xs text-[#b51822]">Wajib dipilih</span>
+                      <span className="text-xs text-brand-red">Wajib dipilih</span>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -453,12 +483,12 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                           onClick={() => setSelectedVariationId(active ? '' : v.id)}
                           className={`px-3 py-2 rounded-md border text-sm text-left transition-colors ${
                             active
-                              ? 'border-[#b51822] bg-[#FFF5F5] text-[#b51822]'
-                              : 'border-[#e5e2e1] text-[#1c1b1b] hover:border-[#b51822]/50'
+                              ? 'border-brand-red bg-brand-red-light text-brand-red'
+                              : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
                           }`}
                         >
                           <span className="font-medium">{v.name}</span>
-                          <span className="block text-xs text-[#5b403e]">Rp {v.price.toLocaleString('id-ID')}</span>
+                          <span className="block text-xs text-brand-gray-700">{formatRupiah(v.price)}</span>
                         </button>
                       );
                     })}
@@ -507,13 +537,22 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
               <div className="hidden sm:flex gap-2">
                 <Button
                   variant="outline"
-                  className={`flex-1 h-11 rounded-md text-sm font-medium ${inCart ? 'border-green-500 text-green-700 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
+                  aria-label="Chat mitra"
+                  className="h-11 w-11 p-0 shrink-0"
+                  onClick={handleChat}
+                  isLoading={chatBusy}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className={`flex-1 h-11 text-sm font-medium ${inCart ? 'border-brand-success text-brand-success-dark bg-brand-success-soft' : ''}`}
                   onClick={handleCartToggle}
                 >
                   {inCart ? <><Check className="w-4 h-4 mr-1.5" /> Ditambahkan</> : <><ShoppingCart className="w-4 h-4 mr-1.5" /> Masukan Keranjang</>}
                 </Button>
                 <Button
-                  className="flex-1 h-11 bg-[#b51822] hover:bg-[#90121a] text-white font-semibold rounded-md text-sm"
+                  className="flex-1 h-11 text-sm"
                   onClick={handleOrderNow}
                 >
                   <Zap className="w-4 h-4 mr-1.5" />
@@ -539,7 +578,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                 </div>
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-[#5b403e]">Harga</span>
-                  <span className="text-[#1c1b1b]">Rp {displayPrice.toLocaleString('id-ID')} <span className="text-[#5b403e]">/{unitLabel(service.unit)}</span></span>
+                  <span className="text-brand-gray-900">{formatRupiah(displayPrice)} <span className="text-brand-gray-700">/{unitLabel(service.unit)}</span></span>
                 </div>
                 {minOrder > 1 && (
                   <div className="flex py-2">
@@ -619,36 +658,44 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
         />
       </div>
 
-      {/* Mobile Action Bar */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#e5e2e1]">
-        <div className="flex items-center gap-2 px-3 py-2.5">
-          <Button
-            variant="outline"
-            disabled={favBusy}
-            aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
-            className={`flex-shrink-0 h-10 w-10 p-0 rounded-md disabled:opacity-50 ${isFav ? 'border-[#b51822] text-[#b51822] bg-[#FFF5F5]' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
-            onClick={handleFavToggle}
-          >
-            <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
-          </Button>
-          <Button
-            variant="outline"
-            className={`flex-shrink-0 h-10 w-10 p-0 rounded-md ${inCart ? 'border-green-500 text-green-600 bg-green-50' : 'border-[#e5e2e1] text-[#1c1b1b]'}`}
-            onClick={handleCartToggle}
-          >
-            {inCart ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-          </Button>
-          <div className="flex-1">
-            <p className="text-base font-bold text-[#b51822]">Rp {displayPrice.toLocaleString('id-ID')}<span className="text-xs font-normal text-[#5b403e]">/{unitLabel(service.unit)}</span></p>
-            {hasVariations && selectedVariation && (
-              <p className="text-[11px] text-[#5b403e] truncate">{selectedVariation.name}</p>
-            )}
-          </div>
-          <Button className="h-10 px-5 bg-[#b51822] hover:bg-[#90121a] text-white font-bold rounded-md text-sm" onClick={handleOrderNow}>
-            <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan
-          </Button>
+      {/* Mobile Action Bar — sticky bawah (Fase 1); desktop pakai tombol di panel info. */}
+      <StickyActionBar className="sm:hidden">
+        <Button
+          variant="outline"
+          aria-label="Chat mitra"
+          className="flex-shrink-0 h-10 w-10 p-0"
+          onClick={handleChat}
+          isLoading={chatBusy}
+        >
+          <MessageSquare className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="outline"
+          disabled={favBusy}
+          aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+          className={`flex-shrink-0 h-10 w-10 p-0 disabled:opacity-50 ${isFav ? 'border-brand-red text-brand-red bg-brand-red-light' : ''}`}
+          onClick={handleFavToggle}
+        >
+          <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+        </Button>
+        <Button
+          variant="outline"
+          aria-label={inCart ? 'Hapus dari keranjang' : 'Tambah ke keranjang'}
+          className={`flex-shrink-0 h-10 w-10 p-0 ${inCart ? 'border-brand-success text-brand-success bg-brand-success-soft' : ''}`}
+          onClick={handleCartToggle}
+        >
+          {inCart ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
+        </Button>
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-bold text-brand-red">{formatRupiah(displayPrice)}<span className="text-xs font-normal text-brand-gray-700">/{unitLabel(service.unit)}</span></p>
+          {hasVariations && selectedVariation && (
+            <p className="text-[11px] text-brand-gray-700 truncate">{selectedVariation.name}</p>
+          )}
         </div>
-      </div>
+        <Button className="h-10 px-5 text-sm" onClick={handleOrderNow}>
+          <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan
+        </Button>
+      </StickyActionBar>
 
       {/* Schedule Modal */}
       {showSchedule && (

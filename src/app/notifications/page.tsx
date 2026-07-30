@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign, Loader2 } from 'lucide-react';
+import { Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ListItemSkeleton } from '@/components/ui/skeleton';
 
 
 interface Notification {
@@ -96,7 +97,7 @@ export default function NotificationsPage() {
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ListItemSkeleton count={8} /></div>;
   if (!isAuthorized) return null;
 
   const filteredNotifications = notifications.filter(n => {
@@ -127,7 +128,7 @@ export default function NotificationsPage() {
     <div
       key={n.id}
       onClick={() => handleNotificationClick(n)}
-      className={`bg-white rounded border border-[#e5e2e1] p-4 flex gap-4 cursor-pointer transition-colors ${!n.is_read ? 'bg-[#FFF5F5] border-[#FEB2B2]' : 'hover:bg-[#f7f5f4]'}`}
+      className={`bg-white rounded-lg border border-[#e5e2e1] p-4 flex gap-4 cursor-pointer transition-colors ${!n.is_read ? 'bg-brand-error-soft border-[#FEB2B2]' : 'hover:bg-[#f7f5f4]'}`}
     >
       <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-white' : 'bg-[#f7f5f4]'}`}>
         {getIcon(n.type)}
@@ -136,10 +137,10 @@ export default function NotificationsPage() {
         <h3 className={`text-sm mb-1 ${!n.is_read ? 'font-bold text-[#1c1b1b]' : 'font-semibold text-[#5b403e]'}`}>
           {n.title}
         </h3>
-        <p className={`text-sm mb-2 leading-snug ${!n.is_read ? 'text-[#32201f]' : 'text-[#9e8e8c]'}`}>
+        <p className={`text-sm mb-2 leading-snug ${!n.is_read ? 'text-[#32201f]' : 'text-brand-gray-450'}`}>
           {n.body}
         </p>
-        <p className="text-[10px] text-[#9e8e8c] font-medium uppercase tracking-wide">
+        <p className="text-[10px] text-brand-gray-450 font-medium uppercase tracking-wide">
           {formatTime(n.created_at)}
         </p>
       </div>
@@ -152,7 +153,7 @@ export default function NotificationsPage() {
   );
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-10">
       <MobilePageHeader
         title="Notifikasi"
         right={unreadCount > 0 ? (
@@ -195,18 +196,7 @@ export default function NotificationsPage() {
         </div>
         
         {loading ? (
-          <div className="space-y-2">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-white rounded border border-[#e5e2e1] p-4 flex gap-4 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-[#e5e2e1] shrink-0" />
-                <div className="flex-1 space-y-2 py-1">
-                  <div className="h-4 bg-[#e5e2e1] rounded w-3/4" />
-                  <div className="h-3 bg-[#e5e2e1] rounded w-full" />
-                  <div className="h-3 bg-[#e5e2e1] rounded w-1/4 mt-2" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <ListItemSkeleton count={4} />
         ) : filteredNotifications.length === 0 ? (
           <EmptyState icon={Bell} title="Belum Ada Notifikasi" description="Notifikasi pesanan, pembayaran, dan info penting akan muncul di sini." />
         ) : (

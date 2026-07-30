@@ -64,7 +64,7 @@ export default function TopNavbar() {
                 </div>
                 <input
                   type="text"
-                  className="block w-full rounded-full border border-[#e5e2e1] bg-white py-2 pl-9 pr-4 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
+                  className="block w-full rounded-md border border-[#e5e2e1] bg-white py-2 pl-9 pr-4 text-[14px] text-[#1c1b1b] placeholder:text-[#8f6f6d] focus:border-[#b51822] focus:outline-none focus:ring-1 focus:ring-[#b51822]"
                   placeholder="Cari jasa AC, ledeng, kebersihan..."
                   autoFocus
                   onKeyDown={handleSearch}
@@ -170,8 +170,13 @@ export default function TopNavbar() {
                         >
                           <div className="w-8 h-8 rounded-xl border border-[#e5e2e1] bg-[#e5e2e1] flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#b51822] transition-all">
                             {userAvatar ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
+                              <Image
+                                src={userAvatar}
+                                alt={userName}
+                                width={32}
+                                height={32}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <User className="h-4 w-4 text-[#5b403e]" />
                             )}

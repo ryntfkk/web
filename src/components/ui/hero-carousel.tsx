@@ -51,7 +51,7 @@ export default function HeroCarousel() {
 
   return (
     <div className="w-full bg-white flex justify-center">
-      <section className="relative w-full max-w-[1200px] h-[200px] sm:h-[280px] md:h-[350px] lg:h-[400px] overflow-hidden bg-[#e5e2e1] lg:mt-6 lg:rounded-xl">
+      <section className="relative w-full max-w-[1200px] h-[160px] sm:h-[240px] md:h-[320px] lg:h-[400px] overflow-hidden bg-[#e5e2e1] lg:mt-6 lg:rounded-xl">
       {/* Slides Container */}
       <div className="relative w-full h-full">
         {HERO_SLIDES.map((slide, index) => (
@@ -99,7 +99,7 @@ export default function HeroCarousel() {
             aria-label={`Go to slide ${index + 1}`}
           >
             <div
-              className={`h-[3px] rounded-[1px] transition-all duration-300 ${
+              className={`h-[3px] rounded-full transition-all duration-300 ${
                 index === currentSlide
                   ? "w-6 sm:w-8 bg-[#b51822]"
                   : "w-3 sm:w-4 bg-white/60 hover:bg-white/90"

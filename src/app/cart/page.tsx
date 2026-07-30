@@ -7,12 +7,12 @@ import { ShoppingCart, Trash2, ChevronRight } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { StickyActionBar } from '@/components/ui/sticky-action-bar';
+import { Price } from '@/components/ui/price';
+import { formatRupiah } from '@/lib/format';
 import { useCartStore, CartItem } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
-}
 
 interface PartnerGroup {
   partner_username: string;
@@ -73,7 +73,8 @@ export default function CartPage() {
   }
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-20">
+    // pb mobile: ruang untuk BottomNav (h-16) + StickyActionBar; md: bar saja; lg+: standar.
+    <div className="page-h bg-[#f7f5f4] pb-36 md:pb-24 lg:pb-10">
       {/* Header (mobile) */}
       <MobilePageHeader
         title={items.length > 0 ? `Keranjang (${items.length})` : 'Keranjang'}
@@ -91,7 +92,7 @@ export default function CartPage() {
       <div className="hidden lg:block max-w-3xl mx-auto px-4 pt-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-[#1c1b1b]">
-            Keranjang {items.length > 0 && <span className="text-[#9e8e8c] font-normal text-lg">({items.length})</span>}
+            Keranjang {items.length > 0 && <span className="text-brand-gray-450 font-normal text-lg">({items.length})</span>}
           </h1>
           {items.length > 0 && (
             <button onClick={clearCart} className="text-sm text-[#E53E3E] font-medium hover:underline">
@@ -103,27 +104,29 @@ export default function CartPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         {items.length === 0 ? (
-          <div className="bg-white rounded-md border border-[#e5e2e1] p-10 text-center">
-            <ShoppingCart className="w-16 h-16 text-[#9e8e8c]/50 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-[#1c1b1b] mb-2">Keranjang Kosong</h2>
-            <p className="text-sm text-[#5b403e] mb-6">
-              Belum ada layanan di keranjang Anda. Yuk, cari jasa yang Anda butuhkan!
-            </p>
-            <Button className="bg-[#b51822] hover:bg-[#90121a] rounded" onClick={() => router.push('/search')}>
-              Cari Jasa
-            </Button>
+          <div className="bg-white rounded-lg border border-[#e5e2e1]">
+            <EmptyState
+              icon={ShoppingCart}
+              title="Keranjang Kosong"
+              description="Belum ada layanan di keranjang Anda. Yuk, cari jasa yang Anda butuhkan!"
+              action={
+                <Button className="bg-[#b51822] hover:bg-[#90121a] rounded-md px-6" onClick={() => router.push('/services')}>
+                  Jelajahi Layanan
+                </Button>
+              }
+            />
           </div>
         ) : (
           <>
             {groups.map((group) => (
-              <div key={group.partner_username} className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
+              <div key={group.partner_username} className="bg-white rounded-lg border border-[#e5e2e1] overflow-hidden">
                 {/* Partner header */}
                 <Link
                   href={`/${group.partner_username}`}
                   className="flex items-center justify-between px-4 py-3 bg-[#fcfafa] border-b border-[#e5e2e1] hover:bg-[#f7f5f4]"
                 >
                   <span className="text-sm font-semibold text-[#1c1b1b]">@{group.partner_username}</span>
-                  <ChevronRight className="w-4 h-4 text-[#9e8e8c]" />
+                  <ChevronRight className="w-4 h-4 text-brand-gray-450" />
                 </Link>
 
                 {/* Items — kartu horizontal yang sama dengan halaman booking */}
@@ -137,7 +140,7 @@ export default function CartPage() {
                       action={
                         <button
                           onClick={() => removeItem(item.service_id, item.variation_id)}
-                          className="p-2 text-[#9e8e8c] hover:text-[#E53E3E] hover:bg-[#FFF5F5] rounded-lg shrink-0 transition-colors"
+                          className="p-2 text-brand-gray-450 hover:text-[#E53E3E] hover:bg-brand-error-soft rounded-lg shrink-0 transition-colors"
                           aria-label={`Hapus ${item.service_name}`}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -150,8 +153,8 @@ export default function CartPage() {
                 {/* Group footer */}
                 <div className="flex items-center justify-between px-4 py-3 border-t border-[#e5e2e1] bg-[#fcfafa]">
                   <div>
-                    <p className="text-xs text-[#9e8e8c]">Subtotal ({group.items.length} layanan)</p>
-                    <p className="text-base font-bold text-[#b51822]">{formatPrice(group.subtotal)}</p>
+                    <p className="text-xs text-brand-gray-450">Subtotal ({group.items.length} layanan)</p>
+                    <Price price={group.subtotal} />
                   </div>
                   <Button
                     className="bg-[#b51822] hover:bg-[#90121a] rounded-md px-6"
@@ -164,13 +167,37 @@ export default function CartPage() {
             ))}
 
             {groups.length > 1 && (
-              <p className="text-xs text-[#9e8e8c] text-center">
-                Pemesanan dilakukan per mitra. Total semua keranjang: <span className="font-semibold">{formatPrice(total)}</span>
+              <p className="text-xs text-brand-gray-450 text-center">
+                Pemesanan dilakukan per mitra. Total semua keranjang: <span className="font-semibold">{formatRupiah(total)}</span>
               </p>
             )}
           </>
         )}
       </div>
+
+      {/* Total + Checkout utama (mobile/tablet). BottomNav (h-16) tampil di /cart
+          pada <md, jadi bar diangkat: bottom-16; md+ BottomNav hilang → bottom-0.
+          Checkout tunggal hanya saat 1 mitra — pemesanan memang per mitra. */}
+      {items.length > 0 && (
+        <StickyActionBar className="bottom-16 md:bottom-0">
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-brand-gray-450">Total ({items.length} layanan)</p>
+            <Price price={total} />
+          </div>
+          {groups.length === 1 ? (
+            <Button
+              className="bg-[#b51822] hover:bg-[#90121a] rounded-md px-6"
+              onClick={() => handleCheckout(groups[0])}
+            >
+              Checkout
+            </Button>
+          ) : (
+            <p className="text-[11px] text-brand-gray-450 text-right leading-snug">
+              Pemesanan dilakukan<br />per mitra
+            </p>
+          )}
+        </StickyActionBar>
+      )}
     </div>
   );
 }

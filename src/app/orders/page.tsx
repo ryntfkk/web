@@ -10,6 +10,7 @@ import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
+import { formatRupiah as formatPrice, formatDateOnly as formatDate } from '@/lib/format';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useToast } from '@/components/ui/toast';
@@ -167,22 +168,6 @@ export default function OrdersPage() {
     cancelled: orders.filter(o => matchesFilter(o.status, 'cancelled')).length,
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
   if (authLoading) {
     return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
@@ -191,23 +176,23 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-8">
+    <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
 
       {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
       <MobilePageHeader title="Riwayat Pesanan" backHref="/profile" maxWidthClass="max-w-6xl" />
 
       <div className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
-        <h1 className="hidden lg:block text-2xl font-bold text-[#1c1b1b] mb-6">Riwayat Pesanan</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Riwayat Pesanan</h1>
         <div className="flex flex-col lg:flex-row gap-6 max-w-full">
 
           <div className="w-full lg:w-64 shrink-0 min-w-0">
-            <div className="bg-white rounded-md border border-[#e5e2e1] overflow-hidden">
-              <div className="hidden lg:block p-4 border-b border-[#e5e2e1]">
-                <h3 className="font-semibold text-[#32201f]">Filter</h3>
+            <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden">
+              <div className="hidden lg:block p-4 border-b border-brand-gray-100">
+                <h3 className="font-semibold text-brand-gray-900">Filter</h3>
               </div>
 
               <div
-                className="flex flex-row overflow-x-auto lg:flex-col divide-x lg:divide-x-0 lg:divide-y divide-[#e5e2e1] scrollbar-hide touch-pan-x w-full"
+                className="flex flex-row overflow-x-auto lg:flex-col divide-x lg:divide-x-0 lg:divide-y divide-brand-gray-100 scrollbar-hide touch-pan-x w-full"
                 style={{ WebkitOverflowScrolling: 'touch' }}
               >
                 {[
@@ -220,16 +205,16 @@ export default function OrdersPage() {
                   <button
                     key={filter.key}
                     onClick={() => setActiveFilter(filter.key)}
-                    className={`shrink-0 lg:w-full flex items-center justify-between p-4 hover:bg-[#f7f5f4] transition-colors text-left outline-none ${activeFilter === filter.key ? 'bg-[#fdf2f2]' : ''
+                    className={`shrink-0 lg:w-full flex items-center justify-between p-4 hover:bg-brand-gray-60 transition-colors text-left outline-none ${activeFilter === filter.key ? 'bg-brand-red-light' : ''
                       }`}
                   >
-                    <span className={`text-sm font-medium whitespace-nowrap mr-3 lg:mr-0 ${activeFilter === filter.key ? 'text-[#b51822]' : 'text-[#32201f]'
+                    <span className={`text-sm font-medium whitespace-nowrap mr-3 lg:mr-0 ${activeFilter === filter.key ? 'text-brand-red' : 'text-brand-gray-900'
                       }`}>
                       {filter.label}
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded-md shrink-0 ${activeFilter === filter.key
-                        ? 'bg-[#b51822] text-white'
-                        : 'bg-[#e5e2e1] text-[#5b403e]'
+                        ? 'bg-brand-red text-white'
+                        : 'bg-brand-gray-100 text-brand-gray-700'
                       }`}>
                       {filterCounts[filter.key]}
                     </span>

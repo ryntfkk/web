@@ -29,7 +29,7 @@ export default function FeaturedServicesSection() {
   };
 
   return (
-    <section className="mb-6 sm:mb-10 md:mb-12">
+    <section className="mb-8 md:mb-12">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-[#1c1b1b]">
           Rekomendasi
@@ -47,7 +47,7 @@ export default function FeaturedServicesSection() {
       )}
 
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-[280px] bg-gray-100 animate-pulse rounded-lg" />
           ))}
@@ -70,7 +70,7 @@ export default function FeaturedServicesSection() {
           Belum ada mitra.
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
           {partners?.map((partner: Partner) => (
             <Link key={partner.id} href={`/${partner.username}`} className="block">
               <ServiceCard

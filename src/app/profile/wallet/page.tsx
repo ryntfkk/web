@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, Clock, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
+import { formatRupiah as formatPrice } from '@/lib/format';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { ROLE_PARTNER } from '@/lib/constants';
-import { Loader2 } from 'lucide-react';
 
 
 interface WalletTransaction {
@@ -81,22 +82,20 @@ export default function WalletPage() {
     }
   };
 
-  const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
-
   const getTransactionIcon = (type: string, category: string) => {
     if (type === 'CREDIT') {
-      return <ArrowDownLeft className="w-5 h-5 text-[#38A169]" />;
+      return <ArrowDownLeft className="w-5 h-5 text-brand-success" />;
     } else if (type === 'DEBIT') {
-      return <ArrowUpRight className="w-5 h-5 text-[#E53E3E]" />;
+      return <ArrowUpRight className="w-5 h-5 text-brand-error" />;
     }
-    return <History className="w-5 h-5 text-[#9e8e8c]" />;
+    return <History className="w-5 h-5 text-brand-gray-450" />;
   };
 
-  if (authLoading) return <div className="page-h flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="page-h bg-[#f7f5f4]"><ProfileSkeleton /></div>;
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-[#f7f5f4] pb-24">
+    <div className="page-h bg-[#f7f5f4] pb-20 md:pb-10">
       {/* Header */}
       <div className="bg-[#b51822] text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-0 lg:top-16 z-10">
         <div className="max-w-lg mx-auto">
@@ -147,19 +146,19 @@ export default function WalletPage() {
           <div className="flex bg-white rounded-lg border border-[#e5e2e1] p-1 shadow-sm">
             <button 
               onClick={() => setFilterType('ALL')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'ALL' ? 'bg-[#f7f5f4] text-[#1c1b1b]' : 'text-[#9e8e8c] hover:text-[#5b403e]'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'ALL' ? 'bg-[#f7f5f4] text-[#1c1b1b]' : 'text-brand-gray-450 hover:text-[#5b403e]'}`}
             >
               Semua
             </button>
             <button 
               onClick={() => setFilterType('IN')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'IN' ? 'bg-[#F0FFF4] text-[#38A169]' : 'text-[#9e8e8c] hover:text-[#5b403e]'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'IN' ? 'bg-brand-success-soft text-[#38A169]' : 'text-brand-gray-450 hover:text-[#5b403e]'}`}
             >
               Masuk
             </button>
             <button 
               onClick={() => setFilterType('OUT')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'OUT' ? 'bg-[#FFF5F5] text-[#E53E3E]' : 'text-[#9e8e8c] hover:text-[#5b403e]'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${filterType === 'OUT' ? 'bg-brand-error-soft text-[#E53E3E]' : 'text-brand-gray-450 hover:text-[#5b403e]'}`}
             >
               Keluar
             </button>
@@ -186,13 +185,13 @@ export default function WalletPage() {
             transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').map(t => (
               <div key={t.id} className="bg-white rounded-xl border border-[#e5e2e1] p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-[#F0FFF4]' : 'bg-[#FFF5F5]'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-brand-success-soft' : 'bg-brand-error-soft'}`}>
                     {getTransactionIcon(t.type, t.category)}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#1c1b1b]">{t.description}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-[#9e8e8c]">{new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-[10px] text-brand-gray-450">{new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                       {t.status === 'PENDING' && (
                         <span className="bg-[#FEFCBF] text-[#B7791F] text-[9px] font-bold px-1.5 py-0.5 rounded uppercase flex items-center gap-1">
                           <Clock className="w-2.5 h-2.5" /> Pending
