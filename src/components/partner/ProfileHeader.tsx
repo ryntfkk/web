@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useChatUiStore } from '@/lib/store/chatUiStore';
 import { useFavoritePartners, useFavoritesActions } from '@/hooks/useFavorites';
 import { useToast } from '@/components/ui/toast';
 import ReportDialog from '@/components/ReportDialog';
@@ -21,6 +22,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const currentUser = useAuthStore(state => state.user);
+  const openPanel = useChatUiStore((s) => s.openPanel);
   // Mitra yang membuka profilnya sendiri tidak boleh chat/lapor/pesan ke diri
   // sendiri — backend menolaknya (SELF_ORDER / cannot chat with yourself).
   const isOwnProfile = !!currentUser?.id && currentUser.id === profile.user_id;
@@ -67,7 +69,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         body: JSON.stringify({ partner_id: profile.user_id }),
       });
       if (res.success && res.data?.room_id) {
-        router.push(`/chat/${res.data.room_id}`);
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+          openPanel(res.data.room_id);
+        } else {
+          router.push(`/chat/${res.data.room_id}`);
+        }
       } else {
         showToast('Gagal memulai obrolan', 'error');
       }

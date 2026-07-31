@@ -19,6 +19,7 @@ export interface ServiceVariation {
 export interface ServiceDetail {
   id: string;
   partner_id: string;
+  partner_user_id: string;
   partner_name: string;
   partner_username: string;
   partner_avatar_url: string;

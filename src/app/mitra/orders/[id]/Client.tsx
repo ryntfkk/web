@@ -13,6 +13,7 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useChatUiStore } from '@/lib/store/chatUiStore';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
 import { getErrorMessage } from '@/types/api';
@@ -212,6 +213,7 @@ export default function MitraOrderDetailClient() {
   const [actionLoading, setActionLoading] = useState(false);
   const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const openPanel = useChatUiStore((s) => s.openPanel);
   const [copied, setCopied] = useState(false);
 
   const [showAcceptModal, setShowAcceptModal] = useState(false);
@@ -247,7 +249,11 @@ export default function MitraOrderDetailClient() {
         body: JSON.stringify({ customer_id: order.customer_info.id }),
       });
       if (res.success && res.data?.room_id) {
-        router.push(`/chat/${res.data.room_id}`);
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+          openPanel(res.data.room_id);
+        } else {
+          router.push(`/chat/${res.data.room_id}`);
+        }
       } else {
         showToast('Gagal memulai obrolan', 'error');
       }

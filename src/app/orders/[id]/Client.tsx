@@ -22,6 +22,7 @@ import { printOrderReceipt } from '@/lib/receipt';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useChatUiStore } from '@/lib/store/chatUiStore';
 import dynamic from 'next/dynamic';
 
 // Peta hanya di klien (butuh window/Leaflet) → hindari SSR. Sama seperti detail
@@ -199,6 +200,7 @@ export default function OrderDetailClient() {
   const [cancelReason, setCancelReason] = useState('');
   const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const openPanel = useChatUiStore((s) => s.openPanel);
   const [copied, setCopied] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -233,7 +235,11 @@ export default function OrderDetailClient() {
         body: JSON.stringify({ partner_id: order.partner.user_id }),
       });
       if (res.success && res.data?.room_id) {
-        router.push(`/chat/${res.data.room_id}`);
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+          openPanel(res.data.room_id);
+        } else {
+          router.push(`/chat/${res.data.room_id}`);
+        }
       } else {
         showToast('Gagal memulai obrolan', 'error');
       }

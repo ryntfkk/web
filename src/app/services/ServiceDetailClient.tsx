@@ -30,6 +30,7 @@ import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDeta
 import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useChatUiStore } from '@/lib/store/chatUiStore';
 import { useRecentlyViewedStore } from '@/lib/store/recentlyViewedStore';
 import ScheduleView from '@/components/service/ScheduleView';
 import MoreFromPartner from '@/components/service/MoreFromPartner';
@@ -162,6 +163,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
 
   // Chat langsung dengan mitra dari halaman detail (pola sama dengan ProfileHeader).
   const [chatBusy, setChatBusy] = useState(false);
+  const openPanel = useChatUiStore((s) => s.openPanel);
   const handleChat = async () => {
     if (!isAuthenticated) {
       router.push(`/login?redirect=${encodeURIComponent(`/services/${serviceId}`)}`);
@@ -172,10 +174,14 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
     try {
       const res = await fetchAPI<{ room_id: string }>('/chat/rooms', {
         method: 'POST',
-        body: JSON.stringify({ partner_id: service.partner_id }),
+        body: JSON.stringify({ partner_id: service.partner_user_id }),
       });
       if (res.success && res.data?.room_id) {
-        router.push(`/chat/${res.data.room_id}`);
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+          openPanel(res.data.room_id);
+        } else {
+          router.push(`/chat/${res.data.room_id}`);
+        }
       } else {
         showToast('Gagal memulai obrolan', 'error');
       }
