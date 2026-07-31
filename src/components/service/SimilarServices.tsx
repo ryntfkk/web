@@ -1,6 +1,7 @@
 'use client';
 
 import { usePublicServices } from '@/hooks/usePublicServices';
+import { useUserLocation } from '@/hooks/useUserLocation';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 
 /**
@@ -18,7 +19,15 @@ export default function SimilarServices({
   excludeServiceId: string;
   excludePartnerId: string;
 }) {
-  const { data, isLoading } = usePublicServices({ category: categoryId, limit: 12 });
+  // Kirim lokasi user agar badge jarak di kartu terisi (tanpa lat/lon backend
+  // mengembalikan distance_meters = 0 → badge disembunyikan).
+  const { latitude, longitude, hasLocation } = useUserLocation();
+  const { data, isLoading } = usePublicServices({
+    category: categoryId,
+    limit: 12,
+    latitude: hasLocation ? latitude ?? undefined : undefined,
+    longitude: hasLocation ? longitude ?? undefined : undefined,
+  });
 
   if (isLoading || !categoryId) return null;
   const items = (data ?? [])

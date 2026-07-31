@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { useUserLocation } from '@/hooks/useUserLocation';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import { ServiceCardSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
@@ -28,16 +29,53 @@ export default function ServicesListClient({
   const [done, setDone] = useState(initialServices.length < PAGE_SIZE);
   const [error, setError] = useState(false);
 
+  // Data awal di-render server → tanpa lokasi user, jadi distance_meters = 0 dan
+  // badge jarak di kartu tak muncul. Setelah izin lokasi didapat di klien, halaman
+  // pertama diambil ulang dengan lat/lon (sekali) supaya jarak & urutan terdekat benar.
+  const { latitude, longitude, hasLocation } = useUserLocation();
+  const [refetched, setRefetched] = useState(false);
+  const refetching = useRef(false);
+
+  const buildQuery = (offset: number) => {
+    const qs = new URLSearchParams({
+      limit: String(PAGE_SIZE),
+      offset: String(offset),
+    });
+    if (activeCategory) qs.append('category', activeCategory);
+    if (hasLocation && latitude != null && longitude != null) {
+      qs.append('lat', String(latitude));
+      qs.append('lon', String(longitude));
+    }
+    return qs.toString();
+  };
+
+  useEffect(() => {
+    if (refetched || refetching.current) return;
+    if (!hasLocation || latitude == null || longitude == null) return;
+    refetching.current = true;
+    (async () => {
+      try {
+        const res = await fetchAPI<PublicService[]>(`/services?${buildQuery(0)}`);
+        const next = res.data ?? [];
+        if (next.length > 0) {
+          setItems(next);
+          setDone(next.length < PAGE_SIZE);
+        }
+      } catch {
+        // Biarkan data SSR apa adanya (jarak kosong) bila refetch gagal.
+      } finally {
+        setRefetched(true);
+        refetching.current = false;
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasLocation, latitude, longitude, refetched]);
+
   const loadMore = async () => {
     setLoading(true);
     setError(false);
     try {
-      const qs = new URLSearchParams({
-        limit: String(PAGE_SIZE),
-        offset: String(items.length),
-      });
-      if (activeCategory) qs.append('category', activeCategory);
-      const res = await fetchAPI<PublicService[]>(`/services?${qs.toString()}`);
+      const res = await fetchAPI<PublicService[]>(`/services?${buildQuery(items.length)}`);
       const next = res.data ?? [];
       setItems((prev) => [...prev, ...next]);
       if (next.length < PAGE_SIZE) setDone(true);

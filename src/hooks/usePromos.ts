@@ -17,11 +17,8 @@ export interface Promo {
   reserved_count: number;
   valid_until: string;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
   name: string;
   description: string | null;
-  version: number;
 }
 
 export interface PromoValidationResult {

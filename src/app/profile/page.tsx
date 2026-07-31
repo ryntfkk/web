@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
@@ -194,6 +194,7 @@ export default function ProfilePage() {
           {/* Dompet wajib bisa diakses pelanggan: refund pembatalan/no-show
               masuk ke saldo, dan sebelumnya tidak ada satu pun jalan ke sini. */}
           <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo & riwayat refund" href="/profile/wallet" />
+          <MenuListItem icon={TicketPercent} label="Promo" subtitle="Voucher & diskon aktif" href="/promos" />
           <MenuListItem icon={Heart} label="Favorit" subtitle="Mitra & layanan tersimpan" href="/profile/favorites" />
           <MenuListItem icon={Mail} label="Notifikasi" subtitle="Email, push notification" href="/profile/notifications" />
         </MenuCard>
@@ -285,6 +286,7 @@ export default function ProfilePage() {
                   <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
                   <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
                   <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo & riwayat refund" href="/profile/wallet" />
+                  <MenuListItem icon={TicketPercent} label="Promo" subtitle="Voucher & diskon aktif" href="/promos" />
                 </MenuCard>
 
                 {logoutButton}
