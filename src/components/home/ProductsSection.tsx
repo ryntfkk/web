@@ -22,7 +22,7 @@ export default function ProductsSection() {
           Produk & Layanan
         </h2>
         <Link
-          href="/search"
+          href="/services"
           className="text-[12px] sm:text-[14px] text-brand-red hover:underline font-medium"
         >
           Lihat Semua

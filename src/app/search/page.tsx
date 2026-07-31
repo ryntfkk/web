@@ -1,6 +1,7 @@
 import SearchContent from '@/components/search/SearchContent';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { permanentRedirect } from 'next/navigation';
 
 interface SearchPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -8,7 +9,14 @@ interface SearchPageProps {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
-  const query = typeof params.q === 'string' ? params.q : undefined;
+  const query = typeof params.q === 'string' ? params.q.trim() : undefined;
+
+  // Tanpa kata kunci → ini "semua layanan", bukan pencarian. Rute kanoniknya
+  // /services (SSR + SEO metadata). Redirect permanen agar bookmark lama tetap
+  // hidup dan bobot SEO menyatu ke /services.
+  if (!query) {
+    permanentRedirect('/services');
+  }
 
   return (
     <div className="flex flex-col min-h-[calc(100dvh-4rem)] bg-brand-gray-60">
@@ -20,7 +28,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
             </Link>
             <h1 className="text-base font-bold text-brand-gray-900 truncate">
-              {query ? `Hasil untuk "${query}"` : 'Cari Jasa'}
+              Hasil untuk &quot;{query}&quot;
             </h1>
           </div>
         </div>

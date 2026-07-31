@@ -34,7 +34,7 @@ export default function FeaturedServicesSection() {
         <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-brand-gray-900">
           Rekomendasi
         </h2>
-        <Link href="/search" className="text-brand-red font-bold text-[12px] sm:text-[14px] hover:bg-brand-red-light px-3 py-1 rounded transition-colors">
+        <Link href="/services" className="text-brand-red font-bold text-[12px] sm:text-[14px] hover:bg-brand-red-light px-3 py-1 rounded transition-colors">
           Lihat Semua
         </Link>
       </div>

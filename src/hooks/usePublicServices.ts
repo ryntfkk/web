@@ -45,7 +45,20 @@ interface PublicServicesParams {
   sort?: string;
 }
 
-export function usePublicServices(params: PublicServicesParams = {}) {
+interface UsePublicServicesOptions {
+  /** Data awal (mis. dari SSR) — dipakai sebagai cache React Query tanpa refetch
+   *  selama belum stale. Cocokkan dengan params yang diberikan agar query key-nya
+   *  sama dengan fetch SSR yang menghasilkan data ini. */
+  initialData?: PublicService[];
+  /** staleTime khusus. Bila initialData diberikan, default 5 menit (sama dengan
+   *  revalidate) agar tidak langsung refetch saat hydrate. */
+  staleTime?: number;
+}
+
+export function usePublicServices(
+  params: PublicServicesParams = {},
+  options?: UsePublicServicesOptions,
+) {
   const query = params.q?.trim();
   const isSearch = Boolean(query);
 
@@ -73,5 +86,7 @@ export function usePublicServices(params: PublicServicesParams = {}) {
     },
     // Pertahankan data lama saat refetch (mis. ganti filter) agar tidak berkedip.
     placeholderData: (prev) => prev,
+    initialData: options?.initialData,
+    staleTime: options?.staleTime ?? (options?.initialData ? 5 * 60 * 1000 : 0),
   });
 }

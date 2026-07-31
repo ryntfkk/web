@@ -313,7 +313,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
         <div className="hidden sm:flex items-center gap-2 text-xs text-brand-gray-700 mb-3 px-4 py-2">
           <Link href="/" className="hover:text-brand-red">Beranda</Link>
           <span>/</span>
-          <Link href="/search" className="hover:text-brand-red">Layanan</Link>
+          <Link href="/services" className="hover:text-brand-red">Layanan</Link>
           <span>/</span>
           <span className="text-brand-gray-900">{service.category_name}</span>
         </div>

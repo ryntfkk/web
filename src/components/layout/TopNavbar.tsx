@@ -46,7 +46,8 @@ export default function TopNavbar() {
       if (query) {
         router.push(`/search?q=${encodeURIComponent(query)}`);
       } else {
-        router.push('/search');
+        // Input kosong = user ingin menjelajah semua layanan → rute kanonik /services.
+        router.push('/services');
       }
       setIsMobileSearchOpen(false);
     }

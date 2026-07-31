@@ -27,7 +27,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     title: 'Layanan',
     links: [
       { label: 'Kategori', href: '/categories' },
-      { label: 'Semua Layanan', href: '/search' },
+      { label: 'Semua Layanan', href: '/services' },
       { label: 'Promo', href: '/promos' },
     ],
   },
