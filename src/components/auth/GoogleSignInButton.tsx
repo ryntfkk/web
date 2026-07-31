@@ -47,6 +47,19 @@ export default function GoogleSignInButton({
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
+  // Callback disimpan di ref, JANGAN dipakai sebagai dependency effect di bawah.
+  // Pemanggil (halaman login/register) mengoper arrow function inline, sehingga
+  // identitasnya baru pada SETIAP render. Kalau effect render tombol bergantung
+  // padanya, tiap ketikan satu huruf akan menghapus (innerHTML = '') lalu membuat
+  // ulang iframe tombol Google — dan di mobile pembongkaran iframe di dekat input
+  // yang sedang fokus membuat fokus lepas → keyboard menutup sendiri.
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+  });
+
   useEffect(() => {
     // Check if script is already present
     if (window.google?.accounts?.id) {
@@ -62,10 +75,10 @@ export default function GoogleSignInButton({
       setScriptLoaded(true);
     };
     script.onerror = () => {
-      if (onError) onError('Gagal memuat Google Sign-In script');
+      onErrorRef.current?.('Gagal memuat Google Sign-In script');
     };
     document.body.appendChild(script);
-  }, [onError]);
+  }, []);
 
   useEffect(() => {
     if (!scriptLoaded || !window.google?.accounts?.id || !btnRef.current) return;
@@ -80,9 +93,9 @@ export default function GoogleSignInButton({
         client_id: clientId,
         callback: (response) => {
           if (response.credential) {
-            onSuccess(response.credential);
-          } else if (onError) {
-            onError('Gagal mendapatkan respon dari Google');
+            onSuccessRef.current(response.credential);
+          } else {
+            onErrorRef.current?.('Gagal mendapatkan respon dari Google');
           }
         },
       });
@@ -101,7 +114,10 @@ export default function GoogleSignInButton({
     } catch (err) {
       console.error('Failed to render Google Sign-In button', err);
     }
-  }, [scriptLoaded, clientId, onSuccess, onError, text]);
+    // Deps sengaja hanya nilai yang benar-benar mengubah tampilan tombol.
+    // Callback diakses lewat ref (lihat catatan di atas) supaya render ulang
+    // induk tidak membongkar-pasang iframe Google.
+  }, [scriptLoaded, clientId, text]);
 
   if (!clientId) {
     return (
