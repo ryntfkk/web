@@ -28,6 +28,7 @@ export interface ServiceDetail {
   partner_city: string;
   category_id: string;
   category_name: string;
+  category_slug: string;
   name: string;
   description: string;
   price: number;

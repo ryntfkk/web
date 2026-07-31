@@ -30,6 +30,16 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
   const isTrusted =
     orderCount >= TRUSTED_MIN_ORDERS && (service.partner_avg_rating ?? 0) >= TRUSTED_MIN_RATING;
 
+  // SE: alt text dinamis untuk Google Image Search — sertakan keyword
+  // "jasa [kategori] di [kota]" agar gambar muncul di pencarian gambar
+  // berdasarkan intent lokasi (mis. "jasa ac semarang").
+  const imageAlt = [
+    service.category_name && `Jasa ${service.category_name}`,
+    service.partner_city && `di ${service.partner_city}`,
+    service.name,
+    service.partner_name && `oleh ${service.partner_name}`,
+  ].filter(Boolean).join(' - ');
+
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const { data: favServices } = useFavoriteServices();
@@ -63,7 +73,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
         <div className="relative w-full aspect-square bg-brand-gray-100 flex-shrink-0">
           <Image
             src={service.photo_url || PLACEHOLDER_SERVICE}
-            alt={service.name}
+            alt={imageAlt}
             fill
             className="object-cover"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"

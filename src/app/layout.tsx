@@ -22,7 +22,8 @@ const inter = Inter({
 
 // SE3: metadata root lengkap. `metadataBase` memperbaiki resolusi URL OG relatif;
 // `template` membuat judul tiap halaman anak konsisten ("%s | Posko Jasa").
-// TODO(SE3): ganti /images/hero-1.png dengan aset OG khusus 1200×630 (og-default.png).
+// SE: OG image default 1200×630 (og-default.png) — preview saat di-share
+// WhatsApp/Twitter/Facebook. Sebelumnya pakai hero-1.png (rasio tidak standar).
 export const metadata: Metadata = {
   metadataBase: new URL("https://poskojasa.com"),
   title: {
@@ -50,10 +51,10 @@ export const metadata: Metadata = {
       "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
     images: [
       {
-        url: "/images/hero-1.png",
+        url: "/og-default.png",
         width: 1200,
         height: 630,
-        alt: "Posko Jasa",
+        alt: "Posko Jasa — Marketplace Jasa Terpercaya",
       },
     ],
   },
@@ -62,7 +63,7 @@ export const metadata: Metadata = {
     title: "Posko Jasa — Marketplace Jasa Terpercaya",
     description:
       "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
-    images: ["/images/hero-1.png"],
+    images: ["/og-default.png"],
   },
   alternates: { canonical: "https://poskojasa.com" },
   robots: { index: true, follow: true },

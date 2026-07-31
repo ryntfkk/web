@@ -15,6 +15,12 @@ export interface PartnerProfileData {
   avg_rating: number;
   total_reviews: number;
   total_orders: number;
+  // SE: address lengkap untuk LocalBusiness schema (geotargeting query "[jasa] di [kota]").
+  // Backend sudah ekspos di PartnerProfileResponse, frontend type baru ditambahkan.
+  city: string;
+  district: string;
+  province: string;
+  address_detail: string;
 }
 
 export interface PartnerServicePhoto {
@@ -59,6 +65,11 @@ export interface PartnerReview {
   customer_id: string;
   partner_id: string;
   rating: number;
+  // SE: per-aspect ratings (nullable — tidak semua review mengisi).
+  rating_quality?: number;
+  rating_punctuality?: number;
+  rating_communication?: number;
+  image_urls?: string[];
   comment: string;
   customer_name: string;
   customer_avatar: string | null;

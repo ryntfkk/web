@@ -2,7 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Globe, Share2, AtSign, Send } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAPI } from '@/lib/api';
+import { slugify } from '@/lib/slug';
+import type { Category } from '@/types/category';
 
 interface FooterLink {
   label: string;
@@ -35,22 +39,56 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     title: 'Bantuan',
     links: [
       { label: 'FAQ', href: '/help' },
-      { label: 'Chat CS', href: '/chat' },
+      { label: 'Chat CS', href: '/bantuan' },
     ],
   },
 ];
 
-// Placeholder sosial media — ganti href '#' & ikon generik dengan URL/ikon
-// resmi saat akun sosial tersedia.
-const SOCIAL_LINKS = [
-  { label: 'Website', href: '#', icon: Globe },
-  { label: 'Media Sosial', href: '#', icon: Share2 },
-  { label: 'Email', href: '#', icon: AtSign },
-  { label: 'Kirim Pesan', href: '#', icon: Send },
-];
+// SE: "Jasa Populer" — link ke landing lokal /jasa/[slug]/[kota] dari setiap
+// halaman (footer tampil di semua page). Bantu Google discover landing lokal
+// + navigasi pelanggan. Fetch kategori utama + kota mitra via React Query;
+// link selalu valid (slug & kota dari API, bukan hardcode).
+const MAX_POPULAR_CATEGORIES = 4;
+const MAX_POPULAR_CITIES = 3;
+
+function useFooterPopularLinks() {
+  return useQuery({
+    queryKey: ['footer-popular-links'],
+    staleTime: 10 * 60 * 1000,
+    queryFn: async () => {
+      const [catsRes, citiesRes] = await Promise.all([
+        fetchAPI<Category[]>('/categories'),
+        fetchAPI<string[]>('/partners/cities'),
+      ]);
+      const mainCats = (catsRes.data ?? [])
+        .filter((c) => !c.parent_id && c.slug && c.is_active)
+        .slice(0, MAX_POPULAR_CATEGORIES);
+      const cities = (citiesRes.data ?? [])
+        .filter(Boolean)
+        .slice(0, MAX_POPULAR_CITIES);
+      // Kombinasi: kategori × kota, ambil 8 pertama (jangan terlalu padat).
+      const links: FooterLink[] = [];
+      for (const cat of mainCats) {
+        for (const city of cities) {
+          if (!cat.slug) continue;
+          const citySlug = slugify(city);
+          if (!citySlug) continue;
+          links.push({
+            label: `${cat.name} ${city}`,
+            href: `/jasa/${cat.slug}/${citySlug}`,
+          });
+          if (links.length >= 8) return links;
+        }
+      }
+      return links;
+    },
+  });
+}
 
 export default function Footer() {
   const pathname = usePathname();
+  // Hook dipanggil sebelum early-return agar rules-of-hooks terpenuhi.
+  const { data: popularLinks } = useFooterPopularLinks();
   if (pathname.startsWith('/chat')) return null;
 
   return (
@@ -78,24 +116,26 @@ export default function Footer() {
             </nav>
           ))}
 
-          {/* Ikuti Kami */}
-          <div>
-            <h3 className="text-[14px] font-semibold text-brand-gray-900 mb-3">
-              Ikuti Kami
-            </h3>
-            <div className="flex items-center gap-2">
-              {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="w-9 h-9 rounded-full bg-white border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:text-brand-red hover:border-brand-red transition-colors"
-                >
-                  <Icon className="w-4 h-4" />
-                </a>
-              ))}
-            </div>
-          </div>
+          {/* Jasa Populer — landing lokal */}
+          {popularLinks && popularLinks.length > 0 && (
+            <nav aria-label="Jasa Populer">
+              <h3 className="text-[14px] font-semibold text-brand-gray-900 mb-3">
+                Jasa Populer
+              </h3>
+              <ul className="flex flex-col gap-2.5">
+                {popularLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-[13px] text-brand-gray-700 hover:text-brand-red transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
         </div>
 
         {/* Bar bawah */}

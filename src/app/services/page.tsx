@@ -59,6 +59,8 @@ export default async function ServicesPage({ searchParams }: PageProps) {
     getJSON<Category[]>('/categories'),
   ]);
 
+  const serviceList = services ?? [];
+
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -68,11 +70,28 @@ export default async function ServicesPage({ searchParams }: PageProps) {
     ],
   };
 
+  // SE: ItemList — membantu Google tahu ini daftar layanan terstruktur (eligible
+  // rich result). Pola sama dengan /kategori/[slug]. Batas 20 item (guideline
+  // schema.org); URL canonical ke detail layanan.
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Semua Layanan',
+    numberOfItems: serviceList.length,
+    itemListElement: serviceList.slice(0, 20).map((s, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE}/services/${s.id}`,
+      name: s.name,
+    })),
+  };
+
   return (
     <>
       <JsonLd data={breadcrumbSchema} />
+      {serviceList.length > 0 && <JsonLd data={itemListSchema} />}
       <ServicesListClient
-        initialServices={services ?? []}
+        initialServices={serviceList}
         categories={categories ?? []}
         activeCategory={category}
       />

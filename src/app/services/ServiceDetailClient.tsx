@@ -42,7 +42,7 @@ import { formatDistanceMeters } from '@/lib/distance';
 
 
 
-function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
+function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHref }: { serviceId?: string; categorySlug?: string; localLandingHref?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Prioritas prop (route /services/[id]); fallback ?id= agar URL lama tetap jalan.
@@ -310,13 +310,34 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
     <div className="page-h bg-brand-gray-60 pb-20 sm:pb-4">
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-3">
         {/* Breadcrumb */}
-        <div className="hidden sm:flex items-center gap-2 text-xs text-brand-gray-700 mb-3 px-4 py-2">
+        <div className="hidden sm:flex items-center gap-2 text-xs text-brand-gray-700 mb-3 px-4 py-2 flex-wrap">
           <Link href="/" className="hover:text-brand-red">Beranda</Link>
+          <span>/</span>
+          {categorySlug && service.category_name ? (
+            <Link href={`/kategori/${categorySlug}`} className="hover:text-brand-red">{service.category_name}</Link>
+          ) : (
+            <span>{service.category_name}</span>
+          )}
           <span>/</span>
           <Link href="/services" className="hover:text-brand-red">Layanan</Link>
           <span>/</span>
-          <span className="text-brand-gray-900">{service.category_name}</span>
+          <span className="text-brand-gray-900">{service.name}</span>
         </div>
+
+        {/* SE: Link ke landing lokal /jasa/[slug]/[kota] — bantu Google discover
+            landing lokal dari detail layanan + navigasi pelanggan ke jasa
+            serupa di kotanya. Hanya tampil bila slug kategori & kota mitra ada. */}
+        {localLandingHref && service.partner_city && (
+          <div className="px-4 sm:px-0 mb-3">
+            <Link
+              href={localLandingHref}
+              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-red hover:underline"
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              Lihat jasa {service.category_name} lainnya di {service.partner_city}
+            </Link>
+          </div>
+        )}
 
         {/* Main Content - Shopee Style */}
         <div className="bg-white sm:rounded-md sm:shadow-sm">
@@ -347,7 +368,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                     >
                       <Image
                         src={photo.photo_url}
-                        alt={`${service.name} - foto ${idx + 1}`}
+                        alt={`Jasa ${service.category_name}${service.partner_city ? ` di ${service.partner_city}` : ''} - ${service.name} oleh ${service.partner_name} - foto ${idx + 1}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"
@@ -388,7 +409,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                   {allPhotos.map((photo, idx) => (
                     <button key={photo.id} onClick={() => scrollToPhoto(idx)}
                       className={`relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden transition-all ${idx === currentPhotoIndex ? '' : 'opacity-60 hover:opacity-100'}`}>
-                      <Image src={photo.photo_url} alt={`Foto ${idx + 1}`} fill className="object-cover" sizes="64px" />
+                      <Image src={photo.photo_url} alt={`Thumbnail jasa ${service.category_name} - ${service.name} foto ${idx + 1}`} fill className="object-cover" sizes="64px" />
                       {idx === currentPhotoIndex && (
                         <div className="absolute inset-0 rounded-md ring-2 ring-inset ring-brand-red pointer-events-none" aria-hidden="true" />
                       )}
@@ -734,7 +755,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
             <ChevronLeft className="w-6 h-6" />
           </button>
           <div className="relative w-full h-full max-w-3xl max-h-[80vh]" onClick={e => e.stopPropagation()}>
-            <Image src={allPhotos[currentPhotoIndex].photo_url} alt={`Foto ${currentPhotoIndex + 1}`} fill className="object-contain" sizes="100vw" />
+            <Image src={allPhotos[currentPhotoIndex].photo_url} alt={`Jasa ${service.category_name}${service.partner_city ? ` di ${service.partner_city}` : ''} - ${service.name} foto ${currentPhotoIndex + 1}`} fill className="object-contain" sizes="100vw" />
           </div>
           <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }} aria-label="Foto berikutnya" className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white">
             <ChevronRight className="w-6 h-6" />
@@ -757,10 +778,12 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
 // `serviceId` opsional: dipakai route baru /services/[id] (SSR + metadata).
 // Bila tidak diberikan, komponen jatuh kembali ke query param ?id= (URL lama
 // tetap berfungsi) — lihat DetailContent.
-export default function ServiceDetailClient({ serviceId }: { serviceId?: string }) {
+// `categorySlug` & `localLandingHref` dari Server Component (fetch kategori by ID)
+// — dipakai untuk link visible ke landing lokal /jasa/[slug]/[kota].
+export default function ServiceDetailClient({ serviceId, categorySlug, localLandingHref }: { serviceId?: string; categorySlug?: string; localLandingHref?: string }) {
   return (
     <Suspense fallback={<div className="p-4 text-center">Memuat layanan...</div>}>
-      <DetailContent serviceId={serviceId} />
+      <DetailContent serviceId={serviceId} categorySlug={categorySlug} localLandingHref={localLandingHref} />
     </Suspense>
   );
 }

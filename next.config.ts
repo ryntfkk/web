@@ -37,6 +37,19 @@ const nextConfig: NextConfig = {
         destination: '/services/:sid',
         permanent: true,
       },
+      // URL lama /services/<slug> (sebelum migrasi ke UUID, mis. /services/elektronik)
+      // → redirect ke /services (halaman daftar). Route [id] sekarang hanya terima
+      // UUID; slug non-UUID = 404 di GSC. Redirect 308 menyatukan bobot SEO & hapus
+      // error 404 di Search Console. Pattern: /services/ + non-UUID (bukan 36 char
+      // hex dengan dash). Next redirect source tidak support negative lookahead,
+      // jadi tangkap semua /services/:slug lalu page.tsx yang filter UUID_RE.
+      // Tapi untuk slug non-UUID yang jelas lama, redirect ke /services lebih baik
+      // dari 404. Kita tangkap pola umum slug (huruf/kategori) di sini.
+      {
+        source: '/services/:slug([a-z-]+)',
+        destination: '/services',
+        permanent: true,
+      },
       // Konsolidasi www → non-www (308 permanen). www.poskojasa.com melayani
       // konten yang sama; tanpa redirect ini Google melihat dua host (duplikat).
       // Canonical sudah non-www, tapi redirect memberi sinyal terkuat & merapikan

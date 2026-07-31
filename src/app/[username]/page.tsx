@@ -2,7 +2,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import PartnerProfileClient from './PartnerProfileClient';
 import { API_URL } from '@/lib/api';
 import JsonLd from '@/components/seo/JsonLd';
-import type { PartnerProfileData, PartnerService } from '@/hooks/usePartnerProfile';
+import type { PartnerProfileData, PartnerService, PartnerReview, ReviewSummary } from '@/hooks/usePartnerProfile';
 
 const SITE = 'https://poskojasa.com';
 
@@ -132,9 +132,14 @@ export default async function PartnerProfilePage({ params }: PageProps) {
   // datanya dipakai membangun JSON-LD di bawah.
   // Fetch di-dedupe Next dengan generateMetadata.
   const enc = encodeURIComponent(username);
-  const [partnerResult, services] = await Promise.all([
+  // SE: fetch reviews juga di server untuk Review schema (JSON-LD di HTML awal).
+  // Limit 5 — cukup untuk rich snippet; sisanya di-fetch klien untuk UI.
+  const [partnerResult, services, reviewsData] = await Promise.all([
     getPartner(enc),
     fetchData<PartnerService[]>(`/partners/${enc}/services`).catch(() => null),
+    fetchData<{ reviews: PartnerReview[]; summary: ReviewSummary }>(
+      `/partners/${enc}/reviews?limit=5&page=1`,
+    ).catch(() => null),
   ]);
 
   // Mitra memang tidak ada → notFound(). Karena loading.tsx root membuat respons
@@ -150,10 +155,13 @@ export default async function PartnerProfilePage({ params }: PageProps) {
   const queryClient = new QueryClient();
   if (profile) queryClient.setQueryData(['partnerProfile', username], profile);
   if (services) queryClient.setQueryData(['partnerServices', username], services);
+  if (reviewsData) queryClient.setQueryData(['partnerReviews', username, 10, 1], reviewsData);
 
   // SE6: LocalBusiness — nama, foto, area layanan, rating agregat.
   // aggregateRating HANYA disertakan bila ada ulasan: reviewCount 0 = schema
   // invalid & bisa kena penalti rich-result.
+  // SE: address lengkap (city/district/province) ditambahkan untuk geotargeting
+  // query "[jasa] di [kota]" — backend sudah ekspos field ini di profil publik.
   const partnerSchema = profile
     ? {
         '@context': 'https://schema.org',
@@ -163,6 +171,16 @@ export default async function PartnerProfilePage({ params }: PageProps) {
         ...(profile.bio ? { description: profile.bio.slice(0, 300) } : {}),
         ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
         ...(profile.service_area ? { areaServed: profile.service_area } : {}),
+        ...(profile.city || profile.district || profile.province
+          ? {
+              address: {
+                '@type': 'PostalAddress',
+                ...(profile.city ? { addressLocality: profile.city } : {}),
+                ...(profile.district ? { addressRegion: profile.district } : {}),
+                ...(profile.province ? { addressCountry: 'ID', name: profile.province } : {}),
+              },
+            }
+          : {}),
         ...(profile.total_reviews > 0
           ? {
               aggregateRating: {
@@ -189,10 +207,42 @@ export default async function PartnerProfilePage({ params }: PageProps) {
       }
     : null;
 
+  // SE: Review schema individual — eligible rich snippet bintang di Google.
+  // Hanya review dengan rating & comment (reviewBody kosong = schema tipis).
+  // Batas 5 review (cukup untuk rich snippet; sisanya di UI klien).
+  // SE: image_urls disertakan bila ada (reviewImage → Google Image Search).
+  const reviewSchemas = (reviewsData?.reviews ?? [])
+    .filter((r) => r.rating > 0 && r.comment?.trim())
+    .slice(0, 5)
+    .map((r) => ({
+      '@context': 'https://schema.org',
+      '@type': 'Review',
+      author: { '@type': 'Person', name: r.customer_name || 'Pelanggan Posko Jasa' },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: r.comment.slice(0, 500),
+      datePublished: r.created_at,
+      ...(r.image_urls && r.image_urls.length > 0
+        ? { image: r.image_urls.slice(0, 3) }
+        : {}),
+      itemReviewed: {
+        '@type': 'LocalBusiness',
+        name: profile?.name,
+        url: `${SITE}/${username}`,
+      },
+    }));
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       {partnerSchema && <JsonLd data={partnerSchema} />}
       {breadcrumbSchema && <JsonLd data={breadcrumbSchema} />}
+      {reviewSchemas.map((schema, i) => (
+        <JsonLd key={`review-${i}`} data={schema} />
+      ))}
       <PartnerProfileClient username={username} />
     </HydrationBoundary>
   );

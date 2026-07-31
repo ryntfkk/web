@@ -90,7 +90,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0">
         <Image
           src={avatarUrl}
-          alt={profile.name}
+          alt={`${profile.name}${profile.service_area ? ` - mitra jasa di ${profile.service_area}` : ''}`}
           fill
           className="object-cover rounded-full border-4 border-white shadow-md"
           sizes="(max-width: 640px) 80px, 96px"

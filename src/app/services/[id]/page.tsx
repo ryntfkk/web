@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { notFound } from 'next/navigation';
 import ServiceDetailClient from '../ServiceDetailClient';
 import { API_URL } from '@/lib/api';
+import { slugify } from '@/lib/slug';
 import JsonLd from '@/components/seo/JsonLd';
 import type { ServiceDetail } from '@/hooks/useServiceDetail';
 
@@ -50,6 +51,9 @@ async function getService(id: string): Promise<ServiceResult> {
   }
 }
 
+// SE: category_slug kini diekspos langsung di DTO ServiceDetail (backend update:
+// query GetPublicServiceByID JOIN categories.slug). Tidak perlu fetch terpisah.
+
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const r = await getService(id);
@@ -88,6 +92,13 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   }
   const service = result.kind === 'ok' ? result.data : null;
 
+  // SE: category_slug kini dari DTO langsung (backend sudah ekspos).
+  // Bila slug kosong (kategori tanpa slug), link landing lokal skip.
+  const categorySlug = service?.category_slug || null;
+  const citySlug = service?.partner_city ? slugify(service.partner_city) : null;
+  const localLandingHref =
+    categorySlug && citySlug ? `/jasa/${categorySlug}/${citySlug}` : null;
+
   const queryClient = new QueryClient();
   if (service) queryClient.setQueryData(['serviceDetail', id], service);
 
@@ -107,6 +118,15 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           '@type': 'LocalBusiness',
           name: service.partner_name,
           url: `${SITE}/${service.partner_username}`,
+          // SE: address untuk geotargeting — partner_city sudah ada di DTO.
+          ...(service.partner_city
+            ? {
+                address: {
+                  '@type': 'PostalAddress',
+                  addressLocality: service.partner_city,
+                },
+              }
+            : {}),
           ...(service.partner_total_reviews > 0
             ? {
                 aggregateRating: {
@@ -172,15 +192,39 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       }
     : null;
 
+  // SE: Breadcrumb — Beranda › [Kategori bila slug ada] › Layanan › [Nama].
+  // Kategori ditautkan ke /kategori/[slug] (landing kategori SEO-optimized).
+  // Bila slug tidak didapat (fetch gagal), kategori skip — breadcrumb tetap valid.
+  const breadcrumbItems: { '@type': string; position: number; name: string; item: string }[] = [
+    { '@type': 'ListItem', position: 1, name: 'Beranda', item: SITE },
+  ];
+  if (service?.category_name && categorySlug) {
+    breadcrumbItems.push({
+      '@type': 'ListItem',
+      position: breadcrumbItems.length + 1,
+      name: service.category_name,
+      item: `${SITE}/kategori/${categorySlug}`,
+    });
+  }
+  breadcrumbItems.push({
+    '@type': 'ListItem',
+    position: breadcrumbItems.length + 1,
+    name: 'Layanan',
+    item: `${SITE}/services`,
+  });
+  if (service) {
+    breadcrumbItems.push({
+      '@type': 'ListItem',
+      position: breadcrumbItems.length + 1,
+      name: service.name,
+      item: `${SITE}/services/${id}`,
+    });
+  }
   const breadcrumbSchema = service
     ? {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Beranda', item: SITE },
-          { '@type': 'ListItem', position: 2, name: 'Layanan', item: `${SITE}/services` },
-          { '@type': 'ListItem', position: 3, name: service.name, item: `${SITE}/services/${id}` },
-        ],
+        itemListElement: breadcrumbItems,
       }
     : null;
 
@@ -189,7 +233,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       {serviceSchema && <JsonLd data={serviceSchema} />}
       {productSchema && <JsonLd data={productSchema} />}
       {breadcrumbSchema && <JsonLd data={breadcrumbSchema} />}
-      <ServiceDetailClient serviceId={id} />
+      <ServiceDetailClient serviceId={id} categorySlug={categorySlug ?? undefined} localLandingHref={localLandingHref ?? undefined} />
     </HydrationBoundary>
   );
 }

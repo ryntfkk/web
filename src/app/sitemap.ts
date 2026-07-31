@@ -78,11 +78,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // abaikan — cukup halaman lain.
   }
 
-  // Layanan (sekali fetch) → detail /services/[id] + kombinasi lokal /jasa.
+  // Layanan (paginasi fetch) → detail /services/[id] + kombinasi lokal /jasa.
+  // Sebelumnya hardcode limit=1000 → terpotong bila layanan > 1000. Kini fetch
+  // bertahap (PAGE_SIZE per halaman) sampai habis atau cap SITEMAP_MAX_SERVICES
+  // (batas aman Google: 50k URL per sitemap, tapi kita batasi lebih rendah agar
+  // sitemap tidak terlalu besar untuk di-build).
   let servicePages: MetadataRoute.Sitemap = [];
   const jasaCombos = new Set<string>(); // key: "catSlug|citySlug"
+  const SITEMAP_PAGE_SIZE = 500;
+  const SITEMAP_MAX_SERVICES = 10000;
   try {
-    const rows = (await fetchJSON<ServiceRow[]>('/services?limit=1000')) ?? [];
+    const rows: ServiceRow[] = [];
+    let offset = 0;
+    while (offset < SITEMAP_MAX_SERVICES) {
+      const batch = await fetchJSON<ServiceRow[]>(
+        `/services?limit=${SITEMAP_PAGE_SIZE}&offset=${offset}`,
+      );
+      if (!batch || batch.length === 0) break;
+      rows.push(...batch);
+      if (batch.length < SITEMAP_PAGE_SIZE) break; // halaman terakhir
+      offset += SITEMAP_PAGE_SIZE;
+    }
     servicePages = rows
       .filter((s) => s && s.id)
       .map((s) => ({

@@ -6,6 +6,7 @@ import TopPartnersSection from '@/components/home/TopPartnersSection';
 import FeaturedServicesSection from '@/components/home/FeaturedServicesSection';
 import ProductsSection from '@/components/home/ProductsSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
+import PopularCitiesSection from '@/components/home/PopularCitiesSection';
 import PartnerRedirectGate from './PartnerRedirectGate';
 import JsonLd from '@/components/seo/JsonLd';
 import type { Category } from '@/types/category';
@@ -87,6 +88,7 @@ export default async function Home() {
           <ProductsSection />
           <TopPartnersSection />
           <FeaturedServicesSection />
+          <PopularCitiesSection />
         </div>
       </div>
     </HydrationBoundary>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import ServiceListLayout from '@/components/services/ServiceListLayout';
 import { useServiceListing } from '@/hooks/useServiceListing';
@@ -25,10 +26,25 @@ export default function ServicesListClient({
     initialServices,
   });
 
+  const activeCat = categories.find((c) => c.id === activeCategory);
+
   return (
     <div className="min-h-screen bg-brand-gray-60 flex flex-col">
       <MobilePageHeader title="Semua Layanan" backHref="/" maxWidthClass="max-w-6xl" />
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
+        {/* Breadcrumb desktop — konsisten dengan /kategori/[slug] & /jasa/... */}
+        <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-[13px] text-brand-gray-400 mb-4">
+          <Link href="/" className="hover:text-brand-red transition-colors">Beranda</Link>
+          <ChevronRight className="w-3.5 h-3.5" />
+          <Link href="/services" className="hover:text-brand-red transition-colors">Semua Layanan</Link>
+          {activeCat && (
+            <>
+              <ChevronRight className="w-3.5 h-3.5" />
+              <span className="font-semibold text-brand-gray-900">{activeCat.name}</span>
+            </>
+          )}
+        </nav>
+
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Semua Layanan</h1>
 
         {/* Filter kategori (URL-driven via <Link>) */}
