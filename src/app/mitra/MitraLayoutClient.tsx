@@ -63,7 +63,9 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
   return (
     <>
       {children}
-      {!isExcludedFlow && <MitraBottomNav />}
+      <div className={isExcludedFlow ? 'hidden md:block' : 'block'}>
+        <MitraBottomNav />
+      </div>
     </>
   );
 }

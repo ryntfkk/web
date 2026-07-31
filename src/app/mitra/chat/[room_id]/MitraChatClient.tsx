@@ -46,8 +46,8 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
   }
 
   return (
-    // Tanpa TopNavbar (HeaderWrapper hidden di /mitra) → full viewport height.
-    <div className="h-[100dvh] flex flex-col bg-white overflow-hidden">
+    // Mobile: nav hidden -> 100dvh. Desktop: nav visible -> calc(100dvh-4rem).
+    <div className="h-[100dvh] md:h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List (desktop only) ===== */}

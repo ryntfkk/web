@@ -29,8 +29,8 @@ export default function MitraChatPage() {
   if (!isAuthorized) return null;
 
   return (
-    // Tanpa TopNavbar (HeaderWrapper hidden di /mitra) → full viewport height.
-    <div className="h-[100dvh] flex flex-col bg-white overflow-hidden">
+    // Tanpa TopNavbar, tapi MitraBottomNav fixed di bawah (4rem).
+    <div className="h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List ===== */}
