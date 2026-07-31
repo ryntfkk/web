@@ -57,7 +57,8 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
 
   const isExcludedFlow = excludeBottomNavPatterns.includes(pathname || '') ||
     /^\/mitra\/orders\/[^/]+/.test(pathname || '') ||
-    /^\/mitra\/services\/[^/]+\/edit/.test(pathname || '');
+    /^\/mitra\/services\/[^/]+\/edit/.test(pathname || '') ||
+    /^\/mitra\/chat\/[^/]+/.test(pathname || '');
 
   return (
     <>
