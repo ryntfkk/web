@@ -325,7 +325,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       {/* Anti-disintermediation warning bar */}
       <div className="bg-brand-warning-soft border-b border-brand-warning-border px-4 py-2 flex items-center gap-2 shrink-0">
         <span className="text-xs text-brand-warning-dark flex-1">
-          ⚠️ <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
+          {"\u26A0\uFE0F"} <strong>Selalu bayar melalui Posko Jasa.</strong> Transaksi di luar platform tidak dilindungi escrow.
         </span>
         <button
           type="button"

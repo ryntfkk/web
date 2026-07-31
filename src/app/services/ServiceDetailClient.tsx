@@ -347,7 +347,7 @@ function DetailContent({ serviceId: serviceIdProp }: { serviceId?: string }) {
                     >
                       <Image
                         src={photo.photo_url}
-                        alt={`${service.name} — foto ${idx + 1}`}
+                        alt={`${service.name} - foto ${idx + 1}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"

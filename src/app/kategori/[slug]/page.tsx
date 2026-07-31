@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const services = await getJSON<PublicService[]>(`/services?category=${cat.id}&limit=${PAGE_SIZE}&offset=0`);
   const count = services?.length ?? 0;
   const minPrice = minServicePrice(services ?? []);
-  const title = `Jasa ${cat.name} — Mitra Terverifikasi | Posko Jasa`;
+  const title = `Jasa ${cat.name} - Mitra Terverifikasi | Posko Jasa`;
   const description =
     `Bandingkan ${count > 0 ? `${count} ` : ''}layanan ${cat.name} dari mitra terverifikasi di Posko Jasa` +
     `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Ulasan asli, pesan online.`;
@@ -215,7 +215,7 @@ export default async function CategoryPage({ params }: PageProps) {
           </div>
         )}
 
-        <FaqSection items={faq} title={`Pertanyaan Umum — Jasa ${cat.name}`} />
+        <FaqSection items={faq} title={`Pertanyaan Umum - Jasa ${cat.name}`} />
       </div>
     </div>
   );
