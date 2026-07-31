@@ -90,26 +90,22 @@ export default function LocationPicker() {
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className="group relative flex w-full cursor-pointer items-center justify-between gap-2 sm:gap-3 rounded-xl border border-brand-gray-100 bg-white px-3.5 py-2.5 sm:px-4 shadow-2xs transition-all duration-200 hover:border-brand-red/40 hover:shadow-xs active:scale-[0.995]"
+        className="group flex w-full max-w-fit cursor-pointer items-center gap-1.5 sm:gap-2 px-2 py-1 rounded-full transition-all duration-200 hover:bg-brand-gray-50 active:scale-[0.98]"
       >
-        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-red/10 text-brand-red transition-colors group-hover:bg-brand-red group-hover:text-white">
-            <MapPin className="h-3.5 w-3.5" />
-          </div>
-
-          <div className="flex min-w-0 flex-1 items-center text-left">
-            <span className="truncate text-[12px] sm:text-[13px] font-bold text-brand-gray-900">
-              {hasLocation
-                ? (label === 'Lokasi saat ini' ? 'Lokasi GPS saat ini' : label) || 'Lokasi Terpilih'
-                : 'Tentukan lokasi kamu untuk melihat estimasi jarak'}
-            </span>
-          </div>
+        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand-red shrink-0" />
+        <div className="flex min-w-0 items-center text-left">
+          <span className="truncate text-[11px] sm:text-[13px] font-medium text-brand-gray-700 group-hover:text-brand-red transition-colors">
+            {hasLocation ? (
+              <>
+                <span className="text-brand-gray-500 mr-1 hidden sm:inline">Dikirim ke:</span>
+                <span className="font-bold text-brand-gray-900 group-hover:text-brand-red">{label === 'Lokasi saat ini' ? 'Lokasi GPS saat ini' : label}</span>
+              </>
+            ) : (
+              <span className="font-bold">Pilih lokasi pengiriman</span>
+            )}
+          </span>
         </div>
-
-        <div className="flex shrink-0 items-center gap-1 text-[11px] sm:text-[12px] font-semibold text-brand-gray-400 transition-colors group-hover:text-brand-red">
-          <span>Ganti</span>
-          <ChevronDown className="h-3.5 w-3.5" />
-        </div>
+        <ChevronDown className="h-3.5 w-3.5 text-brand-gray-400 group-hover:text-brand-red transition-colors shrink-0" />
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Lokasi Kamu">

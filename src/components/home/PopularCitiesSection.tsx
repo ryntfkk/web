@@ -42,7 +42,7 @@ export default async function PopularCitiesSection() {
   if (mainCats.length === 0 || cityList.length === 0) return null;
 
   return (
-    <section className="mb-8 md:mb-12">
+    <section className="mb-6 md:mb-8">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-brand-red" />
         <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-brand-gray-900">

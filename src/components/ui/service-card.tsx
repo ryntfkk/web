@@ -64,9 +64,9 @@ export function ServiceCard({
         )}
         {/* Distance Badge - top right */}
         {distance && (
-          <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded flex items-center gap-0.5">
-            <MapPin className="w-2.5 h-2.5" />
-            <span className="text-[10px] sm:text-[11px] font-medium leading-none">{distance}</span>
+          <div className="absolute top-1.5 right-1.5 bg-white/95 backdrop-blur-sm text-brand-gray-900 px-1.5 py-1 sm:px-2 rounded border border-brand-gray-100 shadow-sm flex items-center gap-0.5 sm:gap-1">
+            <MapPin className="w-3 h-3 text-brand-red shrink-0" />
+            <span className="text-[10px] sm:text-[11px] font-bold leading-none">{distance}</span>
           </div>
         )}
       </div>

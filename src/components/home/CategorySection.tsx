@@ -20,24 +20,16 @@ export default function CategorySection() {
   // For MVP, just take the first 7 to leave room for the "Lainnya" button
   const displayCategories = categories?.slice(0, 7) || [];
 
-  // Catatan lebar item di mobile (kelas `w-[calc((100%-2rem)/5.5)]` di bawah):
-  // baris ini scroll horizontal, lebarnya diturunkan dari lebar kontainer supaya
-  // pas 5 kategori terlihat penuh — sebelumnya 80px tetap sehingga hanya ~4 yang
-  // muat dan ikonnya terasa kebesaran. Pembagi 5,5 (bukan 5) menyisakan setengah
-  // item ke-6 mengintip di tepi sebagai petunjuk bahwa baris ini bisa digeser;
-  // 2rem = total 4 gap `gap-2` di antara 5 item. Mulai breakpoint sm lebar
-  // kembali tetap (88px) dan di md+ berubah jadi grid 8 kolom.
-
   return (
-    <section className="mb-8 md:mb-12">
+    <section className="mb-6 md:mb-8">
       {isLoading ? (
-        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-2 sm:gap-6 md:gap-4 pb-4 md:pb-0 scrollbar-hide">
+        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 scrollbar-hide">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-[calc((100%-2rem)/5.5)] sm:w-[88px] md:w-auto flex flex-col items-center gap-2"
+              className="flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center gap-2"
             >
-              <div className="w-full aspect-square sm:w-[72px] sm:h-[72px] sm:aspect-auto bg-gray-200 rounded-2xl animate-pulse" />
+              <div className="w-[52px] h-[52px] sm:w-[72px] sm:h-[72px] sm:aspect-auto bg-gray-200 rounded-[14px] sm:rounded-2xl animate-pulse" />
               <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
             </div>
           ))}
@@ -45,25 +37,25 @@ export default function CategorySection() {
       ) : isError ? (
         <div className="text-sm text-red-500">Gagal memuat kategori.</div>
       ) : (
-        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-2 sm:gap-6 md:gap-4 pb-4 md:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayCategories.map((cat: Category) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setActiveMain(cat)}
               aria-haspopup="dialog"
-              className="group flex-shrink-0 w-[calc((100%-2rem)/5.5)] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
+              className="group flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
-              <div className="w-full aspect-square sm:w-[72px] sm:h-[72px] sm:aspect-auto mb-2 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
+              <div className="w-[52px] h-[52px] sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
                 <Image
                   src={cat.icon_url || '/icons/default.svg'}
                   alt={cat.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) 20vw, 72px"
+                  sizes="(max-width: 640px) 52px, 72px"
                 />
               </div>
-              <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-brand-gray-900 text-center leading-tight line-clamp-2 px-1">
+              <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-brand-gray-900 text-center leading-[1.1] line-clamp-2 px-1">
                 {cat.name}
               </span>
             </button>
@@ -72,12 +64,12 @@ export default function CategorySection() {
           {/* Tombol Lihat Semua Kategori */}
           <Link
             href="/categories"
-            className="group flex-shrink-0 w-[calc((100%-2rem)/5.5)] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
+            className="group flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
           >
-            <div className="w-full aspect-square sm:w-[72px] sm:h-[72px] sm:aspect-auto mb-2 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-2xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
-              <span className="text-brand-red font-bold text-[24px]">+</span>
+            <div className="w-[52px] h-[52px] sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
+              <span className="text-brand-red font-bold text-[20px] sm:text-[24px]">+</span>
             </div>
-            <span className="text-[11px] sm:text-[12px] md:text-[14px] font-medium text-brand-red text-center leading-tight px-1">
+            <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-brand-red text-center leading-[1.1] px-1">
               Lainnya
             </span>
           </Link>

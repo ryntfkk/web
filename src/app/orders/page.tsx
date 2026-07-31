@@ -232,32 +232,7 @@ export default function OrdersPage() {
           </div>
 
           <div className="flex-1 space-y-4 min-w-0">
-            {/* Quick Status Summary — kartu statistik cepat (Item 17) */}
-            {!loading && orders.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
-                {([
-                  { key: 'pending' as FilterStatus, label: 'Menunggu', icon: Clock, color: 'text-brand-orange' },
-                  { key: 'processing' as FilterStatus, label: 'Berlangsung', icon: Package, color: 'text-brand-info' },
-                  { key: 'completed' as FilterStatus, label: 'Selesai', icon: CheckCircle2, color: 'text-brand-success' },
-                  { key: 'cancelled' as FilterStatus, label: 'Batal', icon: AlertCircle, color: 'text-brand-error' },
-                ]).map(s => {
-                  const Icon = s.icon;
-                  const count = filterCounts[s.key];
-                  const active = activeFilter === s.key;
-                  return (
-                    <button
-                      key={s.key}
-                      onClick={() => setActiveFilter(s.key)}
-                      className={`flex flex-col items-center justify-center gap-1 rounded-lg border p-3 transition-colors ${active ? 'border-brand-red bg-brand-red-soft' : 'border-brand-gray-100 bg-white hover:border-brand-gray-200'}`}
-                    >
-                      <Icon className={`w-5 h-5 ${s.color}`} />
-                      <span className="text-lg font-bold text-brand-gray-900 leading-none">{count}</span>
-                      <span className="text-[11px] text-brand-gray-400 leading-none">{s.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+
 
             {/* Search */}
             <div className="relative">

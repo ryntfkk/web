@@ -78,8 +78,8 @@ export default function RegisterPage() {
         )}
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="py-6 px-1 sm:px-2">
+      <div className="mt-8 sm:mt-10 mx-auto w-full max-w-md px-4 sm:px-0">
+        <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
           {error && (
             <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-100">
               {error}
@@ -100,7 +100,7 @@ export default function RegisterPage() {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
                     placeholder="081234567890"
                   />
                 </div>
@@ -110,7 +110,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
+                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Kirim OTP'}
                 </button>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-3 py-3 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red"
+                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-4 py-4 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all"
                     placeholder="••••••"
                   />
                 </div>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={otp.length < 6}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
+                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
                 >
                   Selanjutnya
                 </button>
@@ -169,7 +169,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-900 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-200"
+                  className="w-full flex justify-center items-center py-4 px-4 border border-brand-gray-100 rounded-full shadow-sm text-sm font-bold text-brand-gray-900 bg-white hover:bg-brand-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-300 transform active:scale-[0.98]"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Ganti Nomor HP
@@ -192,7 +192,7 @@ export default function RegisterPage() {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
                     placeholder="username123"
                   />
                 </div>
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
                     placeholder="Budi Santoso"
                   />
                 </div>
@@ -229,7 +229,7 @@ export default function RegisterPage() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm pr-10"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all pr-12"
                     placeholder="Minimal 8 karakter"
                   />
                   <button
@@ -251,7 +251,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
+                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Selesai & Daftar'}
                 </button>

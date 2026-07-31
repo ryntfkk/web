@@ -88,8 +88,8 @@ export default function CartPage() {
   }
 
   return (
-    // pb mobile: ruang untuk BottomNav (h-16) + StickyActionBar; md: bar saja; lg+: standar.
-    <div className="page-h bg-brand-gray-60 pb-36 md:pb-24 lg:pb-10">
+    // pb mobile: ruang untuk StickyActionBar (h-16+). lg+: standar.
+    <div className="page-h bg-brand-gray-60 pb-24 lg:pb-10">
       {/* Header (mobile) */}
       <MobilePageHeader
         title={items.length > 0 ? `Keranjang (${items.length})` : 'Keranjang'}
@@ -190,11 +190,11 @@ export default function CartPage() {
         )}
       </div>
 
-      {/* Total + Checkout utama (mobile/tablet). BottomNav (h-16) tampil di /cart
-          pada <md, jadi bar diangkat: bottom-16; md+ BottomNav hilang → bottom-0.
+      {/* Total + Checkout utama. BottomNav tidak tampil di /cart,
+          jadi bar selalu berada di paling bawah layar (bottom-0).
           Checkout tunggal hanya saat 1 mitra — pemesanan memang per mitra. */}
       {items.length > 0 && (
-        <StickyActionBar className="bottom-16 md:bottom-0">
+        <StickyActionBar className="bottom-0">
           <div className="flex-1 min-w-0">
             <p className="text-[11px] text-brand-gray-450">Total ({items.length} layanan)</p>
             <Price price={total} />

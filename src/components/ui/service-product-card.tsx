@@ -3,15 +3,10 @@
 import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Star, MapPin, ShieldCheck, Heart } from 'lucide-react';
+import { Star, MapPin, ShieldCheck } from 'lucide-react';
 import type { PublicService } from '@/hooks/usePublicServices';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
 import { formatDistanceMeters } from '@/lib/distance';
-import { useAuthStore } from '@/lib/store/authStore';
-import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
-import { useToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/badge';
 import { Price } from '@/components/ui/price';
 import { formatCompactNumber } from '@/lib/format';
@@ -40,32 +35,6 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
     service.partner_name && `oleh ${service.partner_name}`,
   ].filter(Boolean).join(' - ');
 
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
-  const { data: favServices } = useFavoriteServices();
-  const { addService, removeService } = useFavoritesActions();
-  const { showToast } = useToast();
-  const [favBusy, setFavBusy] = useState(false);
-  const isFav = !!favServices?.some((f) => f.service_id === service.id);
-
-  const handleFavToggle = async (e: React.MouseEvent) => {
-    // Kartu dibungkus <Link> → cegah navigasi saat menekan hati.
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/services/${service.id}`)}`);
-      return;
-    }
-    if (favBusy) return;
-    setFavBusy(true);
-    try {
-      const res = isFav ? await removeService(service.id) : await addService(service.id);
-      if (!res.success) showToast(res.message || 'Gagal mengubah favorit', 'error');
-    } finally {
-      setFavBusy(false);
-    }
-  };
-
   return (
     <Link href={`/services/${service.id}?distance=${service.distance_meters || 0}`} className="block">
       <div className="bg-white border border-brand-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all h-full flex flex-col">
@@ -78,37 +47,12 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             className="object-cover"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
           />
-          {/* Availability badge - top left */}
-          {service.partner_is_online && (
-            <Badge variant="success" className="absolute top-1.5 left-1.5">
-              Tersedia Hari Ini
-            </Badge>
-          )}
-          {/* Verified badge - top left (only if no availability badge overlaps) */}
-          {service.partner_is_verified && !service.partner_is_online && (
-            <Badge variant="verified" className="absolute top-1.5 left-1.5">
-              <ShieldCheck className="w-2.5 h-2.5" />
-              Terverifikasi
-            </Badge>
-          )}
-
-          {/* Favorite heart - top right (aksi cepat simpan favorit dari daftar) */}
-          <button
-            type="button"
-            onClick={handleFavToggle}
-            disabled={favBusy}
-            aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
-            aria-pressed={isFav}
-            className="absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-white/85 backdrop-blur-sm flex items-center justify-center shadow-sm active:scale-95 transition-transform disabled:opacity-60"
-          >
-            <Heart className={`w-4 h-4 ${isFav ? 'fill-brand-red text-brand-red' : 'text-brand-gray-700'}`} />
-          </button>
 
           {/* Distance Badge - bottom right */}
           {distance && (
-            <div className="absolute bottom-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded flex items-center gap-0.5">
-              <MapPin className="w-2.5 h-2.5" />
-              <span className="text-[10px] sm:text-[11px] font-medium leading-none">{distance}</span>
+            <div className="absolute bottom-1.5 right-1.5 bg-white/95 backdrop-blur-sm text-brand-gray-900 px-1.5 py-1 sm:px-2 rounded border border-brand-gray-100 shadow-sm flex items-center gap-0.5 sm:gap-1">
+              <MapPin className="w-3 h-3 text-brand-red shrink-0" />
+              <span className="text-[10px] sm:text-[11px] font-bold leading-none">{distance}</span>
             </div>
           )}
         </div>

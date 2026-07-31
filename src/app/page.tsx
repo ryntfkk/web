@@ -73,17 +73,19 @@ export default async function Home() {
       <JsonLd data={organizationSchema} />
       <PartnerRedirectGate />
       <div className="flex flex-col page-h">
+        {/* Location Picker - Compact Banner di paling atas (Opsi 1) */}
+        <div className="bg-white">
+          <div className="container mx-auto max-w-[1200px] px-2 sm:px-4 lg:px-4 pt-2 pb-2 sm:pt-3 sm:pb-3 lg:pt-6 lg:pb-0">
+            <LocationPicker />
+          </div>
+        </div>
+
         {/* Hero Section - Auto-sliding Carousel */}
         <HeroCarousel />
 
         {/* Main Content Area - Better mobile padding */}
         <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-6 flex-1">
           <CategorySection />
-          <section className="w-full mb-5 sm:mb-8">
-            {/* Pemilih lokasi (alamat tersimpan / GPS + mini-map). Menggantikan
-                pemilihan kota: jarak di kartu dihitung dari lokasi ini. */}
-            <LocationPicker />
-          </section>
           <RecentlyViewedSection />
           <ProductsSection />
           <TopPartnersSection />

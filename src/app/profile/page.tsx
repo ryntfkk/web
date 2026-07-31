@@ -167,13 +167,13 @@ export default function ProfilePage() {
             </div>
             <div className="grid grid-cols-4 gap-2">
               {([
-                { count: filterCounts.pending, label: 'Menunggu', color: 'text-brand-orange' },
-                { count: filterCounts.processing, label: 'Berjalan', color: 'text-brand-info' },
-                { count: filterCounts.completed, label: 'Selesai', color: 'text-brand-success' },
-                { count: filterCounts.cancelled, label: 'Batal', color: 'text-brand-error' },
+                { count: filterCounts.pending, label: 'Menunggu' },
+                { count: filterCounts.processing, label: 'Berjalan' },
+                { count: filterCounts.completed, label: 'Selesai' },
+                { count: filterCounts.cancelled, label: 'Batal' },
               ]).map(s => (
                 <Link key={s.label} href="/orders" className="flex flex-col items-center gap-0.5">
-                  <span className={`text-xl font-bold ${s.color} leading-none`}>{s.count}</span>
+                  <span className="text-xl font-bold text-brand-gray-900 leading-none">{s.count}</span>
                   <span className="text-[11px] text-brand-gray-400 leading-none">{s.label}</span>
                 </Link>
               ))}
@@ -246,13 +246,13 @@ export default function ProfilePage() {
                     </div>
                     <div className="grid grid-cols-4 gap-2">
                       {([
-                        { count: filterCounts.pending, label: 'Menunggu', color: 'text-brand-orange' },
-                        { count: filterCounts.processing, label: 'Berjalan', color: 'text-brand-info' },
-                        { count: filterCounts.completed, label: 'Selesai', color: 'text-brand-success' },
-                        { count: filterCounts.cancelled, label: 'Batal', color: 'text-brand-error' },
+                        { count: filterCounts.pending, label: 'Menunggu' },
+                        { count: filterCounts.processing, label: 'Berjalan' },
+                        { count: filterCounts.completed, label: 'Selesai' },
+                        { count: filterCounts.cancelled, label: 'Batal' },
                       ]).map(s => (
                         <Link key={s.label} href="/orders" className="flex flex-col items-center gap-0.5">
-                          <span className={`text-xl font-bold ${s.color} leading-none`}>{s.count}</span>
+                          <span className="text-xl font-bold text-brand-gray-900 leading-none">{s.count}</span>
                           <span className="text-[11px] text-brand-gray-400 leading-none">{s.label}</span>
                         </Link>
                       ))}

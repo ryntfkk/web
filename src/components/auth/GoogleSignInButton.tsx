@@ -107,7 +107,7 @@ export default function GoogleSignInButton({
         theme: 'outline',
         size: 'large',
         text: text,
-        shape: 'rectangular',
+        shape: 'pill',
         width: '360',
         locale: 'id',
       });

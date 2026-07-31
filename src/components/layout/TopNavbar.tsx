@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, ShoppingCart, Bell, User, X, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, Bell, User, X, ChevronDown, Package, Wallet, Heart, TicketPercent, HelpCircle, LogOut } from 'lucide-react';
 
 import { useAuthStore } from '@/lib/store/authStore';
 import { useCartStore } from '@/lib/store/cartStore';
@@ -190,21 +190,50 @@ export default function TopNavbar() {
 
                         {/* Dropdown Menu */}
                         {isDropdownOpen && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white border border-brand-gray-100 rounded-lg shadow-lg py-2 z-50">
-                            <Link href="/profile" className="block px-4 py-2 text-[14px] text-brand-gray-700 hover:bg-brand-gray-60 hover:text-brand-red" onClick={() => setIsDropdownOpen(false)}>
+                          <div className="absolute right-0 mt-2 w-56 bg-white border border-brand-gray-100 rounded-lg shadow-lg py-2 z-50">
+                            {/* Info singkat */}
+                            <div className="px-4 py-2 mb-1">
+                              <p className="text-sm font-bold text-brand-gray-900 truncate">{userName}</p>
+                              {user?.active_role === 'partner' && (
+                                <span className="inline-block mt-0.5 px-2 py-0.5 bg-brand-red/10 text-brand-red text-[10px] font-bold rounded-full">Mode Mitra</span>
+                              )}
+                            </div>
+                            <hr className="my-1 border-brand-gray-100" />
+                            
+                            <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                              <User className="w-4 h-4" />
                               Akun Saya
                             </Link>
-                            <Link href="/orders" className="block px-4 py-2 text-[14px] text-brand-gray-700 hover:bg-brand-gray-60 hover:text-brand-red" onClick={() => setIsDropdownOpen(false)}>
+                            <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                              <Package className="w-4 h-4" />
                               Pesanan Saya
                             </Link>
+                            <Link href="/profile/wallet" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                              <Wallet className="w-4 h-4" />
+                              Dompet
+                            </Link>
+                            <Link href="/promos" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                              <TicketPercent className="w-4 h-4" />
+                              Promo
+                            </Link>
+                            <Link href="/profile/favorites" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                              <Heart className="w-4 h-4" />
+                              Favorit
+                            </Link>
+                            <Link href="/help" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                              <HelpCircle className="w-4 h-4" />
+                              Bantuan
+                            </Link>
+
                             <hr className="my-1 border-brand-gray-100" />
                             <button
                               onClick={() => {
                                 setIsDropdownOpen(false);
                                 handleLogout();
                               }}
-                              className="w-full text-left block px-4 py-2 text-[14px] text-brand-red hover:bg-brand-red-soft font-semibold"
+                              className="w-full flex items-center gap-3 text-left px-4 py-2.5 text-[14px] text-brand-red hover:bg-brand-red-soft font-semibold transition-colors"
                             >
+                              <LogOut className="w-4 h-4" />
                               Logout
                             </button>
                           </div>

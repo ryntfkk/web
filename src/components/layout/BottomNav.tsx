@@ -46,6 +46,7 @@ export default function BottomNav() {
     p.startsWith('/payment') ||
     p.startsWith('/orders/') ||
     p.startsWith('/services') ||
+    p.startsWith('/cart') ||
     p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
   if (hideNav) return null;
 
