@@ -283,9 +283,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
   const isMitra = user?.active_role === ROLE_PARTNER;
 
   return (
-    <div className={`flex flex-col ${embedded ? 'h-full' : 'h-[100dvh] lg:h-[calc(100dvh-4rem)]'} bg-brand-gray-60`}>
+    <div className="flex flex-col h-full bg-brand-gray-60">
       {/* Header */}
-      <div className={`bg-white border-b border-brand-gray-100 shrink-0 ${embedded ? '' : 'shadow-sm'}`}>
+      <div className={`bg-white border-b border-brand-gray-100 shrink-0 ${embedded ? '' : 'shadow-sm pt-[env(safe-area-inset-top,0px)]'}`}>
         <div className={`flex items-center justify-between px-4 py-3 ${embedded ? '' : 'max-w-lg mx-auto'}`}>
           <div className="flex items-center gap-3">
             {!embedded && (

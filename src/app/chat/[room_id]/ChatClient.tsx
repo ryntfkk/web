@@ -48,9 +48,9 @@ export default function ChatClient({ roomId }: { roomId: string }) {
   }
 
   return (
-    // Mobile: viewport − navbar (4rem) − BottomNav (4rem); Desktop: − navbar saja
-    // Layout identik dengan /chat page.tsx
-    <div className="h-[calc(100dvh-8rem)] md:h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
+    // Mobile: h-full karena TopNavbar & BottomNav sudah di-hide oleh routing.
+    // Desktop: h-[calc(100dvh-4rem)] karena ada TopNavbar.
+    <div className="h-full md:h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List (desktop only) ===== */}
