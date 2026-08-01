@@ -40,6 +40,7 @@ export interface ServiceDetail {
   variations: ServiceVariation[] | null;
   photo_url: string;
   photos: ServicePhoto[];
+  faqs: { question: string; answer: string }[];
 }
 
 export interface WorkingHour {

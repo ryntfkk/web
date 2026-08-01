@@ -11,6 +11,8 @@ import CategoryPicker from '@/components/mitra/CategoryPicker';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
+import { DynamicStringList } from '@/components/ui/dynamic-string-list';
+import { DynamicFaqList, type Faq } from '@/components/ui/dynamic-faq-list';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
 
 const MIN_PRICE = 50000; // Sesuai MinTransaction backend
@@ -29,8 +31,9 @@ export default function NewMitraServicePage() {
     duration_minutes: '60',
     min_order: '1',
     description: '',
-    included_items: '',
-    excluded_items: '',
+    included_items: [] as string[],
+    excluded_items: [] as string[],
+    faqs: [] as Faq[],
   });
 
   // Variasi produk (opsional). Bila ada minimal 1, harga diambil dari variasi termurah.
@@ -91,8 +94,9 @@ export default function NewMitraServicePage() {
     // per_hour: estimasi otomatis 1 jam (60 menit); selain itu dari input mitra.
     const numDuration = isPerHour ? 60 : parseInt(form.duration_minutes, 10);
     const numMinOrder = Math.max(1, parseInt(form.min_order || '1', 10) || 1);
-    const included = form.included_items.split('\n').map(i => i.trim()).filter(Boolean);
-    const excluded = form.excluded_items.split('\n').map(i => i.trim()).filter(Boolean);
+    const included = form.included_items.map(i => i.trim()).filter(Boolean);
+    const excluded = form.excluded_items.map(i => i.trim()).filter(Boolean);
+    const faqs = form.faqs.map(f => ({ question: f.question.trim(), answer: f.answer.trim() })).filter(f => f.question && f.answer);
 
     // Variasi: buang baris kosong; bila ada, harga produk = variasi termurah.
     const parsedVariations = variations
@@ -153,6 +157,7 @@ export default function NewMitraServicePage() {
           description: form.description,
           included_items: included,
           excluded_items: excluded,
+          faqs: faqs,
         })
       });
 
@@ -337,27 +342,27 @@ export default function NewMitraServicePage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Termasuk (Include) <span className="text-brand-gray-450 font-normal">(1 per baris)</span></label>
-            <textarea
-              placeholder={"Pengecekan AC\nCuci Indoor\nCuci Outdoor"}
-              value={form.included_items}
-              onChange={e => setForm({ ...form, included_items: e.target.value })}
-              rows={3}
-              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
-            />
-          </div>
+          <DynamicStringList
+            label="Termasuk (Include)"
+            items={form.included_items}
+            onChange={items => setForm({ ...form, included_items: items })}
+            placeholder="Contoh: Pengecekan AC"
+            required
+          />
 
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Tidak Termasuk (Exclude) <span className="text-brand-gray-450 font-normal">(1 per baris)</span></label>
-            <textarea
-              placeholder={"Penambahan Freon\nPerbaikan Sparepart"}
-              value={form.excluded_items}
-              onChange={e => setForm({ ...form, excluded_items: e.target.value })}
-              rows={3}
-              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
-            />
-          </div>
+          <DynamicStringList
+            label="Tidak Termasuk (Exclude)"
+            items={form.excluded_items}
+            onChange={items => setForm({ ...form, excluded_items: items })}
+            placeholder="Contoh: Penambahan Freon"
+            required
+          />
+
+          <DynamicFaqList
+            label="Pertanyaan Umum (FAQ) (opsional)"
+            items={form.faqs}
+            onChange={items => setForm({ ...form, faqs: items })}
+          />
 
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Deskripsi <span className="text-brand-gray-450 font-normal">(opsional)</span></label>

@@ -83,20 +83,29 @@ export default async function Home() {
         {/* Hero Section - Auto-sliding Carousel */}
         <HeroCarousel />
 
-        {/* Main Content Area - Better mobile padding */}
+          {/* Main Content Area - Better mobile padding */}
         <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-6 flex-1">
-          {/* SE: beranda sebelumnya TIDAK punya H1 sama sekali — Google kehilangan
-              judul utama halaman terpenting situs. Ditaruh di sini (bukan di
-              hero) agar tetap ringkas dan tidak menutupi gambar promosi. */}
-          <h1 className="text-[15px] sm:text-lg font-bold text-brand-gray-900 mb-3 sm:mb-4">
-            Marketplace Jasa Terpercaya — Pesan Jasa Profesional di Dekat Anda
-          </h1>
           <CategorySection />
           <RecentlyViewedSection />
           <ProductsSection />
           <TopPartnersSection />
           <FeaturedServicesSection />
           <PopularCitiesSection />
+
+          {/* Blok Teks SEO - Diletakkan di bawah agar tidak mengganggu hero/nav. 
+              Gunakan sr-only pada mobile agar tidak memakan tempat, 
+              dan kembalikan tampilan normal pada desktop (md:not-sr-only). */}
+          <div className="mt-12 mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100 sr-only md:not-sr-only">
+            <h1 className="text-xl font-bold text-gray-900 mb-3">
+              Marketplace Jasa Terpercaya — Pesan Jasa Profesional di Dekat Anda
+            </h1>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              Posko Jasa adalah platform marketplace terdepan yang menghubungkan Anda dengan penyedia jasa profesional dan terverifikasi. Kami menyediakan berbagai layanan mulai dari kebersihan rumah, perbaikan elektronik, tukang bangunan, hingga layanan kecantikan dan otomotif. Dengan proses pemesanan yang mudah, transparan, dan aman, Anda bisa menyelesaikan segala kebutuhan harian tanpa ribet.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Temukan mitra ahli terbaik di sekitar lokasi Anda. Semua mitra kami telah melalui proses kurasi ketat untuk memastikan kualitas pengerjaan dan kepuasan pelanggan. Nikmati kemudahan bertransaksi langsung dari perangkat Anda dan percayakan urusan Anda pada ahlinya bersama Posko Jasa.
+            </p>
+          </div>
         </div>
       </div>
     </HydrationBoundary>

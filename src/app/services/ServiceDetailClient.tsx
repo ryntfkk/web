@@ -666,6 +666,28 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                 )}
               </div>
             )}
+
+            {/* FAQs */}
+            {service.faqs && service.faqs.length > 0 && (
+              <div className="mt-4 border-t border-brand-gray-100 pt-4">
+                <h3 className="text-sm font-semibold text-brand-gray-900 mb-3">Pertanyaan Umum (FAQ)</h3>
+                <div className="space-y-2">
+                  {service.faqs.map((faq: any, i: number) => (
+                    <details key={i} className="group bg-brand-gray-25 rounded-md border border-brand-gray-100">
+                      <summary className="flex items-center justify-between cursor-pointer p-3 text-sm font-medium text-brand-gray-900">
+                        {faq.question}
+                        <span className="ml-2 transform transition-transform group-open:rotate-180">
+                          ▼
+                        </span>
+                      </summary>
+                      <div className="p-3 pt-0 text-sm text-brand-gray-700 whitespace-pre-line border-t border-brand-gray-100 mt-2">
+                        <div className="pt-2">{faq.answer}</div>
+                      </div>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
