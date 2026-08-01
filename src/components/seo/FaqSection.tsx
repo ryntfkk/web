@@ -5,9 +5,10 @@ import type { FaqItem } from '@/lib/seo';
 export default function FaqSection({ items, title = 'Pertanyaan Umum' }: { items: FaqItem[]; title?: string }) {
   if (!items.length) return null;
   return (
-    <section className="mt-10">
-      <h2 className="text-[15px] font-bold text-brand-gray-900 mb-3">{title}</h2>
-      <div className="space-y-2">
+    <section className="mt-6 sm:mt-10">
+      <h2 className="text-[14px] sm:text-[15px] font-bold text-brand-gray-900 mb-2.5 sm:mb-3">{title}</h2>
+      {/* Dua kolom di desktop: FAQ satu kolom menyisakan separuh layar kosong. */}
+      <div className="space-y-2 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0 lg:items-start">
         {items.map((it) => (
           <details
             key={it.q}

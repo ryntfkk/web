@@ -30,7 +30,7 @@ export default function ServicesListClient({
 
   return (
     <div className="min-h-screen bg-brand-gray-60 flex flex-col">
-      <MobilePageHeader title="Semua Layanan" backHref="/" maxWidthClass="max-w-6xl" />
+      <MobilePageHeader title="Semua Layanan" titleAs="p" backHref="/" maxWidthClass="max-w-6xl" />
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
         {/* Breadcrumb desktop — konsisten dengan /kategori/[slug] & /jasa/... */}
         <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-[13px] text-brand-gray-400 mb-4">

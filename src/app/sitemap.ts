@@ -123,6 +123,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // API tak tersedia saat build — cukup halaman statis.
   }
 
+  // Profil mitra /[username]. Endpoint /partners/usernames memang dibuat untuk
+  // keperluan ini (komentar handler: "for static site generation") tapi sebelumnya
+  // tak pernah dipakai — akibatnya SELURUH profil mitra absen dari sitemap padahal
+  // halamannya indexable dan punya schema LocalBusiness + Review.
+  let partnerPages: MetadataRoute.Sitemap = [];
+  try {
+    const usernames = (await fetchJSON<string[]>('/partners/usernames')) ?? [];
+    partnerPages = usernames
+      .filter((u) => typeof u === 'string' && u.length > 0)
+      .map((u) => ({
+        url: `${BASE}/${u}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }));
+  } catch {
+    // abaikan — cukup halaman lain.
+  }
+
   const localPages: MetadataRoute.Sitemap = [...jasaCombos].map((key) => {
     const [catSlug, citySlug] = key.split('|');
     return {
@@ -133,5 +152,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  return [...staticPages, ...categoryPages, ...localPages, ...servicePages];
+  return [...staticPages, ...categoryPages, ...localPages, ...servicePages, ...partnerPages];
 }

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="page-h bg-brand-gray-60">
-      <MobilePageHeader title="Tentang Kami" backHref="/" maxWidthClass="max-w-md" />
+      <MobilePageHeader title="Tentang Kami" titleAs="p" backHref="/" maxWidthClass="max-w-md" />
       <div className="max-w-md mx-auto px-4 py-16 flex flex-col items-center text-center">
         <h1 className="hidden lg:block text-3xl font-bold text-brand-gray-900 mb-4">Tentang Kami</h1>
         <p className="text-brand-gray-700 mb-6">POSKO Jasa adalah platform yang menghubungkan Anda dengan penyedia jasa terpercaya di sekitar Anda.</p>

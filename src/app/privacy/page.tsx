@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="page-h bg-brand-gray-60">
-      <MobilePageHeader title="Kebijakan Privasi" backHref="/" maxWidthClass="max-w-2xl" />
+      <MobilePageHeader title="Kebijakan Privasi" titleAs="p" backHref="/" maxWidthClass="max-w-2xl" />
       <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
         <h1 className="hidden lg:block text-3xl font-bold text-brand-gray-900 mb-2">Kebijakan Privasi</h1>
         <p className="text-sm text-brand-gray-400 mb-8">Terakhir diperbarui: 1 Januari 2025</p>

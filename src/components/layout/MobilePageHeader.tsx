@@ -25,6 +25,13 @@ interface MobilePageHeaderProps {
   alwaysShow?: boolean;
   /** Lebar maksimum kontainer dalam (sesuaikan dgn lebar konten halaman). Default max-w-lg. */
   maxWidthClass?: string;
+  /**
+   * Tag judul header. Default 'h1' karena di sebagian besar halaman inilah satu-
+   * satunya judul. Halaman yang punya H1 sendiri di badan konten (mis. landing
+   * SEO /kategori & /jasa) WAJIB set 'p' — kalau tidak, HTML berisi dua H1 dan
+   * Google mendapat dua judul yang bersaing pada satu halaman.
+   */
+  titleAs?: 'h1' | 'p';
 }
 
 // Header untuk halaman drill-down. Default lg:hidden (mobile saja); pakai
@@ -38,10 +45,12 @@ export default function MobilePageHeader({
   right,
   alwaysShow = false,
   maxWidthClass = 'max-w-lg',
+  titleAs = 'h1',
 }: MobilePageHeaderProps) {
   const router = useRouter();
   const backClass = 'p-2 -ml-2 hover:bg-brand-gray-60 rounded';
   const arrow = <ArrowLeft className="w-5 h-5 text-brand-gray-700" />;
+  const Title = titleAs;
 
   return (
     <div className={`bg-white border-b border-brand-gray-100 sticky top-0 z-10 ${alwaysShow ? '' : 'lg:hidden'}`}>
@@ -58,11 +67,11 @@ export default function MobilePageHeader({
         {icon}
         {subtitle ? (
           <div className="min-w-0">
-            <h1 className="text-base font-bold text-brand-gray-900 flex items-center gap-2 leading-tight">{title}</h1>
+            <Title className="text-base font-bold text-brand-gray-900 flex items-center gap-2 leading-tight">{title}</Title>
             <p className="text-xs text-brand-gray-450 leading-tight truncate">{subtitle}</p>
           </div>
         ) : (
-          <h1 className="text-base font-bold text-brand-gray-900 flex items-center gap-2">{title}</h1>
+          <Title className="text-base font-bold text-brand-gray-900 flex items-center gap-2 truncate">{title}</Title>
         )}
         {right && <div className="ml-auto">{right}</div>}
       </div>

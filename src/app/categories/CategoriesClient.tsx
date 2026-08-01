@@ -18,7 +18,8 @@ export default function CategoriesClient() {
 
   return (
     <div className="min-h-screen bg-brand-gray-60 flex flex-col">
-      <MobilePageHeader title="Semua Kategori" backHref="/" maxWidthClass="max-w-6xl" />
+      {/* titleAs="p": H1 halaman ada di badan konten (baris di bawah). */}
+      <MobilePageHeader title="Semua Kategori" titleAs="p" backHref="/" maxWidthClass="max-w-6xl" />
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-8">Semua Kategori</h1>
 

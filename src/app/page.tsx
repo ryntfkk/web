@@ -85,6 +85,12 @@ export default async function Home() {
 
         {/* Main Content Area - Better mobile padding */}
         <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-6 flex-1">
+          {/* SE: beranda sebelumnya TIDAK punya H1 sama sekali — Google kehilangan
+              judul utama halaman terpenting situs. Ditaruh di sini (bukan di
+              hero) agar tetap ringkas dan tidak menutupi gambar promosi. */}
+          <h1 className="text-[15px] sm:text-lg font-bold text-brand-gray-900 mb-3 sm:mb-4">
+            Marketplace Jasa Terpercaya — Pesan Jasa Profesional di Dekat Anda
+          </h1>
           <CategorySection />
           <RecentlyViewedSection />
           <ProductsSection />

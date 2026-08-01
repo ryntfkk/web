@@ -41,7 +41,7 @@ export default function PromosClient() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
-      <MobilePageHeader title="Promo Menarik" backHref="/" maxWidthClass="max-w-3xl" />
+      <MobilePageHeader title="Promo Menarik" titleAs="p" backHref="/" maxWidthClass="max-w-3xl" />
 
       <div className="max-w-3xl mx-auto px-4 py-6 md:py-10">
         <div className="flex items-center gap-3 mb-6">
