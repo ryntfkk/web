@@ -103,12 +103,17 @@ export default function GoogleSignInButton({
       // Clear any previous rendered button inside container
       btnRef.current.innerHTML = '';
 
+      // Get the container width, or fallback to a safe width for mobile (240px for small screens like iPhone SE)
+      const containerWidth = btnRef.current.clientWidth || 240;
+      // Google button width can be between 200 and 400
+      const btnWidth = Math.max(200, Math.min(containerWidth, 400));
+
       window.google.accounts.id.renderButton(btnRef.current, {
         theme: 'outline',
         size: 'large',
         text: text,
         shape: 'pill',
-        width: '360',
+        width: btnWidth.toString(),
         locale: 'id',
       });
     } catch (err) {

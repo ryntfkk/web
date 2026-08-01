@@ -15,6 +15,7 @@ import { ROLE_PARTNER } from '@/lib/constants';
 import { createSupportThread } from '@/lib/support';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 interface Message {
@@ -39,6 +40,7 @@ interface ChatConversationProps {
 export default function ChatConversation({ roomId, embedded = false, onBack }: ChatConversationProps) {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [partner, setPartner] = useState<any>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -63,7 +65,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       });
       if (msg.sender_id !== user?.id) {
         setOtherTyping(false); // pesan datang → lawan berhenti mengetik
-        fetchAPI(`/chat/${roomId}/messages/${msg.id}/read`, { method: 'PUT' });
+        fetchAPI(`/chat/${roomId}/messages/${msg.id}/read`, { method: 'PUT' }).then(() => {
+          queryClient.invalidateQueries({ queryKey: ['chat-rooms'] });
+        });
       }
     },
     onTyping: (data: { sender_id?: string; is_typing?: boolean }) => {
@@ -142,7 +146,17 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       const msgRes = await fetchAPI<any>(`/chat/${roomId}/messages?per_page=100`);
       if (msgRes.success && msgRes.data) {
         const msgs = unwrapData<Message[]>(msgRes.data);
-        if (Array.isArray(msgs)) setMessages(msgs);
+        if (Array.isArray(msgs)) {
+          setMessages(msgs);
+          
+          // Mark room as read if there are unread messages from the other person
+          const hasUnread = msgs.some(m => !m.is_read && m.sender_id !== user?.id);
+          if (hasUnread) {
+            fetchAPI(`/chat/${roomId}/read`, { method: 'PUT' }).then(() => {
+              queryClient.invalidateQueries({ queryKey: ['chat-rooms'] });
+            });
+          }
+        }
       }
     } catch (e) {
       console.error(e);
