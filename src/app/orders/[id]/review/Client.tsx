@@ -4,12 +4,13 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, Star, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Star, CheckCircle, ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { Skeleton, PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useUpload } from '@/hooks/useUpload';
 
 
 interface OrderInfo {
@@ -19,14 +20,33 @@ interface OrderInfo {
   review?: { id: string };
 }
 
+// Batas foto disamakan dengan MaxReviewImages di backend (reviews/dto.go).
+const MAX_PHOTOS = 5;
+
+const ASPECTS = [
+  { key: 'rating_quality', label: 'Kualitas pekerjaan' },
+  { key: 'rating_punctuality', label: 'Ketepatan waktu' },
+  { key: 'rating_communication', label: 'Komunikasi' },
+] as const;
+
+type AspectKey = (typeof ASPECTS)[number]['key'];
+
 export default function ReviewClient() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
 
+  const { uploadFile, isUploading } = useUpload('review');
+
   const [order, setOrder] = useState<OrderInfo | null>(null);
   const [rating, setRating] = useState(0);
+  const [aspects, setAspects] = useState<Record<AspectKey, number>>({
+    rating_quality: 0,
+    rating_punctuality: 0,
+    rating_communication: 0,
+  });
+  const [photos, setPhotos] = useState<string[]>([]);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -58,14 +78,46 @@ export default function ReviewClient() {
     setLoading(false);
   };
 
+  // Foto diunggah saat dipilih (bukan saat submit) agar tombol kirim tidak
+  // menahan beberapa upload sekaligus; yang disimpan di state = URL final.
+  const handlePickPhotos = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setError('');
+    const sisa = MAX_PHOTOS - photos.length;
+    if (sisa <= 0) {
+      setError(`Maksimal ${MAX_PHOTOS} foto.`);
+      return;
+    }
+    const terpilih = Array.from(files).slice(0, sisa);
+    for (const file of terpilih) {
+      const url = await uploadFile(file);
+      if (url) {
+        setPhotos((prev) => (prev.length < MAX_PHOTOS ? [...prev, url] : prev));
+      } else {
+        setError('Sebagian foto gagal diunggah. Coba lagi.');
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     if (rating === 0) { setError('Pilih rating bintang terlebih dahulu.'); return; }
     if (comment.trim().length < 10) { setError('Ulasan wajib diisi minimal 10 karakter.'); return; }
     setSubmitting(true);
     setError('');
+    // Aspek yang tidak diisi (0) TIDAK dikirim — backend membedakan null
+    // ("tidak dinilai") dari angka, dan menolak nilai di luar 1–5.
+    const aspekTerisi = Object.fromEntries(
+      Object.entries(aspects).filter(([, v]) => v > 0),
+    );
     const res = await fetchAPI('/reviews', {
       method: 'POST',
-      body: JSON.stringify({ order_id: orderId, rating, comment: comment.trim() }),
+      body: JSON.stringify({
+        order_id: orderId,
+        rating,
+        comment: comment.trim(),
+        ...aspekTerisi,
+        ...(photos.length ? { image_urls: photos } : {}),
+      }),
     });
     if (res.success) {
       setSubmitted(true);
@@ -187,6 +239,71 @@ export default function ReviewClient() {
                 {['', 'Buruk', 'Kurang Baik', 'Cukup', 'Baik', 'Sangat Baik!'][rating]}
               </p>
             )}
+          </div>
+
+          {/* Rating per aspek — opsional, muncul setelah bintang utama dipilih
+              agar form tidak terasa panjang di awal. */}
+          {rating > 0 && (
+            <div className="mb-6 pb-6 border-b border-brand-gray-100">
+              <p className="text-sm font-medium text-brand-gray-900 mb-1">Nilai per aspek</p>
+              <p className="text-xs text-brand-gray-450 mb-3">Opsional — boleh dilewati.</p>
+              <div className="space-y-3">
+                {ASPECTS.map((aspect) => (
+                  <div key={aspect.key} className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-brand-gray-700">{aspect.label}</span>
+                    <StarRating
+                      value={aspects[aspect.key]}
+                      onChange={(v) => setAspects((prev) => ({ ...prev, [aspect.key]: v }))}
+                      size="sm"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Foto ulasan */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-brand-gray-900 mb-1">Foto hasil pekerjaan</label>
+            <p className="text-xs text-brand-gray-450 mb-3">
+              Opsional — maksimal {MAX_PHOTOS} foto, JPG/PNG ≤ 5MB.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {photos.map((url, i) => (
+                <div key={url} className="relative w-20 h-20 rounded-lg overflow-hidden border border-brand-gray-100">
+                  <Image src={url} alt={`Foto ulasan ${i + 1}`} fill sizes="80px" className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setPhotos((prev) => prev.filter((u) => u !== url))}
+                    aria-label={`Hapus foto ${i + 1}`}
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-brand-gray-900/70 text-white flex items-center justify-center"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {photos.length < MAX_PHOTOS && (
+                <label
+                  className={`w-20 h-20 rounded-lg border border-dashed border-brand-gray-100 flex flex-col items-center justify-center gap-1 text-brand-gray-450 ${
+                    isUploading ? 'opacity-50' : 'cursor-pointer hover:border-brand-red hover:text-brand-red'
+                  }`}
+                >
+                  <ImagePlus className="w-5 h-5" />
+                  <span className="text-[10px]">{isUploading ? 'Mengunggah…' : 'Tambah'}</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    multiple
+                    disabled={isUploading}
+                    className="hidden"
+                    onChange={(e) => {
+                      handlePickPhotos(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              )}
+            </div>
           </div>
 
           {/* Comment */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { getInitial } from '@/lib/utils';
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   User, ShieldCheck, CreditCard, LogOut, FileText, CheckCircle,
   RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, Phone, Loader2,
@@ -24,18 +24,19 @@ export default function MitraProfilePage() {
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [showSwitchModal, setShowSwitchModal] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user?.active_role]);
-
-  const fetchProfile = async () => {
-    const res = await fetchAPI<any>('/partners/me');
+  const fetchProfile = useCallback(async () => {
+    const res = await fetchAPI<{ verification_status?: string }>('/partners/me');
     if (res.success && res.data) {
       setVerificationStatus(res.data.verification_status || 'VERIFIED');
     }
-  };
+  }, []);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchProfile();
+  }, [isAuthenticated, fetchProfile]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -119,6 +120,7 @@ export default function MitraProfilePage() {
 
         <MenuCard title="Akun & Mitra">
           <MenuListItem icon={ShieldCheck} label="Status Verifikasi Dokumen" subtitle="Cek status & unggah ulang dokumen" href="/mitra/verification-status" />
+          <MenuListItem icon={FileText} label="Dokumen Pendukung" subtitle="SKCK, sertifikat, izin usaha" href="/mitra/documents" />
           <MenuListItem icon={User} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
           <MenuListItem icon={MapPin} label="Alamat Basecamp" subtitle="Titik lokasi & jangkauan layanan" href="/mitra/basecamp" />
           <MenuListItem icon={CreditCard} label="Rekening Bank" subtitle="Tujuan pencairan saldo" href="/mitra/bank-account" />

@@ -1,0 +1,389 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { FileText, Plus, Trash2, X, Loader2, ExternalLink } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import { Badge } from '@/components/ui/badge';
+import { PageSkeleton } from '@/components/ui/skeleton';
+import { fetchAPI } from '@/lib/api';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { getErrorMessage } from '@/types/api';
+
+interface PartnerDocument {
+  id: string;
+  doc_type: 'SKCK' | 'SKILL_CERTIFICATE' | 'BUSINESS_LICENSE' | 'OTHER';
+  file_url: string;
+  document_number?: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED';
+  verified_by?: string | null;
+  verified_at?: string | null;
+  rejection_reason?: string | null;
+  expires_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+const DOC_TYPE_LABELS: Record<PartnerDocument['doc_type'], string> = {
+  SKCK: 'SKCK',
+  SKILL_CERTIFICATE: 'Sertifikat Keahlian',
+  BUSINESS_LICENSE: 'Izin Usaha',
+  OTHER: 'Dokumen Lainnya',
+};
+
+const STATUS_VARIANTS: Record<PartnerDocument['status'], 'warning' | 'success' | 'error' | 'neutral'> = {
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'error',
+  EXPIRED: 'neutral',
+};
+
+const STATUS_LABELS: Record<PartnerDocument['status'], string> = {
+  PENDING: 'Menunggu',
+  APPROVED: 'Disetujui',
+  REJECTED: 'Ditolak',
+  EXPIRED: 'Kadaluarsa',
+};
+
+export default function MitraDocumentsPage() {
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [documents, setDocuments] = useState<PartnerDocument[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const [docType, setDocType] = useState<PartnerDocument['doc_type']>('SKILL_CERTIFICATE');
+  const [docNumber, setDocNumber] = useState('');
+  const [expiresAt, setExpiresAt] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const fetchDocuments = useCallback(async () => {
+    setLoading(true);
+    const res = await fetchAPI<PartnerDocument[]>('/partners/me/documents');
+    if (res.success && res.data) {
+      setDocuments(res.data);
+    } else {
+      setError(getErrorMessage(res) || 'Gagal memuat dokumen');
+    }
+    setLoading(false);
+  }, []);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (isAuthorized) {
+      fetchDocuments();
+    }
+  }, [isAuthorized, fetchDocuments]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Ukuran maksimal file 5MB');
+      setSelectedFile(null);
+      return;
+    }
+
+    if (!file.type.match(/^(image\/jpeg|image\/png|image\/jpg|application\/pdf)$/)) {
+      setError('Format file harus JPG, PNG, atau PDF');
+      setSelectedFile(null);
+      return;
+    }
+
+    setError('');
+    setSelectedFile(file);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile) {
+      setError('Pilih file terlebih dahulu');
+      return;
+    }
+
+    setUploading(true);
+    setError('');
+
+    try {
+      const presignRes = await fetchAPI<{ upload_url: string; file_url: string }>(
+        '/partners/me/documents/presigned-url',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            filename: selectedFile.name,
+            content_type: selectedFile.type,
+            file_size: selectedFile.size,
+          }),
+        },
+      );
+
+      if (!presignRes.success || !presignRes.data) {
+        throw new Error(getErrorMessage(presignRes) || 'Gagal mendapatkan URL upload');
+      }
+
+      const uploadRes = await fetch(presignRes.data.upload_url, {
+        method: 'PUT',
+        body: selectedFile,
+        headers: { 'Content-Type': selectedFile.type },
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('Gagal mengupload file ke server');
+      }
+
+      const saveRes = await fetchAPI<PartnerDocument>('/partners/me/documents', {
+        method: 'POST',
+        body: JSON.stringify({
+          doc_type: docType,
+          file_url: presignRes.data.file_url,
+          document_number: docNumber || undefined,
+          expires_at: expiresAt || undefined,
+        }),
+      });
+
+      if (!saveRes.success || !saveRes.data) {
+        throw new Error(getErrorMessage(saveRes) || 'Gagal menyimpan dokumen');
+      }
+
+      setDocuments([saveRes.data, ...documents]);
+      closeModal();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat upload');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setDocType('SKILL_CERTIFICATE');
+    setDocNumber('');
+    setExpiresAt('');
+    setSelectedFile(null);
+    setError('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const res = await fetchAPI(`/partners/me/documents/${deleteId}`, { method: 'DELETE' });
+    if (res.success) {
+      setDocuments(documents.filter((d) => d.id !== deleteId));
+    } else {
+      setError(getErrorMessage(res) || 'Gagal menghapus dokumen');
+    }
+    setDeleteId(null);
+  };
+
+  const formatDate = (iso?: string | null) => {
+    if (!iso) return '-';
+    return new Date(iso).toLocaleDateString('id-ID');
+  };
+
+  if (authLoading) return <PageSkeleton />;
+  if (!isAuthorized) return null;
+
+  return (
+    <div className="page-h bg-brand-gray-60 pb-24">
+      <MobilePageHeader alwaysShow title="Dokumen Pendukung" subtitle="SKCK, sertifikat, dan izin usaha" />
+
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        {error && (
+          <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-brand-red hover:bg-brand-red-dark text-white rounded font-bold"
+            size="sm"
+          >
+            <Plus className="w-4 h-4 mr-1.5" />
+            Tambah Dokumen
+          </Button>
+        </div>
+
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-white rounded-xl p-4 h-24 animate-pulse" />
+            ))}
+          </div>
+        ) : documents.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-xl border border-brand-gray-100">
+            <FileText className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
+            <p className="text-sm text-brand-gray-700">Belum ada dokumen pendukung.</p>
+            <p className="text-xs text-brand-gray-450 mt-1 px-6">
+              Unggah SKCK, sertifikat keahlian, atau izin usaha untuk meningkatkan kredibilitas.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {documents.map((doc) => (
+              <div
+                key={doc.id}
+                className="bg-white rounded-xl border border-brand-gray-100 p-4 flex items-start gap-3"
+              >
+                <div className="w-10 h-10 rounded-lg bg-brand-gray-60 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-brand-gray-700" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-bold text-sm text-brand-gray-900">{DOC_TYPE_LABELS[doc.doc_type]}</p>
+                    <Badge variant={STATUS_VARIANTS[doc.status]}>{STATUS_LABELS[doc.status]}</Badge>
+                  </div>
+                  {doc.document_number && (
+                    <p className="text-xs text-brand-gray-700 mt-1">No: {doc.document_number}</p>
+                  )}
+                  {doc.expires_at && (
+                    <p className="text-xs text-brand-gray-450 mt-0.5">
+                      Berlaku s/d: {formatDate(doc.expires_at)}
+                    </p>
+                  )}
+                  {doc.status === 'REJECTED' && doc.rejection_reason && (
+                    <p className="text-xs text-brand-error mt-1">{doc.rejection_reason}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-2">
+                    <a
+                      href={doc.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-bold text-brand-red hover:underline inline-flex items-center gap-1"
+                    >
+                      Lihat file <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <button
+                      onClick={() => setDeleteId(doc.id)}
+                      className="text-xs font-medium text-brand-error hover:underline inline-flex items-center gap-1"
+                      aria-label="Hapus dokumen"
+                    >
+                      <Trash2 className="w-3 h-3" /> Hapus
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Modal open={isModalOpen} onClose={closeModal} title="Tambah Dokumen">
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-brand-gray-700 block mb-1.5">Jenis Dokumen</label>
+            <select
+              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
+              value={docType}
+              onChange={(e) => setDocType(e.target.value as PartnerDocument['doc_type'])}
+            >
+              <option value="SKILL_CERTIFICATE">Sertifikat Keahlian</option>
+              <option value="SKCK">SKCK</option>
+              <option value="BUSINESS_LICENSE">Izin Usaha</option>
+              <option value="OTHER">Dokumen Lainnya</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-brand-gray-700 block mb-1.5">
+              Nomor Dokumen <span className="text-brand-gray-450 font-normal">(opsional)</span>
+            </label>
+            <input
+              type="text"
+              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
+              placeholder="Contoh: NIB-123456789"
+              value={docNumber}
+              onChange={(e) => setDocNumber(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-brand-gray-700 block mb-1.5">
+              Berlaku Sampai <span className="text-brand-gray-450 font-normal">(opsional)</span>
+            </label>
+            <input
+              type="date"
+              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-brand-gray-700 block mb-1.5">File</label>
+            <div
+              className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileText className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
+              <span className="text-sm text-brand-gray-400">
+                {selectedFile ? selectedFile.name : 'Pilih file JPG, PNG, atau PDF'}
+              </span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/jpeg,image/png,image/jpg,application/pdf"
+                onChange={handleFileSelect}
+              />
+            </div>
+          </div>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={uploading || !selectedFile}
+            className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
+          >
+            {uploading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              'Simpan Dokumen'
+            )}
+          </Button>
+        </div>
+      </Modal>
+
+      {deleteId && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-base font-semibold text-brand-gray-900">Hapus Dokumen?</h3>
+              <button onClick={() => setDeleteId(null)} aria-label="Tutup">
+                <X className="w-5 h-5 text-brand-gray-450" />
+              </button>
+            </div>
+            <p className="text-sm text-brand-gray-700 mb-6">
+              Dokumen akan dihapus dan harus diunggah ulang bila diperlukan.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 rounded border-brand-gray-100"
+                onClick={() => setDeleteId(null)}
+              >
+                Batal
+              </Button>
+              <Button
+                className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded"
+                onClick={handleDelete}
+              >
+                Hapus
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

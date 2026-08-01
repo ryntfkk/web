@@ -70,6 +70,8 @@ export interface PartnerReview {
   rating_punctuality?: number;
   rating_communication?: number;
   image_urls?: string[];
+  /** Balasan mitra atas ulasan ini (batas balas 7 hari sejak ulasan dibuat). */
+  partner_response?: { content: string; created_at: string } | null;
   comment: string;
   customer_name: string;
   customer_avatar: string | null;

@@ -2,7 +2,14 @@ import { useState } from 'react';
 import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
 
-export function useUpload() {
+/**
+ * Upload file ke S3 lewat presigned URL.
+ *
+ * `fileType` menentukan prefix object key di bucket dan HARUS ada di
+ * `allowedFileTypes` backend (internal/upload/service.go) — nilai di luar daftar
+ * ditolak 400 karena file_type ikut menyusun path S3.
+ */
+export function useUpload(fileType: 'avatar' | 'review' = 'avatar') {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +26,7 @@ export function useUpload() {
           filename: file.name,
           content_type: file.type,
           file_size: file.size,
-          file_type: 'avatar', // Adjust as needed
+          file_type: fileType,
         }),
       });
 
@@ -52,7 +59,7 @@ export function useUpload() {
         credentials: 'include',
         body: JSON.stringify({
           upload_id,
-          file_type: 'avatar',
+          file_type: fileType,
         }),
       });
 

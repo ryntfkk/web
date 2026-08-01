@@ -185,17 +185,23 @@ export default function MitraDashboardPage() {
               <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><TrendingUp className="w-3.5 h-3.5" /> Pendapatan Hari Ini</p>
               <p className="text-lg font-bold text-brand-success">{formatPrice(data?.stats.today_income || 0)}</p>
             </div>
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 col-span-2 flex items-center justify-between">
+            {/* Kartu rating jadi tautan ke halaman ulasan — di sanalah mitra
+                membalas ulasan pelanggan (batas balas 7 hari). */}
+            <Link
+              href="/mitra/reviews"
+              className="bg-white rounded-md border border-brand-gray-100 p-4 col-span-2 flex items-center justify-between hover:bg-brand-gray-60 transition-colors"
+            >
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-md bg-brand-orange-soft flex items-center justify-center">
                   <Star className="w-4 h-4 text-brand-warning fill-brand-warning" />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-brand-gray-900">Rating {data?.stats.rating?.toFixed(1) || '0.0'}</p>
-                  <p className="text-xs text-brand-gray-700">{data?.stats.total_reviews || 0} Ulasan</p>
+                  <p className="text-xs text-brand-gray-700">{data?.stats.total_reviews || 0} Ulasan · Balas ulasan</p>
                 </div>
               </div>
-            </div>
+              <ChevronRight className="w-4 h-4 text-brand-gray-400" />
+            </Link>
           </div>
         )}
 
