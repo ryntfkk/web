@@ -324,21 +324,6 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
           <span className="text-brand-gray-900">{service.name}</span>
         </div>
 
-        {/* SE: Link ke landing lokal /jasa/[slug]/[kota] — bantu Google discover
-            landing lokal dari detail layanan + navigasi pelanggan ke jasa
-            serupa di kotanya. Hanya tampil bila slug kategori & kota mitra ada. */}
-        {localLandingHref && service.partner_city && (
-          <div className="px-4 sm:px-0 mb-3">
-            <Link
-              href={localLandingHref}
-              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-red hover:underline"
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              Lihat jasa {service.category_name} lainnya di {service.partner_city}
-            </Link>
-          </div>
-        )}
-
         {/* Main Content - Shopee Style */}
         <div className="bg-white sm:rounded-md sm:shadow-sm">
           <div className="flex flex-col md:flex-row">
@@ -597,7 +582,17 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
               <div className="divide-y divide-brand-red-light text-sm">
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-brand-gray-700">Kategori</span>
-                  <span className="text-brand-gray-900">{service.category_name}</span>
+                  <span className="text-brand-gray-900">
+                    {service.category_name}
+                    {localLandingHref && service.partner_city && (
+                      <>
+                        {' · '}
+                        <Link href={localLandingHref} className="text-brand-red hover:underline">
+                          {service.partner_city}
+                        </Link>
+                      </>
+                    )}
+                  </span>
                 </div>
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-brand-gray-700">Estimasi Waktu Kerja</span>
@@ -682,6 +677,9 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
           categoryId={service.category_id}
           excludeServiceId={service.id}
           excludePartnerId={service.partner_id}
+          categoryName={service.category_name}
+          partnerCity={service.partner_city}
+          localLandingHref={localLandingHref}
         />
       </div>
 

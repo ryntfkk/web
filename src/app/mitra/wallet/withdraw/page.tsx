@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { getErrorMessage } from '@/types/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -28,6 +29,7 @@ export default function WithdrawPage() {
 
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [success, setSuccess] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -180,6 +182,31 @@ export default function WithdrawPage() {
           <p className="text-sm text-white/80 mb-1">Saldo Tersedia</p>
           <p className="text-2xl font-bold">{formatPrice(walletBalance)}</p>
         </div>
+
+        {/* Server menolak penarikan tanpa nomor terverifikasi — nomor itu juga
+            penjaga OTP saat mengganti rekening. Munculkan sebelum user mengisi
+            nominal, bukan sebagai error di ujung. */}
+        {user && !user.profile_complete && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
+            <p className="text-xs text-brand-gray-700 mt-0.5">
+              Nomor WhatsApp terverifikasi diperlukan untuk menarik dana dan mengubah rekening.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowPhoneModal(true)}
+              className="mt-2 text-xs font-bold text-brand-red hover:underline"
+            >
+              Verifikasi Sekarang
+            </button>
+          </div>
+        )}
+
+        <PhoneVerificationModal
+          isOpen={showPhoneModal}
+          onClose={() => setShowPhoneModal(false)}
+          onSuccess={() => setShowPhoneModal(false)}
+        />
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-white rounded-xl border border-brand-gray-100 p-4">

@@ -65,6 +65,7 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   "login",
   "register",
   "forgot-password",
+  "lengkapi-profil",
 ]);
 
 /**

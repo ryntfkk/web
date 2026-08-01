@@ -12,6 +12,8 @@ import { fetchAPI } from '@/lib/api';
 import { useUpload } from '@/hooks/useUpload';
 import { getInitial } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store/authStore';
+import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
+import ProfileCompletionBanner from '@/components/profile/ProfileCompletionBanner';
 
 export default function AccountPage() {
   const { isLoading: authLoading, isAuthorized, user } = useRequireAuth();
@@ -20,9 +22,9 @@ export default function AccountPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const { showToast } = useToast();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,7 +34,6 @@ export default function AccountPage() {
     if (user) {
       setName(user.name);
       setEmail(user.email || '');
-      setPhone(user.phone || '');
       setError('');
       setIsEditing(true);
     }
@@ -45,18 +46,16 @@ export default function AccountPage() {
       setError('Nama tidak boleh kosong');
       return;
     }
-    const phoneTrim = phone.trim();
-    if (phoneTrim.length < 8 || phoneTrim.length > 20) {
-      setError('Nomor HP tidak valid (8–20 digit)');
-      return;
-    }
 
     setSaving(true);
     setError('');
 
-    const res = await fetchAPI<{ phone?: string }>('/users/me', {
+    // `phone` SENGAJA tidak dikirim. Nomor hanya berubah lewat OTP; dulu form ini
+    // mewajibkan nomor untuk SETIAP simpan, sehingga user Google (yang belum
+    // punya nomor) tidak bisa sekadar mengganti namanya.
+    const res = await fetchAPI('/users/me', {
       method: 'PATCH',
-      body: JSON.stringify({ name, email: email || null, phone: phoneTrim }),
+      body: JSON.stringify({ name, email: email || null }),
     });
 
     setSaving(false);
@@ -64,10 +63,7 @@ export default function AccountPage() {
     if (res.success) {
       showToast('Profil berhasil diperbarui');
       setIsEditing(false);
-      // Pakai phone yang DIKEMBALIKAN server (sudah dinormalkan ke 62xxx) agar
-      // tampilan langsung konsisten dgn yang tersimpan.
-      const savedPhone = res.data?.phone ?? phoneTrim;
-      useAuthStore.getState().updateUser({ name, email, phone: savedPhone });
+      useAuthStore.getState().updateUser({ name, email });
     } else {
       setError(res.message || 'Gagal memperbarui profil');
     }
@@ -145,8 +141,14 @@ export default function AccountPage() {
             />
           </div>
           <p className="text-sm font-medium text-brand-gray-900">{user.name}</p>
-          <p className="text-xs text-brand-gray-400">{user.phone}</p>
+          <p className="text-xs text-brand-gray-400">{user.phone || 'Nomor HP belum diisi'}</p>
         </div>
+
+        {!user.profile_complete && (
+          <div className="mb-4">
+            <ProfileCompletionBanner onVerify={() => setShowPhoneModal(true)} />
+          </div>
+        )}
 
         {/* Info / Edit Section */}
         <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden">
@@ -177,14 +179,23 @@ export default function AccountPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Nomor HP</label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value.replace(/[^\d+]/g, ''))}
-                  placeholder="08xxxxxxxxxx"
-                  className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                />
-                <p className="text-xs text-brand-gray-450 mt-1">Dipakai untuk kontak &amp; notifikasi. Login tetap memakai username.</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-400 bg-brand-gray-60">
+                    {user.phone || 'Belum diisi'}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowPhoneModal(true)}
+                    className="text-xs border-brand-red text-brand-red hover:bg-brand-error-soft"
+                  >
+                    {user.phone ? 'Ubah' : 'Verifikasi'}
+                  </Button>
+                </div>
+                <p className="text-xs text-brand-gray-450 mt-1">
+                  Nomor diverifikasi lewat OTP WhatsApp agar mitra menghubungi orang yang benar.
+                  Login tetap memakai username.
+                </p>
               </div>
 
               {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
@@ -211,8 +222,17 @@ export default function AccountPage() {
                 <Phone className="w-5 h-5 text-brand-gray-400 mr-3" />
                 <div className="flex-1">
                   <span className="text-brand-gray-800 font-medium block text-sm">Nomor HP</span>
-                  <span className="text-sm text-brand-gray-400">{user.phone}</span>
+                  <span className="text-sm text-brand-gray-400">{user.phone || 'Belum diisi'}</span>
                 </div>
+                {!user.phone_verified && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPhoneModal(true)}
+                    className="text-xs font-semibold text-brand-red hover:underline"
+                  >
+                    Verifikasi
+                  </button>
+                )}
               </div>
               <div className="w-full flex items-center p-4 text-left">
                 <Mail className="w-5 h-5 text-brand-gray-400 mr-3" />
@@ -225,6 +245,12 @@ export default function AccountPage() {
           )}
         </div>
       </div>
+
+      <PhoneVerificationModal
+        isOpen={showPhoneModal}
+        onClose={() => setShowPhoneModal(false)}
+        onSuccess={() => showToast('Nomor HP berhasil diverifikasi')}
+      />
     </div>
   );
 }

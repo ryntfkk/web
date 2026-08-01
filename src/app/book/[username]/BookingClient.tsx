@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, MapPin, Calendar, Tag, AlertTriangle, ShieldCheck, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Tag, AlertTriangle, ShieldAlert, ShieldCheck, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
@@ -345,8 +345,12 @@ export default function BookingClient() {
   const submitOrder = async () => {
     setErrorMsg('');
 
-    // Guard: user harus memiliki nomor HP yang terverifikasi (OTP) untuk memesan
-    if (!user?.phone || user?.phone_verified === false) {
+    // Jaring terakhir. Syarat ini juga sudah ditampilkan di langkah 1 supaya user
+    // tidak menemukannya baru di sini, setelah alamat/jadwal/foto/promo terisi.
+    // profile_complete adalah sinyal tunggal dari server; dulu guard di sini
+    // memakai `phone_verified === false`, yang jadi `undefined === false` setiap
+    // reload karena /users/me tidak pernah mengirim field itu.
+    if (!user?.profile_complete) {
       setShowPhoneModal(true);
       return;
     }
@@ -767,6 +771,30 @@ export default function BookingClient() {
       <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto px-4 py-6`}>
         {step === 1 && (
           <div className="space-y-4">
+            {/* Syarat nomor terverifikasi dimunculkan DI SINI, bukan hanya saat
+                submit. Sebelumnya user Google baru tahu setelah mengisi alamat,
+                jadwal, foto, dan promo — titik yang paling mahal untuk gagal. */}
+            {isAuthenticated && user && !user.profile_complete && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-brand-gray-900">
+                    Verifikasi nomor HP dulu, ya
+                  </p>
+                  <p className="text-xs text-brand-gray-700 mt-0.5">
+                    Mitra perlu nomor WhatsApp kamu untuk konfirmasi pesanan.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowPhoneModal(true)}
+                    className="mt-2 text-xs font-bold text-brand-red hover:underline"
+                  >
+                    Verifikasi Sekarang
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Header mitra */}
             <div className="bg-white rounded-xl border border-brand-gray-100 p-4 flex items-center gap-3">
               <div className="relative w-11 h-11 rounded-full overflow-hidden bg-brand-red-light shrink-0">

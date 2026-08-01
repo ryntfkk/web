@@ -16,6 +16,8 @@ import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import PartnerStatusCard, { type PartnerProfile } from '@/components/profile/PartnerStatusCard';
+import ProfileCompletionBanner from '@/components/profile/ProfileCompletionBanner';
+import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 
 
 interface OrderItem {
@@ -48,6 +50,7 @@ export default function ProfilePage() {
   const { isLoading: authLoading, isAuthorized, isAuthenticated, user } = useRequireAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ActiveTab>('profile');
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [partnerStatus, setPartnerStatus] = useState<PartnerProfile | null>(null);
   const [statusLoading, setStatusLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -146,7 +149,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <h1 className="text-xl md:text-3xl font-extrabold tracking-tight drop-shadow-sm">{user.name}</h1>
-              <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user.phone}</p>
+              <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user.phone || 'Nomor HP belum diisi'}</p>
               <div className="mt-2 md:mt-3 inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
                 {user.active_role === 'partner' ? 'Mode Mitra' : 'Mode Pelanggan'}
@@ -155,6 +158,18 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {!user.profile_complete && (
+        <div className="max-w-6xl mx-auto px-4 pt-4">
+          <ProfileCompletionBanner onVerify={() => setShowPhoneModal(true)} />
+        </div>
+      )}
+
+      <PhoneVerificationModal
+        isOpen={showPhoneModal}
+        onClose={() => setShowPhoneModal(false)}
+        onSuccess={() => setShowPhoneModal(false)}
+      />
 
       {/* Mobile Hub (< lg) — tiap menu navigasi ke halamannya sendiri */}
       <div className="lg:hidden max-w-lg mx-auto px-4 py-6 space-y-4">
@@ -273,8 +288,13 @@ export default function ProfilePage() {
                     <Phone className="w-5 h-5 text-brand-gray-400 mr-3" />
                     <div className="flex-1">
                       <span className="text-brand-gray-800 font-medium block text-sm">Nomor HP</span>
-                      <span className="text-xs text-brand-gray-400">{user.phone}</span>
+                      <span className="text-xs text-brand-gray-400">{user.phone || 'Belum diisi'}</span>
                     </div>
+                    {!user.phone_verified && (
+                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        Belum terverifikasi
+                      </span>
+                    )}
                   </div>
                   <div className="w-full flex items-center p-4 text-left">
                     <Mail className="w-5 h-5 text-brand-gray-400 mr-3" />

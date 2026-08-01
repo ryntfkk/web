@@ -13,7 +13,20 @@ export interface User {
   balance: number;
   is_verified: boolean;
   is_suspended: boolean;
-  phone_verified?: boolean;
+  /**
+   * WAJIB, bukan opsional. Saat field ini opsional, guard `phone_verified === false`
+   * diam-diam berubah jadi `undefined === false` setiap kali user dimuat dari
+   * /users/me (yang dulu tidak mengirimkannya) — penjaga yang lolos type-check
+   * tapi tidak pernah menyala. Backend kini selalu mengirim keenam field ini.
+   */
+  phone_verified: boolean;
+  email_verified: boolean;
+  has_password: boolean;
+  has_google: boolean;
+  /** Asal pendaftaran ('local' | 'google'), BUKAN kapabilitas login. */
+  auth_provider: string;
+  /** Satu-satunya sinyal "boleh bertransaksi"; dihitung server. */
+  profile_complete: boolean;
 }
 
 interface AuthState {

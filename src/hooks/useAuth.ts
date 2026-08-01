@@ -125,18 +125,30 @@ export function useAuth() {
     }
   };
 
-  const loginWithGoogle = async (idToken: string, redirectUrl?: string) => {
+  const loginWithGoogle = async (idToken: string, redirectUrl?: string, rememberMe: boolean = false) => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetchAPI<{ user: User; access_token: string }>('/auth/google', {
         method: 'POST',
-        body: JSON.stringify({ id_token: idToken }),
+        body: JSON.stringify({ id_token: idToken, remember_me: rememberMe }),
         credentials: 'include',
       });
 
       if (res.success && res.data) {
         authStore.login(res.data.user, res.data.access_token);
+        // Akun Google lahir tanpa nomor HP, dan tanpa nomor itu pemesanan akan
+        // ditolak server. Antarkan ke pelengkapan profil SEKARANG, bukan biarkan
+        // user menemukannya di ujung alur booking. Tujuan asli disimpan sebagai
+        // ?next= supaya "Nanti saja" tetap mendarat di tempat yang benar.
+        if (!res.data.user.profile_complete) {
+          const next =
+            redirectUrl ??
+            (res.data.user.active_role === 'partner' ? '/mitra/dashboard' : '/');
+          router.push(`/lengkapi-profil?next=${encodeURIComponent(safeRedirect(next))}`);
+          setLoading(false);
+          return res;
+        }
         if (redirectUrl) {
           router.push(safeRedirect(redirectUrl));
         } else if (res.data.user.active_role === 'partner') {

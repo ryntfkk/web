@@ -7,6 +7,8 @@ import { ChevronLeft, Upload, CheckCircle } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import RegionSelect from '@/components/ui/RegionSelect';
+import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
+import { useAuthStore } from '@/lib/store/authStore';
 import dynamic from 'next/dynamic';
 // Leaflet CSS kini di-import global di app/globals.css (lihat catatan di sana).
 
@@ -20,6 +22,11 @@ function MitraRegisterForm() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  // Server menolak onboarding tanpa nomor terverifikasi. Tampilkan syaratnya di
+  // depan, bukan sebagai error setelah lima langkah form dan dua unggahan KTP.
+  const needsPhone = !!user && !user.profile_complete;
 
   // Form State
   const [formData, setFormData] = useState({
@@ -143,6 +150,31 @@ function MitraRegisterForm() {
       </div>
 
       <div className="flex-1 p-4 max-w-md w-full mx-auto">
+        {needsPhone && (
+          <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <p className="text-sm font-semibold text-brand-gray-900">
+              Verifikasi nomor HP dulu
+            </p>
+            <p className="text-xs text-brand-gray-700 mt-0.5">
+              Pendaftaran mitra butuh nomor WhatsApp terverifikasi — pelanggan dan tim kami
+              menghubungi kamu lewat nomor itu.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowPhoneModal(true)}
+              className="mt-2 text-xs font-bold text-brand-red hover:underline"
+            >
+              Verifikasi Sekarang
+            </button>
+          </div>
+        )}
+
+        <PhoneVerificationModal
+          isOpen={showPhoneModal}
+          onClose={() => setShowPhoneModal(false)}
+          onSuccess={() => setShowPhoneModal(false)}
+        />
+
         <div className="flex justify-between items-center mb-6 px-2 relative">
           <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-brand-gray-100 -z-10"></div>
           {[1, 2, 3, 4, 5].map((s) => (

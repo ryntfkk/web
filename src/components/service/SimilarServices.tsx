@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { usePublicServices } from '@/hooks/usePublicServices';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
@@ -14,10 +15,16 @@ export default function SimilarServices({
   categoryId,
   excludeServiceId,
   excludePartnerId,
+  categoryName,
+  partnerCity,
+  localLandingHref,
 }: {
   categoryId: string;
   excludeServiceId: string;
   excludePartnerId: string;
+  categoryName?: string;
+  partnerCity?: string;
+  localLandingHref?: string;
 }) {
   // Kirim lokasi user agar badge jarak di kartu terisi (tanpa lat/lon backend
   // mengembalikan distance_meters = 0 → badge disembunyikan).
@@ -35,12 +42,23 @@ export default function SimilarServices({
     .slice(0, 10);
   if (items.length === 0) return null;
 
+  const showCityLink = localLandingHref && partnerCity && categoryName;
+
   return (
     <section className="bg-white sm:rounded-md sm:shadow-sm mt-2 sm:mt-3 p-4">
-      <h2 className="text-sm font-semibold text-brand-gray-900 mb-3">Layanan serupa</h2>
+      <div className="flex items-baseline justify-between mb-3">
+        <h2 className="text-sm font-semibold text-brand-gray-900">
+          {showCityLink ? `Layanan serupa di ${partnerCity}` : 'Layanan serupa'}
+        </h2>
+        {showCityLink && (
+          <Link href={localLandingHref} className="text-xs font-medium text-brand-red hover:underline">
+            Lihat semua
+          </Link>
+        )}
+      </div>
       <div
-        className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 snap-x"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 snap-x scrollbar-hide"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {items.map((s) => (
           <div key={s.id} className="flex-shrink-0 w-40 snap-start">

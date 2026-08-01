@@ -8,10 +8,11 @@ import { formatDateShort } from '@/lib/format';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { useAuthStore } from '@/lib/store/authStore';
 
 
 export default function SecurityPage() {
-  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized, user } = useRequireAuth();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -23,9 +24,15 @@ export default function SecurityPage() {
   if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized) return null;
 
+  // Akun yang lahir dari Google belum punya password sama sekali. Bagi mereka
+  // ini alur SET password, bukan UBAH: memaksa "password saat ini" membuat
+  // validasi klien menolak sebelum request pernah terkirim, sehingga user
+  // terkunci di luar satu-satunya fitur yang bisa memberinya password.
+  const isSettingPassword = user?.has_password === false;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if ((!isSettingPassword && !currentPassword) || !newPassword || !confirmPassword) {
       setError('Semua kolom wajib diisi');
       return;
     }
@@ -48,6 +55,8 @@ export default function SecurityPage() {
 
     if (res.success) {
       setSuccess(true);
+      // Tanpa ini form tetap dalam mode "buat password" setelah berhasil.
+      useAuthStore.getState().updateUser({ has_password: true });
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -68,28 +77,36 @@ export default function SecurityPage() {
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <ShieldCheck className="w-8 h-8 text-brand-success" />
           </div>
-          <h2 className="text-lg font-bold text-brand-gray-900 mb-2">Ubah Password</h2>
+          <h2 className="text-lg font-bold text-brand-gray-900 mb-2">
+            {isSettingPassword ? 'Buat Password' : 'Ubah Password'}
+          </h2>
           <p className="text-sm text-brand-gray-700">
-            Gunakan password yang kuat dengan kombinasi huruf dan angka untuk keamanan akun Anda.
+            {isSettingPassword
+              ? 'Akun kamu dibuat lewat Google, jadi belum punya password. Buat password agar bisa masuk tanpa Google.'
+              : 'Gunakan password yang kuat dengan kombinasi huruf dan angka untuk keamanan akun Anda.'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Password Saat Ini</label>
-            <div className="relative">
-              <Lock className="w-5 h-5 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={e => setCurrentPassword(e.target.value)}
-                placeholder="Masukkan password saat ini"
-                className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-              />
-            </div>
-          </div>
+          {!isSettingPassword && (
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Password Saat Ini</label>
+                <div className="relative">
+                  <Lock className="w-5 h-5 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="Masukkan password saat ini"
+                    className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                  />
+                </div>
+              </div>
 
-          <hr className="border-brand-gray-100" />
+              <hr className="border-brand-gray-100" />
+            </>
+          )}
 
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Password Baru</label>
@@ -120,7 +137,13 @@ export default function SecurityPage() {
           </div>
 
           {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
-          {success && <div className="bg-brand-success-soft text-brand-success text-sm p-3 rounded-lg border border-brand-success-border">Password berhasil diubah.</div>}
+          {success && (
+            <div className="bg-brand-success-soft text-brand-success text-sm p-3 rounded-lg border border-brand-success-border">
+              {isSettingPassword
+                ? 'Password berhasil dibuat. Kamu kini bisa masuk memakai username dan password.'
+                : 'Password berhasil diubah.'}
+            </div>
+          )}
 
           <div className="pt-4">
             <Button

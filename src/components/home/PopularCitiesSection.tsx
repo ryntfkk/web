@@ -11,8 +11,8 @@ import type { Category } from '@/types/category';
 export const revalidate = 300;
 
 const SERVER_API = API_URL.startsWith('http') ? API_URL : 'https://api.poskojasa.com/api/v1';
-const MAX_CATEGORIES = 6;
-const MAX_CITIES = 6;
+const MAX_CATEGORIES = 5;
+const MAX_CITIES = 4;
 
 async function getJSON<T>(path: string): Promise<T | null> {
   try {
@@ -50,23 +50,29 @@ export default async function PopularCitiesSection() {
         </h2>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {mainCats.map((cat) =>
-          cityList.map((city) => {
-            const citySlug = slugify(city);
-            if (!cat.slug || !citySlug) return null;
-            const href = `/jasa/${cat.slug}/${citySlug}`;
-            return (
-              <Link
-                key={`${cat.id}-${city}`}
-                href={href}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-brand-gray-100 text-[13px] font-medium text-brand-gray-900 hover:border-brand-red hover:text-brand-red transition-colors"
-              >
-                {cat.name} {city}
-              </Link>
-            );
-          }),
-        )}
+      <div className="relative -mx-3 px-3 sm:mx-0 sm:px-0">
+        <div
+          className="flex overflow-x-auto sm:flex-wrap sm:overflow-visible gap-2 pb-1 snap-x snap-mandatory scrollbar-hide"
+          aria-label="Jasa populer per kota"
+        >
+          {mainCats.map((cat) =>
+            cityList.map((city) => {
+              const citySlug = slugify(city);
+              if (!cat.slug || !citySlug) return null;
+              const href = `/jasa/${cat.slug}/${citySlug}`;
+              return (
+                <Link
+                  key={`${cat.id}-${city}`}
+                  href={href}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full bg-white border border-brand-gray-100 text-xs sm:text-[13px] font-medium text-brand-gray-900 hover:border-brand-red hover:text-brand-red transition-colors snap-start shrink-0"
+                >
+                  {cat.name} {city}
+                </Link>
+              );
+            }),
+          )}
+        </div>
+        <div className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent" />
       </div>
     </section>
   );

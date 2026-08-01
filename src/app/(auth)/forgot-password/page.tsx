@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
             <form className="space-y-6" onSubmit={handleRequestOTP}>
               <div>
                 <label htmlFor="identifier" className="block text-sm font-medium text-brand-gray-900">
-                  Email / Nomor HP / Username
+                  Email / Nomor HP
                 </label>
                 <div className="mt-1">
                   <input

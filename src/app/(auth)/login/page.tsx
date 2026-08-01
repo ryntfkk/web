@@ -187,7 +187,7 @@ function LoginContent() {
             <GoogleSignInButton
               text="signin_with"
               onSuccess={async (idToken) => {
-                await loginWithGoogle(idToken, rawRedirect ?? undefined);
+                await loginWithGoogle(idToken, rawRedirect ?? undefined, rememberMe);
               }}
             />
           </form>

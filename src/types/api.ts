@@ -87,10 +87,12 @@ export interface AdditionalFee {
   status: string;
 }
 
+// `phone` OPSIONAL: kolom users.phone nullable dan akun Google lahir tanpa
+// nomor. Tipe non-opsional di sini berbohong kepada setiap pemanggil.
 export interface CustomerInfo {
   id: string;
   name: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface PartnerInfo {
@@ -99,7 +101,7 @@ export interface PartnerInfo {
   name: string;
   username: string;
   avatar_url?: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface OrderDetail {
