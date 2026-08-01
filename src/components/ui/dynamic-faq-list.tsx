@@ -1,6 +1,5 @@
 import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 export interface Faq {
   question: string;
@@ -39,19 +38,21 @@ export function DynamicFaqList({ label, items, onChange }: DynamicFaqListProps) 
         <div key={index} className="flex gap-2 items-start border p-3 rounded-lg border-brand-gray-100 bg-brand-gray-60/50">
           <div className="flex-1 space-y-3">
             <div>
-              <Input
+              <input
+                type="text"
                 value={item.question}
                 onChange={(e) => handleChange(index, 'question', e.target.value)}
                 placeholder="Pertanyaan..."
-                className="bg-white"
+                className="w-full p-2 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white"
               />
             </div>
             <div>
-              <Input
+              <input
+                type="text"
                 value={item.answer}
                 onChange={(e) => handleChange(index, 'answer', e.target.value)}
                 placeholder="Jawaban..."
-                className="bg-white"
+                className="w-full p-2 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white"
               />
             </div>
           </div>

@@ -1,6 +1,5 @@
 import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 interface DynamicStringListProps {
   label: string;
@@ -34,11 +33,12 @@ export function DynamicStringList({ label, items, onChange, placeholder, require
       </label>
       {items.map((item, index) => (
         <div key={index} className="flex items-center gap-2">
-          <Input
+          <input
+            type="text"
             value={item}
             onChange={(e) => handleChange(index, e.target.value)}
             placeholder={placeholder}
-            className="flex-1"
+            className="flex-1 p-2 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
           />
           <Button
             type="button"
