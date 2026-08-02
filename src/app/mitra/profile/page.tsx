@@ -27,7 +27,9 @@ export default function MitraProfilePage() {
   const fetchProfile = useCallback(async () => {
     const res = await fetchAPI<{ verification_status?: string }>('/partners/me');
     if (res.success && res.data) {
-      setVerificationStatus(res.data.verification_status || 'VERIFIED');
+      // F2: default fail-closed ke PENDING (bukan VERIFIED) — lihat plan §2.
+      // Backend enum lowercase; .toUpperCase() di render.
+      setVerificationStatus(res.data.verification_status || 'pending');
     }
   }, []);
 

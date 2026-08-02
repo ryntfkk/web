@@ -29,7 +29,8 @@ export default function MitraVerificationStatusPage() {
     if (res.success && res.data) {
       // Backend mengirim enum lowercase: 'approved' | 'pending' | 'rejected'.
       // Petakan ke vocab UI (VERIFIED/PENDING/REJECTED) agar status tampil benar.
-      const raw = String(res.data.verification_status || 'approved').toUpperCase();
+      // F2: default fail-closed ke 'pending' (bukan 'approved') — lihat plan §2.
+      const raw = String(res.data.verification_status || 'pending').toUpperCase();
       const mapped = raw === 'APPROVED' ? 'VERIFIED' : raw === 'REJECTED' ? 'REJECTED' : raw === 'PENDING' ? 'PENDING' : (raw as 'PENDING' | 'VERIFIED' | 'REJECTED');
       setStatus(mapped);
       setReason(res.data.rejection_reason || null);

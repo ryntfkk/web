@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useIsPartnerVerified } from '@/hooks/usePartnerVerificationStatus';
+import { VerifiedLockBadge } from '@/components/mitra/VerifiedLockBadge';
 import { getErrorMessage } from '@/types/api';
 
 interface PartnerDocument {
@@ -48,6 +50,7 @@ const STATUS_LABELS: Record<PartnerDocument['status'], string> = {
 
 export default function MitraDocumentsPage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
+  const isVerified = useIsPartnerVerified(isAuthorized);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [documents, setDocuments] = useState<PartnerDocument[]>([]);
@@ -243,6 +246,7 @@ export default function MitraDocumentsPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-bold text-sm text-brand-gray-900">{DOC_TYPE_LABELS[doc.doc_type]}</p>
                     <Badge variant={STATUS_VARIANTS[doc.status]}>{STATUS_LABELS[doc.status]}</Badge>
+                    {doc.status === 'APPROVED' && <VerifiedLockBadge />}
                   </div>
                   {doc.document_number && (
                     <p className="text-xs text-brand-gray-700 mt-1">No: {doc.document_number}</p>
@@ -264,13 +268,15 @@ export default function MitraDocumentsPage() {
                     >
                       Lihat file <ExternalLink className="w-3 h-3" />
                     </a>
-                    <button
-                      onClick={() => setDeleteId(doc.id)}
-                      className="text-xs font-medium text-brand-error hover:underline inline-flex items-center gap-1"
-                      aria-label="Hapus dokumen"
-                    >
-                      <Trash2 className="w-3 h-3" /> Hapus
-                    </button>
+                    {doc.status !== 'APPROVED' && !isVerified && (
+                      <button
+                        onClick={() => setDeleteId(doc.id)}
+                        className="text-xs font-medium text-brand-error hover:underline inline-flex items-center gap-1"
+                        aria-label="Hapus dokumen"
+                      >
+                        <Trash2 className="w-3 h-3" /> Hapus
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

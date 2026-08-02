@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useIsPartnerVerified } from '@/hooks/usePartnerVerificationStatus';
+import { VerifiedLockNotice } from '@/components/mitra/VerifiedLockBadge';
 import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 import { getErrorMessage } from '@/types/api';
@@ -16,6 +18,7 @@ const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false, 
 
 export default function MitraBasecampPage() {
   const { isAuthorized, isLoading: authLoading } = useRequireAuth();
+  const isVerified = useIsPartnerVerified(isAuthorized);
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -109,6 +112,12 @@ export default function MitraBasecampPage() {
       <MobilePageHeader alwaysShow title="Alamat Basecamp" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+        {isVerified && (
+          <VerifiedLockNotice
+            title="Basecamp terkunci"
+            message="Lokasi basecamp sudah diverifikasi admin. Hubungi admin untuk mengubah (cabut verifikasi)."
+          />
+        )}
         <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-3 flex gap-3">
           <AlertCircle className="w-5 h-5 text-brand-error shrink-0" />
           <p className="text-xs text-brand-error-dark leading-relaxed">
@@ -137,8 +146,8 @@ export default function MitraBasecampPage() {
 
           {error && <div className="text-sm text-brand-error">{error}</div>}
 
-          <Button className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-6" onClick={handleSave} disabled={submitting}>
-            {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Simpan Basecamp'}
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-6" onClick={handleSave} disabled={submitting || isVerified}>
+            {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : isVerified ? 'Terkunci' : 'Simpan Basecamp'}
           </Button>
         </div>
       </div>

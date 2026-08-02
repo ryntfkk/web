@@ -6,6 +6,8 @@ import { CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useIsPartnerVerified } from '@/hooks/usePartnerVerificationStatus';
+import { VerifiedLockNotice } from '@/components/mitra/VerifiedLockBadge';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { getErrorMessage } from '@/types/api';
@@ -21,6 +23,7 @@ const BANKS = [
 
 export default function MitraBankAccountPage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const isVerified = useIsPartnerVerified(isAuthorized);
 
   const [form, setForm] = useState({
     bank_code: 'BCA',
@@ -126,6 +129,15 @@ export default function MitraBankAccountPage() {
           </p>
         </div>
 
+        {isVerified && (
+          <div className="mb-6">
+            <VerifiedLockNotice
+              title="Rekening terkunci"
+              message="Rekening payout sudah diverifikasi admin. Hubungi admin untuk mengubah (cabut verifikasi) — OTP saja tidak cukup."
+            />
+          </div>
+        )}
+
         {loading ? (
           <div className="bg-white rounded-xl border border-brand-gray-100 p-6 h-64 animate-pulse" />
         ) : (
@@ -135,7 +147,8 @@ export default function MitraBankAccountPage() {
               <select
                 value={form.bank_code}
                 onChange={e => setForm({ ...form, bank_code: e.target.value })}
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white"
+                disabled={isVerified}
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
               >
                 {BANKS.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
               </select>
@@ -148,7 +161,8 @@ export default function MitraBankAccountPage() {
                 value={form.account_number}
                 onChange={e => setForm({ ...form, account_number: e.target.value.replace(/\D/g, '') })}
                 placeholder="Hanya angka"
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                disabled={isVerified}
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
               />
             </div>
 
@@ -159,7 +173,8 @@ export default function MitraBankAccountPage() {
                 value={form.account_name}
                 onChange={e => setForm({ ...form, account_name: e.target.value.toUpperCase() })}
                 placeholder="SESUAI BUKU TABUNGAN"
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red uppercase"
+                disabled={isVerified}
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red uppercase disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
               />
               <p className="text-xs text-brand-gray-450 mt-2">
                 Pastikan nama sesuai dengan yang terdaftar di bank untuk menghindari kegagalan transfer.
@@ -172,9 +187,9 @@ export default function MitraBankAccountPage() {
               <Button
                 className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
                 type="submit"
-                disabled={saving}
+                disabled={saving || isVerified}
               >
-                {saving ? 'Menyimpan...' : 'Simpan Rekening'}
+                {saving ? 'Menyimpan...' : isVerified ? 'Terkunci' : 'Simpan Rekening'}
               </Button>
             </div>
           </form>
