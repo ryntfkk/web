@@ -131,7 +131,7 @@ export default function MitraProfilePage() {
         </MenuCard>
 
         <MenuCard title="Bantuan & Legal">
-          <MenuListItem icon={Phone} label="Hubungi Kami" subtitle="Chat CS untuk bantuan & sengketa" href="/help" />
+          <MenuListItem icon={Phone} label="Bantuan Mitra" subtitle="FAQ mitra, chat CS & sengketa" href="/mitra/bantuan" />
           <MenuListItem icon={FileText} label="Syarat & Ketentuan Mitra" href="/terms" />
           <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
         </MenuCard>
