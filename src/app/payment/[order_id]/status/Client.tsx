@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
@@ -36,6 +36,26 @@ function mapStatus(
   }
 }
 
+// Status order yang HANYA mungkin tercapai setelah pembayaran masuk. Dipakai
+// sebagai sumber kebenaran kedua: bila webhook Midtrans sudah menyentuh order,
+// halaman ini tidak boleh mengatakan pembayaran belum terkonfirmasi — kontradiksi
+// dengan /orders/{id} adalah yang paling membingungkan pelanggan.
+const PAID_ORDER_STATUSES = new Set([
+  'PAID',
+  'IN_PROGRESS',
+  'WAITING_ADDITIONAL_PAY',
+  'WAITING_CUSTOMER_CONFIRM',
+  'COMPLETED',
+  'DISPUTED',
+]);
+
+/** 'unpaid' = server memastikan belum lunas. 'error' = kami tidak tahu (gagal teknis). */
+type VerifyState = 'checking' | 'ok' | 'unpaid' | 'error';
+
+/** Bentuk minimal yang dibaca halaman ini — bukan DTO order/reconcile lengkap. */
+type ReconcileResult = { paid?: boolean };
+type OrderPaymentState = { status?: string; paid_at?: string };
+
 export default function PaymentStatusClient() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
@@ -53,21 +73,54 @@ export default function PaymentStatusClient() {
   // Untuk pembayaran wallet (tanpa midtransTxId) hasilnya sudah sinkron
   // dari respons API, jadi langsung 'ok'.
   const needsVerify = status === 'success' && !!midtransTxId;
-  const [verify, setVerify] = useState<'checking' | 'ok' | 'failed'>(needsVerify ? 'checking' : 'ok');
+  const [verify, setVerify] = useState<VerifyState>(needsVerify ? 'checking' : 'ok');
+  const [rechecking, setRechecking] = useState(false);
 
   // Rekonsiliasi aktif: verifikasi ke backend agar order ter-update walau
   // webhook Midtrans gagal terkirim atau telat. Aman dipanggil berulang (idempoten).
+  //
+  // Dua kegagalan yang WAJIB dibedakan (P0-09): reconcile yang berjalan dan
+  // menjawab "belum lunas" adalah keadaan bisnis; reconcile yang gagal teknis
+  // (403/5xx/jaringan) berarti kami TIDAK TAHU. Dulu keduanya digabung menjadi
+  // satu keadaan "failed", sehingga bug backend menyamar sebagai pembayaran
+  // tertunda dan bertahan lama tanpa terdeteksi.
+  const runVerify = useCallback(async (): Promise<VerifyState> => {
+    const res = await fetchAPI<ReconcileResult>(`/payments/${midtransTxId}/reconcile`, { method: 'POST' });
+    if (res.success && unwrapData<ReconcileResult>(res.data)?.paid) return 'ok';
+
+    // Reconcile tidak memastikan lunas → tanya status order. Kalau webhook sudah
+    // masuk, order-nya sendiri yang jadi bukti.
+    const orderRes = await fetchAPI<OrderPaymentState>(`/orders/${orderId}`);
+    if (orderRes.success) {
+      const order = unwrapData<OrderPaymentState>(orderRes.data);
+      if (order?.paid_at || (order?.status && PAID_ORDER_STATUSES.has(order.status))) return 'ok';
+    }
+
+    return res.success ? 'unpaid' : 'error';
+  }, [midtransTxId, orderId]);
+
   useEffect(() => {
     if (!isAuthorized || !needsVerify) return;
     let cancelled = false;
     (async () => {
-      const res = await fetchAPI<any>(`/payments/${midtransTxId}/reconcile`, { method: 'POST' });
-      if (cancelled) return;
-      const data = res.success ? unwrapData<any>(res.data) : null;
-      setVerify(res.success && data?.paid ? 'ok' : 'failed');
+      const result = await runVerify();
+      if (!cancelled) setVerify(result);
     })();
     return () => { cancelled = true; };
-  }, [isAuthorized, needsVerify, midtransTxId]);
+  }, [isAuthorized, needsVerify, runVerify]);
+
+  // "Cek Lagi" harus benar-benar mengecek ulang. Reload penuh hanya mengulang
+  // request yang sama sambil membuang state — bagi pelanggan tampak tidak terjadi
+  // apa-apa.
+  const handleRecheck = async () => {
+    if (rechecking) return;
+    setRechecking(true);
+    try {
+      setVerify(await runVerify());
+    } finally {
+      setRechecking(false);
+    }
+  };
 
   const verifiedSuccess = status === 'success' && verify === 'ok';
 
@@ -104,10 +157,9 @@ export default function PaymentStatusClient() {
     );
   }
 
-  // Redirect bilang sukses tapi server belum bisa mengonfirmasi → tampilkan
-  // sebagai "menunggu konfirmasi", BUKAN sukses. Webhook/reconcile berikutnya
-  // yang akan menuntaskan status order.
-  if (status === 'success' && verify === 'failed') {
+  // Server memastikan pembayaran belum masuk → "menunggu konfirmasi", BUKAN
+  // sukses. Webhook/reconcile berikutnya yang akan menuntaskan status order.
+  if (status === 'success' && verify === 'unpaid') {
     return (
       <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
@@ -117,8 +169,35 @@ export default function PaymentStatusClient() {
             Pembayaranmu sedang diproses penyedia pembayaran. Status pesanan akan diperbarui otomatis begitu pembayaran terkonfirmasi.
           </p>
           <div className="space-y-3">
-            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => window.location.reload()}>
+            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={handleRecheck} isLoading={rechecking}>
               Cek Lagi
+            </Button>
+            <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.replace(`/orders/${orderId}`)}>
+              Lihat Detail Pesanan
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Kami gagal memverifikasi (403/5xx/jaringan) — bukan berarti uangnya tidak
+  // masuk. Katakan apa adanya: jangan menuduh pembayaran tertunda atas dasar
+  // kegagalan teknis kami sendiri.
+  if (status === 'success' && verify === 'error') {
+    return (
+      <div className="page-h bg-brand-gray-60 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-md max-w-sm w-full p-8 text-center border border-brand-gray-100">
+          <AlertTriangle className="w-16 h-16 text-brand-warning mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Gagal Memeriksa Status</h1>
+          <p className="text-sm text-brand-gray-700 mb-6">
+            Pembayaranmu kemungkinan besar sudah masuk, tetapi kami belum berhasil
+            memeriksanya sekarang. Coba lagi, atau buka detail pesanan untuk melihat
+            status terkini. Jangan membayar ulang sebelum memeriksanya.
+          </p>
+          <div className="space-y-3">
+            <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={handleRecheck} isLoading={rechecking}>
+              Coba Lagi
             </Button>
             <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.replace(`/orders/${orderId}`)}>
               Lihat Detail Pesanan
