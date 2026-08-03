@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/query-provider";
 import AuthProvider from "@/components/providers/auth-provider";
 import { ChatProvider } from "@/components/providers/chat-provider";
+import LegalReconsentGate from "@/components/legal/LegalReconsentGate";
 import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { Toaster } from "@/components/ui/toast";
@@ -94,6 +95,10 @@ export default function RootLayout({
               <Footer />
               <BottomNav />
               <FloatingChatWrapper />
+              {/* D1: menagih persetujuan versi legal baru ke pengguna lama.
+                  Diletakkan di root agar berlaku di seluruh halaman; ia
+                  mengecualikan halaman auth & halaman legal itu sendiri. */}
+              <LegalReconsentGate />
               <Toaster />
             </ChatProvider>
           </AuthProvider>

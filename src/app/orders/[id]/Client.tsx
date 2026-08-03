@@ -74,7 +74,11 @@ interface OrderDetail {
   partner?: {
     id: string;
     user_id?: string;
+    // Nama TAMPIL mitra (nama merek untuk badan usaha).
     name: string;
+    // Badan hukum penerima pembayaran. Sama dengan `name` untuk perorangan.
+    legal_name?: string;
+    partner_type?: string;
     username?: string;
     avatar_url?: string;
     phone_masked?: string;
@@ -711,7 +715,20 @@ export default function OrderDetailClient() {
                       {order.partner.is_online && (
                         <span className="text-[10px] font-medium text-brand-success bg-brand-success/10 px-1.5 py-0.5 rounded">Online</span>
                       )}
+                      {order.partner.partner_type === 'vendor' && (
+                        <span className="text-[10px] font-medium text-brand-gray-700 bg-brand-gray-60 px-1.5 py-0.5 rounded">Badan Usaha</span>
+                      )}
                     </div>
+
+                    {/* Badan hukum penerima pembayaran. Hanya ditampilkan bila
+                        BERBEDA dari nama tampil — untuk mitra perorangan
+                        keduanya sama dan barisnya cuma mengulang. */}
+                    {order.partner.legal_name &&
+                      order.partner.legal_name !== order.partner.name && (
+                        <p className="text-xs text-brand-gray-450 truncate">
+                          Pembayaran diterima oleh {order.partner.legal_name}
+                        </p>
+                      )}
 
                     {order.partner.username && (
                       <p className="text-xs text-brand-gray-450 truncate">@{order.partner.username}</p>
