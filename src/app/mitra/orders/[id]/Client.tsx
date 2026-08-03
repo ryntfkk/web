@@ -57,6 +57,17 @@ interface MitraOrderDetail {
   service_lon?: number;
   notes?: string;
   photos?: string[];
+  // Snapshot persyaratan saat pesanan dibuat — apa yang DIJANJIKAN pelanggan.
+  // Ini bukti bila di lokasi ternyata tidak tersedia; jangan dibaca ulang dari
+  // layanan, karena mitra bisa mengubah persyaratannya setelah order jalan.
+  requirements?: {
+    code?: string;
+    label: string;
+    hint?: string;
+    note?: string;
+    is_mandatory: boolean;
+  }[];
+  requirements_ack_at?: string;
   cancellation_reason?: string;
   cancelled_by?: string;
   customer_info?: {
@@ -706,6 +717,42 @@ export default function MitraOrderDetailClient() {
                   />
                 )}
               </div>
+
+              {(order.requirements?.length ?? 0) > 0 && (
+                <div className="mt-3 pt-3 border-t border-brand-gray-100">
+                  <p className="text-xs text-brand-gray-450 mb-2">
+                    Yang dijanjikan pelanggan akan disiapkan
+                  </p>
+                  <ul className="space-y-1.5">
+                    {order.requirements!.map((r, i) => (
+                      <li key={r.code || `req-${i}`} className="flex items-start gap-2">
+                        <span
+                          className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                            r.is_mandatory
+                              ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
+                              : 'bg-brand-gray-60 text-brand-gray-450'
+                          }`}
+                        >
+                          {r.is_mandatory ? 'Wajib' : 'Disarankan'}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-sm text-brand-gray-900">{r.label}</span>
+                          {r.note && (
+                            <span className="block text-xs text-brand-gray-450">
+                              Catatan Anda: {r.note}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2 text-xs text-brand-gray-450">
+                    {order.requirements_ack_at
+                      ? `Disetujui pelanggan pada ${formatDate(order.requirements_ack_at)}`
+                      : 'Pesanan ini dibuat sebelum persetujuan persyaratan diberlakukan.'}
+                  </p>
+                </div>
+              )}
 
               {order.notes && (
                 <div className="mt-3 pt-3 border-t border-brand-gray-100">

@@ -13,6 +13,11 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { DynamicStringList } from '@/components/ui/dynamic-string-list';
 import { DynamicFaqList, type Faq } from '@/components/ui/dynamic-faq-list';
+import {
+  RequirementsEditor,
+  type RequirementCatalogItem,
+  type ServiceRequirement,
+} from '@/components/ui/requirements-editor';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
 import { formatPrice } from '@/lib/format';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
@@ -27,6 +32,10 @@ export default function NewMitraServicePage() {
   // disamakan manual dengan backend setiap kali admin mengubahnya.
   const MIN_PRICE = usePlatformConfig().min_transaction;
 
+  // Katalog persyaratan datang dari backend, bukan dihardcode di sini —
+  // admin bisa menambah/menonaktifkan item tanpa deploy web.
+  const [reqCatalog, setReqCatalog] = useState<RequirementCatalogItem[]>([]);
+
   const [form, setForm] = useState({
     name: '',
     category_id: '',
@@ -38,6 +47,7 @@ export default function NewMitraServicePage() {
     included_items: [] as string[],
     excluded_items: [] as string[],
     faqs: [] as Faq[],
+    requirements: [] as ServiceRequirement[],
   });
 
   // Variasi produk (opsional). Bila ada minimal 1, harga diambil dari variasi termurah.
@@ -52,6 +62,20 @@ export default function NewMitraServicePage() {
     // Bersihkan object URL saat unmount
     return () => photos.forEach(p => URL.revokeObjectURL(p.preview));
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Katalog persyaratan bersifat pelengkap: kegagalan memuatnya tidak boleh
+    // menghalangi mitra menyimpan layanan — ia masih bisa menulis teks bebas.
+    let alive = true;
+    fetchAPI<RequirementCatalogItem[]>('/partners/requirement-catalog')
+      .then(res => {
+        if (alive && res.success && res.data) setReqCatalog(res.data);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
   }, []);
 
   if (authLoading) return <PageSkeleton />;
@@ -101,6 +125,16 @@ export default function NewMitraServicePage() {
     const included = form.included_items.map(i => i.trim()).filter(Boolean);
     const excluded = form.excluded_items.map(i => i.trim()).filter(Boolean);
     const faqs = form.faqs.map(f => ({ question: f.question.trim(), answer: f.answer.trim() })).filter(f => f.question && f.answer);
+    // Buang baris teks-bebas yang dibiarkan kosong; backend menolak item tanpa
+    // code maupun custom_label.
+    const requirementsPayload = form.requirements
+      .map(r => ({
+        code: r.code,
+        custom_label: r.custom_label?.trim() || undefined,
+        note: r.note?.trim() || '',
+        is_mandatory: r.is_mandatory,
+      }))
+      .filter(r => r.code || r.custom_label);
 
     // Variasi: buang baris kosong; bila ada, harga produk = variasi termurah.
     const parsedVariations = variations
@@ -162,6 +196,7 @@ export default function NewMitraServicePage() {
           included_items: included,
           excluded_items: excluded,
           faqs: faqs,
+          requirements: requirementsPayload,
         })
       });
 
@@ -360,6 +395,12 @@ export default function NewMitraServicePage() {
             onChange={items => setForm({ ...form, excluded_items: items })}
             placeholder="Contoh: Penambahan Freon"
             required
+          />
+
+          <RequirementsEditor
+            items={form.requirements}
+            catalog={reqCatalog}
+            onChange={items => setForm({ ...form, requirements: items })}
           />
 
           <DynamicFaqList

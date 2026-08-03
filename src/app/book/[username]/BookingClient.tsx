@@ -120,6 +120,15 @@ export default function BookingClient() {
   const [successMsg, setSuccessMsg] = useState('');
   const [idempotencyKey, setIdempotencyKey] = useState<string>('');
   const [previewQuote, setPreviewQuote] = useState<any>(null);
+  // Persetujuan persyaratan pelanggan (R2 §8.3). SATU checkbox untuk seluruh
+  // daftar — bukan satu per item: banyak checkbox menaikkan gesekan tanpa
+  // menambah nilai sebagai bukti.
+  //
+  // Yang disimpan adalah KUNCI daftar yang disetujui, bukan boolean. Dengan
+  // begitu persetujuan otomatis batal saat daftarnya berubah (mis. pelanggan
+  // menambah layanan lain), tanpa perlu useEffect yang mereset — pelanggan
+  // tidak bisa menyetujui daftar lama lalu memesan daftar baru.
+  const [agreedRequirementsKey, setAgreedRequirementsKey] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [showAddressList, setShowAddressList] = useState(false);
   const [showCancelPolicy, setShowCancelPolicy] = useState(false);
@@ -443,6 +452,9 @@ export default function BookingClient() {
         items,
         photo_urls: photoUrls,
         idempotency_key: idempotencyKey,
+        // Hanya boolean. Isi persyaratannya di-snapshot server dari DB, jadi
+        // payload ini tidak bisa menentukan apa yang disetujui.
+        requirements_acknowledged: agreeRequirements,
       };
 
       // 3. Submit Order (fetchAPI = auto token-refresh saat 401)
@@ -655,6 +667,70 @@ export default function BookingClient() {
     </div>
   );
 
+  // Persyaratan gabungan seluruh layanan di keranjang, sudah ter-deduplikasi
+  // oleh backend (/orders/preview). Dibaca dari preview supaya checkout tidak
+  // perlu memanggil detail tiap layanan satu per satu.
+  const previewRequirements: Array<{
+    code?: string;
+    label: string;
+    hint?: string;
+    note?: string;
+    is_mandatory: boolean;
+  }> = previewQuote?.requirements ?? [];
+  const hasMandatoryRequirement = previewRequirements.some(r => r.is_mandatory);
+
+  // Kunci identitas daftar. Persetujuan hanya berlaku untuk daftar yang PERSIS
+  // sama dengan yang dilihat pelanggan saat mencentang.
+  const requirementsKey = previewRequirements
+    .map(r => `${r.code || r.label}:${r.is_mandatory ? 1 : 0}`)
+    .join('|');
+  const agreeRequirements = requirementsKey !== '' && agreedRequirementsKey === requirementsKey;
+
+  // Section Persyaratan — ditampilkan di step 2 sebelum submit
+  const requirementsSection = previewRequirements.length > 0 && (
+    <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <Info className="w-4 h-4 text-brand-gray-700 shrink-0" />
+        <span className="text-sm font-semibold text-brand-gray-900">Yang Perlu Kamu Siapkan</span>
+      </div>
+      <ul className="space-y-2">
+        {previewRequirements.map((r, i) => (
+          <li key={r.code || `custom-${i}`} className="flex items-start gap-2">
+            <span
+              className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                r.is_mandatory
+                  ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
+                  : 'bg-brand-gray-60 text-brand-gray-450'
+              }`}
+            >
+              {r.is_mandatory ? 'Wajib' : 'Disarankan'}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm text-brand-gray-900">{r.label}</span>
+              {r.hint && <span className="mt-0.5 block text-xs text-brand-gray-450">{r.hint}</span>}
+              {r.note && (
+                <span className="mt-0.5 block text-xs text-brand-gray-450">
+                  Catatan mitra: {r.note}
+                </span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <label className="flex items-start gap-2 border-t border-brand-gray-100 pt-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={agreeRequirements}
+          onChange={e => setAgreedRequirementsKey(e.target.checked ? requirementsKey : null)}
+          className="mt-0.5 size-4 shrink-0 accent-brand-red"
+        />
+        <span className="text-sm text-brand-gray-700">
+          Saya sudah membaca dan akan menyiapkan semua persyaratan di atas.
+        </span>
+      </label>
+    </div>
+  );
+
   // Section Rincian Pembayaran — withAction=true menampilkan tombol submit (desktop)
   const summarySection = (withAction: boolean) => (
     <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3 shadow-sm">
@@ -740,7 +816,7 @@ export default function BookingClient() {
           <Button
             className="w-full bg-brand-red hover:bg-brand-red-dark rounded py-5"
             onClick={submitOrder}
-            disabled={loading || !date || !time || !addressId || isOwnPartner}
+            disabled={loading || !date || !time || !addressId || isOwnPartner || (hasMandatoryRequirement && !agreeRequirements)}
           >
             {loading ? 'Memproses...' : 'Buat Pesanan'}
           </Button>
@@ -1085,6 +1161,7 @@ export default function BookingClient() {
 
               {/* Mobile & tablet: promo + rincian di alur konten */}
               <div className="space-y-3 lg:hidden">
+                {requirementsSection}
                 {cancelPolicySection}
                 {promoSection}
                 {summarySection(false)}
@@ -1093,6 +1170,7 @@ export default function BookingClient() {
 
             {/* Kolom kanan (desktop): promo + ringkasan sticky + tombol submit */}
             <aside className="hidden lg:block lg:sticky lg:top-44 space-y-4">
+              {requirementsSection}
               {cancelPolicySection}
               {promoSection}
               {summarySection(true)}
@@ -1140,7 +1218,7 @@ export default function BookingClient() {
               <Button
                 className="px-8"
                 onClick={submitOrder}
-                disabled={loading || !date || !time || !addressId || isOwnPartner}
+                disabled={loading || !date || !time || !addressId || isOwnPartner || (hasMandatoryRequirement && !agreeRequirements)}
               >
                 {loading ? 'Memproses...' : 'Buat Pesanan'}
               </Button>

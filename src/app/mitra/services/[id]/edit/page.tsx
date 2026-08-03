@@ -15,6 +15,11 @@ import { getErrorMessage } from '@/types/api';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
 import { DynamicStringList } from '@/components/ui/dynamic-string-list';
 import { DynamicFaqList, type Faq } from '@/components/ui/dynamic-faq-list';
+import {
+  RequirementsEditor,
+  type RequirementCatalogItem,
+  type ServiceRequirement,
+} from '@/components/ui/requirements-editor';
 import { formatPrice } from '@/lib/format';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
@@ -27,6 +32,9 @@ export default function EditMitraServicePage() {
   // disamakan manual dengan backend setiap kali admin mengubahnya.
   const MIN_PRICE = usePlatformConfig().min_transaction;
 
+  // Katalog persyaratan dari backend — admin bisa mengubahnya tanpa deploy web.
+  const [reqCatalog, setReqCatalog] = useState<RequirementCatalogItem[]>([]);
+
   const [form, setForm] = useState({
     name: '',
     category_id: '',
@@ -38,6 +46,7 @@ export default function EditMitraServicePage() {
     included_items: [] as string[],
     excluded_items: [] as string[],
     faqs: [] as Faq[],
+    requirements: [] as ServiceRequirement[],
   });
 
   const [variations, setVariations] = useState<{ name: string; price: string }[]>([]);
@@ -49,6 +58,19 @@ export default function EditMitraServicePage() {
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState('');
   const [deletePhotoId, setDeletePhotoId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Pelengkap: gagal memuat katalog tidak boleh menghalangi mitra menyimpan.
+    let alive = true;
+    fetchAPI<RequirementCatalogItem[]>('/partners/requirement-catalog')
+      .then(res => {
+        if (alive && res.success && res.data) setReqCatalog(res.data);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,6 +92,19 @@ export default function EditMitraServicePage() {
                 included_items: service.included_items || [],
                 excluded_items: service.excluded_items || [],
                 faqs: service.faqs || [],
+                // Prefill persyaratan: backend mengembalikan label yang sudah
+                // ter-resolve, tapi form menyimpan code/custom_label — item
+                // katalog dikenali dari code-nya, sisanya jadi teks bebas.
+                requirements: Array.isArray(service.requirements)
+                  ? service.requirements.map(
+                      (r: { code?: string; label?: string; note?: string; is_mandatory?: boolean }) => ({
+                        code: r.code || undefined,
+                        custom_label: r.code ? undefined : r.label || '',
+                        note: r.note || '',
+                        is_mandatory: r.is_mandatory ?? true,
+                      }),
+                    )
+                  : [],
               });
               if (Array.isArray(service.variations)) {
                 setVariations(
@@ -114,6 +149,14 @@ export default function EditMitraServicePage() {
     const included = form.included_items.map(i => i.trim()).filter(Boolean);
     const excluded = form.excluded_items.map(i => i.trim()).filter(Boolean);
     const faqs = form.faqs.map(f => ({ question: f.question.trim(), answer: f.answer.trim() })).filter(f => f.question && f.answer);
+    const requirementsPayload = form.requirements
+      .map(r => ({
+        code: r.code,
+        custom_label: r.custom_label?.trim() || undefined,
+        note: r.note?.trim() || '',
+        is_mandatory: r.is_mandatory,
+      }))
+      .filter(r => r.code || r.custom_label);
 
     const parsedVariations = variations
       .map(v => ({ name: v.name.trim(), price: parseInt(v.price || '0', 10) || 0 }))
@@ -171,6 +214,7 @@ export default function EditMitraServicePage() {
         included_items: included,
         excluded_items: excluded,
         faqs: faqs,
+        requirements: requirementsPayload,
       })
     });
 
@@ -336,6 +380,12 @@ export default function EditMitraServicePage() {
             onChange={items => setForm({ ...form, excluded_items: items })}
             placeholder="Contoh: Penambahan Freon"
             required
+          />
+
+          <RequirementsEditor
+            items={form.requirements}
+            catalog={reqCatalog}
+            onChange={items => setForm({ ...form, requirements: items })}
           />
 
           <DynamicFaqList

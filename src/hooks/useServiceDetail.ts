@@ -41,6 +41,19 @@ export interface ServiceDetail {
   photo_url: string;
   photos: ServicePhoto[];
   faqs: { question: string; answer: string }[];
+  // Persyaratan yang harus disiapkan pelanggan. Backend sudah me-resolve label
+  // (dari katalog atau teks bebas mitra); `code` kosong berarti teks bebas.
+  requirements?: ServiceRequirement[];
+}
+
+export interface ServiceRequirement {
+  code: string;
+  label: string;
+  hint: string;
+  icon: string;
+  kind: string;
+  note: string;
+  is_mandatory: boolean;
 }
 
 export interface WorkingHour {

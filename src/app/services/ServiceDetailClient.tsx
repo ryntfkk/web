@@ -297,6 +297,15 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
   const allPhotos = hasMultiplePhotos ? service.photos : [{ id: 'main', photo_url: mainPhoto }];
   const includedItems = service.included_items ?? [];
   const excludedItems = service.excluded_items ?? [];
+  // Persyaratan yang harus disiapkan pelanggan. Backend mengembalikan label yang
+  // sudah ter-resolve (katalog atau teks bebas mitra), jadi tidak perlu lookup.
+  const requirements: Array<{
+    code?: string;
+    label: string;
+    hint?: string;
+    note?: string;
+    is_mandatory: boolean;
+  }> = service.requirements ?? [];
 
   // Variasi (Shopee-style). Harga besar mengikuti variasi terpilih; sebelum
   // memilih, tampilkan harga termurah (= service.price dari backend).
@@ -664,6 +673,51 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     </ul>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Persyaratan pelanggan (R2 §8.3). Ditempatkan SEBELUM FAQ karena
+                ini bukan informasi tambahan — pelanggan harus tahu apa yang
+                harus ia sediakan sebelum memutuskan memesan. */}
+            {requirements.length > 0 && (
+              <div className="mt-4 border-t border-brand-gray-100 pt-4">
+                <h3 className="text-sm font-semibold text-brand-gray-900 mb-1">
+                  Yang Perlu Anda Siapkan
+                </h3>
+                <p className="text-xs text-brand-gray-450 mb-3">
+                  Mitra membutuhkan hal berikut agar pekerjaan bisa dilakukan.
+                </p>
+                <ul className="space-y-2">
+                  {requirements.map((r, i) => (
+                    <li
+                      key={r.code || `custom-${i}`}
+                      className="flex items-start gap-2 rounded-md border border-brand-gray-100 p-2.5"
+                    >
+                      <span
+                        className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                          r.is_mandatory
+                            ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
+                            : 'bg-brand-gray-50 text-brand-gray-450'
+                        }`}
+                      >
+                        {r.is_mandatory ? 'Wajib' : 'Disarankan'}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-xs font-medium text-brand-gray-900">
+                          {r.label}
+                        </span>
+                        {r.hint && (
+                          <span className="mt-0.5 block text-xs text-brand-gray-450">{r.hint}</span>
+                        )}
+                        {r.note && (
+                          <span className="mt-0.5 block text-xs text-brand-gray-450">
+                            Catatan mitra: {r.note}
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
