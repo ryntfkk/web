@@ -8,9 +8,12 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { formatPrice } from '@/lib/format';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
 export default function AdditionalFeeFormClient() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
+  const platformConfig = usePlatformConfig();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
@@ -42,9 +45,10 @@ export default function AdditionalFeeFormClient() {
       setError('Harga satuan minimal Rp 5.000');
       return;
     }
-    // Selaras batas backend (AddAdditionalFees: total per item maksimal Rp 10.000.000).
-    if (unitPrice * qty > 10000000) {
-      setError('Total tagihan tidak boleh melebihi Rp 10.000.000');
+    // Batas dari platform_settings — sumber yang sama dengan yang ditegakkan
+    // backend di AddAdditionalFees, jadi tidak bisa lagi berbeda diam-diam.
+    if (unitPrice * qty > platformConfig.max_additional_fee) {
+      setError(`Total tagihan tidak boleh melebihi ${formatPrice(platformConfig.max_additional_fee)}`);
       return;
     }
 

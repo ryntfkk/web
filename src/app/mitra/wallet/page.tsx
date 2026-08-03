@@ -130,10 +130,9 @@ export default function MitraWalletPage() {
           <div>
             <p className="text-xs font-semibold text-brand-red mb-0.5">Info Penarikan Dana</p>
             <p className="text-xs text-brand-red leading-snug">
-              {/* Batas dari platform_settings — jangan ketik angkanya di sini.
-                  SLA masih kalimat tetap; pindah ke platform_profile di Fase 3
-                  (PLAN-KONTEN-LEGAL-CMS.md §3.1). */}
-              Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>1-2 hari kerja</strong>.
+              {/* Batas & SLA dari DB (platform_settings + platform_profile) —
+                  tidak ada angka maupun janji waktu yang diketik di sini. */}
+              Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>{platformConfig.profile?.withdrawal_sla || '1-2 hari kerja'}</strong>.
             </p>
           </div>
         </div>

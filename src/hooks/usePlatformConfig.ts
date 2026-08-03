@@ -16,6 +16,26 @@ export interface PlatformConfig {
   withdrawal_fee: number;
   max_withdrawal: number;
   max_wallet_adjustment: number;
+  /** Plafon total per item biaya tambahan yang boleh diajukan mitra. */
+  max_additional_fee: number;
+  /**
+   * Identitas & kontak platform. Setiap field boleh kosong — tampilkan secara
+   * KONDISIONAL, jangan cetak "-": itu memberi kesan datanya ada tapi hilang.
+   * Absen sama sekali bila profil gagal dibaca.
+   */
+  profile?: PlatformProfile;
+}
+
+export interface PlatformProfile {
+  legal_name: string;
+  brand_name: string;
+  business_id: string;
+  address: string;
+  support_email: string;
+  support_phone: string;
+  support_whatsapp: string;
+  dpo_email: string;
+  withdrawal_sla: string;
 }
 
 // Cadangan saat /config gagal dimuat — selaras DefaultPlatformSettings di
@@ -30,6 +50,7 @@ export const FALLBACK_PLATFORM_CONFIG: PlatformConfig = {
   withdrawal_fee: 3000,
   max_withdrawal: 10000000,
   max_wallet_adjustment: 5000000,
+  max_additional_fee: 10000000,
 };
 
 /**

@@ -6,6 +6,7 @@ import { ShieldCheck } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAPI } from '@/lib/api';
 import { slugify } from '@/lib/slug';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import type { Category } from '@/types/category';
 
 interface FooterLink {
@@ -89,6 +90,7 @@ export default function Footer() {
   const pathname = usePathname();
   // Hook dipanggil sebelum early-return agar rules-of-hooks terpenuhi.
   const { data: popularLinks } = useFooterPopularLinks();
+  const { profile } = usePlatformConfig();
   if (pathname.startsWith('/chat')) return null;
 
   return (
@@ -140,10 +142,21 @@ export default function Footer() {
 
         {/* Bar bawah */}
         <div className="mt-10 pt-6 border-t border-brand-gray-100 flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex flex-col md:flex-row items-center gap-1 md:gap-3 text-[13px] text-brand-gray-700">
-            <span>&copy; {new Date().getFullYear()} POSKO JASA</span>
+          {/* Identitas & kontak dari platform_profile. Field kosong tidak
+              dirender — lebih baik absen daripada mencetak placeholder yang
+              terbaca seperti data hilang. */}
+          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 text-[13px] text-brand-gray-700">
+            <span>&copy; {new Date().getFullYear()} {profile?.legal_name || profile?.brand_name || 'POSKO JASA'}</span>
             <span className="hidden md:inline text-brand-gray-400">·</span>
             <span>Platform Marketplace Jasa Terpercaya</span>
+            {profile?.support_email && (
+              <>
+                <span className="hidden md:inline text-brand-gray-400">·</span>
+                <a href={`mailto:${profile.support_email}`} className="hover:text-brand-red transition-colors">
+                  {profile.support_email}
+                </a>
+              </>
+            )}
           </div>
           <p className="flex items-center gap-1.5 text-[13px] text-brand-gray-700">
             <ShieldCheck className="w-4 h-4 text-brand-success" />
