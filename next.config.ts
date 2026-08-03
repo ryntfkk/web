@@ -50,6 +50,24 @@ const nextConfig: NextConfig = {
         destination: '/services',
         permanent: true,
       },
+      // Dokumen legal yang punya halaman kanoniknya sendiri: satu dokumen harus
+      // satu URL. Rute generik /legal/[slug] TIDAK boleh ikut menyajikannya —
+      // teks identik di dua alamat memecah bobot SEO.
+      //
+      // Ditangani di sini, bukan lewat permanentRedirect() di dalam page:
+      // terbukti redirect dari dalam page TIDAK tereksekusi pada deployment
+      // Amplify ini (/legal/privacy malah menyajikan halaman "tidak ditemukan"
+      // ber-status 200) — konsisten dengan catatan pada redirect /services di atas.
+      {
+        source: '/legal/privacy',
+        destination: '/privacy',
+        permanent: true,
+      },
+      {
+        source: '/legal/terms',
+        destination: '/terms',
+        permanent: true,
+      },
       // Konsolidasi www → non-www (308 permanen). www.poskojasa.com melayani
       // konten yang sama; tanpa redirect ini Google melihat dua host (duplikat).
       // Canonical sudah non-www, tapi redirect memberi sinyal terkuat & merapikan

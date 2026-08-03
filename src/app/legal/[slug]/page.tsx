@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import LegalMarkdown from '@/components/legal/LegalMarkdown';
 import { getLegalDocument, formatEffectiveDate, type LegalSlug } from '@/lib/legal';
@@ -22,15 +22,12 @@ const SITE = 'https://poskojasa.com';
  * berikutnya (mis. `partner-terms`), tanpa perlu menambah folder tiap kali.
  */
 
-/** Dokumen yang sudah punya halaman kanoniknya sendiri → dialihkan ke sana. */
-const CANONICAL_ELSEWHERE: Record<string, string> = {
-  privacy: '/privacy',
-  terms: '/terms',
-};
+// `privacy` & `terms` punya halaman kanoniknya sendiri dan dialihkan 308 di
+// next.config.ts — BUKAN di sini. Redirect dari dalam page terbukti tidak
+// tereksekusi pada deployment Amplify ini.
 
-/** Hanya slug ini yang dilayani rute generik. */
-const GENERIC_SLUGS = ['cancellation', 'partner-terms'] as const;
-
+// Slug yang dilayani rute ini = kunci META di bawah. Satu sumber, jadi
+// menambah dokumen legal baru cukup menambah satu entri.
 const META: Record<string, { title: string; description: string }> = {
   cancellation: {
     title: 'Kebijakan Pembatalan & Refund',
@@ -59,6 +56,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
 
+  // `robots: noindex` di sini BUKAN hiasan: `notFound()` pada rute dinamis
+  // disajikan Amplify dengan status 200 (soft-404) — perilaku yang sama pada
+  // /kategori, /services, dan /jasa. noindex-lah yang benar-benar mencegah
+  // halaman kosong terindeks.
   const meta = META[slug];
   if (!meta) {
     return { title: 'Dokumen tidak ditemukan', robots: { index: false, follow: false } };
@@ -82,12 +83,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function LegalDocumentPage({ params }: PageProps) {
   const { slug } = await params;
-
-  // Satu dokumen = satu URL kanonik. Tanpa pengalihan ini `/legal/privacy` dan
-  // `/privacy` menyajikan teks identik di dua alamat — duplikat yang merugikan
-  // peringkat keduanya.
-  const canonical = CANONICAL_ELSEWHERE[slug];
-  if (canonical) permanentRedirect(canonical);
 
   if (!META[slug]) notFound();
 
