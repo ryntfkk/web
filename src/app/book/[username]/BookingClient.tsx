@@ -661,7 +661,20 @@ export default function BookingClient() {
             <span className="text-brand-red font-bold shrink-0 mt-0.5">✗</span>
             <span className="text-brand-gray-700"><strong>Tidak konfirmasi dalam 24 jam</strong> setelah selesai → Dana cair ke mitra</span>
           </div>
-          <p className="text-xs text-brand-gray-450 mt-2 pt-2 border-t border-brand-gray-100">Biaya admin/layanan platform tidak dikembalikan pada pembatalan.</p>
+          <p className="text-xs text-brand-gray-450 mt-2 pt-2 border-t border-brand-gray-100">
+            Biaya admin/layanan platform tidak dikembalikan pada pembatalan.{' '}
+            {/* Ringkasan di atas adalah rangkuman; yang mengikat adalah dokumen
+                resminya. Sebelum ada /legal/[slug], tautan ini tidak mungkin
+                dibuat — dokumennya belum punya halaman. */}
+            <a
+              href="/legal/cancellation"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-red font-medium hover:underline"
+            >
+              Baca Kebijakan Pembatalan selengkapnya
+            </a>
+          </p>
         </div>
       )}
     </div>

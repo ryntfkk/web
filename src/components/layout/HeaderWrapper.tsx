@@ -51,6 +51,8 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   // Route SEO-friendly untuk listing jasa per kategori/kota
   "jasa",
   "kategori",
+  // Rute generik dokumen legal: /legal/[slug] (cancellation, partner-terms)
+  "legal",
   "mitra",
   "notifications",
   "orders",
@@ -98,6 +100,7 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
   if (pathname.startsWith("/book/")) return true;
   if (pathname.startsWith("/search/")) return true;
   if (pathname.startsWith("/jasa/")) return true;
+  if (pathname.startsWith("/legal/")) return true;
   if (pathname.startsWith("/kategori/")) return true;
 
   // Auth pages - header handled by their own layouts

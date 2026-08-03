@@ -37,6 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/help',
     '/privacy',
     '/terms',
+    // Dokumen legal yang dilayani rute generik /legal/[slug]. `partner-terms`
+    // sengaja TIDAK didaftarkan — belum diterbitkan, jadi halamannya 404.
+    '/legal/cancellation',
     // Halaman publik permintaan hapus akun (syarat Google Play) — harus
     // benar-benar dapat ditemukan, bukan hanya ada URL-nya.
     '/hapus-akun',
