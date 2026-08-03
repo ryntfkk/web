@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Search, ChevronDown } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
-import { useFaqs } from '@/hooks/useFaqs';
+import { useFaqs, type FaqGroup } from '@/hooks/useFaqs';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import { renderFaqAnswer } from '@/lib/faq-tokens';
 
@@ -15,14 +15,21 @@ import { renderFaqAnswer } from '@/lib/faq-tokens';
 export default function FaqAccordion({
   audience,
   placeholder = 'Cari pertanyaan…',
+  initialGroups,
 }: {
   audience: 'CUSTOMER' | 'PARTNER';
   placeholder?: string;
+  /**
+   * Hasil ambil di server. Dipakai sebagai data awal supaya isi FAQ sudah ada
+   * di HTML pertama — tanpa ini halaman terkirim kosong dan baru terisi setelah
+   * JS jalan, yang membuat isinya lemah untuk mesin pencari.
+   */
+  initialGroups?: FaqGroup[];
 }) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<string | null>(null);
   const config = usePlatformConfig();
-  const { data: groups, isLoading } = useFaqs(audience);
+  const { data: groups, isLoading } = useFaqs(audience, initialGroups);
 
   const rendered = useMemo(
     () =>

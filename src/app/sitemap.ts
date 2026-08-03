@@ -37,6 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/help',
     '/privacy',
     '/terms',
+    // Halaman publik permintaan hapus akun (syarat Google Play) — harus
+    // benar-benar dapat ditemukan, bukan hanya ada URL-nya.
+    '/hapus-akun',
   ].map((p) => ({
     url: BASE + p,
     lastModified: new Date(),

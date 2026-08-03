@@ -22,6 +22,7 @@ const MOBILE_HIDE_PATHS = [
   "/terms",
   "/privacy",
   "/bantuan",
+  "/hapus-akun",
   "/help",
   "/jasa",
   "/kategori",
@@ -45,6 +46,7 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   "categories",
   "chat",
   "disputes",
+  "hapus-akun",
   "help",
   // Route SEO-friendly untuk listing jasa per kategori/kota
   "jasa",

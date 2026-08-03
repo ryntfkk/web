@@ -41,6 +41,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: 'FAQ', href: '/help' },
       { label: 'Chat CS', href: '/bantuan' },
+      { label: 'Hapus Akun', href: '/hapus-akun' },
     ],
   },
 ];

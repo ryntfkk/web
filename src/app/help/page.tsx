@@ -1,15 +1,36 @@
-"use client";
-
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { MessageCircle, LifeBuoy, Flag, Scale } from 'lucide-react';
 import FaqAccordion from '@/components/help/FaqAccordion';
+import JsonLd from '@/components/seo/JsonLd';
+import { faqJsonLd } from '@/lib/seo';
+import { getFaqsRendered, flattenFaq } from '@/lib/faq-server';
 
-// FAQ kini dari tabel `faqs` (dikelola admin), bukan array di berkas ini.
+// FAQ dari tabel `faqs` (dikelola admin), bukan array di berkas ini.
 // Jangan menambahkan pertanyaan sebagai konstanta lagi — tambahkan lewat
 // /dashboard/faqs. Lihat PLAN-KONTEN-LEGAL-CMS.md §16.
-export default function HelpPage() {
+//
+// Server Component: isinya diambil di server supaya HTML pertama sudah memuat
+// teks FAQ. Sempat sebaliknya setelah Fase 4 — halaman terkirim kosong dan baru
+// terisi setelah JS jalan. Interaksi (cari, buka-tutup) tetap di klien lewat
+// FaqAccordion.
+export const revalidate = 600;
+
+export const metadata: Metadata = {
+  title: 'Bantuan & Dukungan',
+  description:
+    'Pertanyaan yang sering diajukan seputar pemesanan, pembayaran, pembatalan, refund, dan akun di POSKO Jasa.',
+  alternates: { canonical: 'https://poskojasa.com/help' },
+};
+
+export default async function HelpPage() {
+  const groups = await getFaqsRendered('CUSTOMER');
+  const faqList = flattenFaq(groups);
   return (
     <div className="page-h bg-brand-gray-60 pb-16 lg:pb-10">
+      {/* Rich result FAQ. Jawaban sudah diinterpolasi di server — kalau tidak,
+          mesin pencari membaca "{{platform_fee_rate}}" mentah. */}
+      {faqList.length > 0 && <JsonLd data={faqJsonLd(faqList)} />}
       {/* Hero + search */}
       <div className="bg-brand-red text-white">
         <div className="max-w-2xl mx-auto px-4 py-8 text-center">
@@ -44,7 +65,11 @@ export default function HelpPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Pencarian menyatu di FaqAccordion supaya input dan hasil filter
             tidak terpisah state-nya. */}
-        <FaqAccordion audience="CUSTOMER" placeholder="Cari pertanyaan… (mis. refund, komisi)" />
+        <FaqAccordion
+          audience="CUSTOMER"
+          placeholder="Cari pertanyaan… (mis. refund, komisi)"
+          initialGroups={groups}
+        />
 
         {/* Contact support */}
         <div className="bg-white rounded-lg border border-brand-gray-100 p-5 text-center">

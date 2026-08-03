@@ -20,10 +20,15 @@ export interface FaqGroup {
   items: FaqItem[];
 }
 
-export function useFaqs(audience: 'CUSTOMER' | 'PARTNER' = 'CUSTOMER') {
+export function useFaqs(
+  audience: 'CUSTOMER' | 'PARTNER' = 'CUSTOMER',
+  /** Data hasil ambil di server, dipakai sebagai isi awal. */
+  initialData?: FaqGroup[],
+) {
   return useQuery({
     queryKey: ['faqs', audience],
     staleTime: 10 * 60 * 1000,
+    initialData,
     queryFn: async (): Promise<FaqGroup[]> => {
       const res = await fetchAPI<FaqGroup[]>(`/faqs?audience=${audience}`);
       return res.success && Array.isArray(res.data) ? res.data : [];
