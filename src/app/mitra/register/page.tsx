@@ -9,6 +9,10 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import RegionSelect from '@/components/ui/RegionSelect';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import { useAuthStore } from '@/lib/store/authStore';
+import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
+import { useActiveLegalDocuments, recordLegalConsent } from '@/hooks/useLegalConsent';
+import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
+import { formatPrice } from '@/lib/format';
 import dynamic from 'next/dynamic';
 // Leaflet CSS kini di-import global di app/globals.css (lihat catatan di sana).
 
@@ -23,6 +27,9 @@ function MitraRegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const { data: legalDocs } = useActiveLegalDocuments();
+  const platformConfig = usePlatformConfig();
   const user = useAuthStore((s) => s.user);
   // Server menolak onboarding tanpa nomor terverifikasi. Tampilkan syaratnya di
   // depan, bukan sebagai error setelah lima langkah form dan dua unggahan KTP.
@@ -131,6 +138,13 @@ function MitraRegisterForm() {
       });
 
       if (!res.success) throw new Error(typeof res.error === 'string' ? res.error : 'Gagal mengirim form');
+
+      // Persetujuan dicatat pada momen mitra menyerahkan pengajuan — inilah
+      // titik ia menyetujui skema komisi. Reverify tidak dilewati: teksnya
+      // ditampilkan lagi dan versi yang berlaku bisa saja sudah berubah.
+      if (legalDocs?.length) {
+        await recordLegalConsent(legalDocs, ['terms', 'privacy']);
+      }
 
       router.push('/mitra/verification-status');
     } catch (err: any) {
@@ -290,7 +304,31 @@ function MitraRegisterForm() {
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Nama Pemilik Rekening</label>
                 <input type="text" className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red uppercase" placeholder="SESUAI BUKU TABUNGAN" value={formData.bank_account_name} onChange={(e) => setFormData({...formData, bank_account_name: e.target.value.toUpperCase()})} />
               </div>
-              <Button className="w-full mt-4" onClick={handleSubmit} disabled={loading || !formData.bank_code || !formData.bank_account_number || !formData.bank_account_name.trim()}>
+              {/* Komisi & batas tarik ditampilkan DI SINI, di titik mitra
+                  menyetujui — angkanya dari platform_settings, bukan diketik.
+                  Persetujuan atas skema komisi tak ada artinya kalau angkanya
+                  bisa basi. */}
+              <LegalConsentCheckbox checked={agreed} onChange={setAgreed} id="mitra-consent">
+                <div className="mb-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-brand-gray-900">Ketentuan kemitraan yang berlaku</p>
+                  <div className="flex justify-between text-xs text-brand-gray-700">
+                    <span>Komisi platform per transaksi selesai</span>
+                    <span className="font-semibold text-brand-gray-900">{formatFeeRate(platformConfig.platform_fee_rate)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-brand-gray-700">
+                    <span>Penarikan saldo</span>
+                    <span className="font-semibold text-brand-gray-900">
+                      min {formatPrice(platformConfig.min_transaction)} · biaya {formatPrice(platformConfig.withdrawal_fee)}
+                    </span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-brand-gray-450 pt-1">
+                    Tarif dapat berubah sewaktu-waktu; perubahan diumumkan di platform.
+                    Pembayaran di luar platform dilarang.
+                  </p>
+                </div>
+              </LegalConsentCheckbox>
+
+              <Button className="w-full mt-4" onClick={handleSubmit} disabled={loading || !agreed || !formData.bank_code || !formData.bank_account_number || !formData.bank_account_name.trim()}>
                 {loading ? 'Mengirim Data...' : isReverify ? 'Perbaiki & Kirim Ulang' : 'Kirim Pendaftaran'}
               </Button>
             </div>

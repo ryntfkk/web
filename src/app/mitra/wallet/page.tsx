@@ -9,6 +9,8 @@ import { fetchAPI } from '@/lib/api';
 import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { formatPrice } from '@/lib/format';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
 interface WalletTransaction {
   id: string;
@@ -30,6 +32,7 @@ export default function MitraWalletPage() {
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState(0);
   const [summary, setSummary] = useState({ total_earnings: 0, total_withdrawals: 0, total_refunds: 0 });
+  const platformConfig = usePlatformConfig();
 
   useEffect(() => {
     if (isAuthenticated) fetchData();
@@ -80,7 +83,6 @@ export default function MitraWalletPage() {
     }
   };
 
-  const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
   const getTransactionIcon = (type: string) => {
     if (type === 'CREDIT') return <ArrowDownLeft className="w-5 h-5 text-brand-success" />;
@@ -128,7 +130,10 @@ export default function MitraWalletPage() {
           <div>
             <p className="text-xs font-semibold text-brand-red mb-0.5">Info Penarikan Dana</p>
             <p className="text-xs text-brand-red leading-snug">
-              Batas penarikan: <strong>Rp 10.000.000 per pengajuan</strong>. Dana masuk ke rekening dalam <strong>1-2 hari kerja</strong>.
+              {/* Batas dari platform_settings — jangan ketik angkanya di sini.
+                  SLA masih kalimat tetap; pindah ke platform_profile di Fase 3
+                  (PLAN-KONTEN-LEGAL-CMS.md §3.1). */}
+              Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>1-2 hari kerja</strong>.
             </p>
           </div>
         </div>

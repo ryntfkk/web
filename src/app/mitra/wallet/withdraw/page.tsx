@@ -11,6 +11,8 @@ import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { getErrorMessage } from '@/types/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { formatPrice } from '@/lib/format';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
 interface SavedBank {
   bank_code?: string;
@@ -33,7 +35,7 @@ export default function WithdrawPage() {
   const [success, setSuccess] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const [platformConfig, setPlatformConfig] = useState<{min_transaction: number, withdrawal_fee: number, max_withdrawal: number} | null>(null);
+  const platformConfig = usePlatformConfig();
 
   const [savedBank, setSavedBank] = useState<SavedBank | null>(null);
 
@@ -57,20 +59,12 @@ export default function WithdrawPage() {
     }
   }, []);
 
-  const fetchConfig = useCallback(async () => {
-    const res = await fetchAPI<any>('/config');
-    if (res.success && res.data) {
-      setPlatformConfig(res.data);
-    }
-  }, []);
-
   useEffect(() => {
     if (isAuthorized) {
       fetchBalance();
       fetchSavedBank();
-      fetchConfig();
     }
-  }, [isAuthorized, fetchBalance, fetchSavedBank, fetchConfig]);
+  }, [isAuthorized, fetchBalance, fetchSavedBank]);
 
   const isSubmittingRef = useRef(false);
 
@@ -89,17 +83,16 @@ export default function WithdrawPage() {
     // Validasi dulu, baru kunci submit — mengunci sebelum validasi membuat
     // form mati permanen setelah satu kali error validasi (ref tidak pernah
     // di-reset di jalur early-return).
-    const fmtIDR = (n: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
-    const minWithdrawal = platformConfig?.min_transaction || 50000;
-    const maxWithdrawal = platformConfig?.max_withdrawal || 10000000;
+    const minWithdrawal = platformConfig.min_transaction;
+    const maxWithdrawal = platformConfig.max_withdrawal;
     const numAmount = parseInt(amount.replace(/\D/g, ''), 10);
 
     if (!numAmount || numAmount < minWithdrawal) {
-      setError(`Minimal penarikan ${fmtIDR(minWithdrawal)}`);
+      setError(`Minimal penarikan ${formatPrice(minWithdrawal)}`);
       return;
     }
     if (numAmount > maxWithdrawal) {
-      setError(`Maksimal penarikan ${fmtIDR(maxWithdrawal)} per pengajuan`);
+      setError(`Maksimal penarikan ${formatPrice(maxWithdrawal)} per pengajuan`);
       return;
     }
     if (numAmount > walletBalance) {
@@ -138,8 +131,6 @@ export default function WithdrawPage() {
     setLoading(false);
     isSubmittingRef.current = false;
   };
-
-  const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numbers, then format
@@ -222,17 +213,17 @@ export default function WithdrawPage() {
               />
             </div>
             <p className="text-xs text-brand-gray-450 mt-2 flex items-center gap-1 mb-4">
-              <AlertCircle className="w-3.5 h-3.5" /> Minimal {formatPrice(platformConfig?.min_transaction || 50000)}
+              <AlertCircle className="w-3.5 h-3.5" /> Minimal {formatPrice(platformConfig.min_transaction)}
             </p>
             
             <div className="border-t border-brand-gray-100 pt-3 space-y-2">
               <div className="flex justify-between text-sm text-brand-gray-700">
                 <span>Biaya Admin</span>
-                <span>{formatPrice(platformConfig?.withdrawal_fee || 3000)}</span>
+                <span>{formatPrice(platformConfig.withdrawal_fee)}</span>
               </div>
               <div className="flex justify-between text-sm font-bold text-brand-gray-900">
                 <span>Total Diterima</span>
-                <span>{amount ? formatPrice(Math.max(0, parseInt(amount.replace(/\D/g, ''), 10) - (platformConfig?.withdrawal_fee || 3000))) : 'Rp 0'}</span>
+                <span>{amount ? formatPrice(Math.max(0, parseInt(amount.replace(/\D/g, ''), 10) - platformConfig.withdrawal_fee)) : 'Rp 0'}</span>
               </div>
             </div>
           </div>

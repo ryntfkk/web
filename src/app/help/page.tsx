@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Search, ChevronDown, MessageCircle, LifeBuoy, Flag, Scale } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
+import { formatPrice } from '@/lib/format';
+import { usePlatformConfig, formatFeeRate, type PlatformConfig } from '@/hooks/usePlatformConfig';
 
 interface Faq {
   q: string;
@@ -14,7 +16,11 @@ interface FaqGroup {
   items: Faq[];
 }
 
-const FAQS: FaqGroup[] = [
+// Jawaban yang menyebut tarif/batas menerima setelan LIVE dari platform_settings.
+// Angkanya DILARANG diketik di sini: admin bisa mengubah komisi & batas tarik
+// kapan saja lewat panel, dan FAQ yang mengutip angka lama = pernyataan keliru
+// soal uang. Sementara sampai FAQ pindah ke DB (PLAN-KONTEN-LEGAL-CMS.md Fase 4).
+const buildFaqs = (cfg: PlatformConfig): FaqGroup[] => [
   {
     category: 'Pemesanan',
     items: [
@@ -51,8 +57,8 @@ const FAQS: FaqGroup[] = [
     category: 'Menjadi Mitra',
     items: [
       { q: 'Bagaimana cara mendaftar sebagai mitra?', a: 'Buka Profil dan pilih daftar sebagai Mitra, lalu lengkapi data dan dokumen verifikasi (KTP & swafoto). Tim kami akan meninjau pengajuan Anda.' },
-      { q: 'Berapa komisi platform untuk mitra?', a: 'Platform mengambil komisi sebesar 12% dari setiap transaksi yang selesai. Sisanya masuk ke saldo dompet mitra.' },
-      { q: 'Bagaimana cara menarik saldo (payout)?', a: 'Buka Dompet Mitra → Tarik Dana. Penarikan minimal Rp50.000, maksimal Rp10.000.000 per transaksi, dengan biaya admin Rp3.000.' },
+      { q: 'Berapa komisi platform untuk mitra?', a: `Platform mengambil komisi sebesar ${formatFeeRate(cfg.platform_fee_rate)} dari setiap transaksi yang selesai. Sisanya masuk ke saldo dompet mitra.` },
+      { q: 'Bagaimana cara menarik saldo (payout)?', a: `Buka Dompet Mitra → Tarik Dana. Penarikan minimal ${formatPrice(cfg.min_transaction)}, maksimal ${formatPrice(cfg.max_withdrawal)} per transaksi, dengan biaya admin ${formatPrice(cfg.withdrawal_fee)}.` },
     ],
   },
 ];
@@ -60,15 +66,18 @@ const FAQS: FaqGroup[] = [
 export default function HelpPage() {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<string | null>(null);
+  const config = usePlatformConfig();
+
+  const faqs = useMemo(() => buildFaqs(config), [config]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return FAQS;
-    return FAQS.map((g) => ({
+    if (!q) return faqs;
+    return faqs.map((g) => ({
       ...g,
       items: g.items.filter((it) => it.q.toLowerCase().includes(q) || it.a.toLowerCase().includes(q)),
     })).filter((g) => g.items.length > 0);
-  }, [query]);
+  }, [query, faqs]);
 
   const noResults = filtered.length === 0;
 

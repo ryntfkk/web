@@ -9,6 +9,7 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { useAuthStore } from '@/lib/store/authStore';
+import DeleteAccountSection from '@/components/profile/DeleteAccountSection';
 
 
 export default function SecurityPage() {
@@ -163,6 +164,8 @@ export default function SecurityPage() {
           </div>
           <LoginHistoryList />
         </div>
+
+        <DeleteAccountSection />
       </div>
     </div>
   );

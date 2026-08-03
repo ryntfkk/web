@@ -8,6 +8,8 @@ import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { Stepper } from '@/components/ui/stepper';
 import { PasswordStrength } from '@/components/ui/password-strength';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
+import { useActiveLegalDocuments, recordLegalConsent } from '@/hooks/useLegalConsent';
 
 export default function RegisterPage() {
   const { sendOTP, verifyOTPAndRegister, loginWithGoogle, loading, error, isAuthenticated } = useAuth();
@@ -21,6 +23,8 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const { data: legalDocs } = useActiveLegalDocuments();
 
   // Redirect to home if already authenticated
   useEffect(() => {
@@ -51,7 +55,14 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    await verifyOTPAndRegister(phone, otp, username, name, password);
+    if (!agreed) return;
+    const res = await verifyOTPAndRegister(phone, otp, username, name, password);
+    // Dicatat setelah registrasi berhasil, saat token sudah ada. Kegagalan
+    // pencatatan tidak membatalkan registrasi — akunnya sudah jadi; gate
+    // /legal/pending yang akan menagih persetujuan di kunjungan berikutnya.
+    if (res?.success && legalDocs?.length) {
+      await recordLegalConsent(legalDocs, ['terms', 'privacy']);
+    }
   };
 
   return (
@@ -125,12 +136,24 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <GoogleSignInButton
-                text="signup_with"
-                onSuccess={async (idToken) => {
-                  await loginWithGoogle(idToken);
-                }}
-              />
+              {/* Daftar via Google juga membuat akun, jadi jalur ini tidak
+                  boleh lolos tanpa persetujuan. State `agreed` dipakai bersama
+                  dengan form HP di langkah 3 — sekali dicentang, berlaku untuk
+                  jalur mana pun yang dipakai pengguna. */}
+              <LegalConsentCheckbox checked={agreed} onChange={setAgreed} id="legal-consent-google" />
+
+              <div className={agreed ? '' : 'pointer-events-none opacity-50'} aria-disabled={!agreed}>
+                <GoogleSignInButton
+                  text="signup_with"
+                  onSuccess={async (idToken) => {
+                    if (!agreed) return;
+                    await loginWithGoogle(idToken);
+                    if (legalDocs?.length) {
+                      await recordLegalConsent(legalDocs, ['terms', 'privacy']);
+                    }
+                  }}
+                />
+              </div>
             </form>
           )}
 
@@ -247,10 +270,12 @@ export default function RegisterPage() {
                 <PasswordStrength password={password} />
               </div>
 
+              <LegalConsentCheckbox checked={agreed} onChange={setAgreed} />
+
               <div className="flex flex-col space-y-4">
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !agreed}
                   className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Selesai & Daftar'}

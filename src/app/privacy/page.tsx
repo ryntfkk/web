@@ -14,7 +14,9 @@ export default function PrivacyPage() {
       <MobilePageHeader title="Kebijakan Privasi" titleAs="p" backHref="/" maxWidthClass="max-w-2xl" />
       <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
         <h1 className="hidden lg:block text-3xl font-bold text-brand-gray-900 mb-2">Kebijakan Privasi</h1>
-        <p className="text-sm text-brand-gray-400 mb-8">Terakhir diperbarui: 1 Januari 2025</p>
+        {/* Tanggal ini masih manual; pindah ke legal_documents.effective_at di
+            Fase 5 (PLAN-KONTEN-LEGAL-CMS.md §5.4) agar tak bisa basi lagi. */}
+        <p className="text-sm text-brand-gray-400 mb-8">Terakhir diperbarui: 3 Agustus 2026</p>
 
         <div className="bg-white rounded-lg border border-brand-gray-100 p-6 md:p-8 space-y-6 text-sm text-brand-gray-700 leading-relaxed">
           <section>
@@ -56,13 +58,38 @@ export default function PrivacyPage() {
             <h2 className="text-base font-bold text-brand-gray-900 mb-2">6. Hak Anda</h2>
             <ul className="list-disc pl-5 space-y-1">
               <li>Mengakses dan memperbarui data pribadi Anda.</li>
-              <li>Meminta penghapusan akun dan data terkait.</li>
+              <li>Menghapus akun Anda melalui <strong>Profil → Keamanan Akun → Hapus Akun</strong>.</li>
               <li>Berhenti berlangganan notifikasi promosi.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-base font-bold text-brand-gray-900 mb-2">7. Kontak</h2>
+            <h2 className="text-base font-bold text-brand-gray-900 mb-2">7. Penghapusan Akun &amp; Masa Penyimpanan</h2>
+            <p className="mb-2">
+              Saat Anda menghapus akun, data identitas di profil aktif Anda
+              (nama, nomor HP, email, foto, dan data rekening) segera dianonimkan
+              dan seluruh sesi Anda dicabut. Anda tidak dapat masuk kembali.
+            </p>
+            <p className="mb-2">
+              Sebagian data <strong>tetap kami simpan</strong> setelah akun dihapus,
+              sebatas yang diperlukan untuk menyelesaikan sengketa atas pekerjaan
+              yang telah berjalan, memenuhi kewajiban pembukuan dan perpajakan,
+              serta membela hak kami dan hak Anda apabila timbul tuntutan hukum:
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Riwayat pesanan, pembayaran, dompet, dan penarikan dana.</li>
+              <li>Ulasan, percakapan, laporan, dan berkas sengketa.</li>
+              <li>Dokumen verifikasi mitra (KTP dan swafoto), bagi pengguna mitra.</li>
+              <li>Catatan persetujuan atas Syarat &amp; Ketentuan.</li>
+            </ul>
+            <p className="mt-2">
+              Data tersebut tidak digunakan untuk pemasaran, dan dimusnahkan
+              setelah masa penyimpanan yang berlaku berakhir.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-bold text-brand-gray-900 mb-2">8. Kontak</h2>
             <p>Untuk pertanyaan terkait privasi, hubungi kami melalui halaman <a href="/help" className="text-brand-red font-medium hover:underline">Bantuan</a>.</p>
           </section>
         </div>

@@ -15,14 +15,17 @@ import { getErrorMessage } from '@/types/api';
 import { unwrapData, unitLabel } from '@/lib/order-utils';
 import { DynamicStringList } from '@/components/ui/dynamic-string-list';
 import { DynamicFaqList, type Faq } from '@/components/ui/dynamic-faq-list';
-
-const MIN_PRICE = 50000; // Sesuai MinTransaction backend
+import { formatPrice } from '@/lib/format';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
 export default function EditMitraServicePage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const serviceId = params?.id as string;
+  // MinTransaction dari platform_settings — dulu konstanta 50000 yang harus
+  // disamakan manual dengan backend setiap kali admin mengubahnya.
+  const MIN_PRICE = usePlatformConfig().min_transaction;
 
   const [form, setForm] = useState({
     name: '',
@@ -128,7 +131,7 @@ export default function EditMitraServicePage() {
           return;
         }
         if (v.price < MIN_PRICE) {
-          setError(`Harga setiap variasi minimal Rp ${new Intl.NumberFormat('id-ID').format(MIN_PRICE)}`);
+          setError(`Harga setiap variasi minimal ${formatPrice(MIN_PRICE)}`);
           return;
         }
       }
@@ -138,7 +141,7 @@ export default function EditMitraServicePage() {
         return;
       }
       if (numPrice < MIN_PRICE) {
-        setError(`Harga minimum layanan adalah Rp ${new Intl.NumberFormat('id-ID').format(MIN_PRICE)}`);
+        setError(`Harga minimum layanan adalah ${formatPrice(MIN_PRICE)}`);
         return;
       }
     }

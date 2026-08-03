@@ -17,6 +17,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
 import { getErrorMessage } from '@/types/api';
+import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
 import dynamic from 'next/dynamic';
 
 // Peta hanya di klien (butuh window/Google Maps) → hindari SSR.
@@ -211,6 +212,7 @@ export default function MitraOrderDetailClient() {
   const [order, setOrder] = useState<MitraOrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const platformConfig = usePlatformConfig();
   const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
 
@@ -345,8 +347,10 @@ export default function MitraOrderDetailClient() {
   const paidMaterialFee = (order.additional_fees ?? [])
     .filter(f => f.status === 'PAID' && f.type === 'material')
     .reduce((sum, f) => sum + f.total, 0);
+  // Tarif komisi dari platform_settings, BUKAN konstanta: admin bisa
+  // mengubahnya kapan saja dan estimasi ini menampilkan rupiah ke mitra.
   const platformFee = order.platform_fee ??
-    Math.round(((order.total_service_price ?? 0) + paidServiceFee) * 0.12);
+    Math.round(((order.total_service_price ?? 0) + paidServiceFee) * platformConfig.platform_fee_rate);
   const partnerNet = order.partner_amount ?? Math.max(
     (order.total_service_price ?? 0) + paidServiceFee - platformFee + paidMaterialFee + (order.transport_fee ?? 0),
     0,
@@ -785,7 +789,7 @@ export default function MitraOrderDetailClient() {
                 </div>
                 {pendingFees.length > 0 && (
                   <p className="mt-3 pt-3 border-t border-brand-gray-100 text-xs text-brand-orange">
-                    {pendingFees.length} tagihan menunggu keputusan pelanggan. Biaya jasa tambahan kena komisi 12%; material dibayar penuh ke kamu.
+                    {pendingFees.length} tagihan menunggu keputusan pelanggan. Biaya jasa tambahan kena komisi {formatFeeRate(platformConfig.platform_fee_rate)}; material dibayar penuh ke kamu.
                   </p>
                 )}
               </Section>
