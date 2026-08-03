@@ -14,12 +14,14 @@ import { useUpload } from '@/hooks/useUpload';
 import { useAuthStore } from '@/lib/store/authStore';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/toast';
 
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const { logout } = useAuth();
   const { uploadFile, isUploading } = useUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [showSwitchModal, setShowSwitchModal] = useState(false);
@@ -44,22 +46,27 @@ export default function MitraProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert('Ukuran foto maksimal 5MB');
+      showToast('Ukuran foto maksimal 5MB', 'error');
       return;
     }
     const fileUrl = await uploadFile(file);
     if (fileUrl) {
-      const res = await fetchAPI('/partners/me', {
+      // /users/me, BUKAN /partners/me: avatar milik akun, dan
+      // partner.UpdateProfileRequest tidak punya field avatar_url sama sekali —
+      // backend membalas sukses lalu membuangnya, sehingga foto hanya berubah di
+      // layar sampai halaman dimuat ulang (P0-03). Sama dengan /profile/account.
+      const res = await fetchAPI('/users/me', {
         method: 'PATCH',
         body: JSON.stringify({ avatar_url: fileUrl }),
       });
       if (res.success) {
         useAuthStore.getState().updateUser({ avatar_url: fileUrl });
+        showToast('Foto profil berhasil diperbarui');
       } else {
-        alert(res.message || 'Gagal memperbarui foto profil');
+        showToast(res.message || 'Gagal memperbarui foto profil', 'error');
       }
     } else {
-      alert('Gagal mengupload foto');
+      showToast('Gagal mengupload foto', 'error');
     }
   };
 

@@ -1,7 +1,7 @@
 "use client";
 import { useToast } from '@/components/ui/toast';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
@@ -28,22 +28,26 @@ export default function MitraServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const { showToast } = useToast();
 
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    fetchServices();
-  }, [isAuthenticated, user?.active_role]);
-
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     setLoading(true);
-    const res = await fetchAPI<any>('/partners/me/services');
+    const res = await fetchAPI<Service[]>('/partners/me/services');
     if (res.success && res.data) {
       setServices(res.data);
     }
     setLoading(false);
-  };
+  }, []);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchServices();
+    // active_role ikut jadi dependensi: berpindah mode harus memuat ulang daftar.
+  }, [isAuthenticated, user?.active_role, fetchServices]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -57,16 +61,29 @@ export default function MitraServicesPage() {
     setDeleteId(null);
   };
 
+  // Endpoint khusus availability (P0-01). PATCH /partners/me/services/:id
+  // menuntut payload layanan LENGKAP — mengirim `{is_active}` ke sana berarti
+  // menimpa layanan dengan field kosong, dan `is_active` bahkan tidak ada di
+  // DTO-nya sehingga toggle tidak pernah benar-benar bekerja.
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
-    const res = await fetchAPI(`/partners/me/services/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ is_active: !currentStatus })
-    });
-    if (res.success) {
-      setServices(prev => prev.map(s => s.id === id ? { ...s, is_active: !currentStatus } : s));
-      showToast('Status layanan berhasil diubah');
-    } else {
-      showToast(res.message || 'Gagal mengubah status layanan', 'error');
+    if (togglingId) return;
+    setTogglingId(id);
+    try {
+      const res = await fetchAPI<{ id: string; is_active: boolean }>(
+        `/partners/me/services/${id}/availability`,
+        { method: 'PATCH', body: JSON.stringify({ is_active: !currentStatus }) },
+      );
+      if (res.success && res.data) {
+        // Pakai keadaan dari server, bukan negasi lokal: kalau server menolak
+        // perubahan, UI tidak boleh menampilkan keadaan yang tidak nyata.
+        const next = res.data.is_active;
+        setServices(prev => prev.map(s => (s.id === id ? { ...s, is_active: next } : s)));
+        showToast(next ? 'Layanan diaktifkan' : 'Layanan dinonaktifkan');
+      } else {
+        showToast(res.message || 'Gagal mengubah status layanan', 'error');
+      }
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -124,14 +141,17 @@ export default function MitraServicesPage() {
               )}
 
               <div className="flex justify-between items-center mt-3 pt-3 border-t border-brand-gray-100">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className={`flex items-center gap-2 ${togglingId ? 'cursor-wait opacity-60' : 'cursor-pointer'}`}>
                   <input
                     type="checkbox"
                     checked={s.is_active}
+                    disabled={!!togglingId}
                     onChange={() => handleToggleActive(s.id, s.is_active)}
-                    className="w-4 h-4 text-brand-success rounded focus:ring-brand-success"
+                    className="w-4 h-4 text-brand-success rounded focus:ring-brand-success disabled:cursor-wait"
                   />
-                  <span className="text-xs font-semibold text-brand-gray-700">{s.is_active ? 'Aktif' : 'Nonaktif'}</span>
+                  <span className="text-xs font-semibold text-brand-gray-700">
+                    {togglingId === s.id ? 'Menyimpan…' : s.is_active ? 'Aktif' : 'Nonaktif'}
+                  </span>
                 </label>
                 
                 <div className="flex items-center gap-1">
