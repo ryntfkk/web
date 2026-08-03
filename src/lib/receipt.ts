@@ -1,3 +1,5 @@
+import { paymentMethodLabel } from './order-utils';
+
 // U3: cetak/unduh struk pesanan. Struk dirender di window baru yang terisolasi
 // dari layout aplikasi (header/bottom-nav ada di root layout → tak boleh ikut
 // tercetak), lalu window.print() → pengguna bisa "Simpan sebagai PDF".
@@ -17,6 +19,8 @@ export interface ReceiptOrder {
   status: string;
   created_at: string;
   paid_at?: string;
+  payment_method?: string;
+  payment_reference?: string;
   completed_at?: string;
   total_amount: number;
   total_service_price: number;
@@ -93,6 +97,8 @@ export function buildReceiptHtml(o: ReceiptOrder): string {
     <div class="row"><span class="k">Status</span><span>${esc(STATUS_LABEL[o.status] || o.status)}</span></div>
     <div class="row"><span class="k">Tanggal</span><span>${esc(tgl(o.created_at))}</span></div>
     ${o.paid_at ? `<div class="row"><span class="k">Dibayar</span><span>${esc(tgl(o.paid_at))}</span></div>` : ''}
+    ${o.paid_at ? `<div class="row"><span class="k">Metode</span><span>${esc(paymentMethodLabel(o.payment_method))}</span></div>` : ''}
+    ${o.payment_reference ? `<div class="row"><span class="k">Referensi</span><span>${esc(o.payment_reference)}</span></div>` : ''}
     ${o.completed_at ? `<div class="row"><span class="k">Selesai</span><span>${esc(tgl(o.completed_at))}</span></div>` : ''}
     ${o.partner?.name ? `<div class="row"><span class="k">Mitra</span><span>${esc(o.partner.name)}</span></div>` : ''}
     <table>

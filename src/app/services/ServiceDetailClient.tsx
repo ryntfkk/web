@@ -26,7 +26,8 @@ import { Button } from '@/components/ui/button';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { fetchAPI } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
-import { useServiceDetail, usePartnerWorkingHours } from '@/hooks/useServiceDetail';
+import { useServiceDetail, usePartnerWorkingHours, useServiceReviews } from '@/hooks/useServiceDetail';
+import ReviewSection from '@/components/partner/ReviewSection';
 import { useFavoriteServices, useFavoritesActions } from '@/hooks/useFavorites';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
@@ -65,6 +66,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
 
   const { data: service, isLoading, isError, refetch } = useServiceDetail(serviceId);
   const { data: workingHours, isLoading: hoursLoading } = usePartnerWorkingHours(service?.partner_id);
+  const { data: serviceReviews, isLoading: reviewsLoading } = useServiceReviews(serviceId);
 
   // In-cart per (layanan, variasi terpilih): variasi berbeda = item terpisah.
   const inCart = service ? isInCart(service.id, selectedVariationId || undefined) : false;
@@ -309,6 +311,9 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
 
   // Variasi (Shopee-style). Harga besar mengikuti variasi terpilih; sebelum
   // memilih, tampilkan harga termurah (= service.price dari backend).
+  const serviceSummary = serviceReviews?.summary;
+  const hasServiceReviews = (serviceSummary?.total_reviews ?? 0) > 0;
+
   const variations = service.variations ?? [];
   const hasVariations = variations.length > 0;
   const selectedVariation = variations.find((v) => v.id === selectedVariationId) ?? null;
@@ -452,10 +457,19 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                 <div className="flex items-center gap-3 flex-wrap min-w-0">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-brand-warning text-brand-warning" />
-                    <span className="font-semibold text-brand-gray-900">{(service.partner_avg_rating ?? 0).toFixed(1)}</span>
+                    <span className="font-semibold text-brand-gray-900">
+                      {(hasServiceReviews ? serviceSummary!.avg_rating : service.partner_avg_rating ?? 0).toFixed(1)}
+                    </span>
                   </div>
                   <div className="w-px h-4 bg-brand-gray-100" />
-                  <span className="text-sm text-brand-gray-700">{service.partner_total_reviews} Ulasan</span>
+                  {/* Lingkup angka harus jelas: "12 Ulasan" tepat di bawah nama
+                      layanan terbaca sebagai ulasan LAYANAN INI, padahal dulu
+                      isinya ulasan seluruh layanan mitra. */}
+                  <a href="#ulasan" className="text-sm text-brand-gray-700 hover:text-brand-red underline-offset-2 hover:underline">
+                    {hasServiceReviews
+                      ? `${serviceSummary!.total_reviews} ulasan layanan ini`
+                      : `${service.partner_total_reviews} ulasan mitra`}
+                  </a>
                   <div className="w-px h-4 bg-brand-gray-100" />
                   <span className="flex items-center gap-1 text-sm text-brand-gray-700">
                     <Clock className="w-3.5 h-3.5" />
@@ -541,6 +555,17 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-brand-gray-900 truncate">{service.partner_name}</p>
+                    {/* Untuk mitra badan usaha, nama merek bukan penerima uang.
+                        Pelanggan berhak tahu badan hukum mana yang menerima
+                        pembayarannya SEBELUM memesan — detail pesanan sudah
+                        menampilkannya, halaman produk dulu belum. */}
+                    {service.partner_type === 'vendor' &&
+                      service.partner_legal_name &&
+                      service.partner_legal_name !== service.partner_name && (
+                        <p className="text-xs text-brand-gray-450 truncate mt-0.5">
+                          Pembayaran diterima oleh {service.partner_legal_name}
+                        </p>
+                      )}
                     {service.partner_city && (
                       <div className="flex items-center gap-1 text-xs text-brand-gray-700 mt-0.5">
                         <MapPin className="w-3 h-3 flex-shrink-0" />
@@ -726,7 +751,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
               <div className="mt-4 border-t border-brand-gray-100 pt-4">
                 <h3 className="text-sm font-semibold text-brand-gray-900 mb-3">Pertanyaan Umum (FAQ)</h3>
                 <div className="space-y-2">
-                  {service.faqs.map((faq: any, i: number) => (
+                  {service.faqs.map((faq, i) => (
                     <details key={i} className="group bg-brand-gray-25 rounded-md border border-brand-gray-100">
                       <summary className="flex items-center justify-between cursor-pointer p-3 text-sm font-medium text-brand-gray-900">
                         {faq.question}
@@ -743,6 +768,52 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
               </div>
             )}
           </div>
+        </div>
+
+        {/* Ulasan LAYANAN INI (C2). Sebelumnya halaman produk sama sekali tidak
+            punya isi ulasan — pelanggan harus pergi ke profil mitra tepat saat
+            sedang memutuskan membeli. */}
+        <div id="ulasan" className="mt-4 scroll-mt-20">
+          {reviewsLoading ? (
+            <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
+              <div className="h-6 w-40 bg-brand-gray-100 rounded animate-pulse mb-4" />
+              <div className="space-y-3">
+                <div className="h-16 bg-brand-gray-100 rounded animate-pulse" />
+                <div className="h-16 bg-brand-gray-100 rounded animate-pulse" />
+              </div>
+            </div>
+          ) : (
+            <ReviewSection
+              reviews={serviceReviews?.reviews || []}
+              summary={
+                serviceSummary || {
+                  total_reviews: 0,
+                  avg_rating: 0,
+                  count_5: 0,
+                  count_4: 0,
+                  count_3: 0,
+                  count_2: 0,
+                  count_1: 0,
+                }
+              }
+              title="Ulasan Layanan Ini"
+              emptyText={
+                service.partner_total_reviews > 0
+                  ? `Belum ada ulasan untuk layanan ini. Mitra ini punya ${service.partner_total_reviews} ulasan dari layanan lainnya.`
+                  : 'Belum ada ulasan untuk layanan ini.'
+              }
+              footer={
+                service.partner_total_reviews > 0 ? (
+                  <Link
+                    href={`/${service.partner_username}`}
+                    className="text-sm font-medium text-brand-red hover:underline"
+                  >
+                    Lihat semua ulasan {service.partner_name}
+                  </Link>
+                ) : null
+              }
+            />
+          )}
         </div>
 
         {/* Cross-sell: layanan lain dari mitra yang sama */}

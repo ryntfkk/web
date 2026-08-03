@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchAPI } from '@/lib/api';
+import type { PartnerReview, ReviewSummary } from '@/hooks/usePartnerProfile';
 
 // ── Types (match backend PublicServiceDetailResponse + PartnerWorkingHour) ─
 
@@ -21,6 +22,9 @@ export interface ServiceDetail {
   partner_id: string;
   partner_user_id: string;
   partner_name: string;
+  /** Badan hukum penerima pembayaran; sama dengan partner_name untuk perorangan. */
+  partner_legal_name: string;
+  partner_type: 'individual' | 'vendor';
   partner_username: string;
   partner_avatar_url: string;
   partner_avg_rating: number;
@@ -75,6 +79,26 @@ export function useServiceDetail(serviceId: string) {
       const res = await fetchAPI<ServiceDetail>(`/services/${serviceId}`);
       if (!res.success || !res.data) {
         throw new Error(res.message || 'Gagal memuat detail layanan');
+      }
+      return res.data;
+    },
+    enabled: !!serviceId,
+  });
+}
+
+/**
+ * Ulasan untuk SATU layanan (C2). Bentuk responsnya sama persis dengan ulasan
+ * mitra, jadi `ReviewSection` dipakai ulang tanpa adaptor.
+ */
+export function useServiceReviews(serviceId: string, limit = 5) {
+  return useQuery({
+    queryKey: ['serviceReviews', serviceId, limit],
+    queryFn: async (): Promise<{ reviews: PartnerReview[]; summary: ReviewSummary }> => {
+      const res = await fetchAPI<{ reviews: PartnerReview[]; summary: ReviewSummary }>(
+        `/services/${serviceId}/reviews?limit=${limit}`,
+      );
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Gagal memuat ulasan layanan');
       }
       return res.data;
     },

@@ -38,3 +38,37 @@ export function matchesFilter(status: string, filter: FilterStatus): boolean {
   if (filter === 'all') return true;
   return FILTER_GROUPS[filter].includes(status);
 }
+
+// ── Metode pembayaran ───────────────────────────────────────────────
+
+/**
+ * Label metode bayar untuk pelanggan. Kunci datang dari dua sumber: pilihan
+ * eksplisit di charge API (`bca_va`, `wallet_balance`) dan `payment_type` dari
+ * Midtrans saat settlement (`bank_transfer`, `gopay`, …).
+ *
+ * `snap` sengaja TIDAK diterjemahkan menjadi nama instrumen: itu placeholder
+ * saat instrumen sebenarnya belum diketahui. Menyebutnya "QRIS" atau "Kartu"
+ * berarti mengarang.
+ */
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  wallet_balance: 'Saldo Dompet',
+  gopay: 'GoPay',
+  shopeepay: 'ShopeePay',
+  qris: 'QRIS',
+  bank_transfer: 'Transfer Bank / Virtual Account',
+  echannel: 'Mandiri Bill Payment',
+  bca_va: 'BCA Virtual Account',
+  bni_va: 'BNI Virtual Account',
+  bri_va: 'BRI Virtual Account',
+  mandiri_va: 'Mandiri Virtual Account',
+  permata_va: 'Permata Virtual Account',
+  credit_card: 'Kartu Kredit/Debit',
+  cstore: 'Gerai Retail',
+  akulaku: 'Akulaku',
+  snap: 'Pembayaran online',
+};
+
+export function paymentMethodLabel(method?: string): string {
+  if (!method) return 'Tidak tercatat';
+  return PAYMENT_METHOD_LABELS[method.toLowerCase()] ?? method.replace(/_/g, ' ');
+}

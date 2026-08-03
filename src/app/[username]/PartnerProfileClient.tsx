@@ -11,6 +11,8 @@ import ProfileHeader from '@/components/partner/ProfileHeader';
 import ServicesList from '@/components/partner/ServicesList';
 import PortfolioGrid from '@/components/partner/PortfolioGrid';
 import ReviewSection from '@/components/partner/ReviewSection';
+import ScheduleView from '@/components/service/ScheduleView';
+import { usePartnerWorkingHours } from '@/hooks/useServiceDetail';
 import { Button } from '@/components/ui/button';
 import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, WifiOff, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
@@ -24,6 +26,10 @@ export default function PartnerProfileClient({ username }: { username: string })
   const { data: services, isLoading: isServicesLoading } = usePartnerServices(username);
   const { data: portfolios, isLoading: isPortfoliosLoading } = usePartnerPortfolios(username);
   const { data: reviewData, isLoading: isReviewsLoading } = usePartnerReviews(username);
+  // Jam operasional sudah lama tersedia sebagai endpoint publik dan dipakai
+  // halaman produk, tetapi profil mitra — tempat orang justru mencarinya —
+  // tidak pernah menampilkannya (C5).
+  const { data: workingHours, isLoading: isHoursLoading } = usePartnerWorkingHours(profile?.id);
 
   // Show loading state
   if (isProfileLoading) {
@@ -123,6 +129,12 @@ export default function PartnerProfileClient({ username }: { username: string })
                   <PortfolioGrid portfolios={portfolios || []} isLoading={isPortfoliosLoading} />
                 )}
               </div>
+            </div>
+
+            {/* Jam operasional mitra */}
+            <div className="bg-white rounded-md shadow-sm p-4 sm:p-5">
+              <h2 className="text-base sm:text-lg font-semibold text-brand-gray-900 mb-3">Jam Operasional</h2>
+              <ScheduleView workingHours={workingHours} isLoading={isHoursLoading} />
             </div>
 
             {/* Trust signals — pricing transparency + off-platform warning */}

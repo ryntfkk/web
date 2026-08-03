@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { MapPin, Star, Clock, CheckCircle, Loader2, Heart } from 'lucide-react';
+import { MapPin, Star, Clock, CheckCircle, BadgeCheck, Loader2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { useRouter } from 'next/navigation';
@@ -50,6 +50,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     }
   };
 
+  // "Bergabung" = tanggal mitra DISETUJUI. Backend mengosongkannya untuk mitra
+  // lama yang tak punya verified_at; jangan mengarang dari tanggal akun.
+  const memberSince =
+    profile.member_since && !isNaN(Date.parse(profile.member_since))
+      ? new Date(profile.member_since).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+      : null;
+
   // Provide a proper fallback for avatar - handle any non-string value safely
   const avatarUrl = typeof profile.avatar_url === 'string' && profile.avatar_url.length > 0
     ? profile.avatar_url
@@ -64,7 +71,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
     setIsChatLoading(true);
     try {
-      const res = await fetchAPI<any>('/chat/rooms', {
+      const res = await fetchAPI<{ room_id: string }>('/chat/rooms', {
         method: 'POST',
         body: JSON.stringify({ partner_id: profile.user_id }),
       });
@@ -103,19 +110,33 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       <div className="flex-1 w-full">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-bold text-brand-gray-900">{profile.name}</h1>
+              {profile.is_verified && (
+                <span className="bg-brand-info-soft text-brand-info-dark text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                  <BadgeCheck className="w-3.5 h-3.5" /> Terverifikasi
+                </span>
+              )}
               {profile.is_online && (
                 <span className="bg-brand-success-soft text-brand-success text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-brand-success rounded-full" /> Online
                 </span>
               )}
+              {/* Tanpa "+": angkanya pasti, dan "3+ Pesanan" adalah pembulatan
+                  palsu yang melebih-lebihkan pengalaman mitra. */}
               {profile.total_orders > 0 && (
                 <span className="bg-brand-red-light text-brand-red text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" /> {profile.total_orders}+ Pesanan
+                  <CheckCircle className="w-3 h-3" /> {profile.total_orders} Pesanan Selesai
                 </span>
               )}
             </div>
+
+            {/* Identitas badan usaha: yang menerima pembayaran bukan nama merek. */}
+            {profile.partner_type === 'vendor' && profile.legal_name && profile.legal_name !== profile.name && (
+              <p className="text-xs text-brand-gray-450 mb-2">
+                Badan usaha: <span className="font-medium text-brand-gray-700">{profile.legal_name}</span>
+              </p>
+            )}
 
             {/* Bio — inline di bawah nama */}
             {typeof profile.bio === 'string' && profile.bio.trim().length > 0 && (
@@ -124,10 +145,30 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               </p>
             )}
 
-            <div className="flex items-center text-sm text-brand-gray-400 mb-3 gap-1">
-              <MapPin className="w-4 h-4" />
-              <span>{profile.service_area || 'Tidak ada area'}</span>
+            <div className="flex items-center flex-wrap text-sm text-brand-gray-400 mb-3 gap-x-4 gap-y-1">
+              <span className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                {profile.service_area || [profile.district, profile.city].filter(Boolean).join(', ') || 'Tidak ada area'}
+              </span>
+              {memberSince && (
+                <span className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  Bergabung {memberSince}
+                </span>
+              )}
             </div>
+
+            {/* Spesialisasi diturunkan dari kategori layanan aktif — bukan klaim
+                bebas yang diketik mitra. */}
+            {!!profile.categories?.length && (
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {profile.categories.map((c) => (
+                  <span key={c} className="text-xs px-2 py-0.5 rounded-md bg-brand-gray-60 text-brand-gray-700 border border-brand-gray-100">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="flex items-center gap-4 text-sm mb-4">
               <div className="flex flex-col">

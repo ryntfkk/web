@@ -17,6 +17,7 @@ import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice, formatDate, formatDateShort, formatDuration } from '@/lib/format';
+import { paymentMethodLabel } from '@/lib/order-utils';
 import { fetchAPI } from '@/lib/api';
 import { printOrderReceipt } from '@/lib/receipt';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
@@ -43,6 +44,9 @@ interface OrderDetail {
   scheduled_at: string;
   confirmed_at?: string;
   paid_at?: string;
+  /** Cara pelanggan membayar + referensi gateway (C6). Kosong bila belum lunas. */
+  payment_method?: string;
+  payment_reference?: string;
   started_at?: string;
   completed_at?: string;
   disputed_at?: string;
@@ -530,6 +534,30 @@ export default function OrderDetailClient() {
               Dana masuk ke saldo dompetmu — lihat di Dompet →
             </button>
           </>
+        )}
+
+        {/* Cara membayar (C6). Saat pelanggan komplain "uang sudah keluar tapi
+            pesanan belum berubah", ini informasi pertama yang dibutuhkan — dan
+            justru satu-satunya yang dulu tidak ada di mana pun. */}
+        {order.paid_at && (
+          <div className="border-t border-brand-gray-100 pt-2 mt-2 space-y-1">
+            <div className="flex justify-between text-brand-gray-700">
+              <span>Metode Pembayaran</span>
+              <span className="text-brand-gray-900">{paymentMethodLabel(order.payment_method)}</span>
+            </div>
+            <div className="flex justify-between text-brand-gray-700">
+              <span>Dibayar pada</span>
+              <span className="text-brand-gray-900">{formatDateShort(order.paid_at)}</span>
+            </div>
+            {order.payment_reference && (
+              <div className="flex justify-between gap-2 text-brand-gray-450 text-xs">
+                <span className="shrink-0">Referensi</span>
+                <span className="font-mono truncate" title={order.payment_reference}>
+                  {order.payment_reference}
+                </span>
+              </div>
+            )}
+          </div>
         )}
 
         {/* U3: unduh/cetak struk — hanya setelah pembayaran (ada yang bisa distrukkan). */}

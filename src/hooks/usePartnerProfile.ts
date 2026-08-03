@@ -10,17 +10,25 @@ export interface PartnerProfileData {
   avatar_url: string | null;
   service_area: string;
   is_online: boolean;
-  basecamp_lat: number | null;
-  basecamp_lon: number | null;
   avg_rating: number;
   total_reviews: number;
   total_orders: number;
-  // SE: address lengkap untuk LocalBusiness schema (geotargeting query "[jasa] di [kota]").
-  // Backend sudah ekspos di PartnerProfileResponse, frontend type baru ditambahkan.
+  // SE: wilayah untuk LocalBusiness schema (geotargeting query "[jasa] di [kota]").
+  // Koordinat basecamp & address_detail SENGAJA tidak ada di sini: endpoint publik
+  // tidak lagi mengirimnya (P0-07) karena itu tempat tinggal mitra perorangan.
   city: string;
   district: string;
   province: string;
-  address_detail: string;
+  /** Endpoint publik hanya membalas mitra approved, jadi ini selalu true. */
+  is_verified: boolean;
+  /** Tanggal mitra DISETUJUI (bukan tanggal akun dibuat). Kosong untuk mitra lama. */
+  member_since?: string;
+  /** Spesialisasi dari kategori layanan aktif. */
+  categories?: string[];
+  /** Badan hukum penerima pembayaran. Sama dengan `name` untuk perorangan. */
+  legal_name: string;
+  partner_type: 'individual' | 'vendor';
+  entity_form?: string;
 }
 
 export interface PartnerServicePhoto {
