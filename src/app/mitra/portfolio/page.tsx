@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { Plus, Trash2, Image as ImageIcon, Loader2, Pencil } from 'lucide-react';
+import { ArrowDown, ArrowUp, Image as ImageIcon, Loader2, Pencil, Plus, Tag, Trash2 } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
@@ -14,6 +14,15 @@ interface Portfolio {
   id: string;
   photo_url: string;
   caption?: string;
+  sort_order: number;
+  /** Tidak dikirim bila foto ini portofolio umum. */
+  service_id?: string;
+  service_name?: string;
+}
+
+interface ServiceOption {
+  id: string;
+  name: string;
 }
 
 export default function MitraPortfolioPage() {
@@ -30,10 +39,20 @@ export default function MitraPortfolioPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [captionDraft, setCaptionDraft] = useState('');
   const [savingCaption, setSavingCaption] = useState(false);
+  // Urutan & kaitan layanan (000071). Foto pertama adalah yang dilihat calon
+  // pelanggan lebih dulu, jadi mitra harus bisa menaruh karya terbaiknya di depan.
+  const [services, setServices] = useState<ServiceOption[]>([]);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [linkingId, setLinkingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthorized) {
       fetchPortfolios();
+      // Daftar layanan untuk dropdown kaitan. Kegagalannya tidak ditampilkan
+      // sebagai error halaman — galerinya sendiri tetap berguna tanpa itu.
+      fetchAPI<ServiceOption[]>('/partners/me/services').then((res) => {
+        if (res.success) setServices(res.data ?? []);
+      });
     }
   }, [isAuthorized]);
 
@@ -81,6 +100,56 @@ export default function MitraPortfolioPage() {
       }
     } finally {
       setSavingCaption(false);
+    }
+  };
+
+  /**
+   * Memindahkan satu foto naik/turun lalu MENYIMPAN seluruh urutan.
+   *
+   * Urutan baru dipasang optimistis supaya panah terasa responsif, tetapi kalau
+   * server menolak, daftar diambil ulang — layar tidak boleh menampilkan urutan
+   * yang tidak tersimpan.
+   */
+  const moveItem = async (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= portfolios.length || savingOrder) return;
+
+    const next = [...portfolios];
+    [next[index], next[target]] = [next[target], next[index]];
+    const previous = portfolios;
+    setPortfolios(next);
+    setSavingOrder(true);
+
+    const res = await fetchAPI('/partners/me/portfolios/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ ids: next.map(p => p.id) }),
+    });
+    setSavingOrder(false);
+
+    if (!res.success) {
+      setPortfolios(previous);
+      setError(getErrorMessage(res) || 'Gagal menyimpan urutan');
+    }
+  };
+
+  const linkToService = async (id: string, serviceId: string) => {
+    setLinkingId(id);
+    const res = await fetchAPI<Portfolio>(`/partners/me/portfolios/${id}/service`, {
+      method: 'PATCH',
+      body: JSON.stringify({ service_id: serviceId }),
+    });
+    setLinkingId(null);
+    if (res.success && res.data) {
+      const saved = res.data;
+      setPortfolios(prev =>
+        prev.map(p =>
+          p.id === saved.id
+            ? { ...p, service_id: saved.service_id, service_name: saved.service_name }
+            : p,
+        ),
+      );
+    } else {
+      setError(getErrorMessage(res) || 'Gagal mengaitkan foto ke layanan');
     }
   };
 
@@ -167,35 +236,97 @@ export default function MitraPortfolioPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {loading ? (
             [1, 2].map(i => <div key={i} className="aspect-square bg-brand-gray-100 rounded-lg animate-pulse" />)
           ) : (
             <>
-              {portfolios.map((item) => (
-                <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden border border-brand-gray-100 group bg-white">
-                  <img src={item.photo_url} alt="Portfolio" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => startEditCaption(item.id, item.caption)}
-                      className="p-2 bg-white rounded-full text-brand-gray-700 hover:bg-brand-gray-60 transition-colors"
-                      aria-label="Ubah keterangan"
-                    >
-                      <Pencil className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => setDeleteId(item.id)}
-                      className="p-2 bg-white rounded-full text-brand-error hover:bg-brand-error-soft transition-colors"
-                      aria-label="Hapus"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+              {portfolios.map((item, index) => (
+                <div key={item.id} className="overflow-hidden rounded-lg border border-brand-gray-100 bg-white">
+                  <div className="group relative aspect-square">
+                    <img src={item.photo_url} alt={item.caption || 'Foto portofolio'} className="h-full w-full object-cover" />
+
+                    {/* Foto pertama itulah yang dilihat calon pelanggan lebih
+                        dulu — katakan begitu, jangan biarkan mitra menebak
+                        kenapa urutan penting. */}
+                    {index === 0 && (
+                      <span className="absolute left-1.5 top-1.5 rounded-md bg-brand-red px-1.5 py-0.5 text-[9px] font-bold text-white">
+                        UTAMA
+                      </span>
+                    )}
+
+                    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+                      <button
+                        onClick={() => startEditCaption(item.id, item.caption)}
+                        className="rounded-full bg-white p-2 text-brand-gray-700 transition-colors hover:bg-brand-gray-60"
+                        aria-label="Ubah keterangan"
+                      >
+                        <Pencil className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(item.id)}
+                        className="rounded-full bg-white p-2 text-brand-error transition-colors hover:bg-brand-error-soft"
+                        aria-label="Hapus"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    {item.caption && (
+                      <p className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-6 text-[11px] leading-snug text-white line-clamp-2">
+                        {item.caption}
+                      </p>
+                    )}
                   </div>
-                  {item.caption && (
-                    <p className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-6 text-[11px] leading-snug text-white line-clamp-2">
-                      {item.caption}
-                    </p>
-                  )}
+
+                  <div className="space-y-2 p-2">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[11px] font-medium text-brand-gray-450">#{index + 1}</span>
+                      <div className="flex gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => moveItem(index, -1)}
+                          disabled={index === 0 || savingOrder}
+                          className="rounded-md p-1.5 text-brand-gray-450 transition-colors hover:bg-brand-gray-60 hover:text-brand-gray-900 disabled:opacity-30"
+                          aria-label={`Pindahkan foto ${index + 1} ke atas`}
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveItem(index, 1)}
+                          disabled={index === portfolios.length - 1 || savingOrder}
+                          className="rounded-md p-1.5 text-brand-gray-450 transition-colors hover:bg-brand-gray-60 hover:text-brand-gray-900 disabled:opacity-30"
+                          aria-label={`Pindahkan foto ${index + 1} ke bawah`}
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Kaitan layanan: galeri campur membuat calon pelanggan
+                        tidak bisa melihat contoh untuk layanan yang sedang ia
+                        buka. Kosong = portofolio umum. */}
+                    {services.length > 0 && (
+                      <label className="block">
+                        <span className="sr-only">Layanan terkait foto {index + 1}</span>
+                        <div className="flex items-center gap-1">
+                          <Tag className="h-3 w-3 shrink-0 text-brand-gray-450" aria-hidden />
+                          <select
+                            value={item.service_id ?? ''}
+                            disabled={linkingId === item.id}
+                            onChange={(e) => linkToService(item.id, e.target.value)}
+                            className="w-full rounded-md border border-brand-gray-100 bg-white px-1.5 py-1 text-[11px] text-brand-gray-700 focus:border-brand-red focus:outline-none disabled:cursor-wait"
+                          >
+                            <option value="">Portofolio umum</option>
+                            {services.map(svc => (
+                              <option key={svc.id} value={svc.id}>{svc.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </label>
+                    )}
+                  </div>
                 </div>
               ))}
               
@@ -228,34 +359,36 @@ export default function MitraPortfolioPage() {
           </div>
         )}
 
-        {editingId && (
-          <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4 sm:items-center">
-            <div className="w-full max-w-sm rounded-lg bg-white p-5">
-              <h3 className="mb-1 text-base font-semibold text-brand-gray-900">Keterangan Foto</h3>
-              <p className="mb-3 text-xs text-brand-gray-450">
-                Jelaskan pekerjaan pada foto ini — pelanggan memakainya untuk menilai hasil kerjamu.
-              </p>
-              <textarea
-                value={captionDraft}
-                onChange={(e) => setCaptionDraft(e.target.value.slice(0, 255))}
-                rows={3}
-                maxLength={255}
-                autoFocus
-                className="w-full rounded-md border border-brand-gray-200 px-3 py-2 text-sm focus:border-brand-red focus:outline-none"
-                placeholder="Contoh: Servis AC 1 PK, cuci evaporator + isi freon"
-              />
-              <p className="mt-1 text-right text-[11px] text-brand-gray-450">{captionDraft.length}/255</p>
-              <div className="mt-3 flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setEditingId(null)} disabled={savingCaption}>
-                  Batal
-                </Button>
-                <Button className="flex-1" onClick={saveCaption} isLoading={savingCaption}>
-                  Simpan
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <MitraModal
+          open={!!editingId}
+          onClose={() => setEditingId(null)}
+          title="Keterangan Foto"
+          description="Jelaskan pekerjaan pada foto ini — pelanggan memakainya untuk menilai hasil kerjamu."
+          footer={
+            <>
+              <Button variant="outline" className="flex-1 rounded-md" onClick={() => setEditingId(null)} disabled={savingCaption}>
+                Batal
+              </Button>
+              <Button className="flex-1 rounded-md" onClick={saveCaption} isLoading={savingCaption}>
+                Simpan
+              </Button>
+            </>
+          }
+        >
+          <label htmlFor="caption-draft" className="sr-only">
+            Keterangan foto
+          </label>
+          <textarea
+            id="caption-draft"
+            value={captionDraft}
+            onChange={(e) => setCaptionDraft(e.target.value.slice(0, 255))}
+            rows={3}
+            maxLength={255}
+            className="mt-3 w-full rounded-md border border-brand-gray-200 px-3 py-2 text-sm focus:border-brand-red focus:outline-none"
+            placeholder="Contoh: Servis AC 1 PK, cuci evaporator + isi freon"
+          />
+          <p className="mt-1 text-right text-[11px] text-brand-gray-450">{captionDraft.length}/255</p>
+        </MitraModal>
 
         <input
           type="file"

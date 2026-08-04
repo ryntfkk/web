@@ -2,10 +2,12 @@
 import { useToast } from '@/components/ui/toast';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Clock } from 'lucide-react';
+import { CalendarOff, Clock, Plus, Trash2, X } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
+import MitraSection from '@/components/mitra/MitraSection';
+import DataState from '@/components/mitra/DataState';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
@@ -23,26 +25,65 @@ const DAYS = [
   { id: 'sunday', label: 'Minggu' },
 ];
 
-/** Baris jam kerja sebagaimana dikirim backend (kolom TIME bisa RFC3339). */
+/** Baris jam kerja sebagaimana dikirim backend (DTO WorkingHourResponse). */
 interface WorkingHourRow {
   day_of_week: string;
   open_time: string;
   close_time: string;
   is_open: boolean;
+  /** Jeda istirahat; tidak dikirim sama sekali bila hari itu tanpa jeda. */
+  break_start?: string | null;
+  break_end?: string | null;
+}
+
+/** Cuti/libur per tanggal (migrasi 000070). */
+interface TimeOff {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason?: string;
+  /** Pesanan aktif yang TERLANJUR terjadwal di rentang ini. */
+  affected_orders: number;
+}
+
+interface DaySchedule {
+  is_active: boolean;
+  start_time: string;
+  end_time: string;
+  /** '' = tanpa jeda. Keduanya selalu diisi/dikosongkan bersama. */
+  break_start: string;
+  break_end: string;
+}
+
+const DEFAULT_BREAK = { break_start: '12:00', break_end: '13:00' };
+
+function formatDateRange(start: string, end: string): string {
+  const fmt = (v: string) =>
+    new Date(`${v}T00:00:00`).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  return start === end ? fmt(start) : `${fmt(start)} – ${fmt(end)}`;
 }
 
 export default function MitraSchedulePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
 
-  const [schedule, setSchedule] = useState<Record<string, { is_active: boolean; start_time: string; end_time: string }>>({
-    monday: { is_active: true, start_time: '08:00', end_time: '17:00' },
-    tuesday: { is_active: true, start_time: '08:00', end_time: '17:00' },
-    wednesday: { is_active: true, start_time: '08:00', end_time: '17:00' },
-    thursday: { is_active: true, start_time: '08:00', end_time: '17:00' },
-    friday: { is_active: true, start_time: '08:00', end_time: '17:00' },
-    saturday: { is_active: false, start_time: '08:00', end_time: '15:00' },
-    sunday: { is_active: false, start_time: '08:00', end_time: '12:00' },
+  const [schedule, setSchedule] = useState<Record<string, DaySchedule>>({
+    monday: { is_active: true, start_time: '08:00', end_time: '17:00', break_start: '', break_end: '' },
+    tuesday: { is_active: true, start_time: '08:00', end_time: '17:00', break_start: '', break_end: '' },
+    wednesday: { is_active: true, start_time: '08:00', end_time: '17:00', break_start: '', break_end: '' },
+    thursday: { is_active: true, start_time: '08:00', end_time: '17:00', break_start: '', break_end: '' },
+    friday: { is_active: true, start_time: '08:00', end_time: '17:00', break_start: '', break_end: '' },
+    saturday: { is_active: false, start_time: '08:00', end_time: '15:00', break_start: '', break_end: '' },
+    sunday: { is_active: false, start_time: '08:00', end_time: '12:00', break_start: '', break_end: '' },
   });
+
+  // Cuti/libur — daftar terpisah dari pola mingguan karena memang beda sifatnya:
+  // pola mingguan berulang, cuti adalah pengecualian bertanggal.
+  const [timeOff, setTimeOff] = useState<TimeOff[]>([]);
+  const [timeOffError, setTimeOffError] = useState<string | null>(null);
+  const [showTimeOffModal, setShowTimeOffModal] = useState(false);
+  const [timeOffForm, setTimeOffForm] = useState({ start_date: '', end_date: '', reason: '' });
+  const [savingTimeOff, setSavingTimeOff] = useState(false);
+  const [deletingTimeOff, setDeletingTimeOff] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,12 +98,13 @@ export default function MitraSchedulePage() {
   const fetchSchedule = useCallback(async () => {
     setLoading(true);
     try {
-      const [schedRes, summaryRes] = await Promise.all([
+      const [schedRes, summaryRes, timeOffRes] = await Promise.all([
         fetchAPI<WorkingHourRow[]>('/partners/me/working-hours'),
         // Ringkasan, BUKAN daftar pesanan (P1-02). Dulu mengunduh /orders yang
         // default 10 baris lalu menghitung sendiri, jadi peringatan "ada N
         // pesanan aktif" bisa salah tanpa ada yang menyadarinya.
         fetchAPI<{ active: number }>('/orders/summary'),
+        fetchAPI<TimeOff[]>('/partners/me/time-off'),
       ]);
 
       if (schedRes.success && schedRes.data) {
@@ -74,10 +116,16 @@ export default function MitraSchedulePage() {
           for (const row of schedData) {
             const day = String(row.day_of_week || '');
             if (next[day]) {
+              const bs = row.break_start ? hhmm(row.break_start) : '';
+              const be = row.break_end ? hhmm(row.break_end) : '';
               next[day] = {
                 is_active: Boolean(row.is_open),
                 start_time: hhmm(row.open_time) || next[day].start_time,
                 end_time: hhmm(row.close_time) || next[day].end_time,
+                // Jeda hanya dianggap ada bila KEDUANYA terbaca. Separuh jeda
+                // tidak menutup apa pun dan lebih baik tampil sebagai "tidak ada".
+                break_start: bs && be ? bs : '',
+                break_end: bs && be ? be : '',
               };
             }
           }
@@ -87,6 +135,15 @@ export default function MitraSchedulePage() {
 
       if (summaryRes.success && summaryRes.data) {
         setActiveOrderCount((summaryRes.data as { active: number })?.active ?? 0);
+      }
+
+      // Gagal memuat cuti TIDAK boleh tampak seperti "tidak punya cuti":
+      // mitra akan mengira cutinya hilang lalu membuat yang dobel.
+      if (timeOffRes.success) {
+        setTimeOff(timeOffRes.data ?? []);
+        setTimeOffError(null);
+      } else {
+        setTimeOffError(timeOffRes.message || 'Gagal memuat jadwal cuti');
       }
     } finally {
       setLoading(false);
@@ -113,6 +170,25 @@ export default function MitraSchedulePage() {
       showToast(`Jam ${invalid.label} tidak valid: jam buka harus sebelum jam tutup`, 'error');
       return;
     }
+    // Cerminan validasi backend — supaya mitra tahu sebelum menekan simpan,
+    // bukan sesudah request gagal.
+    const badBreak = DAYS.find(d => {
+      const s2 = schedule[d.id];
+      if (!s2.is_active || !s2.break_start || !s2.break_end) return false;
+      return (
+        s2.break_start >= s2.break_end ||
+        s2.break_start < s2.start_time ||
+        s2.break_end > s2.end_time
+      );
+    });
+    if (badBreak) {
+      const s2 = schedule[badBreak.id];
+      showToast(
+        `Jam istirahat ${badBreak.label} harus berada di dalam jam buka (${s2.start_time}–${s2.end_time}) dan mulai sebelum selesai`,
+        'error',
+      );
+      return;
+    }
     if (activeOrderCount > 0) {
       setShowWarningModal(true);
     } else {
@@ -134,12 +210,21 @@ export default function MitraSchedulePage() {
         {
           method: 'PUT',
           body: JSON.stringify({
-            hours: days.map((day) => ({
-              day_of_week: day,
-              open_time: toHms(schedule[day].start_time),
-              close_time: toHms(schedule[day].end_time),
-              is_open: schedule[day].is_active,
-            })),
+            hours: days.map((day) => {
+              const d = schedule[day];
+              const hasBreak = Boolean(d.break_start && d.break_end);
+              return {
+                day_of_week: day,
+                open_time: toHms(d.start_time),
+                close_time: toHms(d.end_time),
+                is_open: d.is_active,
+                // String kosong = hapus jeda. Backend menimpanya dengan NULL,
+                // jadi mematikan jeda memang harus mengirim kosong, bukan
+                // menghilangkan field-nya.
+                break_start: hasBreak ? toHms(d.break_start) : '',
+                break_end: hasBreak ? toHms(d.break_end) : '',
+              };
+            }),
           }),
         },
       );
@@ -160,6 +245,51 @@ export default function MitraSchedulePage() {
     setSaving(false);
   };
 
+
+  const handleAddTimeOff = async () => {
+    if (!timeOffForm.start_date || !timeOffForm.end_date) {
+      showToast('Isi tanggal mulai dan selesai', 'error');
+      return;
+    }
+    if (timeOffForm.end_date < timeOffForm.start_date) {
+      showToast('Tanggal selesai tidak boleh sebelum tanggal mulai', 'error');
+      return;
+    }
+    setSavingTimeOff(true);
+    const res = await fetchAPI<TimeOff>('/partners/me/time-off', {
+      method: 'POST',
+      body: JSON.stringify(timeOffForm),
+    });
+    setSavingTimeOff(false);
+
+    if (res.success) {
+      setShowTimeOffModal(false);
+      setTimeOffForm({ start_date: '', end_date: '', reason: '' });
+      await fetchSchedule();
+      // Cuti TIDAK membatalkan pesanan yang sudah masuk — katakan itu sekarang,
+      // bukan biarkan mitra menemukannya saat pelanggan menunggu di rumah.
+      const affected = res.data?.affected_orders ?? 0;
+      showToast(
+        affected > 0
+          ? `Cuti tersimpan. ${affected} pesanan sudah terjadwal di rentang ini dan TETAP jadi kewajibanmu.`
+          : 'Cuti tersimpan.',
+      );
+    } else {
+      showToast(getErrorMessage(res) || 'Gagal menyimpan cuti', 'error');
+    }
+  };
+
+  const handleDeleteTimeOff = async (id: string) => {
+    setDeletingTimeOff(id);
+    const res = await fetchAPI(`/partners/me/time-off/${id}`, { method: 'DELETE' });
+    setDeletingTimeOff(null);
+    if (res.success) {
+      setTimeOff(prev => prev.filter(t => t.id !== id));
+      showToast('Cuti dihapus');
+    } else {
+      showToast(getErrorMessage(res) || 'Gagal menghapus cuti', 'error');
+    }
+  };
 
   if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
@@ -202,6 +332,7 @@ export default function MitraSchedulePage() {
           <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden">
             {DAYS.map((day, index) => {
               const dayData = schedule[day.id];
+              const hasBreak = Boolean(dayData.break_start && dayData.break_end);
               return (
                 <div key={day.id} className={`p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${index < DAYS.length - 1 ? 'border-b border-brand-gray-100' : ''}`}>
                   <label className="flex items-center gap-3 cursor-pointer min-w-[120px]">
@@ -215,20 +346,64 @@ export default function MitraSchedulePage() {
                   </label>
 
                   {dayData.is_active ? (
-                    <div className="flex items-center gap-2 pl-7 sm:pl-0">
-                      <input
-                        type="time"
-                        value={dayData.start_time}
-                        onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, start_time: e.target.value } })}
-                        className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                      />
-                      <span className="text-brand-gray-450 font-medium">-</span>
-                      <input
-                        type="time"
-                        value={dayData.end_time}
-                        onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, end_time: e.target.value } })}
-                        className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                      />
+                    <div className="flex flex-col gap-2 pl-7 sm:items-end sm:pl-0">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="time"
+                          aria-label={`Jam buka ${day.label}`}
+                          value={dayData.start_time}
+                          onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, start_time: e.target.value } })}
+                          className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                        />
+                        <span className="text-brand-gray-450 font-medium">-</span>
+                        <input
+                          type="time"
+                          aria-label={`Jam tutup ${day.label}`}
+                          value={dayData.end_time}
+                          onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, end_time: e.target.value } })}
+                          className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                        />
+                      </div>
+
+                      {/* Jeda istirahat. Tanpa ini mitra yang buka 08:00-17:00
+                          tetap bisa dipesan tepat pukul 12:00, dan menolaknya
+                          manual dihitung sebagai mitra yang tak bisa diandalkan. */}
+                      {hasBreak ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-brand-gray-450">Istirahat</span>
+                          <input
+                            type="time"
+                            aria-label={`Mulai istirahat ${day.label}`}
+                            value={dayData.break_start}
+                            onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, break_start: e.target.value } })}
+                            className="p-1.5 border border-brand-gray-100 rounded-md text-xs text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                          />
+                          <span className="text-brand-gray-450">-</span>
+                          <input
+                            type="time"
+                            aria-label={`Selesai istirahat ${day.label}`}
+                            value={dayData.break_end}
+                            onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, break_end: e.target.value } })}
+                            className="p-1.5 border border-brand-gray-100 rounded-md text-xs text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setSchedule({ ...schedule, [day.id]: { ...dayData, break_start: '', break_end: '' } })}
+                            className="rounded-md p-1 text-brand-gray-450 hover:bg-brand-gray-60 hover:text-brand-error"
+                            aria-label={`Hapus jam istirahat ${day.label}`}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setSchedule({ ...schedule, [day.id]: { ...dayData, ...DEFAULT_BREAK } })}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-red hover:underline"
+                        >
+                          <Plus className="h-3 w-3" aria-hidden /> Tambah jam istirahat
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="pl-7 sm:pl-0">
@@ -240,6 +415,75 @@ export default function MitraSchedulePage() {
             })}
           </div>
         )}
+
+        {/* ── Cuti / libur ──────────────────────────────────────────
+            Terpisah dari pola mingguan karena memang beda sifatnya: pola
+            mingguan berulang, cuti adalah pengecualian bertanggal. Sebelum ini
+            satu-satunya cara menyatakan cuti adalah menutup hari itu SELAMANYA
+            lalu ingat membukanya kembali. */}
+        <MitraSection
+          className="pt-4"
+          title="Cuti & Libur"
+          description="Pelanggan tidak bisa membuat pesanan baru pada tanggal ini. Pesanan yang sudah terjadwal tetap berjalan."
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-md"
+              onClick={() => {
+                setTimeOffForm({ start_date: '', end_date: '', reason: '' });
+                setShowTimeOffModal(true);
+              }}
+            >
+              <Plus className="mr-1 h-4 w-4" aria-hidden /> Tambah
+            </Button>
+          }
+        >
+          <DataState
+            isLoading={loading}
+            error={timeOffError}
+            onRetry={fetchSchedule}
+            isEmpty={timeOff.length === 0}
+            emptyIcon={<CalendarOff className="mx-auto mb-3 h-10 w-10 text-brand-gray-100" />}
+            emptyTitle="Belum ada jadwal cuti."
+            emptyDescription="Tambahkan tanggal saat kamu tidak bisa menerima pesanan."
+            skeleton={<div className="h-20 animate-pulse rounded-lg border border-brand-gray-100 bg-white" />}
+          >
+            <ul className="space-y-2">
+              {timeOff.map(t => (
+                <li
+                  key={t.id}
+                  className="flex items-start justify-between gap-3 rounded-lg border border-brand-gray-100 bg-white p-4"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-brand-gray-900">
+                      {formatDateRange(t.start_date, t.end_date)}
+                    </p>
+                    {t.reason && <p className="mt-0.5 text-xs text-brand-gray-450">{t.reason}</p>}
+                    {t.affected_orders > 0 && (
+                      <p className="mt-1 text-xs font-medium text-brand-warning-dark">
+                        {t.affected_orders} pesanan sudah terjadwal di rentang ini — tetap jadi kewajibanmu.
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTimeOff(t.id)}
+                    disabled={deletingTimeOff === t.id}
+                    className="shrink-0 rounded-md p-2 text-brand-gray-450 transition-colors hover:bg-brand-error-soft hover:text-brand-error disabled:cursor-wait"
+                    aria-label={`Hapus cuti ${formatDateRange(t.start_date, t.end_date)}`}
+                  >
+                    {deletingTimeOff === t.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </DataState>
+        </MitraSection>
 
         <div className="pt-6">
           <div className="bg-brand-warning-soft border border-brand-warning-border rounded-md p-3 mb-4 flex gap-2 items-start">
@@ -263,6 +507,76 @@ export default function MitraSchedulePage() {
           </Button>
         </div>
       </div>
+
+      <MitraModal
+        open={showTimeOffModal}
+        onClose={() => setShowTimeOffModal(false)}
+        title="Tambah Cuti"
+        description="Pada tanggal ini pelanggan tidak bisa membuat pesanan baru untukmu."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md" onClick={() => setShowTimeOffModal(false)}>
+              Batal
+            </Button>
+            <Button
+              className="flex-1 rounded-md bg-brand-red text-white"
+              onClick={handleAddTimeOff}
+              disabled={savingTimeOff || !timeOffForm.start_date || !timeOffForm.end_date}
+            >
+              {savingTimeOff ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 'Simpan'}
+            </Button>
+          </>
+        }
+      >
+        <div className="mt-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-brand-gray-700">Mulai</span>
+              <input
+                type="date"
+                value={timeOffForm.start_date}
+                onChange={e =>
+                  setTimeOffForm(f => ({
+                    ...f,
+                    start_date: e.target.value,
+                    // Rentang sehari adalah kasus paling umum; menyamakan
+                    // tanggal selesai menghemat satu langkah dan mencegah
+                    // pengajuan dengan tanggal selesai yang lupa diisi.
+                    end_date: f.end_date && f.end_date >= e.target.value ? f.end_date : e.target.value,
+                  }))
+                }
+                className="w-full rounded-md border border-brand-gray-100 px-2.5 py-2 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-brand-gray-700">Selesai</span>
+              <input
+                type="date"
+                min={timeOffForm.start_date || undefined}
+                value={timeOffForm.end_date}
+                onChange={e => setTimeOffForm(f => ({ ...f, end_date: e.target.value }))}
+                className="w-full rounded-md border border-brand-gray-100 px-2.5 py-2 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+              />
+            </label>
+          </div>
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-brand-gray-700">
+              Alasan <span className="font-normal text-brand-gray-450">(opsional, hanya kamu yang lihat)</span>
+            </span>
+            <input
+              type="text"
+              value={timeOffForm.reason}
+              onChange={e => setTimeOffForm(f => ({ ...f, reason: e.target.value }))}
+              placeholder="Contoh: mudik Lebaran"
+              className="w-full rounded-md border border-brand-gray-100 px-2.5 py-2 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+            />
+          </label>
+          <p className="text-xs leading-relaxed text-brand-gray-450">
+            Cuti hanya menutup pemesanan <strong>baru</strong>. Pesanan yang sudah terjadwal di rentang ini
+            tetap jadi kewajibanmu — batalkan lewat halaman pesanan bila perlu.
+          </p>
+        </div>
+      </MitraModal>
 
       <MitraModal
         open={showWarningModal}

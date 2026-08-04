@@ -96,7 +96,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             )}
           </div>
 
-          {/* Rating + Orders + City */}
+          {/* Rating + City */}
           <div className="flex items-center gap-2 mb-2">
             <div className="flex items-center gap-1 flex-shrink-0">
               <Star className="w-3 h-3 fill-brand-warning text-brand-warning" />
@@ -104,11 +104,6 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
                 {service.partner_avg_rating?.toFixed(1) || '0.0'}
               </span>
             </div>
-            {orderCount > 0 && (
-              <span className="text-[11px] sm:text-[12px] text-brand-gray-400 truncate">
-                · {formatCompactNumber(orderCount)} pesanan
-              </span>
-            )}
             {service.partner_city && (
               <div className="flex items-center gap-0.5 text-brand-gray-700 min-w-0 ml-auto">
                 <MapPin className="w-3 h-3 flex-shrink-0" />
@@ -119,9 +114,14 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             )}
           </div>
 
-          {/* Price - pushed to bottom */}
-          <div className="mt-auto">
+          {/* Price + order count - pushed to bottom */}
+          <div className="mt-auto flex items-baseline justify-between gap-2">
             <Price price={service.price || 0} size="sm" className="text-[14px] sm:text-[16px] font-semibold" />
+            {orderCount > 0 && (
+              <span className="text-[10px] sm:text-[11px] text-brand-gray-400 shrink-0">
+                {formatCompactNumber(orderCount)} Selesai
+              </span>
+            )}
           </div>
         </div>
       </div>
