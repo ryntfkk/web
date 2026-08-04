@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, Clock, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
@@ -17,9 +16,25 @@ interface WalletTransaction {
   type: 'CREDIT' | 'DEBIT';
   category: 'EARNING' | 'REFUND' | 'WITHDRAWAL' | 'PAYMENT';
   amount: number;
-  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  /**
+   * Enum backend (transaction_status), bukan karangan frontend. Dulu diketik
+   * 'SUCCESS' yang TIDAK PERNAH dikirim server, sehingga kondisi apa pun yang
+   * membandingkannya diam-diam tidak pernah benar (P1-06).
+   */
+  status: 'PENDING' | 'PAID' | 'REFUNDED' | 'FAILED' | 'DISBURSED';
   created_at: string;
   description: string;
+}
+
+interface TransactionsResponse {
+  data: WalletTransaction[];
+  summary?: { total_earnings?: number; total_withdrawals?: number; total_refunds?: number };
+}
+
+interface BalanceResponse {
+  balance?: number;
+  available_balance?: number;
+  pending_withdrawal?: number;
 }
 
 export default function MitraWalletPage() {
@@ -30,15 +45,15 @@ export default function MitraWalletPage() {
   const [filterType, setFilterType] = useState<'ALL' | 'IN' | 'OUT'>('ALL');
   const [timeFilter, setTimeFilter] = useState<'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL'>('ALL');
   const [loading, setLoading] = useState(true);
-  const [balance, setBalance] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  // Tiga angka berbeda, dan mitra berhak tahu bedanya (P1-04): yang bisa
+  // ditarik sekarang, yang sedang diproses penarikannya, dan total buku.
+  const [balance, setBalance] = useState({ ledger: 0, available: 0, pending: 0 });
   const [summary, setSummary] = useState({ total_earnings: 0, total_withdrawals: 0, total_refunds: 0 });
   const platformConfig = usePlatformConfig();
 
-  useEffect(() => {
-    if (isAuthenticated) fetchData();
-  }, [isAuthenticated, timeFilter]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     let query = '';
     if (timeFilter === 'THIS_MONTH') {
@@ -55,10 +70,17 @@ export default function MitraWalletPage() {
 
     try {
       const [txRes, balRes] = await Promise.all([
-        fetchAPI<any>(`/wallet/transactions${query}`),
-        fetchAPI<any>('/wallet/balance')
+        fetchAPI<TransactionsResponse>(`/wallet/transactions${query}`),
+        fetchAPI<BalanceResponse>('/wallet/balance')
       ]);
 
+      if (!txRes.success) {
+        // Kegagalan memuat TIDAK boleh tampak seperti "belum ada transaksi":
+        // mitra akan mengira mutasinya hilang (P1-05/P1-11).
+        setError(txRes.message || 'Gagal memuat riwayat transaksi');
+      } else {
+        setError(null);
+      }
       if (txRes.success && txRes.data) {
         setTransactions(txRes.data.data || []);
         if (txRes.data.summary) {
@@ -73,16 +95,27 @@ export default function MitraWalletPage() {
       if (balRes.success && balRes.data) {
         // unwrapData: envelope bisa satu/dua tingkat (res.data.data) — samakan dgn
         // payment page, kalau tidak saldo bisa tampil Rp 0.
-        const bal = unwrapData<any>(balRes.data);
-        setBalance(bal?.balance || 0);
+        const bal = unwrapData<{ balance?: number; available_balance?: number; pending_withdrawal?: number }>(balRes.data);
+        setBalance({
+          ledger: bal?.balance ?? 0,
+          available: bal?.available_balance ?? bal?.balance ?? 0,
+          pending: bal?.pending_withdrawal ?? 0,
+        });
       }
     } catch (e) {
       console.error("Failed to fetch wallet data:", e);
+      setError('Tidak dapat memuat data dompet. Periksa koneksi lalu coba lagi.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeFilter]);
 
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (isAuthenticated) fetchData();
+  }, [isAuthenticated, fetchData]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const getTransactionIcon = (type: string) => {
     if (type === 'CREDIT') return <ArrowDownLeft className="w-5 h-5 text-brand-success" />;
@@ -107,8 +140,16 @@ export default function MitraWalletPage() {
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/80 mb-1">Total Saldo Pendapatan</p>
-              <h2 className="text-3xl font-bold tracking-tight">{formatPrice(balance)}</h2>
+              {/* Angka utama = yang BISA DITARIK. Menonjolkan saldo buku membuat
+                  mitra mengira seluruhnya bisa dicairkan (P1-04). */}
+              <p className="text-sm text-white/80 mb-1">Saldo Bisa Ditarik</p>
+              <h2 className="text-3xl font-bold tracking-tight">{formatPrice(balance.available)}</h2>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-white/80">
+                <span>Total saldo: {formatPrice(balance.ledger)}</span>
+                {balance.pending > 0 && (
+                  <span>Sedang diproses: {formatPrice(balance.pending)}</span>
+                )}
+              </div>
             </div>
             <WalletIcon className="w-10 h-10 text-white/20" />
           </div>
@@ -154,7 +195,7 @@ export default function MitraWalletPage() {
           <h3 className="font-bold text-brand-gray-900">Riwayat Transaksi</h3>
           <select 
             value={timeFilter}
-            onChange={(e) => setTimeFilter(e.target.value as any)}
+            onChange={(e) => setTimeFilter(e.target.value as 'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL')}
             className="text-xs border border-brand-gray-100 rounded-md px-2 py-1 text-brand-gray-700 bg-white focus:outline-none focus:border-brand-red"
           >
             <option value="ALL">Semua Waktu</option>
@@ -196,6 +237,12 @@ export default function MitraWalletPage() {
                 </div>
               </div>
             ))
+          ) : error ? (
+            <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100">
+              <p className="text-sm font-semibold text-brand-gray-900 mb-1">Gagal memuat transaksi</p>
+              <p className="text-xs text-brand-gray-450 mb-4">{error}</p>
+              <Button variant="outline" onClick={() => fetchData()}>Coba Lagi</Button>
+            </div>
           ) : transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').length === 0 ? (
             <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100">
               <History className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />

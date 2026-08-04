@@ -151,7 +151,9 @@ export default function WithdrawPage() {
           </div>
           <h2 className="text-xl font-bold text-brand-gray-900 mb-2">Penarikan Berhasil Diajukan</h2>
           <p className="text-sm text-brand-gray-700 mb-6">
-            Dana akan masuk ke rekening Anda dalam 1-2 hari kerja.
+            {platformConfig.profile?.withdrawal_sla
+              ? `Dana akan masuk ke rekening kamu dalam ${platformConfig.profile.withdrawal_sla}.`
+              : 'Dana akan masuk ke rekening kamu setelah pengajuan disetujui.'}
           </p>
           {/* replace: layar sukses ini transien — back dari dompet tidak boleh
               memantulkan pengguna kembali ke "Penarikan Berhasil" yang basi. */}

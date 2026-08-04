@@ -38,24 +38,33 @@ export default function MitraReviewsPage() {
   // React Query, bukan useEffect+setState: selain sesuai konvensi repo, ini juga
   // memberi `dataUpdatedAt` — stempel waktu murni untuk menghitung sisa jendela
   // balas tanpa memanggil Date.now() saat render.
+  // Paginasi, bukan potongan 50 pertama (P1-07): mitra dengan ulasan lebih
+  // banyak dari itu tidak akan pernah bisa melihat — apalagi membalas — yang lama.
+  const PAGE_SIZE = 20;
+  const [page, setPage] = useState(1);
+
   const { data, isLoading, dataUpdatedAt, refetch } = useQuery({
-    queryKey: ['mitraReviews'],
+    queryKey: ['mitraReviews', page],
     queryFn: async () => {
       // Endpoint ulasan publik menerima id ATAU username; ambil id mitra sendiri
       // dari /partners/me supaya halaman ini tak bergantung username di URL.
       const me = await fetchAPI<{ id: string }>('/partners/me');
       if (!me.success || !me.data?.id) throw new Error('Profil mitra tidak ditemukan');
       const res = await fetchAPI<{ reviews: PartnerReview[]; summary: ReviewSummary }>(
-        `/partners/${me.data.id}/reviews?limit=50&page=1`,
+        `/partners/${me.data.id}/reviews?limit=${PAGE_SIZE}&page=${page}`,
       );
       if (!res.success || !res.data) throw new Error('Gagal memuat ulasan');
       return res.data;
     },
     enabled: isAuthorized,
+    placeholderData: (prev) => prev,
   });
 
   const reviews = Array.isArray(data?.reviews) ? data.reviews : [];
   const summary = data?.summary ?? null;
+  // summary.total_reviews dihitung server atas SELURUH ulasan, jadi jumlah
+  // halaman di sini jujur — bukan tebakan dari panjang array.
+  const totalPages = summary ? Math.max(1, Math.ceil(summary.total_reviews / PAGE_SIZE)) : 1;
 
   const handleReply = async (reviewId: string) => {
     const content = (draft[reviewId] ?? '').trim();
@@ -261,6 +270,27 @@ export default function MitraReviewsPage() {
               </div>
             )}
           </>
+        )}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between gap-3 pt-4">
+            <Button
+              variant="outline"
+              disabled={page <= 1 || isLoading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Sebelumnya
+            </Button>
+            <span className="text-xs text-brand-gray-450">
+              Halaman {page} dari {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              disabled={page >= totalPages || isLoading}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Berikutnya
+            </Button>
+          </div>
         )}
       </div>
     </div>

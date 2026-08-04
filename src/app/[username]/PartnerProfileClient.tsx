@@ -25,7 +25,10 @@ export default function PartnerProfileClient({ username }: { username: string })
   const { data: profile, isLoading: isProfileLoading, isError: isProfileError, error: profileError } = usePartnerProfile(username);
   const { data: services, isLoading: isServicesLoading } = usePartnerServices(username);
   const { data: portfolios, isLoading: isPortfoliosLoading } = usePartnerPortfolios(username);
-  const { data: reviewData, isLoading: isReviewsLoading } = usePartnerReviews(username);
+  // P1-07: 10 ulasan pertama dulu tidak punya jalan keluar sama sekali —
+  // ulasan lama tak pernah bisa dibaca calon pelanggan.
+  const [reviewLimit, setReviewLimit] = useState(10);
+  const { data: reviewData, isFetching: isReviewsFetching } = usePartnerReviews(username, reviewLimit);
   // Jam operasional sudah lama tersedia sebagai endpoint publik dan dipakai
   // halaman produk, tetapi profil mitra — tempat orang justru mencarinya —
   // tidak pernah menampilkannya (C5).
@@ -156,7 +159,21 @@ export default function PartnerProfileClient({ username }: { username: string })
               </div>
             </div>
 
-            <ReviewSection reviews={reviewData?.reviews || []} summary={reviewData?.summary || { total_reviews: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 }} />
+            <ReviewSection
+              reviews={reviewData?.reviews || []}
+              summary={reviewData?.summary || { total_reviews: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 }}
+              footer={
+                (reviewData?.reviews?.length ?? 0) < (reviewData?.summary?.total_reviews ?? 0) ? (
+                  <Button
+                    variant="outline"
+                    isLoading={isReviewsFetching}
+                    onClick={() => setReviewLimit((n) => n + 10)}
+                  >
+                    Muat ulasan lain
+                  </Button>
+                ) : null
+              }
+            />
           </div>
         </div>
       </div>

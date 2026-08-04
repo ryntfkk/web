@@ -1,7 +1,7 @@
 "use client";
 import { useToast } from '@/components/ui/toast';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,14 @@ const DAYS = [
   { id: 'saturday', label: 'Sabtu' },
   { id: 'sunday', label: 'Minggu' },
 ];
+
+/** Baris jam kerja sebagaimana dikirim backend (kolom TIME bisa RFC3339). */
+interface WorkingHourRow {
+  day_of_week: string;
+  open_time: string;
+  close_time: string;
+  is_open: boolean;
+}
 
 export default function MitraSchedulePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
@@ -45,21 +53,20 @@ export default function MitraSchedulePage() {
   // dan pelanggan TIDAK bisa memesan — tampilkan peringatan.
   const [hasSavedSchedule, setHasSavedSchedule] = useState(true);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    fetchSchedule();
-  }, [isAuthenticated, user?.active_role]);
 
-  const fetchSchedule = async () => {
+  const fetchSchedule = useCallback(async () => {
     setLoading(true);
     try {
-      const [schedRes, ordersRes] = await Promise.all([
-        fetchAPI<any>('/partners/me/working-hours'),
-        fetchAPI<any>('/orders?role=partner')
+      const [schedRes, summaryRes] = await Promise.all([
+        fetchAPI<WorkingHourRow[]>('/partners/me/working-hours'),
+        // Ringkasan, BUKAN daftar pesanan (P1-02). Dulu mengunduh /orders yang
+        // default 10 baris lalu menghitung sendiri, jadi peringatan "ada N
+        // pesanan aktif" bisa salah tanpa ada yang menyadarinya.
+        fetchAPI<{ active: number }>('/orders/summary'),
       ]);
 
       if (schedRes.success && schedRes.data) {
-        const schedData = unwrapData<any>(schedRes.data);
+        const schedData = unwrapData<WorkingHourRow[]>(schedRes.data);
         if (Array.isArray(schedData)) {
           setHasSavedSchedule(schedData.length > 0);
           const next = { ...schedule };
@@ -78,17 +85,23 @@ export default function MitraSchedulePage() {
         }
       }
 
-      if (ordersRes.success && ordersRes.data) {
-        const ordersData = unwrapData<any>(ordersRes.data);
-        if (Array.isArray(ordersData)) {
-          const activeCount = ordersData.filter((o: any) => ['WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS'].includes(o.status)).length;
-          setActiveOrderCount(activeCount);
-        }
+      if (summaryRes.success && summaryRes.data) {
+        setActiveOrderCount(unwrapData<{ active: number }>(summaryRes.data)?.active ?? 0);
       }
     } finally {
       setLoading(false);
     }
-  };
+    // schedule sengaja tidak jadi dependensi: fungsi ini MENULIS ke schedule,
+    // memasukkannya akan membuat loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchSchedule();
+  }, [isAuthenticated, user?.active_role, fetchSchedule]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const confirmSave = () => {
     // Validasi: jam buka harus lebih awal dari jam tutup untuk setiap hari aktif.
@@ -109,37 +122,36 @@ export default function MitraSchedulePage() {
 
   const handleSave = async () => {
     setSaving(true);
-    // Backend menyimpan SATU hari per request dengan field
-    // { day_of_week, open_time, close_time, is_open } dan format waktu HH:MM:SS.
+    // SATU request untuk seluruh minggu (P1-03). Dulu tujuh PUT paralel: bila
+    // sebagian gagal, mitra tertinggal dengan jadwal campuran — sebagian hari
+    // baru, sebagian lama — tanpa cara tahu yang mana. Sekarang backend
+    // menyimpannya dalam satu transaksi: semua tersimpan, atau tidak sama sekali.
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     const toHms = (t: string) => (t && t.length === 5 ? `${t}:00` : t);
     try {
-      const results = await Promise.all(
-        days.map((day) => {
-          const d = schedule[day];
-          return fetchAPI(`/partners/me/working-hours`, {
-            method: 'PUT',
-            body: JSON.stringify({
+      const res = await fetchAPI<{ updated: boolean; affected_orders_count: number }>(
+        '/partners/me/working-hours/batch',
+        {
+          method: 'PUT',
+          body: JSON.stringify({
+            hours: days.map((day) => ({
               day_of_week: day,
-              open_time: toHms(d.start_time),
-              close_time: toHms(d.end_time),
-              is_open: d.is_active,
-            }),
-          });
-        })
+              open_time: toHms(schedule[day].start_time),
+              close_time: toHms(schedule[day].end_time),
+              is_open: schedule[day].is_active,
+            })),
+          }),
+        },
       );
-      // Endpoint ini memakai envelope non-standar (tanpa `success`),
-      // jadi anggap berhasil bila status HTTP 2xx atau data.updated true.
-      const failed = results.filter((r: any) => !(r?.success || r?.data?.updated || (r?.status >= 200 && r?.status < 300)));
-      
-      // Always fetch schedule to sync with backend even if there are partial failures
+
+      // Selalu sinkronkan dari server: yang tampil harus keadaan tersimpan,
+      // bukan yang diketik.
       await fetchSchedule();
 
-      if (failed.length === 0) {
+      if (res.success) {
         showToast('Jadwal berhasil disimpan!');
       } else {
-        const firstFailed = failed[0];
-        showToast(getErrorMessage(firstFailed ?? { success: false }) || `Gagal menyimpan ${failed.length} hari`, 'error');
+        showToast(getErrorMessage(res) || 'Gagal menyimpan jadwal', 'error');
       }
     } catch {
       showToast('Gagal menyimpan jadwal', 'error');

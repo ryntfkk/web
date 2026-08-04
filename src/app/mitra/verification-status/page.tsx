@@ -6,6 +6,7 @@ import { CheckCircle, Clock, XCircle, FileText, AlertCircle } from 'lucide-react
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
@@ -17,6 +18,8 @@ export default function MitraVerificationStatusPage() {
   const [status, setStatus] = useState<'PENDING' | 'VERIFIED' | 'REJECTED' | null>(null);
   const [reason, setReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // Kosong = platform belum menetapkan SLA; UI TIDAK boleh mengarang tenggat.
+  const verificationSla = usePlatformConfig().profile?.verification_sla?.trim();
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -84,7 +87,10 @@ export default function MitraVerificationStatusPage() {
                 </div>
                 <h2 className="text-xl font-bold text-brand-gray-900 mb-2">Menunggu Verifikasi</h2>
                 <p className="text-sm text-brand-gray-700 mb-6 leading-relaxed">
-                  Tim kami sedang melakukan pengecekan pada dokumen yang Anda unggah. Proses ini biasanya memakan waktu 1-2 hari kerja.
+                  Tim kami sedang melakukan pengecekan pada dokumen yang kamu unggah.
+                  {verificationSla
+                    ? ` Proses ini biasanya memakan waktu ${verificationSla}.`
+                    : ' Kami akan memberi tahu begitu ada hasilnya.'}
                 </p>
                 <div className="bg-brand-orange-soft rounded-lg p-4 text-left border border-brand-orange/30">
                   <div className="flex items-start gap-3">

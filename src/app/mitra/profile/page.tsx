@@ -4,7 +4,7 @@ import { getInitial } from '@/lib/utils';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   User, ShieldCheck, CreditCard, LogOut, FileText, CheckCircle,
-  RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, Phone, Loader2,
+  RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, SlidersHorizontal, Phone, Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
@@ -134,7 +134,10 @@ export default function MitraProfilePage() {
           <MenuListItem icon={MapPin} label="Alamat Basecamp" subtitle="Titik lokasi & jangkauan layanan" href="/mitra/basecamp" />
           <MenuListItem icon={CreditCard} label="Rekening Bank" subtitle="Tujuan pencairan saldo" href="/mitra/bank-account" />
           <MenuListItem icon={ImageIcon} label="Galeri Portofolio" subtitle="Foto hasil pekerjaan" href="/mitra/portfolio" />
-          <MenuListItem icon={Bell} label="Notifikasi" subtitle="Push notification & email" href="/notifications" />
+          {/* Dua hal berbeda, dan subtitle lama menjanjikan yang kedua sambil
+              menuju yang pertama (P1-14). */}
+          <MenuListItem icon={Bell} label="Notifikasi" subtitle="Kotak masuk pemberitahuan" href="/notifications" />
+          <MenuListItem icon={SlidersHorizontal} label="Preferensi Notifikasi" subtitle="Atur pemberitahuan push & email" href="/profile/notifications" />
         </MenuCard>
 
         <MenuCard title="Bantuan & Legal">

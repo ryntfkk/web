@@ -36,6 +36,11 @@ export interface PlatformProfile {
   support_whatsapp: string;
   dpo_email: string;
   withdrawal_sla: string;
+  /**
+   * SLA verifikasi mitra. KOSONG = tidak ada janji waktu — UI wajib memakai copy
+   * netral, bukan mengarang tenggat (P1-15).
+   */
+  verification_sla?: string;
 }
 
 // Cadangan saat /config gagal dimuat — selaras DefaultPlatformSettings di
