@@ -10,11 +10,33 @@ import RegionSelect from '@/components/ui/RegionSelect';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import { useAuthStore } from '@/lib/store/authStore';
 import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
-import { useActiveLegalDocuments, recordLegalConsent } from '@/hooks/useLegalConsent';
+import { useActiveLegalDocuments } from '@/hooks/useLegalConsent';
 import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
 import { formatPrice } from '@/lib/format';
 import dynamic from 'next/dynamic';
 // Leaflet CSS kini di-import global di app/globals.css (lihat catatan di sana).
+
+/** Bentuk respons GET /partners/me/resubmission (ResubmissionDraftResponse). */
+interface ResubmissionDraft {
+  can_resubmit: boolean;
+  verification_status: string;
+  rejection_reason?: string;
+  ktp_number_masked: string;
+  ktp_photo_url: string;
+  selfie_ktp_url: string;
+  bio: string;
+  service_area: string[];
+  city: string;
+  district: string;
+  province: string;
+  address_detail: string;
+  basecamp_lat: number;
+  basecamp_lon: number;
+  bank_code: string;
+  bank_account_name: string;
+  bank_account_number_masked: string;
+  partner_type: string;
+}
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
@@ -53,26 +75,42 @@ function MitraRegisterForm() {
     bank_account_name: ''
   });
 
+  // Verifikasi ulang: URL foto yang SUDAH ada. Mitra boleh mempertahankannya —
+  // memaksa unggah ulang KTP hanya karena alamat basecamp ditolak itu menyiksa.
+  const [existingPhotos, setExistingPhotos] = useState({ ktp_photo_url: '', selfie_ktp_url: '' });
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [maskedHints, setMaskedHints] = useState({ ktp: '', bank: '' });
+
   const nextStep = () => setStep((s) => Math.min(s + 1, 5));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
+  // Prefill dari endpoint draft khusus (P0-05). Dulu membaca /partners/me dan
+  // mengharapkan `ktp_number` + data rekening ada di sana — dua-duanya tidak
+  // pernah ada di DTO itu, jadi form selalu kosong tanpa penjelasan.
   useEffect(() => {
-    if (isReverify) {
-      fetchAPI<any>('/partners/me').then(res => {
-        if (res.success && res.data) {
-          setFormData(prev => ({
-            ...prev,
-            ktp_number: res.data.ktp_number || '',
-            bio: res.data.bio || '',
-            basecamp_lat: res.data.basecamp_lat || prev.basecamp_lat,
-            basecamp_lon: res.data.basecamp_lon || prev.basecamp_lon,
-            bank_code: res.data.bank_code || '',
-            bank_account_number: res.data.bank_account_number || '',
-            bank_account_name: res.data.bank_account_name || ''
-          }));
-        }
+    if (!isReverify) return;
+    fetchAPI<ResubmissionDraft>('/partners/me/resubmission').then(res => {
+      if (!res.success || !res.data) return;
+      const d = res.data;
+      setFormData(prev => ({
+        ...prev,
+        bio: d.bio || '',
+        province: d.province || '',
+        city: d.city || '',
+        district: d.district || '',
+        address_detail: d.address_detail || '',
+        basecamp_lat: d.basecamp_lat || prev.basecamp_lat,
+        basecamp_lon: d.basecamp_lon || prev.basecamp_lon,
+        bank_code: d.bank_code || '',
+        bank_account_name: d.bank_account_name || '',
+      }));
+      setExistingPhotos({
+        ktp_photo_url: d.ktp_photo_url || '',
+        selfie_ktp_url: d.selfie_ktp_url || '',
       });
-    }
+      setRejectionReason(d.rejection_reason || '');
+      setMaskedHints({ ktp: d.ktp_number_masked || '', bank: d.bank_account_number_masked || '' });
+    });
   }, [isReverify]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
@@ -109,46 +147,67 @@ function MitraRegisterForm() {
     setError(null);
 
     try {
-      if (!formData.ktp_photo || !formData.selfie_ktp) throw new Error('Mohon lengkapi foto KTP dan Selfie');
-      
-      // Upload files
-      const ktpUrl = await uploadFileToS3(formData.ktp_photo);
-      const selfieUrl = await uploadFileToS3(formData.selfie_ktp);
+      // Verifikasi ulang boleh mempertahankan foto lama; pendaftaran baru wajib
+      // mengunggah keduanya.
+      if (!isReverify && (!formData.ktp_photo || !formData.selfie_ktp)) {
+        throw new Error('Mohon lengkapi foto KTP dan Selfie');
+      }
 
-      // Submit Form
-      const res = await fetchAPI('/partners/onboarding', {
-        method: 'POST',
-        body: JSON.stringify({
-          ktp_number: formData.ktp_number,
-          ktp_photo_url: ktpUrl,
-          selfie_ktp_url: selfieUrl,
-          bio: formData.bio,
-          service_area: [[formData.district, formData.city].filter(Boolean).join(', ') || 'general'],
-          province: formData.province,
-          city: formData.city,
-          district: formData.district,
-          address_detail: formData.address_detail,
-          basecamp_lat: formData.basecamp_lat,
-          basecamp_lon: formData.basecamp_lon,
-          bank_code: formData.bank_code,
-          bank_account_number: formData.bank_account_number,
-          bank_account_name: formData.bank_account_name
-        }),
-        credentials: 'include'
-      });
+      const ktpUrl = formData.ktp_photo
+        ? await uploadFileToS3(formData.ktp_photo)
+        : existingPhotos.ktp_photo_url;
+      const selfieUrl = formData.selfie_ktp
+        ? await uploadFileToS3(formData.selfie_ktp)
+        : existingPhotos.selfie_ktp_url;
 
-      if (!res.success) throw new Error(typeof res.error === 'string' ? res.error : 'Gagal mengirim form');
+      if (!ktpUrl || !selfieUrl) throw new Error('Mohon lengkapi foto KTP dan Selfie');
 
-      // Persetujuan dicatat pada momen mitra menyerahkan pengajuan — inilah
-      // titik ia menyetujui skema komisi. Reverify tidak dilewati: teksnya
-      // ditampilkan lagi dan versi yang berlaku bisa saja sudah berubah.
-      if (legalDocs?.length) {
-        await recordLegalConsent(legalDocs, ['terms', 'privacy']);
+      // Persetujuan legal ikut DI DALAM perintah pengajuan (P0-06). Dulu dicatat
+      // lewat panggilan kedua setelah pengajuan sukses: bila panggilan itu gagal,
+      // mitra terlanjur ada tanpa bukti persetujuan dan tidak bisa mengulang.
+      const legalDocumentIds = (legalDocs || [])
+        .filter((d) => d.slug === 'terms' || d.slug === 'privacy')
+        .map((d) => d.id);
+
+      const payload = {
+        ktp_number: formData.ktp_number,
+        ktp_photo_url: ktpUrl,
+        selfie_ktp_url: selfieUrl,
+        bio: formData.bio,
+        service_area: [[formData.district, formData.city].filter(Boolean).join(', ') || 'general'],
+        province: formData.province,
+        city: formData.city,
+        district: formData.district,
+        address_detail: formData.address_detail,
+        basecamp_lat: formData.basecamp_lat,
+        basecamp_lon: formData.basecamp_lon,
+        bank_code: formData.bank_code,
+        bank_account_number: formData.bank_account_number,
+        bank_account_name: formData.bank_account_name,
+        legal_document_ids: legalDocumentIds,
+      };
+
+      // Pengajuan ulang TIDAK boleh lewat /partners/onboarding: endpoint itu
+      // menolak user yang sudah punya baris partner (P0-04).
+      const res = isReverify
+        ? await fetchAPI('/partners/me/resubmission', {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+            credentials: 'include',
+          })
+        : await fetchAPI('/partners/onboarding', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'include',
+          });
+
+      if (!res.success) {
+        throw new Error(res.message || (typeof res.error === 'string' ? res.error : 'Gagal mengirim form'));
       }
 
       router.push('/mitra/verification-status');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal mengirim form');
     } finally {
       setLoading(false);
     }
@@ -183,6 +242,16 @@ function MitraRegisterForm() {
           </div>
         )}
 
+        {isReverify && rejectionReason && (
+          <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4">
+            <p className="text-sm font-semibold text-brand-gray-900">Alasan penolakan sebelumnya</p>
+            <p className="text-xs text-brand-gray-700 mt-1 whitespace-pre-line">{rejectionReason}</p>
+            <p className="text-xs text-brand-gray-450 mt-2">
+              Perbaiki bagian tersebut, lalu kirim ulang. Data yang tidak bermasalah sudah kami isikan.
+            </p>
+          </div>
+        )}
+
         <PhoneVerificationModal
           isOpen={showPhoneModal}
           onClose={() => setShowPhoneModal(false)}
@@ -211,6 +280,11 @@ function MitraRegisterForm() {
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Nomor KTP (NIK)</label>
                 <input type="text" inputMode="numeric" maxLength={16} className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="16 Digit NIK" value={formData.ktp_number} onChange={(e) => setFormData({...formData, ktp_number: e.target.value.replace(/\D/g, '')})} />
+                {isReverify && maskedHints.ktp && (
+                  <p className="text-xs text-brand-gray-450 mt-1">
+                    NIK tercatat: {maskedHints.ktp} — ketik ulang lengkap untuk memastikan identitas.
+                  </p>
+                )}
               </div>
               <Button className="w-full mt-4" onClick={nextStep} disabled={formData.ktp_number.length < 16}>Selanjutnya</Button>
             </div>
@@ -223,7 +297,7 @@ function MitraRegisterForm() {
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Foto KTP</label>
                 <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => document.getElementById('ktp_photo')?.click()}>
                   <Upload className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
-                  <span className="text-sm text-brand-gray-400">{formData.ktp_photo ? formData.ktp_photo.name : 'Pilih Foto KTP'}</span>
+                  <span className="text-sm text-brand-gray-400">{formData.ktp_photo ? formData.ktp_photo.name : (isReverify && existingPhotos.ktp_photo_url ? 'Foto lama dipakai — klik untuk mengganti' : 'Pilih Foto KTP')}</span>
                   <input id="ktp_photo" type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'ktp_photo')} />
                 </div>
               </div>
@@ -231,7 +305,7 @@ function MitraRegisterForm() {
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Selfie dengan KTP</label>
                 <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => document.getElementById('selfie_ktp')?.click()}>
                   <Upload className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
-                  <span className="text-sm text-brand-gray-400">{formData.selfie_ktp ? formData.selfie_ktp.name : 'Pilih Foto Selfie KTP'}</span>
+                  <span className="text-sm text-brand-gray-400">{formData.selfie_ktp ? formData.selfie_ktp.name : (isReverify && existingPhotos.selfie_ktp_url ? 'Foto lama dipakai — klik untuk mengganti' : 'Pilih Foto Selfie KTP')}</span>
                   <input id="selfie_ktp" type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'selfie_ktp')} />
                 </div>
               </div>
@@ -299,6 +373,11 @@ function MitraRegisterForm() {
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Nomor Rekening</label>
                 <input type="text" inputMode="numeric" className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="Contoh: 1234567890" value={formData.bank_account_number} onChange={(e) => setFormData({...formData, bank_account_number: e.target.value.replace(/\D/g, '')})} />
+                {isReverify && maskedHints.bank && (
+                  <p className="text-xs text-brand-gray-450 mt-1">
+                    Rekening tercatat: {maskedHints.bank} — ketik ulang lengkap untuk memastikan tujuan pencairan.
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Nama Pemilik Rekening</label>
