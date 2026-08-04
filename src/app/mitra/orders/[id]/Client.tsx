@@ -388,7 +388,7 @@ export default function MitraOrderDetailClient() {
     <>
       {status === 'WAITING_CONFIRMATION' && (
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg" onClick={() => setShowRejectModal(true)} disabled={actionLoading}>
+          <Button variant="outline" className="flex-1 border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg" onClick={() => setShowRejectModal(true)} disabled={actionLoading}>
             Tolak
           </Button>
           <Button className="flex-1 bg-brand-success hover:bg-brand-success-dark rounded-lg" onClick={() => setShowAcceptModal(true)} disabled={actionLoading}>
@@ -430,7 +430,7 @@ export default function MitraOrderDetailClient() {
               Selesai
             </Button>
           </div>
-          <Button variant="outline" className="w-full border-brand-error text-brand-error hover:bg-red-50 rounded-lg flex items-center justify-center gap-2" onClick={() => setShowDisputeModal(true)} disabled={actionLoading}>
+          <Button variant="outline" className="w-full border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg flex items-center justify-center gap-2" onClick={() => setShowDisputeModal(true)} disabled={actionLoading}>
             <AlertTriangle className="w-4 h-4" /> Lapor Masalah
           </Button>
         </>
@@ -981,7 +981,7 @@ export default function MitraOrderDetailClient() {
           <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-brand-gray-900">Tolak Pesanan</h3>
-              <button onClick={() => setShowRejectModal(false)} className="p-1 hover:bg-gray-100 rounded-full" aria-label="Tutup">
+              <button onClick={() => setShowRejectModal(false)} className="p-1 hover:bg-brand-gray-100 rounded-full" aria-label="Tutup">
                 <X className="w-5 h-5 text-brand-gray-450" />
               </button>
             </div>
@@ -991,7 +991,7 @@ export default function MitraOrderDetailClient() {
               {['Harga tidak sesuai', 'Jadwal bentrok', 'Di luar area layanan', 'Lainnya'].map(reason => (
                 <button
                   key={reason}
-                  className={`w-full text-left px-4 py-3 border rounded-lg text-sm transition-colors ${rejectReason === reason ? 'border-brand-red bg-red-50 text-brand-red font-medium' : 'border-brand-gray-100 text-brand-gray-900 hover:border-gray-300'}`}
+                  className={`w-full text-left px-4 py-3 border rounded-lg text-sm transition-colors ${rejectReason === reason ? 'border-brand-red bg-brand-error-soft text-brand-red font-medium' : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-gray-200'}`}
                   onClick={() => setRejectReason(reason)}
                 >
                   {reason}

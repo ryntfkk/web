@@ -14,7 +14,7 @@ import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 import { getErrorMessage } from '@/types/api';
 
-const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false, loading: () => <div className="h-64 bg-gray-100 flex items-center justify-center rounded-lg animate-pulse"><MapPin className="w-8 h-8 text-gray-300" /></div> });
+const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false, loading: () => <div className="h-64 bg-brand-gray-100 flex items-center justify-center rounded-lg animate-pulse"><MapPin className="w-8 h-8 text-brand-gray-100" /></div> });
 
 export default function MitraBasecampPage() {
   const { isAuthorized, isLoading: authLoading } = useRequireAuth();

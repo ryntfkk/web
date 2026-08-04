@@ -224,7 +224,7 @@ function MitraRegisterForm() {
 
       <div className="flex-1 p-4 max-w-md w-full mx-auto">
         {needsPhone && (
-          <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="mb-4 bg-brand-warning-soft border border-brand-warning-border rounded-xl p-4">
             <p className="text-sm font-semibold text-brand-gray-900">
               Verifikasi nomor HP dulu
             </p>
@@ -243,7 +243,7 @@ function MitraRegisterForm() {
         )}
 
         {isReverify && rejectionReason && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="mb-4 bg-brand-error-soft border border-brand-error-border rounded-xl p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Alasan penolakan sebelumnya</p>
             <p className="text-xs text-brand-gray-700 mt-1 whitespace-pre-line">{rejectionReason}</p>
             <p className="text-xs text-brand-gray-450 mt-2">
@@ -268,7 +268,7 @@ function MitraRegisterForm() {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-brand-red text-sm rounded-lg border border-red-200">
+          <div className="mb-4 p-3 bg-brand-error-soft text-brand-red text-sm rounded-lg border border-brand-error-border">
             {error}
           </div>
         )}
@@ -295,7 +295,7 @@ function MitraRegisterForm() {
               <h2 className="text-xl font-bold text-brand-gray-800">Dokumen Pribadi</h2>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Foto KTP</label>
-                <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => document.getElementById('ktp_photo')?.click()}>
+                <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors" onClick={() => document.getElementById('ktp_photo')?.click()}>
                   <Upload className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
                   <span className="text-sm text-brand-gray-400">{formData.ktp_photo ? formData.ktp_photo.name : (isReverify && existingPhotos.ktp_photo_url ? 'Foto lama dipakai — klik untuk mengganti' : 'Pilih Foto KTP')}</span>
                   <input id="ktp_photo" type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'ktp_photo')} />
@@ -303,7 +303,7 @@ function MitraRegisterForm() {
               </div>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Selfie dengan KTP</label>
-                <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => document.getElementById('selfie_ktp')?.click()}>
+                <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors" onClick={() => document.getElementById('selfie_ktp')?.click()}>
                   <Upload className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
                   <span className="text-sm text-brand-gray-400">{formData.selfie_ktp ? formData.selfie_ktp.name : (isReverify && existingPhotos.selfie_ktp_url ? 'Foto lama dipakai — klik untuk mengganti' : 'Pilih Foto Selfie KTP')}</span>
                   <input id="selfie_ktp" type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'selfie_ktp')} />

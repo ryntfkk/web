@@ -531,7 +531,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     aria-label="Bagikan layanan"
                     className="p-1.5 hover:bg-brand-red-light rounded-full text-brand-gray-700 hover:text-brand-red transition-colors"
                   >
-                    {shareCopied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
+                    {shareCopied ? <Check className="w-4 h-4 text-brand-success" /> : <Share2 className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -737,14 +737,14 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
             {(includedItems.length > 0 || excludedItems.length > 0) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {includedItems.length > 0 && (
-                  <div className="p-3 bg-green-50 rounded-md border border-green-200">
-                    <h4 className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1">
+                  <div className="p-3 bg-brand-success-soft rounded-md border border-brand-success-border">
+                    <h4 className="text-xs font-semibold text-brand-success-dark mb-2 flex items-center gap-1">
                       <Check className="w-3.5 h-3.5" /> Yang Termasuk
                     </h4>
                     <ul className="space-y-2">
                       {includedItems.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-green-700 leading-relaxed">
-                          <Check className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-green-600" />
+                        <li key={i} className="flex items-start gap-2 text-xs text-brand-success-dark leading-relaxed">
+                          <Check className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-success" />
                           <span className="whitespace-pre-line">{item}</span>
                         </li>
                       ))}
@@ -752,14 +752,14 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                   </div>
                 )}
                 {excludedItems.length > 0 && (
-                  <div className="p-3 bg-red-50 rounded-md border border-red-200">
-                    <h4 className="text-xs font-semibold text-red-600 mb-2 flex items-center gap-1">
+                  <div className="p-3 bg-brand-error-soft rounded-md border border-brand-error-border">
+                    <h4 className="text-xs font-semibold text-brand-error mb-2 flex items-center gap-1">
                       <X className="w-3.5 h-3.5" /> Yang Tidak Termasuk
                     </h4>
                     <ul className="space-y-2">
                       {excludedItems.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-red-600 leading-relaxed">
-                          <X className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-red-500" />
+                        <li key={i} className="flex items-start gap-2 text-xs text-brand-error leading-relaxed">
+                          <X className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-error" />
                           <span className="whitespace-pre-line">{item}</span>
                         </li>
                       ))}

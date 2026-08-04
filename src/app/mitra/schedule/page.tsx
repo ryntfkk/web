@@ -178,9 +178,9 @@ export default function MitraSchedulePage() {
         </div>
 
         {!loading && !hasSavedSchedule && (
-          <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 flex gap-3 items-start mb-2">
-            <Clock className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
-            <p className="text-sm text-yellow-800 font-semibold leading-relaxed">
+          <div className="bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4 flex gap-3 items-start mb-2">
+            <Clock className="w-5 h-5 text-brand-warning-dark shrink-0 mt-0.5" />
+            <p className="text-sm text-brand-warning-dark font-semibold leading-relaxed">
               Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh — pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
             </p>
           </div>
@@ -236,9 +236,9 @@ export default function MitraSchedulePage() {
         )}
 
         <div className="pt-6">
-          <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4 flex gap-2 items-start">
-            <Clock className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-yellow-700 font-medium leading-relaxed">
+          <div className="bg-brand-warning-soft border border-brand-warning-border rounded p-3 mb-4 flex gap-2 items-start">
+            <Clock className="w-4 h-4 text-brand-warning-dark shrink-0 mt-0.5" />
+            <p className="text-xs text-brand-warning-dark font-medium leading-relaxed">
               Catatan: Perubahan jam operasional hanya akan berlaku pada pesanan yang baru masuk. Pesanan yang sudah terjadwal tidak akan terpengaruh.
             </p>
           </div>

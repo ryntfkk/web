@@ -178,7 +178,7 @@ export default function WithdrawPage() {
             penjaga OTP saat mengganti rekening. Munculkan sebelum user mengisi
             nominal, bukan sebagai error di ujung. */}
         {user && !user.profile_complete && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="mb-6 bg-brand-warning-soft border border-brand-warning-border rounded-xl p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
             <p className="text-xs text-brand-gray-700 mt-0.5">
               Nomor WhatsApp terverifikasi diperlukan untuk menarik dana dan mengubah rekening.

@@ -369,7 +369,7 @@ export default function MitraDocumentsPage() {
           <div>
             <label className="text-sm font-medium text-brand-gray-700 block mb-1.5">File</label>
             <div
-              className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+              className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
               <FileText className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />

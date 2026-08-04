@@ -10,6 +10,7 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import DataState from '@/components/mitra/DataState';
 
 
 interface Service {
@@ -29,14 +30,20 @@ export default function MitraServicesPage() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
 
 
   const fetchServices = useCallback(async () => {
     setLoading(true);
     const res = await fetchAPI<Service[]>('/partners/me/services');
-    if (res.success && res.data) {
-      setServices(res.data);
+    if (res.success) {
+      setServices(res.data ?? []);
+      setError(null);
+    } else {
+      // Halaman ini dulu diam saja saat gagal: daftar tetap kosong dan mitra
+      // mengira layanannya hilang (P1-11).
+      setError(res.message || 'Gagal memuat layanan');
     }
     setLoading(false);
   }, []);
@@ -110,22 +117,30 @@ export default function MitraServicesPage() {
         }
       />
 
-      {/* Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu (§6.1). */}
-      <div className="max-w-6xl mx-auto px-4 py-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        {loading ? (
-          [1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-24 animate-pulse" />
-          ))
-        ) : services.length === 0 ? (
-          <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100 lg:col-span-2 xl:col-span-3">
-            <Wrench className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
-            <p className="text-sm text-brand-gray-700 mb-4">Anda belum menambahkan layanan.</p>
-            <Button onClick={() => router.push('/mitra/services/new')} className="bg-brand-red hover:bg-brand-red-dark">
-              Tambah Layanan
-            </Button>
+      <DataState
+        className="max-w-6xl mx-auto px-4 py-6"
+        isLoading={loading}
+        error={error}
+        onRetry={fetchServices}
+        isEmpty={services.length === 0}
+        emptyIcon={<Wrench className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />}
+        emptyTitle="Kamu belum menambahkan layanan."
+        emptyAction={
+          <Button onClick={() => router.push('/mitra/services/new')} className="bg-brand-red hover:bg-brand-red-dark">
+            Tambah Layanan
+          </Button>
+        }
+        skeleton={
+          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-24 animate-pulse" />
+            ))}
           </div>
-        ) : (
-          services.map(s => (
+        }
+      >
+        {/* Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu (§6.1). */}
+        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          {services.map(s => (
             <div key={s.id} className={`bg-white rounded-xl border p-4 transition-colors ${s.is_active ? 'border-brand-gray-100' : 'border-brand-gray-100 opacity-70 bg-brand-gray-60'}`}>
               <div className="flex justify-between items-start mb-2">
                 <div>
@@ -167,9 +182,9 @@ export default function MitraServicesPage() {
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      </DataState>
 
       {/* Delete Dialog */}
       {deleteId && (

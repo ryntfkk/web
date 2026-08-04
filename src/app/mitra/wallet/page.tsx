@@ -155,7 +155,7 @@ export default function MitraWalletPage() {
 
       <div className="max-w-4xl mx-auto px-4 -mt-4 relative z-20 flex gap-3">
         <Button
-          className="flex-1 bg-white hover:bg-gray-50 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-xl font-bold"
+          className="flex-1 bg-white hover:bg-brand-gray-60 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-xl font-bold"
           onClick={() => router.push('/mitra/wallet/withdraw')}
         >
           <ArrowUpRight className="w-5 h-5 mr-2 text-brand-red" /> Tarik Dana
