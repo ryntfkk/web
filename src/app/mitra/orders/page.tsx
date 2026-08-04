@@ -162,7 +162,7 @@ export default function MitraOrdersPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
       <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 px-4 py-4">
             <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
               <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
@@ -200,7 +200,7 @@ export default function MitraOrdersPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+      <div className="max-w-6xl mx-auto px-4 py-4 grid gap-3 lg:grid-cols-2">
         {loading ? (
           [1, 2, 3].map(i => (
             <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-28 animate-pulse" />
@@ -208,13 +208,13 @@ export default function MitraOrdersPage() {
         ) : error ? (
           /* Gagal memuat dibedakan dari "belum ada pesanan" (P1-11): menyamakan
              keduanya membuat mitra mengira pesanannya hilang. */
-          <div className="text-center py-10">
+          <div className="text-center py-10 lg:col-span-2">
             <p className="text-sm font-semibold text-brand-gray-900 mb-1">Gagal memuat pesanan</p>
             <p className="text-xs text-brand-gray-450 mb-4">{error}</p>
             <Button variant="outline" onClick={() => fetchOrders({ pageToLoad: 1 })}>Coba Lagi</Button>
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="text-center py-10">
+          <div className="text-center py-10 lg:col-span-2">
             <Package className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
             <p className="text-sm text-brand-gray-700">Belum ada pesanan{activeFilter !== 'all' ? ' dengan status ini' : ''}.</p>
           </div>
@@ -249,7 +249,7 @@ export default function MitraOrdersPage() {
         )}
 
         {!loading && !error && hasMore && (
-          <div className="pt-2 text-center">
+          <div className="pt-2 text-center lg:col-span-2">
             <Button
               variant="outline"
               className="w-full"

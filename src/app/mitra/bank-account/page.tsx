@@ -118,7 +118,7 @@ export default function MitraBankAccountPage() {
       {/* Header */}
       <MobilePageHeader alwaysShow title="Rekening Bank Utama" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="bg-white rounded-xl border border-brand-gray-100 p-6 mb-6 text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <CreditCard className="w-8 h-8 text-brand-success" />

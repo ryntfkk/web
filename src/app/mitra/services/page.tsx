@@ -110,13 +110,14 @@ export default function MitraServicesPage() {
         }
       />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      {/* Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu (§6.1). */}
+      <div className="max-w-6xl mx-auto px-4 py-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
         {loading ? (
           [1, 2, 3].map(i => (
             <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-24 animate-pulse" />
           ))
         ) : services.length === 0 ? (
-          <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100">
+          <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100 lg:col-span-2 xl:col-span-3">
             <Wrench className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
             <p className="text-sm text-brand-gray-700 mb-4">Anda belum menambahkan layanan.</p>
             <Button onClick={() => router.push('/mitra/services/new')} className="bg-brand-red hover:bg-brand-red-dark">

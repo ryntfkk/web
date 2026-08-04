@@ -124,7 +124,7 @@ export default function MitraDashboardPage() {
 
       {/* Header — z-10 di bawah konten (z-20) agar card overlap tampil di atas background merah */}
       <div className="bg-brand-red text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm relative z-10">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white text-brand-red flex items-center justify-center font-bold overflow-hidden shrink-0">
@@ -168,15 +168,15 @@ export default function MitraDashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 -mt-6 relative z-20 space-y-4">
+      <div className="max-w-7xl mx-auto px-4 -mt-6 relative z-20 space-y-4">
         {/* Stats */}
         {loading ? (
-          <div className="grid grid-cols-2 gap-3 animate-pulse">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-pulse">
             <div className="bg-white rounded-xl border border-brand-gray-100 p-4 h-20" />
             <div className="bg-white rounded-xl border border-brand-gray-100 p-4 h-20" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="bg-white rounded-md border border-brand-gray-100 p-4 flex flex-col justify-center">
               <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><Package className="w-3.5 h-3.5" /> Pesanan Hari Ini</p>
               <p className="text-xl font-bold text-brand-gray-900">{data?.stats.today_orders || 0}</p>
@@ -206,7 +206,7 @@ export default function MitraDashboardPage() {
         )}
 
         {/* Quick Menu */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           <Link href="/mitra/services" className="bg-white rounded-md border border-brand-gray-100 p-3 flex flex-col items-center justify-center gap-2 hover:bg-brand-gray-60 transition-colors">
             <Wrench className="w-6 h-6 text-brand-red" />
             <span className="text-[10px] font-bold text-brand-gray-700 text-center">Kelola Layanan</span>

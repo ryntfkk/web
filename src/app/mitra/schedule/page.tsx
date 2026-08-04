@@ -169,7 +169,7 @@ export default function MitraSchedulePage() {
       {/* Header */}
       <MobilePageHeader alwaysShow title="Atur Jadwal Operasional" />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-4 flex gap-3 items-start mb-2">
           <Clock className="w-5 h-5 text-brand-error shrink-0 mt-0.5" />
           <p className="text-sm text-brand-error font-medium leading-relaxed">
@@ -247,7 +247,7 @@ export default function MitraSchedulePage() {
 
       {/* Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 p-4 z-50">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           <Button 
             className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-xl h-12 text-sm font-bold shadow-sm"
             onClick={confirmSave}

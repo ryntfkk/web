@@ -111,7 +111,7 @@ export default function MitraBasecampPage() {
     <div className="page-h bg-brand-gray-60 pb-24">
       <MobilePageHeader alwaysShow title="Alamat Basecamp" />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {isVerified && (
           <VerifiedLockNotice
             title="Basecamp terkunci"

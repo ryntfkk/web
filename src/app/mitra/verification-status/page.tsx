@@ -49,7 +49,7 @@ export default function MitraVerificationStatusPage() {
       {/* Header */}
       <MobilePageHeader alwaysShow title="Status Verifikasi" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 py-6">
         {loading ? (
           <div className="bg-white rounded-xl border border-brand-gray-100 p-6 h-64 animate-pulse flex flex-col items-center justify-center gap-4">
             <div className="w-16 h-16 bg-brand-gray-100 rounded-full" />

@@ -121,7 +121,7 @@ export default function MitraPortfolioPage() {
       {/* Header */}
       <MobilePageHeader alwaysShow title="Galeri Portofolio" subtitle="Maksimal 5 foto" />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         {error && (
           <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded text-sm">
             {error}

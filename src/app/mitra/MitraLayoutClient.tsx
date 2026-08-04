@@ -8,6 +8,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { usePartnerVerificationStatus } from '@/hooks/usePartnerVerificationStatus';
 import { accessLevelFor, canAccess, MITRA_BLOCKED_REDIRECT } from '@/lib/mitra-access';
 import PreparationNotice from '@/components/mitra/PreparationNotice';
+import MitraSidebar from '@/components/layout/MitraSidebar';
 
 export default function MitraLayoutClient({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated, user } = useRequireAuth();
@@ -99,11 +100,22 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
   const showPreparationNotice =
     isPartnerMode && accessLevel === 'prepare' && !!verification && verification !== 'APPROVED';
 
+  // Shell desktop (P1-13 / §5.2): sidebar menggantikan bottom nav mulai `lg`.
+  // Bottom nav yang fixed di layar lebar membuat mode mitra tampak seperti
+  // aplikasi ponsel yang diletakkan di tengah layar kosong.
   return (
     <>
-      {showPreparationNotice && <PreparationNotice status={verification as 'PENDING' | 'REJECTED'} />}
-      {children}
-      <div className={isExcludedFlow ? 'hidden md:block' : 'block'}>
+      <MitraSidebar verification={verification} />
+
+      {/* lg:pl-60 = lebar sidebar. Konten di dalam halaman yang mengatur
+          lebar bacanya sendiri (§5.3); shell hanya menyediakan ruangnya. */}
+      <div className="lg:pl-60">
+        {showPreparationNotice && <PreparationNotice status={verification as 'PENDING' | 'REJECTED'} />}
+        {children}
+      </div>
+
+      {/* Bottom nav HANYA di bawah lg — di desktop navigasinya sidebar. */}
+      <div className={`lg:hidden ${isExcludedFlow ? 'hidden md:block lg:hidden' : 'block'}`}>
         <MitraBottomNav approved={verification === 'APPROVED'} />
       </div>
     </>

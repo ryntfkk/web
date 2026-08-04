@@ -200,7 +200,7 @@ export default function MitraDocumentsPage() {
     <div className="page-h bg-brand-gray-60 pb-24">
       <MobilePageHeader alwaysShow title="Dokumen Pendukung" subtitle="SKCK, sertifikat, dan izin usaha" />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {error && (
           <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded text-sm">
             {error}

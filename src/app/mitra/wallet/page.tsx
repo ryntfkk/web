@@ -126,8 +126,8 @@ export default function MitraWalletPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
       {/* Header */}
-      <div className="bg-brand-red text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-0 lg:top-16 z-10">
-        <div className="max-w-lg mx-auto">
+      <div className="bg-brand-red text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-white/10 rounded" aria-label="Kembali">
               <ArrowLeft className="w-5 h-5" />
@@ -153,7 +153,7 @@ export default function MitraWalletPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 -mt-4 relative z-20 flex gap-3">
+      <div className="max-w-4xl mx-auto px-4 -mt-4 relative z-20 flex gap-3">
         <Button
           className="flex-1 bg-white hover:bg-gray-50 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-xl font-bold"
           onClick={() => router.push('/mitra/wallet/withdraw')}
@@ -162,7 +162,7 @@ export default function MitraWalletPage() {
         </Button>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 mt-4">
+      <div className="max-w-4xl mx-auto px-4 mt-4">
         <div className="bg-brand-error-soft border border-brand-error-border rounded-xl px-4 py-3 flex items-start gap-2.5">
           <Clock className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
           <div>
@@ -176,7 +176,7 @@ export default function MitraWalletPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 mt-6 flex gap-4">
+      <div className="max-w-4xl mx-auto px-4 mt-6 flex gap-4">
         <div className="flex-1 bg-white rounded-xl border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
           <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Pemasukan</p>
           <p className="font-bold text-brand-success text-lg">{formatPrice(summary.total_earnings)}</p>
@@ -187,7 +187,7 @@ export default function MitraWalletPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 mt-8">
+      <div className="max-w-4xl mx-auto px-4 mt-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-brand-gray-900">Riwayat Transaksi</h3>
           <select 

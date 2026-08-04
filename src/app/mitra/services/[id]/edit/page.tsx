@@ -274,7 +274,7 @@ export default function EditMitraServicePage() {
       {/* Header */}
       <MobilePageHeader alwaysShow title="Edit Layanan" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 py-6">
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Layanan</label>

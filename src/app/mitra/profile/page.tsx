@@ -87,7 +87,7 @@ export default function MitraProfilePage() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
 
-        <div className="max-w-lg mx-auto relative z-10 flex items-center gap-4 md:gap-6">
+        <div className="max-w-3xl mx-auto relative z-10 flex items-center gap-4 md:gap-6">
           <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden shrink-0 border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
             {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
             <button
@@ -122,7 +122,7 @@ export default function MitraProfilePage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         <MenuCard title="Mode">
           <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan jasa sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />
         </MenuCard>

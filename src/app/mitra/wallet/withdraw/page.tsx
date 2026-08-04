@@ -167,7 +167,7 @@ export default function WithdrawPage() {
     <div className="page-h bg-brand-gray-60 pb-24">
       <MobilePageHeader title="Tarik Dana" backHref="/mitra/wallet" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Tarik Dana</h1>
         <div className="bg-brand-red text-white p-4 rounded-xl mb-6 shadow-sm">
           <p className="text-sm text-white/80 mb-1">Saldo Tersedia</p>

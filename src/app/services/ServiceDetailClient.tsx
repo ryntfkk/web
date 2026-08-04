@@ -476,13 +476,27 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     Estimasi {service.estimated_duration} menit
                   </span>
                 </div>
-                <button
-                  onClick={handleShare}
-                  aria-label="Bagikan layanan"
-                  className="flex-shrink-0 p-1.5 hover:bg-brand-red-light rounded-full text-brand-gray-700 hover:text-brand-red transition-colors"
-                >
-                  {shareCopied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
-                </button>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    onClick={handleFavToggle}
+                    disabled={favBusy}
+                    aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+                    className={`p-1.5 rounded-full transition-colors disabled:opacity-50 ${
+                      isFav
+                        ? 'text-brand-red bg-brand-red-light'
+                        : 'text-brand-gray-700 hover:text-brand-red hover:bg-brand-red-light'
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    aria-label="Bagikan layanan"
+                    className="p-1.5 hover:bg-brand-red-light rounded-full text-brand-gray-700 hover:text-brand-red transition-colors"
+                  >
+                    {shareCopied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               {/* Price */}
@@ -690,25 +704,31 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
             {(includedItems.length > 0 || excludedItems.length > 0) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {includedItems.length > 0 && (
-                  <div className="p-3 bg-green-50 rounded-md">
+                  <div className="p-3 bg-green-50 rounded-md border border-green-200">
                     <h4 className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1">
                       <Check className="w-3.5 h-3.5" /> Yang Termasuk
                     </h4>
-                    <ul className="space-y-1">
+                    <ul className="space-y-2">
                       {includedItems.map((item, i) => (
-                        <li key={i} className="text-xs text-green-700">{item}</li>
+                        <li key={i} className="flex items-start gap-2 text-xs text-green-700 leading-relaxed">
+                          <Check className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-green-600" />
+                          <span className="whitespace-pre-line">{item}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
                 )}
                 {excludedItems.length > 0 && (
-                  <div className="p-3 bg-red-50 rounded-md">
+                  <div className="p-3 bg-red-50 rounded-md border border-red-200">
                     <h4 className="text-xs font-semibold text-red-600 mb-2 flex items-center gap-1">
                       <X className="w-3.5 h-3.5" /> Yang Tidak Termasuk
                     </h4>
-                    <ul className="space-y-1">
+                    <ul className="space-y-2">
                       {excludedItems.map((item, i) => (
-                        <li key={i} className="text-xs text-red-600">{item}</li>
+                        <li key={i} className="flex items-start gap-2 text-xs text-red-600 leading-relaxed">
+                          <X className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-red-500" />
+                          <span className="whitespace-pre-line">{item}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -868,15 +888,6 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
           isLoading={chatBusy}
         >
           <MessageSquare className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="outline"
-          disabled={favBusy}
-          aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
-          className={`flex-shrink-0 h-10 w-10 p-0 disabled:opacity-50 ${isFav ? 'border-brand-red text-brand-red bg-brand-red-light' : ''}`}
-          onClick={handleFavToggle}
-        >
-          <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
         </Button>
         <Button
           variant="outline"
