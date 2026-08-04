@@ -9,7 +9,12 @@ import { useAuthStore } from '@/lib/store/authStore';
 
 type TargetType = 'partner' | 'service' | 'review' | 'chat_message' | 'user';
 
-const REASONS: { value: string; label: string }[] = [
+export interface ReportReason {
+  value: string;
+  label: string;
+}
+
+const DEFAULT_REASONS: ReportReason[] = [
   { value: 'fraud', label: 'Penipuan' },
   { value: 'harassment', label: 'Pelecehan' },
   { value: 'inappropriate', label: 'Konten tidak pantas' },
@@ -22,6 +27,15 @@ interface ReportDialogProps {
   targetId: string;
   label?: string;
   className?: string;
+  /**
+   * Alasan khusus konteks. Daftar bawaan ditulis untuk pelanggan yang
+   * melaporkan mitra; mitra yang melaporkan ulasan punya alasan yang sama
+   * sekali berbeda ("bukan pelanggan saya"), dan memaksanya memilih "Spam"
+   * hanya menghasilkan laporan yang salah kategori di meja admin.
+   */
+  reasons?: ReportReason[];
+  /** Ikon pemicu. Beberapa tempat memakai teks saja. */
+  showIcon?: boolean;
 }
 
 export default function ReportDialog({
@@ -29,11 +43,13 @@ export default function ReportDialog({
   targetId,
   label = 'Laporkan',
   className = '',
+  reasons: reasonOptions = DEFAULT_REASONS,
+  showIcon = true,
 }: ReportDialogProps) {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState('fraud');
+  const [reason, setReason] = useState(reasonOptions[0]?.value ?? 'other');
   const [desc, setDesc] = useState('');
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -47,7 +63,7 @@ export default function ReportDialog({
     setDone(false);
     setError('');
     setDesc('');
-    setReason('fraud');
+    setReason(reasonOptions[0]?.value ?? 'other');
     setOpen(true);
   };
 
@@ -55,7 +71,7 @@ export default function ReportDialog({
     setBusy(true);
     setError('');
     try {
-      const res = await fetchAPI<any>('/reports', {
+      const res = await fetchAPI<{ id?: string }>('/reports', {
         method: 'POST',
         body: JSON.stringify({
           target_type: targetType,
@@ -90,7 +106,7 @@ export default function ReportDialog({
         onClick={openDialog}
         className={`inline-flex items-center gap-1 text-xs text-brand-gray-450 hover:text-brand-red ${className}`}
       >
-        <Flag className="w-3.5 h-3.5" /> {label}
+        {showIcon && <Flag className="w-3.5 h-3.5" />} {label}
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Laporkan" maxWidthClass="max-w-md">
@@ -114,7 +130,7 @@ export default function ReportDialog({
               onChange={(e) => setReason(e.target.value)}
               className="w-full border border-brand-gray-100 rounded px-3 py-2 text-sm mb-3"
             >
-              {REASONS.map((r) => (
+              {reasonOptions.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
                 </option>

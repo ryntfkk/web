@@ -15,6 +15,7 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
+import ProfileCompleteness from '@/components/mitra/ProfileCompleteness';
 
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
@@ -88,7 +89,7 @@ export default function MitraProfilePage() {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
 
         <div className="max-w-3xl mx-auto relative z-10 flex items-center gap-4 md:gap-6">
-          <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden shrink-0 border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+          <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden shrink-0 border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
             {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -123,6 +124,10 @@ export default function MitraProfilePage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+        {/* Ditaruh paling atas: yang belum terisi punya akibat langsung —
+            tanpa layanan aktif mitra tak muncul di pencarian sama sekali. */}
+        <ProfileCompleteness />
+
         <MenuCard title="Mode">
           <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan jasa sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />
         </MenuCard>
@@ -163,7 +168,7 @@ export default function MitraProfilePage() {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 bg-white py-4 rounded border border-brand-red text-brand-red font-semibold hover:bg-brand-red-soft transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-white py-4 rounded-md border border-brand-red text-brand-red font-semibold hover:bg-brand-red-soft transition-colors"
         >
           <LogOut className="w-5 h-5" /> Keluar dari Akun
         </button>

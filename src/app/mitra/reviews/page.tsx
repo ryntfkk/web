@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import { Star, MessageSquare } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/toast';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getInitial } from '@/lib/utils';
+import ReportDialog, { type ReportReason } from '@/components/ReportDialog';
 import type { PartnerReview, ReviewSummary } from '@/hooks/usePartnerProfile';
 import { formatDistanceToNow } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
@@ -21,6 +22,23 @@ import { id as localeId } from 'date-fns/locale';
 // tidak mengetik balasan panjang lalu ditolak.
 const RESPONSE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_RESPONSE_LENGTH = 1000;
+
+/**
+ * Alasan pelaporan dari sisi MITRA (P2). Berbeda dari daftar bawaan yang
+ * ditulis untuk pelanggan: keluhan mitra atas sebuah ulasan hampir selalu
+ * "ulasannya tidak jujur" atau "ini bukan pekerjaan saya", bukan "spam".
+ *
+ * Melaporkan TIDAK menghapus ulasan. Itu ditegaskan di UI supaya mitra tidak
+ * menunggu ulasannya hilang dengan sendirinya.
+ */
+const PARTNER_REVIEW_REPORT_REASONS: ReportReason[] = [
+  { value: 'fake_review', label: 'Ulasan palsu / bukan pelanggan saya' },
+  { value: 'wrong_partner', label: 'Ulasan untuk mitra atau pesanan lain' },
+  { value: 'harassment', label: 'Kasar, menghina, atau mengancam' },
+  { value: 'personal_data', label: 'Memuat data pribadi' },
+  { value: 'extortion', label: 'Pemerasan (minta imbalan agar diubah)' },
+  { value: 'other', label: 'Lainnya' },
+];
 
 const ASPECT_LABELS: { key: keyof PartnerReview; label: string }[] = [
   { key: 'rating_quality', label: 'Kualitas' },
@@ -97,7 +115,12 @@ export default function MitraReviewsPage() {
 
   return (
     <div className="min-h-screen bg-brand-gray-60 pb-20">
-      <MobilePageHeader title="Ulasan Pelanggan" alwaysShow backHref="/mitra/dashboard" maxWidthClass="max-w-3xl" />
+      <MitraPageHeader
+        title="Ulasan Pelanggan"
+        variant="list"
+        backHref="/mitra/dashboard"
+        breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Ulasan Pelanggan' }]}
+      />
 
       <div className="max-w-3xl mx-auto w-full px-4 py-4 sm:py-6">
         {isLoading ? (
@@ -105,7 +128,7 @@ export default function MitraReviewsPage() {
         ) : (
           <>
             {summary && summary.total_reviews > 0 && (
-              <div className="bg-white rounded-xl border border-brand-gray-100 p-4 mb-4 flex items-center gap-4">
+              <div className="bg-white rounded-lg border border-brand-gray-100 p-4 mb-4 flex items-center gap-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-brand-gray-900">{summary.avg_rating.toFixed(1)}</div>
                   <div className="flex gap-0.5 justify-center mt-1">
@@ -150,7 +173,7 @@ export default function MitraReviewsPage() {
                   })).filter((a) => a.value !== null);
 
                   return (
-                    <div key={review.id} className="bg-white rounded-xl border border-brand-gray-100 p-4">
+                    <div key={review.id} className="bg-white rounded-lg border border-brand-gray-100 p-4">
                       <div className="flex gap-3">
                         <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 bg-brand-gray-100 flex items-center justify-center text-sm font-medium text-brand-gray-700">
                           {review.customer_avatar ? (
@@ -241,7 +264,7 @@ export default function MitraReviewsPage() {
                                 maxLength={MAX_RESPONSE_LENGTH}
                                 rows={3}
                                 placeholder="Tulis balasan yang sopan dan informatif…"
-                                className="w-full border border-brand-gray-100 rounded p-2.5 text-sm text-brand-gray-900 placeholder-brand-gray-450 focus:outline-none focus:border-brand-red resize-none"
+                                className="w-full border border-brand-gray-100 rounded-md p-2.5 text-sm text-brand-gray-900 placeholder-brand-gray-450 focus:outline-none focus:border-brand-red resize-none"
                               />
                               <div className="flex items-center justify-between mt-1.5">
                                 <span className="text-[11px] text-brand-gray-450">
@@ -249,7 +272,7 @@ export default function MitraReviewsPage() {
                                 </span>
                                 <Button
                                   size="sm"
-                                  className="bg-brand-red hover:bg-brand-red-dark rounded"
+                                  className="bg-brand-red hover:bg-brand-red-dark rounded-md"
                                   disabled={sending === review.id || (draft[review.id] ?? '').trim().length < 5}
                                   onClick={() => handleReply(review.id)}
                                 >
@@ -262,6 +285,18 @@ export default function MitraReviewsPage() {
                               Batas waktu membalas (7 hari) sudah lewat.
                             </p>
                           )}
+
+                          {/* Melapor tidak menghapus ulasan — tim moderasi yang
+                              memutuskan. Dikatakan di sini agar mitra tidak
+                              mengira ulasannya akan hilang otomatis. */}
+                          <div className="mt-3 border-t border-brand-gray-100 pt-2">
+                            <ReportDialog
+                              targetType="review"
+                              targetId={review.id}
+                              label="Laporkan ulasan ini"
+                              reasons={PARTNER_REVIEW_REPORT_REASONS}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

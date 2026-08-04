@@ -16,7 +16,7 @@ export default function PreparationNotice({ status }: { status: 'PENDING' | 'REJ
   return (
     <div className="mx-auto max-w-lg px-4 pt-4">
       <div
-        className={`flex items-start gap-2.5 rounded-xl border p-3 ${
+        className={`flex items-start gap-2.5 rounded-lg border p-3 ${
           rejected
             ? 'border-brand-error-border bg-brand-error-soft'
             : 'border-brand-warning-border bg-brand-warning-soft'

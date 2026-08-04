@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, Clock, XCircle, FileText, AlertCircle } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
@@ -47,17 +47,17 @@ export default function MitraVerificationStatusPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
       {/* Header */}
-      <MobilePageHeader alwaysShow title="Status Verifikasi" />
+      <MitraPageHeader title="Status Verifikasi" variant="form" backHref="/mitra/profile" />
 
       <div className="max-w-2xl mx-auto px-4 py-6">
         {loading ? (
-          <div className="bg-white rounded-xl border border-brand-gray-100 p-6 h-64 animate-pulse flex flex-col items-center justify-center gap-4">
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-6 h-64 animate-pulse flex flex-col items-center justify-center gap-4">
             <div className="w-16 h-16 bg-brand-gray-100 rounded-full" />
-            <div className="h-6 w-1/2 bg-brand-gray-100 rounded" />
-            <div className="h-4 w-3/4 bg-brand-gray-100 rounded" />
+            <div className="h-6 w-1/2 bg-brand-gray-100 rounded-md" />
+            <div className="h-4 w-3/4 bg-brand-gray-100 rounded-md" />
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-brand-gray-100 p-6 text-center shadow-sm">
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-6 text-center shadow-sm">
             
             {status === 'VERIFIED' && (
               <>
@@ -121,7 +121,7 @@ export default function MitraVerificationStatusPage() {
                   </div>
                 )}
 
-                <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold" onClick={() => router.push('/mitra/register?mode=reverify')}>
+                <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded-md h-12 text-base font-bold" onClick={() => router.push('/mitra/register?mode=reverify')}>
                   Ajukan Verifikasi Ulang
                 </Button>
               </>

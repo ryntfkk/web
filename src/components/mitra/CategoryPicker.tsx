@@ -34,7 +34,7 @@ export default function CategoryPicker({
   const interacted = useRef(false);
 
   const selectCls =
-    'w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white';
+    'w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white';
 
   // Muat kategori utama sekali.
   useEffect(() => {

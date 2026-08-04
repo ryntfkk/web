@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Package, ArrowLeft, Search } from 'lucide-react';
+import { Calendar, Package, ArrowLeft, Search, SlidersHorizontal, X } from 'lucide-react';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import DataState from '@/components/mitra/DataState';
 
 interface Order {
   id: string;
@@ -26,6 +27,24 @@ interface Order {
 }
 
 type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
+
+interface ServiceOption {
+  id: string;
+  name: string;
+}
+
+/**
+ * Filter tambahan yang dikirim ke SERVER (P2). Rentang tanggalnya menyaring
+ * `scheduled_at` — tanggal PEKERJAAN, bukan tanggal pesanan dibuat. Itulah
+ * tanggal yang dimaksud mitra saat bertanya "pesanan minggu lalu apa saja".
+ */
+interface ExtraFilters {
+  startDate: string;
+  endDate: string;
+  serviceId: string;
+}
+
+const EMPTY_FILTERS: ExtraFilters = { startDate: '', endDate: '', serviceId: '' };
 
 // Pemetaan status→kelompok kini hidup di BACKEND (internal/order/list.go) dan
 // dikirim lewat `status_group` (P1-01). Salinan lokalnya dihapus: dua definisi
@@ -53,6 +72,9 @@ export default function MitraOrdersPage() {
   const [counts, setCounts] = useState({ all: 0, pending: 0, processing: 0, completed: 0, cancelled: 0 });
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<ExtraFilters>(EMPTY_FILTERS);
+  const [showFilters, setShowFilters] = useState(false);
+  const [services, setServices] = useState<ServiceOption[]>([]);
 
   const PAGE_SIZE = 20;
 
@@ -62,9 +84,18 @@ export default function MitraOrdersPage() {
     if (!silent && !append) setLoading(true);
     if (append) setLoadingMore(true);
 
-    const group = activeFilter === 'all' ? '' : `&status_group=${activeFilter}`;
+    const params = new URLSearchParams({
+      role: 'partner',
+      page: String(pageToLoad),
+      limit: String(PAGE_SIZE),
+    });
+    if (activeFilter !== 'all') params.set('status_group', activeFilter);
+    if (filters.startDate) params.set('start_date', filters.startDate);
+    if (filters.endDate) params.set('end_date', filters.endDate);
+    if (filters.serviceId) params.set('service_id', filters.serviceId);
+
     const res = await fetchAPI<Order[]>(
-      `/orders?role=partner&page=${pageToLoad}&limit=${PAGE_SIZE}${group}`,
+      `/orders?${params.toString()}`,
       { method: 'GET', credentials: 'include' },
     );
 
@@ -82,7 +113,7 @@ export default function MitraOrdersPage() {
 
     setLoading(false);
     setLoadingMore(false);
-  }, [activeFilter]);
+  }, [activeFilter, filters]);
 
   /** Badge tab dihitung server atas SELURUH pesanan, bukan halaman yang termuat. */
   const fetchCounts = useCallback(async () => {
@@ -106,6 +137,16 @@ export default function MitraOrdersPage() {
     fetchOrders({ pageToLoad: 1 });
     fetchCounts();
   }, [isAuthenticated, user?.active_role, fetchOrders, fetchCounts]);
+
+  // Daftar layanan untuk dropdown filter. Diambil sekali; kegagalannya tidak
+  // ditampilkan sebagai error halaman — filter layanan cuma tak tersedia,
+  // sedangkan daftar pesanannya sendiri tetap berguna.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchAPI<ServiceOption[]>('/partners/me/services').then((res) => {
+      if (res.success) setServices(res.data ?? []);
+    });
+  }, [isAuthenticated]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // K1-interim: polling senyap 45s agar order baru/perubahan status muncul tanpa
@@ -135,8 +176,16 @@ export default function MitraOrdersPage() {
       customerName(o).toLowerCase().includes(q);
   });
 
+  const hasExtraFilters = Boolean(filters.startDate || filters.endDate || filters.serviceId);
+  const activeExtraCount = [filters.startDate || filters.endDate, filters.serviceId].filter(Boolean).length;
   const filterCounts = counts;
   const hasMore = orders.length < total;
+
+  // Badge tab dihitung dari SELURUH pesanan tanpa memandang filter tanggal/
+  // layanan (endpoint ringkasan memang begitu). Menampilkannya berdampingan
+  // dengan daftar yang sudah tersaring akan berbohong — jadi saat filter
+  // tambahan aktif, angkanya disembunyikan alih-alih dipoles.
+  const showCounts = !hasExtraFilters;
 
   const FILTERS: { key: FilterStatus; label: string }[] = [
     { key: 'all', label: 'Semua' },
@@ -154,7 +203,7 @@ export default function MitraOrdersPage() {
       <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 px-4 py-4">
-            <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
+            <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-md" aria-label="Kembali">
               <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
             </button>
             <h1 className="text-base font-bold text-brand-gray-900">Daftar Pesanan</h1>
@@ -168,10 +217,76 @@ export default function MitraOrdersPage() {
                 placeholder="Cari pesanan..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full bg-brand-gray-60 border border-brand-gray-100 rounded-lg p-2.5 pl-9 text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                className="w-full bg-brand-gray-60 border border-brand-gray-100 rounded-md p-2.5 pl-9 text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
+            <button
+              type="button"
+              aria-expanded={showFilters}
+              aria-controls="order-extra-filters"
+              onClick={() => setShowFilters(v => !v)}
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition-colors ${
+                hasExtraFilters
+                  ? 'border-brand-red bg-brand-error-soft text-brand-red'
+                  : 'border-brand-gray-100 bg-white text-brand-gray-700'
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4" aria-hidden />
+              Filter
+              {activeExtraCount > 0 && (
+                <span className="rounded-full bg-brand-red px-1.5 text-[10px] text-white">{activeExtraCount}</span>
+              )}
+            </button>
           </div>
+
+          {showFilters && (
+            <div id="order-extra-filters" className="border-t border-brand-gray-100 px-4 py-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold text-brand-gray-700">Jadwal dari</span>
+                  <input
+                    type="date"
+                    value={filters.startDate}
+                    max={filters.endDate || undefined}
+                    onChange={e => setFilters(f => ({ ...f, startDate: e.target.value }))}
+                    className="w-full rounded-md border border-brand-gray-100 bg-white px-2.5 py-2 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold text-brand-gray-700">Jadwal sampai</span>
+                  <input
+                    type="date"
+                    value={filters.endDate}
+                    min={filters.startDate || undefined}
+                    onChange={e => setFilters(f => ({ ...f, endDate: e.target.value }))}
+                    className="w-full rounded-md border border-brand-gray-100 bg-white px-2.5 py-2 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold text-brand-gray-700">Layanan</span>
+                  <select
+                    value={filters.serviceId}
+                    onChange={e => setFilters(f => ({ ...f, serviceId: e.target.value }))}
+                    className="w-full rounded-md border border-brand-gray-100 bg-white px-2.5 py-2 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+                  >
+                    <option value="">Semua layanan</option>
+                    {services.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              {hasExtraFilters && (
+                <button
+                  type="button"
+                  onClick={() => setFilters(EMPTY_FILTERS)}
+                  className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brand-red hover:underline"
+                >
+                  <X className="h-3 w-3" aria-hidden /> Hapus filter
+                </button>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide border-t border-brand-gray-100 pt-3">
             {FILTERS.map(f => (
@@ -183,36 +298,47 @@ export default function MitraOrdersPage() {
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${activeFilter === f.key ? 'bg-brand-red text-white border-brand-red' : 'bg-white text-brand-gray-700 border-brand-gray-100'}`}
               >
                 {f.label}
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeFilter === f.key ? 'bg-white/25 text-white' : 'bg-brand-gray-100 text-brand-gray-700'}`}>
-                  {filterCounts[f.key]}
-                </span>
+                {showCounts && (
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeFilter === f.key ? 'bg-white/25 text-white' : 'bg-brand-gray-100 text-brand-gray-700'}`}>
+                    {filterCounts[f.key]}
+                  </span>
+                )}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-4 grid gap-3 lg:grid-cols-2">
-        {loading ? (
-          [1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-28 animate-pulse" />
-          ))
-        ) : error ? (
-          /* Gagal memuat dibedakan dari "belum ada pesanan" (P1-11): menyamakan
-             keduanya membuat mitra mengira pesanannya hilang. */
-          <div className="text-center py-10 lg:col-span-2">
-            <p className="text-sm font-semibold text-brand-gray-900 mb-1">Gagal memuat pesanan</p>
-            <p className="text-xs text-brand-gray-450 mb-4">{error}</p>
-            <Button variant="outline" onClick={() => fetchOrders({ pageToLoad: 1 })}>Coba Lagi</Button>
+      {/* Gagal memuat dibedakan dari "belum ada pesanan" (P1-11): menyamakan
+          keduanya membuat mitra mengira pesanannya hilang. */}
+      <DataState
+        className="max-w-6xl mx-auto px-4 py-4"
+        isLoading={loading}
+        error={error}
+        onRetry={() => fetchOrders({ pageToLoad: 1 })}
+        isEmpty={filteredOrders.length === 0}
+        emptyIcon={<Package className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />}
+        emptyTitle={
+          hasExtraFilters || activeFilter !== 'all'
+            ? 'Tidak ada pesanan yang cocok dengan filter ini.'
+            : 'Belum ada pesanan.'
+        }
+        emptyAction={
+          hasExtraFilters ? (
+            <Button variant="outline" onClick={() => setFilters(EMPTY_FILTERS)}>Hapus filter</Button>
+          ) : undefined
+        }
+        skeleton={
+          <div className="grid gap-3 lg:grid-cols-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 h-28 animate-pulse" />
+            ))}
           </div>
-        ) : filteredOrders.length === 0 ? (
-          <div className="text-center py-10 lg:col-span-2">
-            <Package className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
-            <p className="text-sm text-brand-gray-700">Belum ada pesanan{activeFilter !== 'all' ? ' dengan status ini' : ''}.</p>
-          </div>
-        ) : (
-          filteredOrders.map(order => (
-            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-brand-gray-100 rounded-md p-4 hover:border-brand-red transition-colors">
+        }
+      >
+        <div className="grid gap-3 lg:grid-cols-2">
+          {filteredOrders.map(order => (
+            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-brand-gray-100 rounded-lg p-4 hover:border-brand-red transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <p className="text-xs text-brand-gray-450 font-medium mb-0.5">No. {order.order_number}</p>
@@ -237,11 +363,11 @@ export default function MitraOrdersPage() {
                 </div>
               </div>
             </Link>
-          ))
-        )}
+          ))}
+        </div>
 
-        {!loading && !error && hasMore && (
-          <div className="pt-2 text-center lg:col-span-2">
+        {hasMore && (
+          <div className="pt-4 text-center">
             <Button
               variant="outline"
               className="w-full"
@@ -255,7 +381,7 @@ export default function MitraOrdersPage() {
             </p>
           </div>
         )}
-      </div>
+      </DataState>
     </div>
   );
 }

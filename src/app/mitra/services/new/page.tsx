@@ -1,57 +1,28 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ImagePlus, X } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
-import { Button } from '@/components/ui/button';
+
 import { PageSkeleton } from '@/components/ui/skeleton';
-import { VariationsEditor } from '@/components/ui/variations-editor';
-import CategoryPicker from '@/components/mitra/CategoryPicker';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import ServiceForm, { type ServiceSubmitPayload } from '@/components/mitra/ServiceForm';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
-import { DynamicStringList } from '@/components/ui/dynamic-string-list';
-import { DynamicFaqList, type Faq } from '@/components/ui/dynamic-faq-list';
-import {
-  RequirementsEditor,
-  type RequirementCatalogItem,
-  type ServiceRequirement,
-} from '@/components/ui/requirements-editor';
-import { unitLabel } from '@/lib/order-utils';
-import { formatPrice } from '@/lib/format';
-import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
 const MAX_PHOTOS = 5;
 
+/**
+ * Seluruh field & validasinya hidup di `ServiceForm` — dipakai bersama halaman
+ * edit (P2). Yang tersisa di sini hanya yang memang khas "buat baru": foto
+ * dikumpulkan dulu di klien, lalu diunggah SETELAH layanan punya id.
+ */
 export default function NewMitraServicePage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // MinTransaction dari platform_settings — dulu konstanta 50000 yang harus
-  // disamakan manual dengan backend setiap kali admin mengubahnya.
-  const MIN_PRICE = usePlatformConfig().min_transaction;
-
-  // Katalog persyaratan datang dari backend, bukan dihardcode di sini —
-  // admin bisa menambah/menonaktifkan item tanpa deploy web.
-  const [reqCatalog, setReqCatalog] = useState<RequirementCatalogItem[]>([]);
-
-  const [form, setForm] = useState({
-    name: '',
-    category_id: '',
-    price: '',
-    unit: 'per_service',
-    duration_minutes: '60',
-    min_order: '1',
-    description: '',
-    included_items: [] as string[],
-    excluded_items: [] as string[],
-    faqs: [] as Faq[],
-    requirements: [] as ServiceRequirement[],
-  });
-
-  // Variasi produk (opsional). Bila ada minimal 1, harga diambil dari variasi termurah.
-  const [variations, setVariations] = useState<{ name: string; price: string }[]>([]);
 
   const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,23 +30,9 @@ export default function NewMitraServicePage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Bersihkan object URL saat unmount
-    return () => photos.forEach(p => URL.revokeObjectURL(p.preview));
+    // Bersihkan object URL saat unmount.
+    return () => photos.forEach((p) => URL.revokeObjectURL(p.preview));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    // Katalog persyaratan bersifat pelengkap: kegagalan memuatnya tidak boleh
-    // menghalangi mitra menyimpan layanan — ia masih bisa menulis teks bebas.
-    let alive = true;
-    fetchAPI<RequirementCatalogItem[]>('/partners/requirement-catalog')
-      .then(res => {
-        if (alive && res.success && res.data) setReqCatalog(res.data);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
   }, []);
 
   if (authLoading) return <PageSkeleton />;
@@ -85,25 +42,28 @@ export default function NewMitraServicePage() {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     const room = MAX_PHOTOS - photos.length;
-    const accepted = files.slice(0, room).map(file => ({ file, preview: URL.createObjectURL(file) }));
-    setPhotos(prev => [...prev, ...accepted]);
+    const accepted = files.slice(0, room).map((file) => ({ file, preview: URL.createObjectURL(file) }));
+    setPhotos((prev) => [...prev, ...accepted]);
     if (files.length > room) setError(`Maksimal ${MAX_PHOTOS} foto layanan`);
     e.target.value = '';
   };
 
   const handleRemovePhoto = (idx: number) => {
-    setPhotos(prev => {
+    setPhotos((prev) => {
       URL.revokeObjectURL(prev[idx].preview);
       return prev.filter((_, i) => i !== idx);
     });
   };
 
   const uploadPhoto = async (file: File): Promise<string> => {
-    const { success, data } = await fetchAPI<{ upload_url: string; file_url: string }>('/partners/upload/presigned-url', {
-      method: 'POST',
-      body: JSON.stringify({ filename: file.name, content_type: file.type }),
-      credentials: 'include',
-    });
+    const { success, data } = await fetchAPI<{ upload_url: string; file_url: string }>(
+      '/partners/upload/presigned-url',
+      {
+        method: 'POST',
+        body: JSON.stringify({ filename: file.name, content_type: file.type }),
+        credentials: 'include',
+      },
+    );
     if (!success || !data) throw new Error('Gagal mendapatkan URL upload');
 
     const uploadRes = await fetch(data.upload_url, {
@@ -115,89 +75,15 @@ export default function NewMitraServicePage() {
     return data.file_url;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const numPrice = parseInt(form.price.replace(/\D/g, ''), 10) || 0;
-    const isPerHour = form.unit === 'per_hour';
-    // per_hour: estimasi otomatis 1 jam (60 menit); selain itu dari input mitra.
-    const numDuration = isPerHour ? 60 : parseInt(form.duration_minutes, 10);
-    const numMinOrder = Math.max(1, parseInt(form.min_order || '1', 10) || 1);
-    const included = form.included_items.map(i => i.trim()).filter(Boolean);
-    const excluded = form.excluded_items.map(i => i.trim()).filter(Boolean);
-    const faqs = form.faqs.map(f => ({ question: f.question.trim(), answer: f.answer.trim() })).filter(f => f.question && f.answer);
-    // Buang baris teks-bebas yang dibiarkan kosong; backend menolak item tanpa
-    // code maupun custom_label.
-    const requirementsPayload = form.requirements
-      .map(r => ({
-        code: r.code,
-        custom_label: r.custom_label?.trim() || undefined,
-        note: r.note?.trim() || '',
-        is_mandatory: r.is_mandatory,
-      }))
-      .filter(r => r.code || r.custom_label);
-
-    // Variasi: buang baris kosong; bila ada, harga produk = variasi termurah.
-    const parsedVariations = variations
-      .map(v => ({ name: v.name.trim(), price: parseInt(v.price || '0', 10) || 0 }))
-      .filter(v => v.name || v.price);
-    const hasVariations = parsedVariations.length > 0;
-
-    if (!form.name || !form.category_id || !numDuration || included.length === 0 || excluded.length === 0) {
-      setError('Semua field wajib diisi, termasuk minimal 1 include dan 1 exclude');
-      return;
-    }
-    if (hasVariations) {
-      for (const v of parsedVariations) {
-        if (!v.name || !v.price) {
-          setError('Setiap variasi wajib punya nama dan harga.');
-          return;
-        }
-        if (v.price < MIN_PRICE) {
-          setError(`Harga setiap variasi minimal ${formatPrice(MIN_PRICE)}`);
-          return;
-        }
-      }
-    } else {
-      if (!numPrice) {
-        setError('Harga wajib diisi (atau tambahkan variasi).');
-        return;
-      }
-      if (numPrice < MIN_PRICE) {
-        setError(`Harga minimum layanan adalah ${formatPrice(MIN_PRICE)}`);
-        return;
-      }
-    }
-    if (!isPerHour && numDuration < 15) {
-      setError('Durasi minimum layanan adalah 15 menit');
-      return;
-    }
-
-    const effectivePrice = hasVariations
-      ? Math.min(...parsedVariations.map(v => v.price))
-      : numPrice;
-
+  const handleSubmit = async (payload: ServiceSubmitPayload) => {
     setLoading(true);
     setError('');
 
     try {
-      // 1. Buat layanan
       setProgress('Menyimpan layanan...');
       const res = await fetchAPI<{ id: string }>('/partners/me/services', {
         method: 'POST',
-        body: JSON.stringify({
-          name: form.name,
-          category_id: form.category_id,
-          price: effectivePrice,
-          unit: form.unit,
-          estimated_duration: numDuration,
-          min_order: numMinOrder,
-          variations: hasVariations ? parsedVariations : [],
-          description: form.description,
-          included_items: included,
-          excluded_items: excluded,
-          faqs: faqs,
-          requirements: requirementsPayload,
-        })
+        body: JSON.stringify(payload),
       });
 
       if (!res.success || !res.data) {
@@ -207,7 +93,6 @@ export default function NewMitraServicePage() {
         return;
       }
 
-      // 2. Upload & lampirkan foto (jika ada)
       const serviceId = res.data.id;
       if (photos.length > 0 && serviceId) {
         for (let i = 0; i < photos.length; i++) {
@@ -229,210 +114,74 @@ export default function NewMitraServicePage() {
     }
   };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, '');
-    if (!val) {
-      setForm({ ...form, price: '' });
-      return;
-    }
-    setForm({ ...form, price: new Intl.NumberFormat('id-ID').format(parseInt(val, 10)) });
-  };
-
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
-      {/* Header */}
-      <MobilePageHeader alwaysShow title="Tambah Layanan Baru" />
+      <MitraPageHeader
+        title="Tambah Layanan Baru"
+        variant="form"
+        backHref="/mitra/services"
+        breadcrumbs={[{ label: 'Layanan', href: '/mitra/services' }, { label: 'Tambah Layanan' }]}
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Layanan</label>
-            <input
-              type="text"
-              placeholder="Contoh: Cuci AC 0.5 - 1 PK"
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-            />
-          </div>
-
-          <CategoryPicker
-            value={form.category_id}
-            onChange={(id) => setForm((f) => ({ ...f, category_id: id }))}
-          />
-
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Satuan Harga</label>
-            <select
-              value={form.unit}
-              onChange={e => {
-                const unit = e.target.value;
-                // per_hour: estimasi otomatis dikunci ke 60 menit (1 jam).
-                setForm(f => ({ ...f, unit, duration_minutes: unit === 'per_hour' ? '60' : f.duration_minutes }));
-              }}
-              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white"
-            >
-              <option value="per_service">Per Jasa (borongan)</option>
-              <option value="per_hour">Per Jam</option>
-              <option value="per_unit">Per Unit</option>
-              <option value="per_kg">Per Kg</option>
-            </select>
-            <p className="text-xs text-brand-gray-450 mt-1">Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.</p>
-          </div>
-
-          {/* Variasi (opsional) — bila diisi, harga tunggal disembunyikan */}
-          <VariationsEditor value={variations} onChange={setVariations} minPrice={MIN_PRICE} />
-
-          <div className="grid grid-cols-2 gap-4">
-            {variations.length === 0 ? (
-              <div>
-                <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Harga</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray-900 font-bold text-sm">Rp</span>
-                  <input
-                    type="text"
-                    value={form.price}
-                    onChange={handlePriceChange}
-                    placeholder="0"
-                    className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                  />
-                </div>
-                <p className="text-xs text-brand-gray-450 mt-1">Minimal {formatPrice(MIN_PRICE)}</p>
-              </div>
-            ) : (
-              <div>
-                <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Harga</label>
-                <div className="w-full p-3 border border-dashed border-brand-gray-100 rounded text-sm text-brand-gray-450 bg-brand-gray-60">
-                  Otomatis dari variasi termurah
-                </div>
-              </div>
-            )}
+      <MitraPageContainer variant="form" className="py-6">
+        <ServiceForm
+          submitLabel="Simpan Layanan"
+          submitting={loading}
+          progressLabel={progress}
+          error={error}
+          onSubmit={handleSubmit}
+          photoSection={
             <div>
-              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Minimal Order</label>
-              <input
-                type="number"
-                min="1"
-                step="1"
-                value={form.min_order}
-                onChange={e => setForm({ ...form, min_order: e.target.value })}
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-              />
-              <p className="text-xs text-brand-gray-450 mt-1">Jumlah minimal per pesanan ({unitLabel(form.unit)})</p>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Estimasi Durasi (Menit)</label>
-            <input
-              type="number"
-              min="15"
-              step="15"
-              value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
-              disabled={form.unit === 'per_hour'}
-              onChange={e => setForm({ ...form, duration_minutes: e.target.value })}
-              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red disabled:bg-brand-gray-60 disabled:text-brand-gray-450"
-            />
-            <p className="text-xs text-brand-gray-450 mt-1">
-              {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
-            </p>
-          </div>
-
-          {/* Foto Layanan */}
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">
-              Foto Layanan <span className="text-brand-gray-450 font-normal">(opsional, maks {MAX_PHOTOS})</span>
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {photos.map((p, idx) => (
-                <div key={p.preview} className="relative aspect-square rounded-lg overflow-hidden border border-brand-gray-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.preview} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+              <span className="mb-2 block text-sm font-semibold text-brand-gray-900">
+                Foto Layanan{' '}
+                <span className="font-normal text-brand-gray-450">(opsional, maks {MAX_PHOTOS})</span>
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {photos.map((p, idx) => (
+                  <div
+                    key={p.preview}
+                    className="relative aspect-square overflow-hidden rounded-lg border border-brand-gray-100"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.preview} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhoto(idx)}
+                      className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+                      aria-label={`Hapus foto ${idx + 1}`}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                    {idx === 0 && (
+                      <span className="absolute bottom-1 left-1 rounded-md bg-brand-red px-1.5 py-0.5 text-[9px] font-bold text-white">
+                        UTAMA
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {photos.length < MAX_PHOTOS && (
                   <button
                     type="button"
-                    onClick={() => handleRemovePhoto(idx)}
-                    className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/80"
-                    aria-label="Hapus"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-brand-gray-100 text-brand-gray-450 transition-colors hover:border-brand-red hover:text-brand-red"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <ImagePlus className="h-6 w-6" />
+                    <span className="text-[10px] font-semibold">Tambah</span>
                   </button>
-                  {idx === 0 && (
-                    <span className="absolute bottom-1 left-1 bg-brand-red text-white text-[9px] font-bold px-1.5 py-0.5 rounded">UTAMA</span>
-                  )}
-                </div>
-              ))}
-              {photos.length < MAX_PHOTOS && (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="aspect-square rounded-lg border-2 border-dashed border-brand-gray-100 flex flex-col items-center justify-center gap-1 text-brand-gray-450 hover:border-brand-red hover:text-brand-red transition-colors"
-                >
-                  <ImagePlus className="w-6 h-6" />
-                  <span className="text-[10px] font-semibold">Tambah</span>
-                </button>
-              )}
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleAddPhotos}
+                className="hidden"
+              />
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleAddPhotos}
-              className="hidden"
-            />
-          </div>
-
-          <DynamicStringList
-            label="Termasuk (Include)"
-            items={form.included_items}
-            onChange={items => setForm({ ...form, included_items: items })}
-            placeholder="Contoh: Pengecekan AC"
-            required
-          />
-
-          <DynamicStringList
-            label="Tidak Termasuk (Exclude)"
-            items={form.excluded_items}
-            onChange={items => setForm({ ...form, excluded_items: items })}
-            placeholder="Contoh: Penambahan Freon"
-            required
-          />
-
-          <RequirementsEditor
-            items={form.requirements}
-            catalog={reqCatalog}
-            onChange={items => setForm({ ...form, requirements: items })}
-          />
-
-          <DynamicFaqList
-            label="Pertanyaan Umum (FAQ) (opsional)"
-            items={form.faqs}
-            onChange={items => setForm({ ...form, faqs: items })}
-          />
-
-          <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Deskripsi <span className="text-brand-gray-450 font-normal">(opsional)</span></label>
-            <textarea
-              placeholder="Deskripsi detail tentang layanan ini..."
-              value={form.description}
-              onChange={e => setForm({ ...form, description: e.target.value })}
-              rows={3}
-              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red resize-none"
-            />
-          </div>
-
-          {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
-
-          <div className="pt-4 border-t border-brand-gray-100">
-            <Button
-              type="submit"
-              className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
-              disabled={loading}
-            >
-              {loading ? (progress || 'Menyimpan...') : 'Simpan Layanan'}
-            </Button>
-          </div>
-        </form>
-      </div>
+          }
+        />
+      </MitraPageContainer>
     </div>
   );
 }

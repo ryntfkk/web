@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { Plus, Trash2, Image as ImageIcon, Loader2, X, Pencil } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { Plus, Trash2, Image as ImageIcon, Loader2, Pencil } from 'lucide-react';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
+import MitraModal from '@/components/mitra/MitraModal';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -151,22 +152,28 @@ export default function MitraPortfolioPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
       {/* Header */}
-      <MobilePageHeader alwaysShow title="Galeri Portofolio" subtitle="Maksimal 5 foto" />
+      <MitraPageHeader
+        title="Galeri Portofolio"
+        subtitle="Maksimal 5 foto"
+        variant="list"
+        backHref="/mitra/profile"
+        breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Galeri Portofolio' }]}
+      />
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         {error && (
-          <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded text-sm">
+          <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded-md text-sm">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
           {loading ? (
-            [1, 2].map(i => <div key={i} className="aspect-square bg-brand-gray-100 rounded-xl animate-pulse" />)
+            [1, 2].map(i => <div key={i} className="aspect-square bg-brand-gray-100 rounded-lg animate-pulse" />)
           ) : (
             <>
               {portfolios.map((item) => (
-                <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-brand-gray-100 group bg-white">
+                <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden border border-brand-gray-100 group bg-white">
                   <img src={item.photo_url} alt="Portfolio" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
@@ -195,7 +202,7 @@ export default function MitraPortfolioPage() {
               {portfolios.length < 5 && (
                 <div 
                   onClick={() => !uploading && fileInputRef.current?.click()}
-                  className={`aspect-square rounded-xl border-2 border-dashed border-brand-gray-200 flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer bg-white ${uploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-brand-red hover:bg-brand-red-soft'}`}
+                  className={`aspect-square rounded-lg border-2 border-dashed border-brand-gray-200 flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer bg-white ${uploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-brand-red hover:bg-brand-red-soft'}`}
                 >
                   {uploading ? (
                     <Loader2 className="w-8 h-8 text-brand-gray-450 animate-spin" />
@@ -223,7 +230,7 @@ export default function MitraPortfolioPage() {
 
         {editingId && (
           <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4 sm:items-center">
-            <div className="w-full max-w-sm rounded-xl bg-white p-5">
+            <div className="w-full max-w-sm rounded-lg bg-white p-5">
               <h3 className="mb-1 text-base font-semibold text-brand-gray-900">Keterangan Foto</h3>
               <p className="mb-3 text-xs text-brand-gray-450">
                 Jelaskan pekerjaan pada foto ini — pelanggan memakainya untuk menilai hasil kerjamu.
@@ -259,30 +266,22 @@ export default function MitraPortfolioPage() {
         />
       </div>
 
-      {/* Delete Dialog */}
-      {deleteId && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-sm w-full p-6">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-brand-gray-900">Hapus Foto?</h3>
-              <button onClick={() => setDeleteId(null)} aria-label="Tutup">
-                <X className="w-5 h-5 text-brand-gray-450" />
-              </button>
-            </div>
-            <p className="text-sm text-brand-gray-700 mb-6">
-              Foto ini akan dihapus permanen dari galeri portofolio Anda.
-            </p>
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded border-brand-gray-100" onClick={() => setDeleteId(null)}>
-                Batal
-              </Button>
-              <Button className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded" onClick={handleDelete}>
-                Hapus
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MitraModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Hapus Foto?"
+        description="Foto ini akan dihapus permanen dari galeri portofolio Anda."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md border-brand-gray-100" onClick={() => setDeleteId(null)}>
+              Batal
+            </Button>
+            <Button className="flex-1 rounded-md bg-brand-error hover:bg-brand-error-dark" onClick={handleDelete}>
+              Hapus
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }

@@ -3,8 +3,9 @@ import { useToast } from '@/components/ui/toast';
 
 import { useCallback, useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
+import MitraModal from '@/components/mitra/MitraModal';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
@@ -167,7 +168,12 @@ export default function MitraSchedulePage() {
     <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
-      <MobilePageHeader alwaysShow title="Atur Jadwal Operasional" />
+      <MitraPageHeader
+        title="Atur Jadwal Operasional"
+        variant="form"
+        backHref="/mitra/dashboard"
+        breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Jadwal Operasional' }]}
+      />
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-4 flex gap-3 items-start mb-2">
@@ -189,11 +195,11 @@ export default function MitraSchedulePage() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5, 6, 7].map(i => (
-              <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-16 animate-pulse" />
+              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 h-16 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
+          <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden">
             {DAYS.map((day, index) => {
               const dayData = schedule[day.id];
               return (
@@ -203,7 +209,7 @@ export default function MitraSchedulePage() {
                       type="checkbox"
                       checked={dayData.is_active}
                       onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, is_active: e.target.checked } })}
-                      className="w-4 h-4 text-brand-red rounded focus:ring-brand-red"
+                      className="w-4 h-4 text-brand-red rounded-md focus:ring-brand-red"
                     />
                     <span className="font-semibold text-brand-gray-900">{day.label}</span>
                   </label>
@@ -214,19 +220,19 @@ export default function MitraSchedulePage() {
                         type="time"
                         value={dayData.start_time}
                         onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, start_time: e.target.value } })}
-                        className="p-2 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                        className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
                       />
                       <span className="text-brand-gray-450 font-medium">-</span>
                       <input
                         type="time"
                         value={dayData.end_time}
                         onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, end_time: e.target.value } })}
-                        className="p-2 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                        className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
                       />
                     </div>
                   ) : (
                     <div className="pl-7 sm:pl-0">
-                      <span className="text-sm font-semibold text-brand-gray-450 bg-brand-gray-60 px-3 py-1.5 rounded">Tutup</span>
+                      <span className="text-sm font-semibold text-brand-gray-450 bg-brand-gray-60 px-3 py-1.5 rounded-md">Tutup</span>
                     </div>
                   )}
                 </div>
@@ -236,7 +242,7 @@ export default function MitraSchedulePage() {
         )}
 
         <div className="pt-6">
-          <div className="bg-brand-warning-soft border border-brand-warning-border rounded p-3 mb-4 flex gap-2 items-start">
+          <div className="bg-brand-warning-soft border border-brand-warning-border rounded-md p-3 mb-4 flex gap-2 items-start">
             <Clock className="w-4 h-4 text-brand-warning-dark shrink-0 mt-0.5" />
             <p className="text-xs text-brand-warning-dark font-medium leading-relaxed">
               Catatan: Perubahan jam operasional hanya akan berlaku pada pesanan yang baru masuk. Pesanan yang sudah terjadwal tidak akan terpengaruh.
@@ -249,7 +255,7 @@ export default function MitraSchedulePage() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 p-4 z-50">
         <div className="max-w-2xl mx-auto">
           <Button 
-            className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-xl h-12 text-sm font-bold shadow-sm"
+            className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-lg h-12 text-sm font-bold shadow-sm"
             onClick={confirmSave}
             disabled={loading || saving}
           >
@@ -258,21 +264,32 @@ export default function MitraSchedulePage() {
         </div>
       </div>
 
-      {/* Warning Modal */}
-      {showWarningModal && (
-        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full animate-in zoom-in-95">
-            <h3 className="text-lg font-bold text-brand-gray-900 mb-2">Konfirmasi Perubahan</h3>
-            <p className="text-sm text-brand-gray-700 mb-6">
-              Perubahan jam operasional tidak akan memengaruhi <strong>{activeOrderCount}</strong> pesanan aktif/terjadwal yang sudah ada. Tetap simpan?
-            </p>
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setShowWarningModal(false)}>Batal</Button>
-              <Button className="flex-1 bg-brand-red text-white rounded-xl" onClick={() => { setShowWarningModal(false); handleSave(); }}>Simpan</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MitraModal
+        open={showWarningModal}
+        onClose={() => setShowWarningModal(false)}
+        title="Konfirmasi Perubahan"
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md" onClick={() => setShowWarningModal(false)}>
+              Batal
+            </Button>
+            <Button
+              className="flex-1 rounded-md bg-brand-red text-white"
+              onClick={() => {
+                setShowWarningModal(false);
+                handleSave();
+              }}
+            >
+              Simpan
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm leading-relaxed text-brand-gray-700">
+          Perubahan jam operasional tidak akan memengaruhi <strong>{activeOrderCount}</strong> pesanan
+          aktif/terjadwal yang sudah ada. Tetap simpan?
+        </p>
+      </MitraModal>
     </div>
   );
 }

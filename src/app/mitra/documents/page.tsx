@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FileText, Plus, Trash2, X, Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { FileText, Plus, Trash2, Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
+import MitraModal from '@/components/mitra/MitraModal';
 import { Modal } from '@/components/ui/modal';
 import { Badge } from '@/components/ui/badge';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -218,11 +219,17 @@ export default function MitraDocumentsPage() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
-      <MobilePageHeader alwaysShow title="Dokumen Pendukung" subtitle="SKCK, sertifikat, dan izin usaha" />
+      <MitraPageHeader
+        title="Dokumen Pendukung"
+        subtitle="SKCK, sertifikat, dan izin usaha"
+        variant="list"
+        backHref="/mitra/profile"
+        breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Dokumen Pendukung' }]}
+      />
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {error && (
-          <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded text-sm">
+          <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded-md text-sm">
             {error}
           </div>
         )}
@@ -230,7 +237,7 @@ export default function MitraDocumentsPage() {
         <div className="flex justify-end">
           <Button
             onClick={() => setIsModalOpen(true)}
-            className="bg-brand-red hover:bg-brand-red-dark text-white rounded font-bold"
+            className="bg-brand-red hover:bg-brand-red-dark text-white rounded-md font-bold"
             size="sm"
           >
             <Plus className="w-4 h-4 mr-1.5" />
@@ -241,11 +248,11 @@ export default function MitraDocumentsPage() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-xl p-4 h-24 animate-pulse" />
+              <div key={i} className="bg-white rounded-lg p-4 h-24 animate-pulse" />
             ))}
           </div>
         ) : documents.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-brand-gray-100">
+          <div className="text-center py-12 bg-white rounded-lg border border-brand-gray-100">
             <FileText className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
             <p className="text-sm text-brand-gray-700">Belum ada dokumen pendukung.</p>
             <p className="text-xs text-brand-gray-450 mt-1 px-6">
@@ -257,7 +264,7 @@ export default function MitraDocumentsPage() {
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-white rounded-xl border border-brand-gray-100 p-4 flex items-start gap-3"
+                className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-start gap-3"
               >
                 <div className="w-10 h-10 rounded-lg bg-brand-gray-60 flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5 text-brand-gray-700" />
@@ -283,7 +290,7 @@ export default function MitraDocumentsPage() {
                     }
                     return (
                       <p
-                        className={`mt-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-semibold ${
+                        className={`mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
                           exp.tone === 'expired'
                             ? 'bg-brand-error-soft text-brand-error border border-brand-error-border'
                             : 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
@@ -330,7 +337,7 @@ export default function MitraDocumentsPage() {
           <div>
             <label className="text-sm font-medium text-brand-gray-700 block mb-1.5">Jenis Dokumen</label>
             <select
-              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
+              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
               value={docType}
               onChange={(e) => setDocType(e.target.value as PartnerDocument['doc_type'])}
             >
@@ -347,7 +354,7 @@ export default function MitraDocumentsPage() {
             </label>
             <input
               type="text"
-              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
+              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
               placeholder="Contoh: NIB-123456789"
               value={docNumber}
               onChange={(e) => setDocNumber(e.target.value)}
@@ -360,7 +367,7 @@ export default function MitraDocumentsPage() {
             </label>
             <input
               type="date"
-              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
+              className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
             />
@@ -369,7 +376,7 @@ export default function MitraDocumentsPage() {
           <div>
             <label className="text-sm font-medium text-brand-gray-700 block mb-1.5">File</label>
             <div
-              className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors"
+              className="border-2 border-dashed border-brand-gray-200 rounded-lg p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
               <FileText className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
@@ -389,7 +396,7 @@ export default function MitraDocumentsPage() {
           <Button
             onClick={handleSubmit}
             disabled={uploading || !selectedFile}
-            className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
+            className="w-full bg-brand-red hover:bg-brand-red-dark rounded-md h-12 text-base font-bold"
           >
             {uploading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -400,36 +407,22 @@ export default function MitraDocumentsPage() {
         </div>
       </Modal>
 
-      {deleteId && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-sm w-full p-6">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-brand-gray-900">Hapus Dokumen?</h3>
-              <button onClick={() => setDeleteId(null)} aria-label="Tutup">
-                <X className="w-5 h-5 text-brand-gray-450" />
-              </button>
-            </div>
-            <p className="text-sm text-brand-gray-700 mb-6">
-              Dokumen akan dihapus dan harus diunggah ulang bila diperlukan.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1 rounded border-brand-gray-100"
-                onClick={() => setDeleteId(null)}
-              >
-                Batal
-              </Button>
-              <Button
-                className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded"
-                onClick={handleDelete}
-              >
-                Hapus
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MitraModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Hapus Dokumen?"
+        description="Dokumen akan dihapus dan harus diunggah ulang bila diperlukan."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md border-brand-gray-100" onClick={() => setDeleteId(null)}>
+              Batal
+            </Button>
+            <Button className="flex-1 rounded-md bg-brand-error hover:bg-brand-error-dark" onClick={handleDelete}>
+              Hapus
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }

@@ -4,13 +4,15 @@ import { useToast } from '@/components/ui/toast';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, Plus, Wrench, X } from 'lucide-react';
+import { Pencil, Trash2, Plus, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import DataState from '@/components/mitra/DataState';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraModal from '@/components/mitra/MitraModal';
+import { useLiveRegion } from '@/components/mitra/useLiveRegion';
 
 
 interface Service {
@@ -32,6 +34,9 @@ export default function MitraServicesPage() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
+  // Toast dirender di luar alur baca dan tanpa role status; tanpa live region
+  // pengguna pembaca layar tidak pernah tahu toggle/hapus barusan berhasil.
+  const { announce, liveRegion } = useLiveRegion();
 
 
   const fetchServices = useCallback(async () => {
@@ -62,8 +67,11 @@ export default function MitraServicesPage() {
     if (res.success) {
       setServices(services.filter(s => s.id !== deleteId));
       showToast('Layanan berhasil dihapus');
+      announce('Layanan berhasil dihapus');
     } else {
-      showToast(res.message || 'Gagal menghapus layanan', 'error');
+      const msg = res.message || 'Gagal menghapus layanan';
+      showToast(msg, 'error');
+      announce(msg, 'assertive');
     }
     setDeleteId(null);
   };
@@ -85,9 +93,13 @@ export default function MitraServicesPage() {
         // perubahan, UI tidak boleh menampilkan keadaan yang tidak nyata.
         const next = res.data.is_active;
         setServices(prev => prev.map(s => (s.id === id ? { ...s, is_active: next } : s)));
-        showToast(next ? 'Layanan diaktifkan' : 'Layanan dinonaktifkan');
+        const msg = next ? 'Layanan diaktifkan' : 'Layanan dinonaktifkan';
+        showToast(msg);
+        announce(msg);
       } else {
-        showToast(res.message || 'Gagal mengubah status layanan', 'error');
+        const msg = res.message || 'Gagal mengubah status layanan';
+        showToast(msg, 'error');
+        announce(msg, 'assertive');
       }
     } finally {
       setTogglingId(null);
@@ -103,9 +115,12 @@ export default function MitraServicesPage() {
     <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
-      <MobilePageHeader
-        alwaysShow
+      {liveRegion}
+
+      <MitraPageHeader
         title="Layanan Anda"
+        variant="list"
+        backHref="/mitra/dashboard"
         right={
           <Link
             href="/mitra/services/new"
@@ -133,7 +148,7 @@ export default function MitraServicesPage() {
         skeleton={
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 h-24 animate-pulse" />
+              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 h-24 animate-pulse" />
             ))}
           </div>
         }
@@ -141,7 +156,7 @@ export default function MitraServicesPage() {
         {/* Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu (§6.1). */}
         <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {services.map(s => (
-            <div key={s.id} className={`bg-white rounded-xl border p-4 transition-colors ${s.is_active ? 'border-brand-gray-100' : 'border-brand-gray-100 opacity-70 bg-brand-gray-60'}`}>
+            <div key={s.id} className={`bg-white rounded-lg border p-4 transition-colors ${s.is_active ? 'border-brand-gray-100' : 'border-brand-gray-100 opacity-70 bg-brand-gray-60'}`}>
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h3 className="font-bold text-brand-gray-900">{s.name}</h3>
@@ -163,7 +178,7 @@ export default function MitraServicesPage() {
                     checked={s.is_active}
                     disabled={!!togglingId}
                     onChange={() => handleToggleActive(s.id, s.is_active)}
-                    className="w-4 h-4 text-brand-success rounded focus:ring-brand-success disabled:cursor-wait"
+                    className="w-4 h-4 text-brand-success rounded-md focus:ring-brand-success disabled:cursor-wait"
                   />
                   <span className="text-xs font-semibold text-brand-gray-700">
                     {togglingId === s.id ? 'Menyimpan…' : s.is_active ? 'Aktif' : 'Nonaktif'}
@@ -172,11 +187,11 @@ export default function MitraServicesPage() {
                 
                 <div className="flex items-center gap-1">
                   <Link href={`/mitra/services/${s.id}/edit`}>
-                    <button className="p-2 text-brand-gray-450 hover:text-brand-red hover:bg-brand-error-soft rounded transition-colors" aria-label="Edit">
+                    <button className="p-2 text-brand-gray-450 hover:text-brand-red hover:bg-brand-error-soft rounded-md transition-colors" aria-label="Edit">
                       <Pencil className="w-4 h-4" />
                     </button>
                   </Link>
-                  <button onClick={() => setDeleteId(s.id)} className="p-2 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded transition-colors" aria-label="Hapus">
+                  <button onClick={() => setDeleteId(s.id)} className="p-2 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded-md transition-colors" aria-label="Hapus">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -186,30 +201,23 @@ export default function MitraServicesPage() {
         </div>
       </DataState>
 
-      {/* Delete Dialog */}
-      {deleteId && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-sm w-full p-6">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-brand-gray-900">Hapus Layanan?</h3>
-              <button onClick={() => setDeleteId(null)} aria-label="Tutup">
-                <X className="w-5 h-5 text-brand-gray-450" />
-              </button>
-            </div>
-            <p className="text-sm text-brand-gray-700 mb-6">
-              Layanan yang dihapus tidak akan tersedia lagi untuk dipesan oleh pelanggan.
-            </p>
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded border-brand-gray-100" onClick={() => setDeleteId(null)}>
-                Batal
-              </Button>
-              <Button className="flex-1 bg-brand-error hover:bg-brand-error-dark rounded" onClick={handleDelete}>
-                Ya, Hapus
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MitraModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Hapus Layanan?"
+        description="Layanan yang dihapus tidak akan tersedia lagi untuk dipesan oleh pelanggan."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md border-brand-gray-100" onClick={() => setDeleteId(null)}>
+              Batal
+            </Button>
+            <Button className="flex-1 rounded-md bg-brand-error hover:bg-brand-error-dark" onClick={handleDelete}>
+              Ya, Hapus
+            </Button>
+          </>
+        }
+      />
+
     </div>
   );
 }

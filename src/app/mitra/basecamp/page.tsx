@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, MapPin, AlertCircle } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
@@ -109,7 +109,12 @@ export default function MitraBasecampPage() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
-      <MobilePageHeader alwaysShow title="Alamat Basecamp" />
+      <MitraPageHeader
+        title="Alamat Basecamp"
+        variant="form"
+        backHref="/mitra/profile"
+        breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Alamat Basecamp' }]}
+      />
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {isVerified && (
@@ -125,7 +130,7 @@ export default function MitraBasecampPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-4">
+        <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-4">
           <div>
             <h3 className="font-bold text-brand-gray-900 mb-1">Titik Lokasi Basecamp</h3>
             <p className="text-xs text-brand-gray-400 mb-3">Ketuk/geser pin, atau tekan tombol “Lokasi saya” untuk memakai GPS.</p>

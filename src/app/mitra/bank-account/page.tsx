@@ -4,12 +4,13 @@ import { useToast } from '@/components/ui/toast';
 import { useEffect, useState } from 'react';
 import { CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MitraModal from '@/components/mitra/MitraModal';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useIsPartnerVerified } from '@/hooks/usePartnerVerificationStatus';
 import { VerifiedLockNotice } from '@/components/mitra/VerifiedLockBadge';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { getErrorMessage } from '@/types/api';
 
 
@@ -116,10 +117,15 @@ export default function MitraBankAccountPage() {
     <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
-      <MobilePageHeader alwaysShow title="Rekening Bank Utama" />
+      <MitraPageHeader
+        title="Rekening Bank Utama"
+        variant="form"
+        backHref="/mitra/profile"
+        breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Rekening Bank' }]}
+      />
 
       <div className="max-w-2xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-xl border border-brand-gray-100 p-6 mb-6 text-center">
+        <div className="bg-white rounded-lg border border-brand-gray-100 p-6 mb-6 text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <CreditCard className="w-8 h-8 text-brand-success" />
           </div>
@@ -139,16 +145,16 @@ export default function MitraBankAccountPage() {
         )}
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-brand-gray-100 p-6 h-64 animate-pulse" />
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-6 h-64 animate-pulse" />
         ) : (
-          <form onSubmit={handleInitiateSave} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
+          <form onSubmit={handleInitiateSave} className="bg-white rounded-lg border border-brand-gray-100 p-6 space-y-4">
             <div>
               <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Pilih Bank</label>
               <select
                 value={form.bank_code}
                 onChange={e => setForm({ ...form, bank_code: e.target.value })}
                 disabled={isVerified}
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
+                className="w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red bg-white disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
               >
                 {BANKS.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
               </select>
@@ -162,7 +168,7 @@ export default function MitraBankAccountPage() {
                 onChange={e => setForm({ ...form, account_number: e.target.value.replace(/\D/g, '') })}
                 placeholder="Hanya angka"
                 disabled={isVerified}
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
+                className="w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
               />
             </div>
 
@@ -174,7 +180,7 @@ export default function MitraBankAccountPage() {
                 onChange={e => setForm({ ...form, account_name: e.target.value.toUpperCase() })}
                 placeholder="SESUAI BUKU TABUNGAN"
                 disabled={isVerified}
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red uppercase disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
+                className="w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red uppercase disabled:bg-brand-gray-50 disabled:text-brand-gray-450"
               />
               <p className="text-xs text-brand-gray-450 mt-2">
                 Pastikan nama sesuai dengan yang terdaftar di bank untuk menghindari kegagalan transfer.
@@ -185,7 +191,7 @@ export default function MitraBankAccountPage() {
 
             <div className="pt-4 border-t border-brand-gray-100">
               <Button
-                className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
+                className="w-full bg-brand-red hover:bg-brand-red-dark rounded-md h-12 text-base font-bold"
                 type="submit"
                 disabled={saving || isVerified}
               >
@@ -196,44 +202,41 @@ export default function MitraBankAccountPage() {
         )}
       </div>
 
-      {/* OTP Modal */}
-      {showOtp && (
-        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-sm w-full p-6 text-center animate-in zoom-in-95">
-            <h3 className="text-lg font-bold text-brand-gray-900 mb-2">Verifikasi Keamanan</h3>
-            <p className="text-sm text-brand-gray-700 mb-6">
-              Masukkan 6 digit kode OTP yang dikirim ke nomor Anda untuk menyetujui perubahan rekening.
-            </p>
-            
-            <input
-              type="text"
-              maxLength={6}
-              value={otp}
-              onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
-              className="w-full text-center text-2xl tracking-widest p-3 border border-brand-gray-100 rounded-lg mb-6 focus:outline-none focus:border-brand-red font-mono"
-              placeholder="••••••"
-              autoFocus
-            />
-
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                className="flex-1" 
-                onClick={() => setShowOtp(false)}
-              >
-                Batal
-              </Button>
-              <Button 
-                className="flex-1 bg-brand-red hover:bg-brand-red-dark" 
-                onClick={handleConfirmOtp}
-                disabled={otp.length < 4}
-              >
-                Konfirmasi
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MitraModal
+        open={showOtp}
+        onClose={() => setShowOtp(false)}
+        title="Verifikasi Keamanan"
+        description="Masukkan 6 digit kode OTP yang dikirim ke nomor Anda untuk menyetujui perubahan rekening."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md" onClick={() => setShowOtp(false)}>
+              Batal
+            </Button>
+            <Button
+              className="flex-1 rounded-md bg-brand-red hover:bg-brand-red-dark"
+              onClick={handleConfirmOtp}
+              disabled={otp.length < 4}
+            >
+              Konfirmasi
+            </Button>
+          </>
+        }
+      >
+        <label htmlFor="bank-otp" className="sr-only">
+          Kode OTP
+        </label>
+        <input
+          id="bank-otp"
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          value={otp}
+          onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+          className="mt-4 w-full rounded-md border border-brand-gray-100 p-3 text-center font-mono text-2xl tracking-widest focus:border-brand-red focus:outline-none"
+          placeholder="••••••"
+        />
+      </MitraModal>
     </div>
   );
 }

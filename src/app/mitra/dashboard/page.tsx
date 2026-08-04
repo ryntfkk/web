@@ -148,7 +148,7 @@ export default function MitraDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-4 text-brand-gray-900 flex items-center justify-between shadow-sm">
+          <div className="bg-white rounded-lg p-4 text-brand-gray-900 flex items-center justify-between shadow-sm">
             <div>
               <p className="text-xs font-semibold text-brand-gray-700 mb-1">Status Toko</p>
               <div className="flex items-center gap-2">
@@ -172,8 +172,8 @@ export default function MitraDashboardPage() {
         {/* Stats */}
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-pulse">
-            <div className="bg-white rounded-xl border border-brand-gray-100 p-4 h-20" />
-            <div className="bg-white rounded-xl border border-brand-gray-100 p-4 h-20" />
+            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 h-20" />
+            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 h-20" />
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -232,7 +232,7 @@ export default function MitraDashboardPage() {
             {loading ? (
               <div className="h-16 bg-brand-gray-100 rounded-md animate-pulse" />
             ) : upcomingOrders.length === 0 ? (
-              <div className="text-center py-4 bg-brand-gray-60 rounded border border-brand-gray-100">
+              <div className="text-center py-4 bg-brand-gray-60 rounded-md border border-brand-gray-100">
                 <p className="text-sm text-brand-gray-700">Tidak ada jadwal pesanan terkonfirmasi.</p>
               </div>
             ) : (
@@ -240,8 +240,8 @@ export default function MitraDashboardPage() {
                   const date = new Date(order.scheduled_at);
                   const isToday = new Date().toDateString() === date.toDateString();
                   return (
-                    <Link key={order.id} href={`/mitra/orders/${order.id}`} className="flex items-center gap-3 p-3 border border-brand-gray-100 rounded hover:border-brand-red transition-colors">
-                      <div className={`w-12 h-12 rounded flex flex-col items-center justify-center shrink-0 ${isToday ? 'bg-brand-red text-white' : 'bg-brand-gray-60 text-brand-gray-900'}`}>
+                    <Link key={order.id} href={`/mitra/orders/${order.id}`} className="flex items-center gap-3 p-3 border border-brand-gray-100 rounded-md hover:border-brand-red transition-colors">
+                      <div className={`w-12 h-12 rounded-md flex flex-col items-center justify-center shrink-0 ${isToday ? 'bg-brand-red text-white' : 'bg-brand-gray-60 text-brand-gray-900'}`}>
                         <span className="text-xs font-semibold">{date.toLocaleDateString('id-ID', { month: 'short' })}</span>
                         <span className="text-lg font-bold leading-none">{date.getDate()}</span>
                       </div>

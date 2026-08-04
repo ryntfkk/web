@@ -98,7 +98,7 @@ export default function AdditionalFeeFormClient() {
   if (success) {
     return (
       <div className="page-h bg-brand-gray-60 flex flex-col justify-center px-4">
-        <div className="bg-white rounded-xl shadow-sm border border-brand-gray-100 p-6 max-w-sm w-full mx-auto text-center">
+        <div className="bg-white rounded-lg shadow-sm border border-brand-gray-100 p-6 max-w-sm w-full mx-auto text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-brand-success" />
           </div>
@@ -116,7 +116,7 @@ export default function AdditionalFeeFormClient() {
       {/* Header */}
       <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button onClick={() => router.push(`/mitra/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
+          <button onClick={() => router.push(`/mitra/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-md" aria-label="Kembali">
             <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
           </button>
           <h1 className="text-base font-bold text-brand-gray-900">Ajukan Biaya Tambahan</h1>
@@ -131,7 +131,7 @@ export default function AdditionalFeeFormClient() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-brand-gray-100 p-6 space-y-4">
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Tipe Biaya</label>
             <div className="grid grid-cols-2 gap-3">
@@ -153,7 +153,7 @@ export default function AdditionalFeeFormClient() {
               placeholder="Contoh: Kabel 5 meter, Freon..."
               value={form.item_name}
               onChange={e => setForm({ ...form, item_name: e.target.value })}
-              className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+              className="w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>
 
@@ -167,7 +167,7 @@ export default function AdditionalFeeFormClient() {
                   value={form.unit_price}
                   onChange={handlePriceChange}
                   placeholder="0"
-                  className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                  className="w-full p-3 pl-10 border border-brand-gray-100 rounded-md text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
                 />
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function AdditionalFeeFormClient() {
                   // Clamp minimal 1 (cegah 0/negatif via ketik) & maksimal 100.
                   setForm({ ...form, quantity: Number.isNaN(q) ? 1 : Math.min(100, Math.max(1, q)) });
                 }}
-                className="w-full p-3 border border-brand-gray-100 rounded text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                className="w-full p-3 border border-brand-gray-100 rounded-md text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function AdditionalFeeFormClient() {
 
           <div className="pt-4">
             <Button
-              className="w-full bg-brand-orange hover:bg-brand-orange rounded h-12 text-base font-bold text-white"
+              className="w-full bg-brand-orange hover:bg-brand-orange rounded-md h-12 text-base font-bold text-white"
               onClick={handleSubmit}
               disabled={loading}
             >

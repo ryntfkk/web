@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import { getErrorMessage } from '@/types/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/format';
@@ -143,7 +143,7 @@ export default function WithdrawPage() {
   if (success) {
     return (
       <div className="page-h bg-brand-gray-60 flex flex-col justify-center px-4">
-        <div className="bg-white rounded-xl shadow-sm border border-brand-gray-100 p-6 max-w-sm w-full mx-auto text-center">
+        <div className="bg-white rounded-lg shadow-sm border border-brand-gray-100 p-6 max-w-sm w-full mx-auto text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <Landmark className="w-8 h-8 text-brand-success" />
           </div>
@@ -155,7 +155,7 @@ export default function WithdrawPage() {
           </p>
           {/* replace: layar sukses ini transien — back dari dompet tidak boleh
               memantulkan pengguna kembali ke "Penarikan Berhasil" yang basi. */}
-          <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.replace('/mitra/wallet')}>
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded-md" onClick={() => router.replace('/mitra/wallet')}>
             Kembali ke Dompet
           </Button>
         </div>
@@ -165,11 +165,16 @@ export default function WithdrawPage() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
-      <MobilePageHeader title="Tarik Dana" backHref="/mitra/wallet" />
+      <MitraPageHeader
+        title="Tarik Dana"
+        variant="form"
+        backHref="/mitra/wallet"
+        breadcrumbs={[{ label: 'Dompet', href: '/mitra/wallet' }, { label: 'Tarik Dana' }]}
+      />
 
       <div className="max-w-2xl mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Tarik Dana</h1>
-        <div className="bg-brand-red text-white p-4 rounded-xl mb-6 shadow-sm">
+        <div className="bg-brand-red text-white p-4 rounded-lg mb-6 shadow-sm">
           <p className="text-sm text-white/80 mb-1">Saldo Tersedia</p>
           <p className="text-2xl font-bold">{formatPrice(walletBalance)}</p>
         </div>
@@ -178,7 +183,7 @@ export default function WithdrawPage() {
             penjaga OTP saat mengganti rekening. Munculkan sebelum user mengisi
             nominal, bukan sebagai error di ujung. */}
         {user && !user.profile_complete && (
-          <div className="mb-6 bg-brand-warning-soft border border-brand-warning-border rounded-xl p-4">
+          <div className="mb-6 bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
             <p className="text-xs text-brand-gray-700 mt-0.5">
               Nomor WhatsApp terverifikasi diperlukan untuk menarik dana dan mengubah rekening.
@@ -200,7 +205,7 @@ export default function WithdrawPage() {
         />
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-white rounded-xl border border-brand-gray-100 p-4">
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-4">
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nominal Penarikan</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray-900 font-bold">Rp</span>
@@ -209,7 +214,7 @@ export default function WithdrawPage() {
                 value={amount}
                 onChange={handleAmountChange}
                 placeholder="0"
-                className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-lg font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                className="w-full p-3 pl-10 border border-brand-gray-100 rounded-md text-lg font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
             <p className="text-xs text-brand-gray-450 mt-2 flex items-center gap-1 mb-4">
@@ -228,7 +233,7 @@ export default function WithdrawPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-4">
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-bold text-brand-gray-900">Rekening Tujuan</h3>
               <button 
@@ -241,20 +246,20 @@ export default function WithdrawPage() {
             </div>
             
             {savedBank ? (
-              <div className="bg-brand-gray-60 border border-brand-gray-100 p-4 rounded-xl">
+              <div className="bg-brand-gray-60 border border-brand-gray-100 p-4 rounded-lg">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-bold text-brand-gray-900">{savedBank.bank_name || savedBank.bank_code}</p>
                     <p className="text-sm text-brand-gray-700 font-mono mt-1">{savedBank.account_number || savedBank.bank_account_number}</p>
                     <p className="text-sm text-brand-gray-450 uppercase mt-0.5">{savedBank.account_name || savedBank.bank_account_name}</p>
                   </div>
-                  <div className="bg-brand-success-soft text-brand-success text-[10px] font-bold px-2 py-1 rounded uppercase">
+                  <div className="bg-brand-success-soft text-brand-success text-[10px] font-bold px-2 py-1 rounded-md uppercase">
                     Tersimpan
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-brand-error-soft border border-brand-error-border p-4 rounded-xl text-center">
+              <div className="bg-brand-error-soft border border-brand-error-border p-4 rounded-lg text-center">
                 <p className="text-sm text-brand-error font-medium mb-2">Rekening belum ditambahkan.</p>
                 <Button 
                   type="button"
@@ -273,7 +278,7 @@ export default function WithdrawPage() {
           <div className="pt-4">
             <Button
               type="submit"
-              className="w-full bg-brand-red hover:bg-brand-red-dark rounded h-12 text-base font-bold"
+              className="w-full bg-brand-red hover:bg-brand-red-dark rounded-md h-12 text-base font-bold"
               disabled={loading}
             >
               {loading ? 'Memproses...' : 'Tarik Dana'}

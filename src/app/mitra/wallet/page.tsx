@@ -126,10 +126,10 @@ export default function MitraWalletPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
       {/* Header */}
-      <div className="bg-brand-red text-white px-4 pt-4 pb-8 rounded-b-3xl shadow-sm sticky top-0 z-10">
+      <div className="bg-brand-red text-white px-4 pt-4 pb-8 rounded-b-xl shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
-            <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-white/10 rounded" aria-label="Kembali">
+            <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-white/10 rounded-md" aria-label="Kembali">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-base font-bold">Dompet Mitra</h1>
@@ -155,15 +155,24 @@ export default function MitraWalletPage() {
 
       <div className="max-w-4xl mx-auto px-4 -mt-4 relative z-20 flex gap-3">
         <Button
-          className="flex-1 bg-white hover:bg-brand-gray-60 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-xl font-bold"
+          className="flex-1 bg-white hover:bg-brand-gray-60 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-md font-bold"
           onClick={() => router.push('/mitra/wallet/withdraw')}
         >
           <ArrowUpRight className="w-5 h-5 mr-2 text-brand-red" /> Tarik Dana
         </Button>
+        {/* Penarikan punya lifecycle sendiri (ditolak, alasannya, ke rekening
+            mana) yang tak muat di baris mutasi — karenanya layar terpisah. */}
+        <Button
+          variant="outline"
+          className="flex-1 bg-white hover:bg-brand-gray-60 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-md font-bold"
+          onClick={() => router.push('/mitra/wallet/withdrawals')}
+        >
+          <History className="w-5 h-5 mr-2 text-brand-gray-700" /> Riwayat Penarikan
+        </Button>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mt-4">
-        <div className="bg-brand-error-soft border border-brand-error-border rounded-xl px-4 py-3 flex items-start gap-2.5">
+        <div className="bg-brand-error-soft border border-brand-error-border rounded-lg px-4 py-3 flex items-start gap-2.5">
           <Clock className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
           <div>
             <p className="text-xs font-semibold text-brand-red mb-0.5">Info Penarikan Dana</p>
@@ -177,11 +186,11 @@ export default function MitraWalletPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mt-6 flex gap-4">
-        <div className="flex-1 bg-white rounded-xl border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
+        <div className="flex-1 bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
           <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Pemasukan</p>
           <p className="font-bold text-brand-success text-lg">{formatPrice(summary.total_earnings)}</p>
         </div>
-        <div className="flex-1 bg-white rounded-xl border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
+        <div className="flex-1 bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
           <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Penarikan</p>
           <p className="font-bold text-brand-gray-900 text-lg">{formatPrice(summary.total_withdrawals)}</p>
         </div>
@@ -232,28 +241,28 @@ export default function MitraWalletPage() {
         <div className="space-y-3">
           {loading ? (
             [1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 flex items-center gap-4 animate-pulse">
+              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center gap-4 animate-pulse">
                 <div className="w-10 h-10 rounded-full bg-brand-gray-100" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-brand-gray-100 rounded w-1/2" />
-                  <div className="h-3 bg-brand-gray-100 rounded w-1/3" />
+                  <div className="h-4 bg-brand-gray-100 rounded-md w-1/2" />
+                  <div className="h-3 bg-brand-gray-100 rounded-md w-1/3" />
                 </div>
               </div>
             ))
           ) : error ? (
-            <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100">
+            <div className="text-center py-10 bg-white rounded-lg border border-brand-gray-100">
               <p className="text-sm font-semibold text-brand-gray-900 mb-1">Gagal memuat transaksi</p>
               <p className="text-xs text-brand-gray-450 mb-4">{error}</p>
               <Button variant="outline" onClick={() => fetchData()}>Coba Lagi</Button>
             </div>
           ) : transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').length === 0 ? (
-            <div className="text-center py-10 bg-white rounded-xl border border-brand-gray-100">
+            <div className="text-center py-10 bg-white rounded-lg border border-brand-gray-100">
               <History className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
               <p className="text-sm text-brand-gray-700">Belum ada transaksi.</p>
             </div>
           ) : (
             transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').map(t => (
-              <div key={t.id} className="bg-white rounded-xl border border-brand-gray-100 p-4 flex items-center justify-between">
+              <div key={t.id} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-brand-success-soft' : 'bg-brand-error-soft'}`}>
                     {getTransactionIcon(t.type)}
@@ -263,7 +272,7 @@ export default function MitraWalletPage() {
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] text-brand-gray-450">{new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                       {t.status === 'PENDING' && (
-                        <span className="bg-brand-warning-light text-brand-amber-dark text-[9px] font-bold px-1.5 py-0.5 rounded uppercase flex items-center gap-1">
+                        <span className="bg-brand-warning-light text-brand-amber-dark text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1">
                           <Clock className="w-2.5 h-2.5" /> Pending
                         </span>
                       )}

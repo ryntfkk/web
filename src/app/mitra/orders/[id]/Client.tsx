@@ -202,7 +202,7 @@ function Section({ title, icon: Icon, children, className = '' }: {
   className?: string;
 }) {
   return (
-    <section className={`bg-white rounded-xl border border-brand-gray-100 p-4 sm:p-5 ${className}`}>
+    <section className={`bg-white rounded-lg border border-brand-gray-100 p-4 sm:p-5 ${className}`}>
       {title && (
         <h2 className="flex items-center gap-2 text-sm font-semibold text-brand-gray-900 mb-3">
           {Icon && <Icon className="w-4 h-4 text-brand-red" />}
@@ -317,14 +317,14 @@ export default function MitraOrderDetailClient() {
     return (
       <div className="page-h bg-brand-gray-60 pb-20">
         <div className="bg-white border-b border-brand-gray-100 px-4 py-4 lg:hidden">
-          <div className="h-6 w-40 bg-brand-gray-100 rounded animate-pulse" />
+          <div className="h-6 w-40 bg-brand-gray-100 rounded-md animate-pulse" />
         </div>
         <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
-          <div className="h-28 bg-brand-gray-100 rounded-xl animate-pulse" />
+          <div className="h-28 bg-brand-gray-100 rounded-lg animate-pulse" />
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 animate-pulse">
-              <div className="h-4 w-3/4 bg-brand-gray-100 rounded mb-3" />
-              <div className="h-4 w-1/2 bg-brand-gray-100 rounded" />
+            <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 animate-pulse">
+              <div className="h-4 w-3/4 bg-brand-gray-100 rounded-md mb-3" />
+              <div className="h-4 w-1/2 bg-brand-gray-100 rounded-md" />
             </div>
           ))}
         </div>
@@ -555,7 +555,7 @@ export default function MitraOrderDetailClient() {
         </div>
 
         {/* ── Status hero ─────────────────────────────────────────── */}
-        <div className={`rounded-xl bg-gradient-to-br ${hero.tone} text-white p-5 sm:p-6 mb-4`}>
+        <div className={`rounded-lg bg-gradient-to-br ${hero.tone} text-white p-5 sm:p-6 mb-4`}>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="min-w-0 flex-1">
               <StatusBadge status={status} size="sm" className="bg-white/20 border-white/30 text-white mb-2" />
@@ -727,7 +727,7 @@ export default function MitraOrderDetailClient() {
                     {order.requirements!.map((r, i) => (
                       <li key={r.code || `req-${i}`} className="flex items-start gap-2">
                         <span
-                          className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                          className={`mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
                             r.is_mandatory
                               ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                               : 'bg-brand-gray-60 text-brand-gray-450'
@@ -928,7 +928,7 @@ export default function MitraOrderDetailClient() {
           <div className="space-y-4 lg:sticky lg:top-20">
             {earningsCard}
             {hasActions && (
-              <div className="hidden lg:block bg-white rounded-xl border border-brand-gray-100 p-4">
+              <div className="hidden lg:block bg-white rounded-lg border border-brand-gray-100 p-4">
                 <div className="flex flex-col gap-2">{actions}</div>
               </div>
             )}
@@ -954,7 +954,7 @@ export default function MitraOrderDetailClient() {
       {/* Accept Modal */}
       {showAcceptModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-white rounded-xl w-full max-w-sm p-6">
+          <div className="bg-white rounded-lg w-full max-w-sm p-6">
             <h3 className="text-lg font-bold text-brand-gray-900 mb-2">Terima Pesanan?</h3>
             <p className="text-sm text-brand-gray-700 mb-4">
               Pastikan kamu siap mengerjakan pesanan sesuai jadwal dan harga yang disepakati.
@@ -978,7 +978,7 @@ export default function MitraOrderDetailClient() {
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
-          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
+          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-lg p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-brand-gray-900">Tolak Pesanan</h3>
               <button onClick={() => setShowRejectModal(false)} className="p-1 hover:bg-brand-gray-100 rounded-full" aria-label="Tutup">
@@ -1013,7 +1013,7 @@ export default function MitraOrderDetailClient() {
       {/* Dispute Modal */}
       {showDisputeModal && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
-          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
+          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-lg p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-brand-gray-900">Lapor Masalah</h3>
               <button onClick={() => setShowDisputeModal(false)} className="p-2 -mr-2 text-brand-gray-450 hover:text-brand-gray-700" aria-label="Tutup">
@@ -1035,7 +1035,7 @@ export default function MitraOrderDetailClient() {
             </div>
 
             <Button
-              className="w-full bg-brand-error hover:bg-brand-error-dark text-white rounded-xl h-12 font-bold"
+              className="w-full bg-brand-error hover:bg-brand-error-dark text-white rounded-lg h-12 font-bold"
               disabled={!disputeReason.trim() || actionLoading}
               onClick={() => handleAction('dispute')}
             >
@@ -1048,7 +1048,7 @@ export default function MitraOrderDetailClient() {
       {/* Modal Konfirmasi Selesai — mitra harus beratestasi sebelum complete */}
       {showCompleteModal && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-xl p-6">
+          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-base font-bold text-brand-gray-900">Tandai Pekerjaan Selesai</h3>
               <button onClick={() => setShowCompleteModal(false)} className="p-2 -mr-2 text-brand-gray-450 hover:text-brand-gray-700" aria-label="Tutup">

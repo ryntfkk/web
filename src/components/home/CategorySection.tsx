@@ -126,12 +126,9 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
         </Link>
 
         {isLoading ? (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="flex flex-wrap gap-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <div className="h-14 w-14 animate-pulse rounded-2xl bg-gray-200" />
-                <div className="h-3 w-12 animate-pulse rounded bg-gray-200" />
-              </div>
+              <div key={i} className="h-8 w-24 animate-pulse rounded-full bg-gray-200" />
             ))}
           </div>
         ) : !subs || subs.length === 0 ? (
@@ -139,20 +136,17 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
             Belum ada subkategori. Lihat semua layanan di {main.name} di atas.
           </p>
         ) : (
-          <div className="grid grid-cols-3 gap-3">
+          /* Subkategori sebagai chip teks (konsisten dengan halaman /categories):
+             ikon hanya untuk kategori utama agar hierarki visual jelas. */
+          <div className="flex flex-wrap gap-2">
             {subs.map((sub) => (
               <Link
                 key={sub.id}
                 href={categoryHref(sub)}
                 onClick={onClose}
-                className="group flex flex-col items-center gap-2 p-1"
+                className="inline-flex items-center px-3 py-2 rounded-full border border-brand-gray-100 bg-white text-[13px] font-medium text-brand-gray-900 hover:border-brand-red hover:text-brand-red transition-colors"
               >
-                <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-brand-gray-100 bg-brand-gray-50 transition-all group-hover:border-brand-red group-hover:shadow-md">
-                  <Image src={sub.icon_url || '/icons/default.svg'} alt={sub.name} fill className="object-cover" sizes="56px" />
-                </div>
-                <span className="line-clamp-2 text-center text-[11px] font-medium leading-tight text-brand-gray-900">
-                  {sub.name}
-                </span>
+                {sub.name}
               </Link>
             ))}
           </div>

@@ -224,7 +224,7 @@ function MitraRegisterForm() {
 
       <div className="flex-1 p-4 max-w-md w-full mx-auto">
         {needsPhone && (
-          <div className="mb-4 bg-brand-warning-soft border border-brand-warning-border rounded-xl p-4">
+          <div className="mb-4 bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4">
             <p className="text-sm font-semibold text-brand-gray-900">
               Verifikasi nomor HP dulu
             </p>
@@ -243,7 +243,7 @@ function MitraRegisterForm() {
         )}
 
         {isReverify && rejectionReason && (
-          <div className="mb-4 bg-brand-error-soft border border-brand-error-border rounded-xl p-4">
+          <div className="mb-4 bg-brand-error-soft border border-brand-error-border rounded-lg p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Alasan penolakan sebelumnya</p>
             <p className="text-xs text-brand-gray-700 mt-1 whitespace-pre-line">{rejectionReason}</p>
             <p className="text-xs text-brand-gray-450 mt-2">
@@ -273,13 +273,13 @@ function MitraRegisterForm() {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-brand-gray-100">
+        <div className="bg-white rounded-lg p-5 shadow-sm border border-brand-gray-100">
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in">
               <h2 className="text-xl font-bold text-brand-gray-800">Identitas Dasar</h2>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Nomor KTP (NIK)</label>
-                <input type="text" inputMode="numeric" maxLength={16} className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="16 Digit NIK" value={formData.ktp_number} onChange={(e) => setFormData({...formData, ktp_number: e.target.value.replace(/\D/g, '')})} />
+                <input type="text" inputMode="numeric" maxLength={16} className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="16 Digit NIK" value={formData.ktp_number} onChange={(e) => setFormData({...formData, ktp_number: e.target.value.replace(/\D/g, '')})} />
                 {isReverify && maskedHints.ktp && (
                   <p className="text-xs text-brand-gray-450 mt-1">
                     NIK tercatat: {maskedHints.ktp} — ketik ulang lengkap untuk memastikan identitas.
@@ -295,7 +295,7 @@ function MitraRegisterForm() {
               <h2 className="text-xl font-bold text-brand-gray-800">Dokumen Pribadi</h2>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Foto KTP</label>
-                <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors" onClick={() => document.getElementById('ktp_photo')?.click()}>
+                <div className="border-2 border-dashed border-brand-gray-200 rounded-lg p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors" onClick={() => document.getElementById('ktp_photo')?.click()}>
                   <Upload className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
                   <span className="text-sm text-brand-gray-400">{formData.ktp_photo ? formData.ktp_photo.name : (isReverify && existingPhotos.ktp_photo_url ? 'Foto lama dipakai — klik untuk mengganti' : 'Pilih Foto KTP')}</span>
                   <input id="ktp_photo" type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'ktp_photo')} />
@@ -303,7 +303,7 @@ function MitraRegisterForm() {
               </div>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Selfie dengan KTP</label>
-                <div className="border-2 border-dashed border-brand-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors" onClick={() => document.getElementById('selfie_ktp')?.click()}>
+                <div className="border-2 border-dashed border-brand-gray-200 rounded-lg p-4 text-center cursor-pointer hover:bg-brand-gray-60 transition-colors" onClick={() => document.getElementById('selfie_ktp')?.click()}>
                   <Upload className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
                   <span className="text-sm text-brand-gray-400">{formData.selfie_ktp ? formData.selfie_ktp.name : (isReverify && existingPhotos.selfie_ktp_url ? 'Foto lama dipakai — klik untuk mengganti' : 'Pilih Foto Selfie KTP')}</span>
                   <input id="selfie_ktp" type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'selfie_ktp')} />
@@ -318,7 +318,7 @@ function MitraRegisterForm() {
               <h2 className="text-xl font-bold text-brand-gray-800">Profil Profesional</h2>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Deskripsi / Pengalaman</label>
-                <textarea className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red h-24 resize-none" placeholder="Ceritakan pengalaman dan keahlian Anda..." value={formData.bio} onChange={(e) => setFormData({...formData, bio: e.target.value})} />
+                <textarea className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red h-24 resize-none" placeholder="Ceritakan pengalaman dan keahlian Anda..." value={formData.bio} onChange={(e) => setFormData({...formData, bio: e.target.value})} />
               </div>
               <Button className="w-full mt-4" onClick={nextStep} disabled={!formData.bio}>Selanjutnya</Button>
             </div>
@@ -329,7 +329,7 @@ function MitraRegisterForm() {
               <h2 className="text-xl font-bold text-brand-gray-800">Lokasi Basecamp</h2>
               <p className="text-sm text-brand-gray-400">Tentukan lokasi tempat Anda bekerja (basecamp) di peta. Jarak pesanan dihitung dari lokasi ini.</p>
               
-              <div className="min-h-[240px] border border-brand-gray-200 rounded-xl overflow-hidden relative">
+              <div className="min-h-[240px] border border-brand-gray-200 rounded-lg overflow-hidden relative">
                  <MapPicker
                     lat={formData.basecamp_lat}
                     lng={formData.basecamp_lon}
@@ -340,12 +340,12 @@ function MitraRegisterForm() {
               <RegionSelect
                 value={{ province: formData.province, city: formData.city, district: formData.district }}
                 onChange={(v) => setFormData({ ...formData, ...v })}
-                selectClassName="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
+                selectClassName="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red"
                 labelClassName="text-sm font-medium text-brand-gray-700 block mb-1"
               />
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Detail Alamat (opsional)</label>
-                <input className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="Nama jalan, patokan, dsb." value={formData.address_detail} onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })} />
+                <input className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="Nama jalan, patokan, dsb." value={formData.address_detail} onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })} />
               </div>
 
               <Button
@@ -361,7 +361,7 @@ function MitraRegisterForm() {
               <h2 className="text-xl font-bold text-brand-gray-800">Rekening Pencairan</h2>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Kode Bank</label>
-                <select className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" value={formData.bank_code} onChange={(e) => setFormData({...formData, bank_code: e.target.value})}>
+                <select className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" value={formData.bank_code} onChange={(e) => setFormData({...formData, bank_code: e.target.value})}>
                   <option value="">Pilih Bank</option>
                   <option value="BCA">BCA</option>
                   <option value="MANDIRI">Bank Mandiri</option>
@@ -372,7 +372,7 @@ function MitraRegisterForm() {
               </div>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Nomor Rekening</label>
-                <input type="text" inputMode="numeric" className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="Contoh: 1234567890" value={formData.bank_account_number} onChange={(e) => setFormData({...formData, bank_account_number: e.target.value.replace(/\D/g, '')})} />
+                <input type="text" inputMode="numeric" className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red" placeholder="Contoh: 1234567890" value={formData.bank_account_number} onChange={(e) => setFormData({...formData, bank_account_number: e.target.value.replace(/\D/g, '')})} />
                 {isReverify && maskedHints.bank && (
                   <p className="text-xs text-brand-gray-450 mt-1">
                     Rekening tercatat: {maskedHints.bank} — ketik ulang lengkap untuk memastikan tujuan pencairan.
@@ -381,7 +381,7 @@ function MitraRegisterForm() {
               </div>
               <div>
                 <label className="text-sm font-medium text-brand-gray-700 block mb-1">Nama Pemilik Rekening</label>
-                <input type="text" className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-xl px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red uppercase" placeholder="SESUAI BUKU TABUNGAN" value={formData.bank_account_name} onChange={(e) => setFormData({...formData, bank_account_name: e.target.value.toUpperCase()})} />
+                <input type="text" className="w-full bg-brand-gray-60 border border-brand-gray-200 rounded-lg px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red uppercase" placeholder="SESUAI BUKU TABUNGAN" value={formData.bank_account_name} onChange={(e) => setFormData({...formData, bank_account_name: e.target.value.toUpperCase()})} />
               </div>
               {/* Komisi & batas tarik ditampilkan DI SINI, di titik mitra
                   menyetujui — angkanya dari platform_settings, bukan diketik.
