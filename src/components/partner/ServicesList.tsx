@@ -55,6 +55,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
               imageUrl={primaryPhoto}
               vendorAvatar={profile.avatar_url || undefined}
               orderCount={profile.total_orders}
+              hasMandatoryRequirements={service.has_mandatory_requirements}
               className="h-full"
             />
           </Link>

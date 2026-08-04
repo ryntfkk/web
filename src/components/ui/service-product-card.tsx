@@ -3,7 +3,7 @@
 import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, MapPin, ShieldCheck } from 'lucide-react';
+import { Star, MapPin, ShieldCheck, ClipboardCheck } from 'lucide-react';
 import type { PublicService } from '@/hooks/usePublicServices';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
 import { formatDistanceMeters } from '@/lib/distance';
@@ -95,6 +95,18 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
               </Badge>
             )}
           </div>
+
+          {/* C3: pelanggan tahu ada yang harus ia siapkan SEBELUM membuka detail.
+              Persyaratan yang baru terlihat di kaki halaman detail sudah terlambat
+              untuk memengaruhi pilihannya. */}
+          {service.has_mandatory_requirements && (
+            <div className="flex items-center gap-1 mb-2 text-brand-warning-dark">
+              <ClipboardCheck className="w-3 h-3 flex-shrink-0" />
+              <span className="text-[10px] sm:text-[11px] font-medium truncate">
+                Ada yang perlu disiapkan
+              </span>
+            </div>
+          )}
 
           {/* Rating + Orders + City */}
           <div className="flex items-center gap-2 mb-2">

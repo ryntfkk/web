@@ -531,6 +531,21 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                 </div>
               )}
 
+              {/* Penanda persyaratan wajib — di dekat harga, bukan hanya di kaki
+                  halaman. Persyaratan yang baru terlihat setelah menggulir penuh
+                  tidak memenuhi fungsinya (C3). */}
+              {requirements.some((r) => r.is_mandatory) && (
+                <a
+                  href="#persyaratan"
+                  className="mb-4 flex items-start gap-2 rounded-md border border-brand-warning-border bg-brand-warning-soft p-2.5 text-left"
+                >
+                  <span className="mt-0.5 text-xs font-semibold text-brand-warning-dark">Perlu disiapkan</span>
+                  <span className="min-w-0 text-xs text-brand-gray-700">
+                    Layanan ini menuntut {requirements.filter((r) => r.is_mandatory).length} hal wajib dari kamu — lihat daftarnya
+                  </span>
+                </a>
+              )}
+
               {/* Quick Info */}
               <div className="mb-4">
                 <button onClick={() => setShowSchedule(true)}
@@ -704,10 +719,23 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
             {/* Persyaratan pelanggan (R2 §8.3). Ditempatkan SEBELUM FAQ karena
                 ini bukan informasi tambahan — pelanggan harus tahu apa yang
                 harus ia sediakan sebelum memutuskan memesan. */}
-            {requirements.length > 0 && (
+            <div id="persyaratan" className="scroll-mt-20" />
+            {requirements.length === 0 ? (
+              /* Blok ini SELALU tampil, termasuk saat kosong (C3). Menyembunyikannya
+                 membuat "tidak ada persyaratan khusus" tidak bisa dibedakan dari
+                 "gagal dimuat" — pelanggan tak punya cara tahu mana yang terjadi. */
               <div className="mt-4 border-t border-brand-gray-100 pt-4">
                 <h3 className="text-sm font-semibold text-brand-gray-900 mb-1">
-                  Yang Perlu Anda Siapkan
+                  Yang Perlu Kamu Siapkan
+                </h3>
+                <p className="text-xs text-brand-gray-450">
+                  Tidak ada persyaratan khusus untuk layanan ini.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-4 border-t border-brand-gray-100 pt-4">
+                <h3 className="text-sm font-semibold text-brand-gray-900 mb-1">
+                  Yang Perlu Kamu Siapkan
                 </h3>
                 <p className="text-xs text-brand-gray-450 mb-3">
                   Mitra membutuhkan hal berikut agar pekerjaan bisa dilakukan.

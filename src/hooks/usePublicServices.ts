@@ -28,6 +28,11 @@ export interface PublicService {
   partner_is_verified?: boolean;
   /** Jumlah pesanan SELESAI untuk layanan ini (social proof di kartu). */
   total_orders?: number;
+  /**
+   * Layanan menuntut sesuatu yang WAJIB disiapkan pelanggan (C3). Penanda saja —
+   * daftarnya hanya ada di endpoint detail, sengaja tidak dibawa query daftar.
+   */
+  has_mandatory_requirements?: boolean;
 }
 
 interface PublicServicesParams {

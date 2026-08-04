@@ -1,6 +1,6 @@
 import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, ClipboardCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Price } from '@/components/ui/price';
@@ -21,6 +21,13 @@ interface ServiceCardProps {
   distance?: string;
   /** Total pesanan selesai (mitra/layanan). Tampil sebagai social proof bila > 0. */
   orderCount?: number;
+  /**
+   * Layanan menuntut sesuatu yang WAJIB disiapkan pelanggan (C3). Hanya penanda;
+   * daftarnya di halaman detail. Ditampilkan di kartu supaya pelanggan tahu
+   * sebelum masuk — persyaratan yang baru terlihat di kaki halaman detail sudah
+   * terlambat untuk memengaruhi pilihannya.
+   */
+  hasMandatoryRequirements?: boolean;
   vendorAvatar?: string;
   className?: string;
 }
@@ -37,6 +44,7 @@ export function ServiceCard({
   city,
   distance,
   orderCount,
+  hasMandatoryRequirements = false,
   vendorAvatar,
   className,
 }: ServiceCardProps) {
@@ -99,6 +107,13 @@ export function ServiceCard({
             {category}
           </span>
         </div>
+
+        {hasMandatoryRequirements && (
+          <div className="mt-0.5 flex items-center gap-1 text-brand-warning-dark">
+            <ClipboardCheck className="w-3 h-3 flex-shrink-0" />
+            <span className="text-[10px] sm:text-[11px] font-medium truncate">Ada yang perlu disiapkan</span>
+          </div>
+        )}
 
         {/* Rating + Orders + City Row */}
         <div className="flex items-center justify-between gap-1 mt-0.5 sm:mt-1">

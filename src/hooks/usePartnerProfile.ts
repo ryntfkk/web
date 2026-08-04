@@ -58,6 +58,8 @@ export interface PartnerService {
   min_order: number;
   variations: PartnerServiceVariation[] | null;
   photos: PartnerServicePhoto[];
+  /** Penanda persyaratan wajib (C3); daftarnya hanya di endpoint detail. */
+  has_mandatory_requirements?: boolean;
 }
 
 export interface PartnerPortfolio {
