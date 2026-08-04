@@ -2,6 +2,7 @@ import { PartnerService, PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { ServiceCard } from '@/components/ui/service-card';
 import { unitLabel } from '@/lib/order-utils';
 import Link from 'next/link';
+import { track } from '@/lib/analytics';
 
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 
@@ -44,7 +45,17 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
           PLACEHOLDER_IMG;
 
         return (
-          <Link key={service.id} href={`/services/${service.id}`} className="block h-full">
+          <Link
+            key={service.id}
+            href={`/services/${service.id}`}
+            className="block h-full"
+            onClick={() =>
+              track('public_partner_service_clicked', {
+                service_id: service.id,
+                partner_username: profile.username ?? null,
+              })
+            }
+          >
             <ServiceCard
               vendorName={service.name}
               category={profile.name}

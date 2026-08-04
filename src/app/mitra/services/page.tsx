@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Pencil, Trash2, Plus, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import DataState from '@/components/mitra/DataState';
@@ -93,6 +94,7 @@ export default function MitraServicesPage() {
         // perubahan, UI tidak boleh menampilkan keadaan yang tidak nyata.
         const next = res.data.is_active;
         setServices(prev => prev.map(s => (s.id === id ? { ...s, is_active: next } : s)));
+        track('partner_service_availability_changed', { service_id: id, is_active: next });
         const msg = next ? 'Layanan diaktifkan' : 'Layanan dinonaktifkan';
         showToast(msg);
         announce(msg);

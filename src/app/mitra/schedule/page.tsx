@@ -9,6 +9,7 @@ import MitraModal from '@/components/mitra/MitraModal';
 import MitraSection from '@/components/mitra/MitraSection';
 import DataState from '@/components/mitra/DataState';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
@@ -234,6 +235,10 @@ export default function MitraSchedulePage() {
       await fetchSchedule();
 
       if (res.success) {
+        track('partner_schedule_saved', {
+          open_days: days.filter(d => schedule[d].is_active).length,
+          days_with_break: days.filter(d => schedule[d].break_start && schedule[d].break_end).length,
+        });
         showToast('Jadwal berhasil disimpan!');
       } else {
         showToast(getErrorMessage(res) || 'Gagal menyimpan jadwal', 'error');

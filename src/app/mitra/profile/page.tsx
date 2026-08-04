@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import { useUpload } from '@/hooks/useUpload';
@@ -137,12 +138,16 @@ export default function MitraProfilePage() {
             adalah menebak. */}
         {user?.username && (
           <MenuCard title="Etalase">
-            <MenuListItem
-              icon={ExternalLink}
-              label="Lihat Profil Publik"
-              subtitle="Tampilan profilmu di mata pelanggan"
-              href={`/${user.username}`}
-            />
+            {/* Klik ditangkap di pembungkus: MenuListItem versi href merender
+                Link dan tidak menerima onClick. */}
+            <div onClick={() => track('partner_profile_previewed')}>
+              <MenuListItem
+                icon={ExternalLink}
+                label="Lihat Profil Publik"
+                subtitle="Tampilan profilmu di mata pelanggan"
+                href={`/${user.username}`}
+              />
+            </div>
           </MenuCard>
         )}
 

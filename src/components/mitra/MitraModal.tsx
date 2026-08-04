@@ -57,8 +57,13 @@ export default function MitraModal({
       }
       if (e.key !== 'Tab' || !panelRef.current) return;
 
+      // Penyaringnya sengaja TIDAK memakai `offsetParent !== null`. Properti itu
+      // bernilai null untuk subtree berposisi fixed — persis bentuk dialog ini —
+      // sehingga daftar fokusable jadi kosong dan focus trap diam-diam tidak
+      // melakukan apa pun. Isi panel selalu benar-benar dirender saat terbuka,
+      // jadi yang perlu dibuang hanya yang eksplisit disembunyikan/dinonaktifkan.
       const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (el) => el.offsetParent !== null,
+        (el) => !el.hasAttribute('hidden') && el.getAttribute('aria-hidden') !== 'true',
       );
       if (items.length === 0) {
         e.preventDefault();

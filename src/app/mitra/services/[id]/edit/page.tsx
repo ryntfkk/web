@@ -17,6 +17,7 @@ import ServiceForm, {
   type ServiceVariationDraft,
 } from '@/components/mitra/ServiceForm';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 
@@ -138,6 +139,8 @@ export default function EditMitraServicePage() {
       setLoading(false);
       return;
     }
+
+    track('partner_service_updated', { service_id: serviceId, unit: payload.unit });
 
     for (const file of newPhotos) {
       try {

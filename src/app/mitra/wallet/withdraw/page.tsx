@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Landmark, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
@@ -114,6 +115,9 @@ export default function WithdrawPage() {
     });
 
     if (res.success) {
+      // Jumlahnya ikut karena itu dimensi produk yang sah; nomor rekening
+      // TIDAK — lihat daftar terlarang di lib/analytics.ts (§12.1).
+      track('partner_withdrawal_submitted', { amount: numAmount });
       setSuccess(true);
     } else {
       const errCode = res.error && typeof res.error === 'object' ? (res.error as { code?: string }).code : undefined;

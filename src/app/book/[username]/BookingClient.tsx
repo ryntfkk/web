@@ -9,6 +9,7 @@ import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
 import { PLACEHOLDER_AVATAR } from '@/lib/images';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCartStore } from '@/lib/store/cartStore';
 import { unitLabel } from '@/lib/order-utils';
@@ -457,6 +458,10 @@ export default function BookingClient() {
         requirements_acknowledged: agreeRequirements,
       };
 
+      // Dua event, bukan satu: selisihnya ADALAH tingkat kegagalan checkout,
+      // dan itu tidak bisa dihitung dari event sukses saja (§12.2).
+      track('public_partner_booking_started', { partner_username: username, lines: keys.length });
+
       // 3. Submit Order (fetchAPI = auto token-refresh saat 401)
       const res = await fetchAPI<any>('/orders', {
         method: 'POST',
@@ -466,6 +471,11 @@ export default function BookingClient() {
 
       if (res.success && res.data) {
         const order = res.data;
+        track('public_partner_booking_completed', {
+          partner_username: username,
+          order_id: order.id,
+          lines: keys.length,
+        });
         // Bersihkan baris yang sudah dipesan dari keranjang (per service+variasi).
         for (const k of keys) {
           const { serviceId, variationId } = parseKey(k);

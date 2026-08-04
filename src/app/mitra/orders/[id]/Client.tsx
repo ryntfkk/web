@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -275,6 +276,9 @@ export default function MitraOrderDetailClient() {
 
   const handleAction = async (action: string, body?: object) => {
     setActionLoading(true);
+    // Tiga event, bukan satu: selisih attempted−succeeded ADALAH tingkat
+    // kegagalan aksi mitra, dan itu tidak bisa dihitung dari event sukses saja.
+    track('partner_order_action_attempted', { action, order_id: orderId });
     let res;
 
     if (action === 'reject') {
@@ -286,12 +290,16 @@ export default function MitraOrderDetailClient() {
     }
 
     if (res.success) {
+      track('partner_order_action_succeeded', { action, order_id: orderId });
       showToast('Berhasil!');
       if (action === 'accept' || action === 'confirm') setShowAcceptModal(false);
       if (action === 'reject') setShowRejectModal(false);
       if (action === 'dispute') setShowDisputeModal(false);
       await fetchOrder();
     } else {
+      // `code` dari backend, BUKAN pesan yang sudah diterjemahkan — pesan
+      // berubah kapan saja, kode tidak, dan hanya kode yang bisa dikelompokkan.
+      track('partner_order_action_failed', { action, order_id: orderId, code: res.code ?? null });
       showToast(getErrorMessage(res), 'error');
     }
     setActionLoading(false);

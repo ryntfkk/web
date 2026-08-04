@@ -9,6 +9,7 @@ import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import ServiceForm, { type ServiceSubmitPayload } from '@/components/mitra/ServiceForm';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 
@@ -94,6 +95,7 @@ export default function NewMitraServicePage() {
       }
 
       const serviceId = res.data.id;
+      track('partner_service_created', { service_id: serviceId, unit: payload.unit });
       if (photos.length > 0 && serviceId) {
         for (let i = 0; i < photos.length; i++) {
           setProgress(`Mengunggah foto ${i + 1}/${photos.length}...`);

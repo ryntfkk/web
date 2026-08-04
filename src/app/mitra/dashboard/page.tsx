@@ -1,7 +1,7 @@
 "use client";
 
 import { getInitial } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/ui/toast';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -87,6 +88,16 @@ export default function MitraDashboardPage() {
     setLoading(false);
   };
 
+  // Sekali per kunjungan, bukan tiap polling 45 detik — kalau ikut polling,
+  // "dashboard viewed" berubah jadi ukuran lama tab dibiarkan terbuka dan tidak
+  // lagi berarti apa pun.
+  const dashboardTracked = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated || dashboardTracked.current) return;
+    dashboardTracked.current = true;
+    track('partner_dashboard_viewed');
+  }, [isAuthenticated]);
+
   const toggleStatus = async () => {
     if (!data) return;
     setTogglingStatus(true);
@@ -97,6 +108,9 @@ export default function MitraDashboardPage() {
     });
     if (res.success) {
       setData({ ...data, status: newStatus });
+      // Dicatat dari HASIL server, bukan dari niat klik: status yang ditolak
+      // server tidak boleh terhitung sebagai perubahan yang terjadi.
+      track('partner_availability_changed', { is_online: newStatus === 'ACTIVE' });
     } else {
       showToast('Gagal mengubah status toko. Coba lagi.', 'error');
     }

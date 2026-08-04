@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, WifiOff, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { track } from '@/lib/analytics';
 
 export default function PartnerProfileClient({ username }: { username: string }) {
   const router = useRouter();
@@ -33,6 +34,20 @@ export default function PartnerProfileClient({ username }: { username: string })
   // halaman produk, tetapi profil mitra — tempat orang justru mencarinya —
   // tidak pernah menampilkannya (C5).
   const { data: workingHours, isLoading: isHoursLoading } = usePartnerWorkingHours(profile?.id);
+
+  // Dicatat sekali per profil, SETELAH profilnya benar-benar termuat (§12.1).
+  // Menembakkannya saat mount akan ikut menghitung kunjungan ke username yang
+  // tidak ada, dan funnel "profil → klik layanan" jadi bocor di angka pertama.
+  const trackedProfileRef = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!profile?.id || trackedProfileRef.current === profile.id) return;
+    trackedProfileRef.current = profile.id;
+    track('public_partner_profile_viewed', {
+      partner_username: username,
+      is_verified: Boolean(profile.is_verified),
+      partner_type: profile.partner_type ?? null,
+    });
+  }, [profile?.id, profile?.is_verified, profile?.partner_type, username]);
 
   // Show loading state
   if (isProfileLoading) {

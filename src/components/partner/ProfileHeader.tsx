@@ -5,6 +5,7 @@ import { PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { fetchAPI } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useChatUiStore } from '@/lib/store/chatUiStore';
 import { useFavoritePartners, useFavoritesActions } from '@/hooks/useFavorites';
@@ -76,6 +77,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         body: JSON.stringify({ partner_id: profile.user_id }),
       });
       if (res.success && res.data?.room_id) {
+        track('public_partner_chat_started', { partner_username: profile.username ?? null });
         if (window.matchMedia('(min-width: 1024px)').matches) {
           openPanel(res.data.room_id);
         } else {
