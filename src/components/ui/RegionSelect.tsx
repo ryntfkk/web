@@ -118,7 +118,10 @@ export default function RegionSelect({
         </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Satu kolom di ponsel. Dipaksa dua kolom, label "Kota / Kabupaten"
+          membungkus jadi dua baris di 320-360px sementara nama kotanya sendiri
+          terpotong di dalam select yang tinggal separuh lebar. */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClassName}>Kota / Kabupaten</label>
           <select

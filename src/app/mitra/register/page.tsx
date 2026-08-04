@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Building2, ChevronLeft, CheckCircle, Upload, User } from 'lucide-react';
+import { Building2, Camera, CheckCircle2, FileText, Upload, User } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import RegionSelect from '@/components/ui/RegionSelect';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
+import { Stepper } from '@/components/ui/stepper';
+import { StickyActionBar } from '@/components/ui/sticky-action-bar';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import MitraModal from '@/components/mitra/MitraModal';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useUpload } from '@/hooks/useUpload';
 import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
 import { useActiveLegalDocuments } from '@/hooks/useLegalConsent';
 import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
@@ -66,22 +72,37 @@ interface ResubmissionDraft {
 }
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
-const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
+const MapPicker = dynamic(() => import('@/components/MapPicker'), {
+  ssr: false,
+  // Tanpa fallback, area peta collapse jadi nol tinggi selama chunk Leaflet
+  // dimuat dan seluruh form melompat saat peta akhirnya muncul.
+  loading: () => <div className="h-full w-full animate-pulse bg-brand-gray-60" />,
+});
 
+// Gaya field mengikuti ServiceForm (`components/mitra/ServiceForm.tsx`) dan
+// DESIGN_GUIDELINES §4.4: padding 12px, teks 14px. Padding vertikal & ukuran
+// font pada input di bawah 768px tetap ditimpa globals.css (10px / 16px demi
+// mencegah auto-zoom iOS) — itu disengaja, jangan dilawan dari sini.
 const INPUT_CLASS =
-  'w-full bg-brand-gray-60 border border-brand-gray-200 rounded-md px-4 py-3 text-brand-gray-800 focus:outline-none focus:border-brand-red';
-const LABEL_CLASS = 'text-sm font-medium text-brand-gray-700 block mb-1';
+  'w-full rounded-md border border-brand-gray-100 bg-white p-3 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red';
+const LABEL_CLASS = 'mb-2 block text-sm font-semibold text-brand-gray-900';
+const HINT_CLASS = 'mb-2 text-xs text-brand-gray-450';
+/** Judul langkah: 16px di ponsel, baru membesar di desktop (guideline §7.3). */
+const STEP_TITLE_CLASS = 'text-base font-bold text-brand-gray-900 lg:text-lg';
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 /** Kunci tiap langkah. Urutannya ditentukan `stepsFor()`, bukan angka mentah. */
-type StepKey =
-  | 'type'
-  | 'business'
-  | 'business_docs'
-  | 'identity'
-  | 'personal_docs'
-  | 'profile'
-  | 'location'
-  | 'bank';
+type StepKey = 'type' | 'business' | 'identity' | 'profile' | 'location' | 'bank';
+
+/** Label pendek untuk indikator progres — panjang akan memaksa scroll di 360px. */
+const STEP_LABELS: Record<StepKey, string> = {
+  type: 'Tipe',
+  business: 'Usaha',
+  identity: 'Identitas',
+  profile: 'Profil',
+  location: 'Lokasi',
+  bank: 'Rekening',
+};
 
 /**
  * Urutan langkah bergantung tipe mitra (V3).
@@ -93,14 +114,21 @@ type StepKey =
  * Data badan usaha datang LEBIH DULU daripada identitas PIC supaya jelas bahwa
  * KTP yang diminta berikutnya adalah KTP penanggung jawab, bukan "KTP
  * perusahaan" yang tidak pernah ada.
+ *
+ * Dokumen TIDAK lagi berdiri sebagai langkah sendiri. Satu layar penuh yang
+ * hanya berisi satu field (dulu: NIK saja, lalu bio saja) membuat pendaftaran
+ * terasa panjang tanpa menambah informasi apa pun — dokumen kini menempel pada
+ * langkah data yang bersangkutan.
  */
 function stepsFor(type: PartnerType, isReverify: boolean): StepKey[] {
   const base: StepKey[] = isReverify ? [] : ['type'];
   if (type === 'vendor') {
-    return [...base, 'business', 'business_docs', 'identity', 'personal_docs', 'profile', 'location', 'bank'];
+    return [...base, 'business', 'identity', 'profile', 'location', 'bank'];
   }
-  return [...base, 'identity', 'personal_docs', 'profile', 'location', 'bank'];
+  return [...base, 'identity', 'profile', 'location', 'bank'];
 }
+
+const isImageUrl = (url: string) => /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(url);
 
 /**
  * Kotak unggah berkas — dipakai KTP maupun dokumen badan usaha.
@@ -117,6 +145,7 @@ function FilePicker({
   file,
   existingUrl,
   accept,
+  error,
   onChange,
 }: {
   id: string;
@@ -125,24 +154,66 @@ function FilePicker({
   file: File | null;
   existingUrl?: string;
   accept: string;
+  error?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
+  // Pratinjau dibangun saat render, bukan lewat setState di dalam efek: efek
+  // yang menulis state memicu render kedua dan sudah dilarang lint di repo ini.
+  const previewUrl = useMemo(
+    () => (file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null),
+    [file],
+  );
+  useEffect(
+    () => () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    },
+    [previewUrl],
+  );
+
+  const shownPreview = previewUrl || (existingUrl && isImageUrl(existingUrl) ? existingUrl : null);
+  const hasFile = !!file || !!existingUrl;
+
   return (
     <div>
       <label htmlFor={id} className={LABEL_CLASS}>
         {label}
       </label>
-      {hint && <p className="mb-1 text-xs text-brand-gray-450">{hint}</p>}
+      {hint && <p className={HINT_CLASS}>{hint}</p>}
       <label
         htmlFor={id}
-        className="block cursor-pointer rounded-md border-2 border-dashed border-brand-gray-200 p-4 text-center transition-colors hover:bg-brand-gray-60"
+        className={`block cursor-pointer overflow-hidden rounded-md border-2 border-dashed transition-colors ${
+          error
+            ? 'border-brand-error-border bg-brand-error-soft'
+            : hasFile
+              ? 'border-brand-red/40 bg-white'
+              : 'border-brand-gray-200 bg-white hover:bg-brand-gray-60'
+        }`}
       >
-        <Upload className="mx-auto mb-2 h-6 w-6 text-brand-gray-400" />
-        <span className="text-sm text-brand-gray-400">
-          {file ? file.name : existingUrl ? 'Berkas lama dipakai — klik untuk mengganti' : `Pilih ${label}`}
+        {shownPreview ? (
+          // Pratinjau wajib: tanpa ini mitra baru tahu ia salah unggah setelah
+          // admin menolak berkasnya berhari-hari kemudian.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={shownPreview} alt={`Pratinjau ${label}`} className="h-36 w-full object-contain bg-brand-gray-60" />
+        ) : hasFile ? (
+          <div className="flex h-36 flex-col items-center justify-center gap-2 bg-brand-gray-60">
+            <FileText className="h-7 w-7 text-brand-gray-400" aria-hidden />
+            <span className="px-3 text-center text-xs text-brand-gray-700">Berkas PDF terpilih</span>
+          </div>
+        ) : (
+          <div className="flex h-28 flex-col items-center justify-center gap-2">
+            <Upload className="h-6 w-6 text-brand-gray-400" aria-hidden />
+            <span className="px-3 text-center text-xs text-brand-gray-450">Ketuk untuk memilih {label}</span>
+          </div>
+        )}
+        <span className="flex items-center justify-between gap-2 border-t border-brand-gray-100 px-3 py-2 text-xs">
+          <span className="min-w-0 truncate text-brand-gray-700">
+            {file ? file.name : existingUrl ? 'Berkas lama dipakai' : 'Belum ada berkas'}
+          </span>
+          <span className="shrink-0 font-semibold text-brand-red">{hasFile ? 'Ganti' : 'Pilih'}</span>
         </span>
       </label>
       <input id={id} type="file" className="hidden" accept={accept} onChange={onChange} />
+      {error && <p className="mt-1 text-xs text-brand-error">{error}</p>}
     </div>
   );
 }
@@ -155,10 +226,12 @@ function MitraRegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const { data: legalDocs } = useActiveLegalDocuments();
   const platformConfig = usePlatformConfig();
   const user = useAuthStore((s) => s.user);
+  const { uploadFile: uploadAvatar, isUploading: avatarUploading } = useUpload('avatar');
   // Server menolak onboarding tanpa nomor terverifikasi. Tampilkan syaratnya di
   // depan, bukan sebagai error setelah lima langkah form dan dua unggahan KTP.
   const needsPhone = !!user && !user.profile_complete;
@@ -182,6 +255,15 @@ function MitraRegisterForm() {
     bank_account_number: '',
     bank_account_name: '',
   });
+
+  // Profil publik — bagian akun, BUKAN bagian baris partner. Foto dan nama
+  // inilah yang dilihat pelanggan di hasil pencarian, jadi keduanya dikumpulkan
+  // saat pendaftaran, bukan ditagih belakangan lewat ProfileCompleteness ketika
+  // mitra sudah terlanjur tayang tanpa wajah.
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 
   // Data badan usaha — dipisah dari formData supaya mudah dipastikan TIDAK
   // ikut terkirim saat tipe perorangan (backend menolak field ini bila terisi).
@@ -210,9 +292,21 @@ function MitraRegisterForm() {
   const steps = stepsFor(partnerType, !!isReverify);
   const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
   const isLastStep = stepIndex >= steps.length - 1;
+  const isVendor = partnerType === 'vendor';
 
   const nextStep = () => setStepIndex((s) => Math.min(s + 1, steps.length - 1));
   const prevStep = () => setStepIndex((s) => Math.max(s - 1, 0));
+
+  // Prefill profil dari akun yang sedang login. Nama tampil mitra perorangan
+  // memang nama akunnya — mitra boleh memperbaikinya di sini, dan perbaikan itu
+  // disimpan ke /users/me.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!user) return;
+    setAvatarUrl((prev) => prev || user.avatar_url || '');
+    setDisplayName((prev) => prev || user.name || '');
+  }, [user]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Prefill dari endpoint draft khusus (P0-05). Dulu membaca /partners/me dan
   // mengharapkan `ktp_number` + data rekening ada di sana — dua-duanya tidak
@@ -269,16 +363,63 @@ function MitraRegisterForm() {
     });
   }, [isReverify]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, [field]: e.target.files[0] });
+  /**
+   * Penjaga ukuran & jenis berkas di sisi klien.
+   *
+   * Bukan pengganti validasi server, tapi mencegah mitra menunggu unggahan 20MB
+   * selesai hanya untuk ditolak — di koneksi seluler itu menit-menit yang hilang.
+   */
+  const rejectFile = (file: File, id: string): boolean => {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setFileErrors((prev) => ({ ...prev, [id]: 'Ukuran berkas maksimal 5MB' }));
+      return true;
     }
+    setFileErrors((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    return false;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'ktp_photo' | 'selfie_ktp') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (rejectFile(file, field)) return;
+    setFormData((prev) => ({ ...prev, [field]: file }));
   };
 
   const handleVendorFile = (e: React.ChangeEvent<HTMLInputElement>, field: 'akta' | 'npwp_doc' | 'nib_doc') => {
-    if (e.target.files && e.target.files[0]) {
-      setVendor((prev) => ({ ...prev, [field]: e.target.files![0] }));
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (rejectFile(file, field)) return;
+    setVendor((prev) => ({ ...prev, [field]: file }));
+  };
+
+  /**
+   * Avatar diunggah SEGERA saat dipilih, lewat `useUpload('avatar')` — jalur
+   * yang sama dengan /mitra/profile dan /profile/account. Sengaja tidak memakai
+   * `/partners/upload/presigned-url` seperti dokumen KYC: avatar milik akun dan
+   * disimpan lewat PATCH /users/me, sedangkan berkas KYC milik baris partner.
+   */
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarError(null);
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setAvatarError('Ukuran foto maksimal 5MB');
+      return;
     }
+    if (!file.type.startsWith('image/')) {
+      setAvatarError('Foto profil harus berupa gambar (JPG atau PNG)');
+      return;
+    }
+    const url = await uploadAvatar(file);
+    if (!url) {
+      setAvatarError('Gagal mengunggah foto. Coba lagi.');
+      return;
+    }
+    setAvatarUrl(url);
   };
 
   const uploadFileToS3 = async (file: File) => {
@@ -307,18 +448,15 @@ function MitraRegisterForm() {
     return data.file_url;
   };
 
-  const isVendor = partnerType === 'vendor';
-
   // Syarat lolos tiap langkah — dicerminkan dari validasi backend
-  // (`validatePartnerTypeFields`) supaya pemohon tidak menyelesaikan delapan
+  // (`validatePartnerTypeFields`) supaya pemohon tidak menyelesaikan enam
   // langkah lalu ditolak karena NIB kurang satu digit.
-  // NPWP boleh DIBIARKAN KOSONG saat verifikasi ulang: backend memperlakukan
-  // kosong sebagai "pertahankan yang lama" supaya mitra tidak dipaksa mengetik
-  // ulang nomor pajaknya hanya karena alamat basecamp-nya ditolak. NIB tidak
-  // ikut aturan itu — kosong justru MENGHAPUS nilai lamanya.
-  const npwpValid = isReverify
-    ? vendor.npwp.length === 0 || (vendor.npwp.length >= 15 && vendor.npwp.length <= 16)
-    : vendor.npwp.length >= 15 && vendor.npwp.length <= 16;
+  //
+  // NPWP & NIB OPSIONAL. Keduanya terbit lewat DJP dan OSS, sering belum di
+  // tangan pemohon pada hari ia mendaftar. Yang tetap wajib adalah DOKUMEN-nya,
+  // yang ditinjau admin — jadi tidak ada verifikasi yang dilonggarkan.
+  const npwpValid = vendor.npwp.length === 0 || (vendor.npwp.length >= 15 && vendor.npwp.length <= 16);
+  const nibValid = vendor.nib.length === 0 || vendor.nib.length === 13;
 
   const businessValid =
     vendor.display_name.trim().length >= 3 &&
@@ -326,12 +464,60 @@ function MitraRegisterForm() {
     vendor.entity_form !== '' &&
     vendor.pic_name.trim() !== '' &&
     npwpValid &&
-    vendor.nib.length === 13;
+    nibValid;
 
   const businessDocsValid =
     (!!vendor.akta || !!existingDocs.akta_url) &&
     (!!vendor.npwp_doc || !!existingDocs.npwp_doc_url) &&
     (!!vendor.nib_doc || !!existingDocs.nib_doc_url);
+
+  const identityValid =
+    formData.ktp_number.length === 16 &&
+    (!!formData.ktp_photo || (isReverify && !!existingPhotos.ktp_photo_url)) &&
+    (!!formData.selfie_ktp || (isReverify && !!existingPhotos.selfie_ktp_url));
+
+  // Nama tampil vendor sudah dikumpulkan di langkah `business`; yang tersisa di
+  // langkah Profil untuk vendor hanyalah foto.
+  const profileValid = !!avatarUrl && (isVendor || displayName.trim().length >= 3);
+
+  const canProceed = (() => {
+    switch (currentStep) {
+      case 'type':
+        return true;
+      case 'business':
+        return businessValid && businessDocsValid;
+      case 'identity':
+        return identityValid;
+      case 'profile':
+        return profileValid && !avatarUploading;
+      case 'location':
+        return !!formData.province && !!formData.city && !!formData.district;
+      case 'bank':
+        return (
+          !loading &&
+          agreed &&
+          !!formData.bank_code &&
+          !!formData.bank_account_number &&
+          !!formData.bank_account_name.trim()
+        );
+      default:
+        return false;
+    }
+  })();
+
+  const handleBack = () => {
+    if (stepIndex > 0) {
+      prevStep();
+      return;
+    }
+    // Verifikasi ulang dimulai dari halaman status; keluar dari sana tidak
+    // membuang isian apa pun karena datanya sudah tersimpan di server.
+    if (isReverify) {
+      router.back();
+      return;
+    }
+    setShowExitConfirm(true);
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -342,6 +528,33 @@ function MitraRegisterForm() {
       // mengunggah keduanya.
       if (!isReverify && (!formData.ktp_photo || !formData.selfie_ktp)) {
         throw new Error('Mohon lengkapi foto KTP dan Selfie');
+      }
+      if (!avatarUrl) {
+        throw new Error('Mohon unggah foto profil di langkah Profil');
+      }
+
+      // ── Profil akun disimpan LEBIH DULU ──
+      // Urutannya penting. Kalau onboarding dijalankan duluan lalu PATCH gagal,
+      // mitra sudah terlanjur ada tanpa foto/nama dan tidak bisa mengulang
+      // pendaftaran karena barisnya sudah ada — buntu yang persis sama pernah
+      // terjadi pada /legal/accept (lihat dto.go OnboardingRequest).
+      const profilePatch: Record<string, string> = {};
+      if (avatarUrl && avatarUrl !== user?.avatar_url) profilePatch.avatar_url = avatarUrl;
+      if (!isVendor && displayName.trim() && displayName.trim() !== user?.name) {
+        profilePatch.name = displayName.trim();
+      }
+      if (Object.keys(profilePatch).length > 0) {
+        // /users/me, BUKAN /partners/me: `partner.UpdateProfileRequest` tidak
+        // punya field avatar_url sama sekali dan membuangnya diam-diam (P0-03).
+        const profileRes = await fetchAPI('/users/me', {
+          method: 'PATCH',
+          body: JSON.stringify(profilePatch),
+          credentials: 'include',
+        });
+        if (!profileRes.success) {
+          throw new Error(profileRes.message || 'Gagal menyimpan foto profil dan nama tampil');
+        }
+        useAuthStore.getState().updateUser(profilePatch);
       }
 
       const ktpUrl = formData.ktp_photo
@@ -436,26 +649,28 @@ function MitraRegisterForm() {
     }
   };
 
-  return (
-    <div className="page-h bg-brand-gray-60 flex flex-col">
-      <div className="bg-white px-4 py-3 flex items-center border-b border-brand-gray-100 sticky top-0 z-10 shadow-sm">
-        <button
-          onClick={() => (stepIndex > 0 ? prevStep() : router.back())}
-          className="p-2 -ml-2 text-brand-gray-400"
-          aria-label="Sebelumnya"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-brand-gray-800 font-bold text-lg flex-1 text-center pr-8">
-          {isReverify ? 'Verifikasi Ulang' : 'Pendaftaran Mitra'}
-        </h1>
-      </div>
+  const submitLabel = loading
+    ? 'Mengirim Data...'
+    : isReverify
+      ? 'Perbaiki & Kirim Ulang'
+      : 'Kirim Pendaftaran';
 
-      <div className="flex-1 p-4 max-w-md w-full mx-auto">
+  return (
+    <div className="page-h bg-brand-gray-60">
+      <MitraPageHeader
+        title={isReverify ? 'Verifikasi Ulang' : 'Pendaftaran Mitra'}
+        subtitle={`Langkah ${stepIndex + 1} dari ${steps.length} · ${STEP_LABELS[currentStep]}`}
+        variant="form"
+        onBack={handleBack}
+      />
+
+      {/* pb-32: bilah aksi melayang di atas konten, tanpa ini field terakhir
+          tiap langkah tertutup permanen dan tidak bisa digulir keluar. */}
+      <MitraPageContainer variant="form" className="py-5 pb-32">
         {needsPhone && (
-          <div className="mb-4 bg-brand-warning-soft border border-brand-warning-border rounded-md p-4">
+          <div className="mb-4 rounded-md border border-brand-warning-border bg-brand-warning-soft p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
-            <p className="text-xs text-brand-gray-700 mt-0.5">
+            <p className="mt-0.5 text-xs text-brand-gray-700">
               Pendaftaran mitra butuh nomor WhatsApp terverifikasi — pelanggan dan tim kami
               menghubungi kamu lewat nomor itu.
             </p>
@@ -470,10 +685,10 @@ function MitraRegisterForm() {
         )}
 
         {isReverify && rejectionReason && (
-          <div className="mb-4 bg-brand-error-soft border border-brand-error-border rounded-md p-4">
+          <div className="mb-4 rounded-md border border-brand-error-border bg-brand-error-soft p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Alasan penolakan sebelumnya</p>
-            <p className="text-xs text-brand-gray-700 mt-1 whitespace-pre-line">{rejectionReason}</p>
-            <p className="text-xs text-brand-gray-450 mt-2">
+            <p className="mt-1 whitespace-pre-line text-xs text-brand-gray-700">{rejectionReason}</p>
+            <p className="mt-2 text-xs text-brand-gray-450">
               Perbaiki bagian tersebut, lalu kirim ulang. Data yang tidak bermasalah sudah kami isikan.
             </p>
           </div>
@@ -485,31 +700,28 @@ function MitraRegisterForm() {
           onSuccess={() => setShowPhoneModal(false)}
         />
 
-        <div className="flex justify-between items-center mb-6 px-2 relative">
-          <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-brand-gray-100 -z-10"></div>
-          {steps.map((key, i) => (
-            <div
-              key={key}
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                stepIndex >= i ? 'bg-brand-red text-white' : 'bg-white text-brand-gray-200 border border-brand-gray-200'
-              }`}
-            >
-              {stepIndex > i ? <CheckCircle className="w-4 h-4" /> : i + 1}
-            </div>
-          ))}
+        {/* Label langkah punya `whitespace-nowrap`; di 320px enam langkah tidak
+            muat, jadi barisnya digulir sendiri alih-alih memaksa seluruh halaman
+            ikut bergeser horizontal. */}
+        <div className="-mx-4 mb-5 overflow-x-auto px-4 pb-1">
+          <Stepper
+            steps={steps.map((k) => STEP_LABELS[k])}
+            current={stepIndex + 1}
+            className="min-w-[300px]"
+          />
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-brand-error-soft text-brand-red text-sm rounded-md border border-brand-error-border">
+          <div className="mb-4 rounded-md border border-brand-error-border bg-brand-error-soft p-3 text-sm text-brand-red">
             {error}
           </div>
         )}
 
-        <div className="bg-white rounded-lg p-5 shadow-sm border border-brand-gray-100">
+        <div className="rounded-lg border border-brand-gray-100 bg-white p-4 shadow-sm sm:p-6">
           {currentStep === 'type' && (
             <div className="space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold text-brand-gray-800">Daftar sebagai</h2>
-              <p className="text-sm text-brand-gray-450">
+              <h2 className={STEP_TITLE_CLASS}>Daftar sebagai</h2>
+              <p className="text-sm text-brand-gray-700">
                 Pilihan ini menentukan siapa yang terikat kontrak dan atas nama siapa pembayaran
                 diterima. <strong>Tidak bisa diubah sendiri</strong> setelah pengajuan dikirim.
               </p>
@@ -538,39 +750,35 @@ function MitraRegisterForm() {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => setPartnerType(opt.value)}
-                    className={`flex w-full items-start gap-3 rounded-md border p-4 text-left transition-colors ${
+                    className={`flex w-full items-start gap-3 rounded-md border p-3 text-left transition-colors ${
                       selected
                         ? 'border-brand-red bg-brand-error-soft'
-                        : 'border-brand-gray-200 bg-white hover:border-brand-gray-400'
+                        : 'border-brand-gray-100 bg-white hover:border-brand-gray-400'
                     }`}
                   >
                     <Icon
                       className={`mt-0.5 h-5 w-5 shrink-0 ${selected ? 'text-brand-red' : 'text-brand-gray-450'}`}
                       aria-hidden
                     />
-                    <span>
+                    <span className="min-w-0">
                       <span className="block text-sm font-bold text-brand-gray-900">{opt.title}</span>
                       <span className="mt-0.5 block text-xs leading-snug text-brand-gray-700">{opt.desc}</span>
                     </span>
                   </button>
                 );
               })}
-
-              <Button className="w-full mt-4" onClick={nextStep}>
-                Selanjutnya
-              </Button>
             </div>
           )}
 
           {currentStep === 'business' && (
             <div className="space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold text-brand-gray-800">Data Badan Usaha</h2>
+              <h2 className={STEP_TITLE_CLASS}>Data Badan Usaha</h2>
 
               <div>
                 <label htmlFor="display_name" className={LABEL_CLASS}>
                   Nama Tampil
                 </label>
-                <p className="mb-1 text-xs text-brand-gray-450">Nama yang dilihat pelanggan. Minimal 3 karakter.</p>
+                <p className={HINT_CLASS}>Nama yang dilihat pelanggan. Minimal 3 karakter.</p>
                 <input
                   id="display_name"
                   type="text"
@@ -586,7 +794,7 @@ function MitraRegisterForm() {
                 <label htmlFor="legal_entity_name" className={LABEL_CLASS}>
                   Nama Badan Hukum
                 </label>
-                <p className="mb-1 text-xs text-brand-gray-450">
+                <p className={HINT_CLASS}>
                   Sesuai akta. Inilah pihak yang menerima pembayaran, dan pelanggan berhak melihatnya.
                 </p>
                 <input
@@ -619,47 +827,10 @@ function MitraRegisterForm() {
               </div>
 
               <div>
-                <label htmlFor="npwp" className={LABEL_CLASS}>
-                  NPWP Badan Usaha
-                </label>
-                <input
-                  id="npwp"
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={16}
-                  className={INPUT_CLASS}
-                  placeholder={isReverify ? 'Kosongkan bila tidak berubah' : '15 atau 16 digit, tanpa titik/strip'}
-                  value={vendor.npwp}
-                  onChange={(e) => setVendor({ ...vendor, npwp: e.target.value.replace(/\D/g, '') })}
-                />
-                {isReverify && maskedHints.npwp && (
-                  <p className="mt-1 text-xs text-brand-gray-450">
-                    NPWP sudah tersimpan. Biarkan kosong bila tidak berubah — isi hanya kalau perlu diperbaiki.
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="nib" className={LABEL_CLASS}>
-                  NIB (Nomor Induk Berusaha)
-                </label>
-                <input
-                  id="nib"
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={13}
-                  className={INPUT_CLASS}
-                  placeholder="13 digit dari OSS"
-                  value={vendor.nib}
-                  onChange={(e) => setVendor({ ...vendor, nib: e.target.value.replace(/\D/g, '') })}
-                />
-              </div>
-
-              <div>
                 <label htmlFor="pic_name" className={LABEL_CLASS}>
                   Nama Penanggung Jawab (PIC)
                 </label>
-                <p className="mb-1 text-xs text-brand-gray-450">
+                <p className={HINT_CLASS}>
                   Orang yang memegang akun ini dan menandatangani ketentuan atas nama badan usaha.
                 </p>
                 <input
@@ -672,32 +843,81 @@ function MitraRegisterForm() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="pic_position" className={LABEL_CLASS}>
-                  Jabatan PIC <span className="font-normal text-brand-gray-450">(opsional)</span>
-                </label>
-                <input
-                  id="pic_position"
-                  type="text"
-                  className={INPUT_CLASS}
-                  placeholder="Contoh: Direktur"
-                  value={vendor.pic_position}
-                  onChange={(e) => setVendor({ ...vendor, pic_position: e.target.value })}
-                />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="npwp" className={LABEL_CLASS}>
+                    NPWP Badan Usaha <span className="font-normal text-brand-gray-450">(opsional)</span>
+                  </label>
+                  <input
+                    id="npwp"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={16}
+                    className={INPUT_CLASS}
+                    placeholder="15 atau 16 digit"
+                    value={vendor.npwp}
+                    onChange={(e) => setVendor({ ...vendor, npwp: e.target.value.replace(/\D/g, '') })}
+                  />
+                  {isReverify && maskedHints.npwp ? (
+                    <p className="mt-1 text-xs text-brand-gray-450">
+                      NPWP sudah tersimpan. Biarkan kosong bila tidak berubah.
+                    </p>
+                  ) : (
+                    !npwpValid && <p className="mt-1 text-xs text-brand-error">NPWP harus 15 atau 16 digit.</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="nib" className={LABEL_CLASS}>
+                    NIB <span className="font-normal text-brand-gray-450">(opsional)</span>
+                  </label>
+                  <input
+                    id="nib"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={13}
+                    className={INPUT_CLASS}
+                    placeholder="13 digit dari OSS"
+                    value={vendor.nib}
+                    onChange={(e) => setVendor({ ...vendor, nib: e.target.value.replace(/\D/g, '') })}
+                  />
+                  {!nibValid && <p className="mt-1 text-xs text-brand-error">NIB harus tepat 13 digit.</p>}
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="business_phone" className={LABEL_CLASS}>
-                  Telepon Kantor <span className="font-normal text-brand-gray-450">(opsional)</span>
-                </label>
-                <input
-                  id="business_phone"
-                  type="tel"
-                  className={INPUT_CLASS}
-                  placeholder="Contoh: 0215551234"
-                  value={vendor.business_phone}
-                  onChange={(e) => setVendor({ ...vendor, business_phone: e.target.value })}
-                />
+              <p className="rounded-md bg-brand-gray-60 p-3 text-xs leading-relaxed text-brand-gray-700">
+                Nomor NPWP dan NIB boleh dikosongkan bila belum di tangan — dokumennya tetap wajib
+                diunggah di bawah, dan nomornya bisa dilengkapi kemudian.
+              </p>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="pic_position" className={LABEL_CLASS}>
+                    Jabatan PIC <span className="font-normal text-brand-gray-450">(opsional)</span>
+                  </label>
+                  <input
+                    id="pic_position"
+                    type="text"
+                    className={INPUT_CLASS}
+                    placeholder="Contoh: Direktur"
+                    value={vendor.pic_position}
+                    onChange={(e) => setVendor({ ...vendor, pic_position: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="business_phone" className={LABEL_CLASS}>
+                    Telepon Kantor <span className="font-normal text-brand-gray-450">(opsional)</span>
+                  </label>
+                  <input
+                    id="business_phone"
+                    type="tel"
+                    className={INPUT_CLASS}
+                    placeholder="Contoh: 0215551234"
+                    value={vendor.business_phone}
+                    onChange={(e) => setVendor({ ...vendor, business_phone: e.target.value })}
+                  />
+                </div>
               </div>
 
               <div>
@@ -714,19 +934,15 @@ function MitraRegisterForm() {
                 />
               </div>
 
-              <Button className="w-full mt-4" onClick={nextStep} disabled={!businessValid}>
-                Selanjutnya
-              </Button>
-            </div>
-          )}
-
-          {currentStep === 'business_docs' && (
-            <div className="space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold text-brand-gray-800">Dokumen Badan Usaha</h2>
-              <p className="text-sm text-brand-gray-450">
-                Ketiganya wajib. Tim kami mencocokkan NPWP dan NIB yang kamu ketik dengan dokumennya —
-                pastikan terbaca jelas.
-              </p>
+              {/* Dokumen menempel pada data yang dibuktikannya, bukan berdiri
+                  sebagai langkah terpisah. */}
+              <div className="border-t border-brand-gray-100 pt-4">
+                <h3 className="text-sm font-bold text-brand-gray-900">Dokumen Badan Usaha</h3>
+                <p className="mt-1 text-xs text-brand-gray-450">
+                  Ketiganya wajib. Pastikan terbaca jelas — dokumen buram adalah alasan penolakan
+                  paling sering. Maksimal 5MB per berkas.
+                </p>
+              </div>
 
               <FilePicker
                 id="akta"
@@ -735,6 +951,7 @@ function MitraRegisterForm() {
                 file={vendor.akta}
                 existingUrl={existingDocs.akta_url}
                 accept="image/*,application/pdf"
+                error={fileErrors.akta}
                 onChange={(e) => handleVendorFile(e, 'akta')}
               />
 
@@ -745,6 +962,7 @@ function MitraRegisterForm() {
                 file={vendor.npwp_doc}
                 existingUrl={existingDocs.npwp_doc_url}
                 accept="image/*,application/pdf"
+                error={fileErrors.npwp_doc}
                 onChange={(e) => handleVendorFile(e, 'npwp_doc')}
               />
 
@@ -755,26 +973,23 @@ function MitraRegisterForm() {
                 file={vendor.nib_doc}
                 existingUrl={existingDocs.nib_doc_url}
                 accept="image/*,application/pdf"
+                error={fileErrors.nib_doc}
                 onChange={(e) => handleVendorFile(e, 'nib_doc')}
               />
-
-              <Button className="w-full mt-4" onClick={nextStep} disabled={!businessDocsValid}>
-                Selanjutnya
-              </Button>
             </div>
           )}
 
           {currentStep === 'identity' && (
             <div className="space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold text-brand-gray-800">
+              <h2 className={STEP_TITLE_CLASS}>
                 {isVendor ? 'Identitas Penanggung Jawab' : 'Identitas Dasar'}
               </h2>
-              {isVendor && (
-                <p className="text-sm text-brand-gray-450">
-                  KTP <strong>penanggung jawab</strong>, bukan dokumen perusahaan. Yang memegang akun,
-                  menerima OTP, dan bertanggung jawab atas pekerjaan tetaplah orang.
-                </p>
-              )}
+              <p className="text-sm text-brand-gray-700">
+                {isVendor
+                  ? 'KTP penanggung jawab, bukan dokumen perusahaan. Yang memegang akun, menerima OTP, dan bertanggung jawab atas pekerjaan tetaplah orang.'
+                  : 'Nomor dan foto KTP dipakai tim kami untuk memastikan kamu orang yang sama. Data ini tidak pernah ditampilkan ke pelanggan.'}
+              </p>
+
               <div>
                 <label htmlFor="ktp_number" className={LABEL_CLASS}>
                   Nomor KTP (NIK)
@@ -790,60 +1005,126 @@ function MitraRegisterForm() {
                   onChange={(e) => setFormData({ ...formData, ktp_number: e.target.value.replace(/\D/g, '') })}
                 />
                 {isReverify && maskedHints.ktp && (
-                  <p className="text-xs text-brand-gray-450 mt-1">
+                  <p className="mt-1 text-xs text-brand-gray-450">
                     NIK tercatat: {maskedHints.ktp} — ketik ulang lengkap untuk memastikan identitas.
                   </p>
                 )}
               </div>
-              <Button className="w-full mt-4" onClick={nextStep} disabled={formData.ktp_number.length < 16}>
-                Selanjutnya
-              </Button>
-            </div>
-          )}
 
-          {currentStep === 'personal_docs' && (
-            <div className="space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold text-brand-gray-800">
-                {isVendor ? 'Dokumen Penanggung Jawab' : 'Dokumen Pribadi'}
-              </h2>
               <FilePicker
                 id="ktp_photo"
                 label="Foto KTP"
+                hint="Seluruh kartu masuk frame, tanpa pantulan cahaya. Maksimal 5MB."
                 file={formData.ktp_photo}
                 existingUrl={isReverify ? existingPhotos.ktp_photo_url : ''}
                 accept="image/*"
+                error={fileErrors.ktp_photo}
                 onChange={(e) => handleFileChange(e, 'ktp_photo')}
               />
+
               <FilePicker
                 id="selfie_ktp"
                 label="Selfie dengan KTP"
+                hint="Wajahmu dan KTP terlihat jelas dalam satu foto."
                 file={formData.selfie_ktp}
                 existingUrl={isReverify ? existingPhotos.selfie_ktp_url : ''}
                 accept="image/*"
+                error={fileErrors.selfie_ktp}
                 onChange={(e) => handleFileChange(e, 'selfie_ktp')}
               />
-              <Button
-                className="w-full mt-4"
-                onClick={nextStep}
-                disabled={
-                  (!formData.ktp_photo && !(isReverify && existingPhotos.ktp_photo_url)) ||
-                  (!formData.selfie_ktp && !(isReverify && existingPhotos.selfie_ktp_url))
-                }
-              >
-                Selanjutnya
-              </Button>
             </div>
           )}
 
           {currentStep === 'profile' && (
             <div className="space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold text-brand-gray-800">Profil Profesional</h2>
+              <h2 className={STEP_TITLE_CLASS}>Profil Profesional</h2>
+              <p className="text-sm text-brand-gray-700">
+                Bagian ini yang dilihat pelanggan sebelum memesan. Foto dan nama yang jelas jauh
+                lebih sering dipilih.
+              </p>
+
+              <div className="flex items-center gap-4 rounded-md bg-brand-gray-60 p-3">
+                <div className="relative shrink-0">
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={avatarUrl}
+                      alt="Foto profil"
+                      className="h-20 w-20 rounded-full border border-brand-gray-100 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full border border-dashed border-brand-gray-200 bg-white">
+                      <User className="h-8 w-8 text-brand-gray-200" aria-hidden />
+                    </div>
+                  )}
+                  {avatarUrl && (
+                    <span className="absolute -bottom-0.5 -right-0.5 rounded-full bg-white p-0.5">
+                      <CheckCircle2 className="h-5 w-5 text-brand-success" aria-hidden />
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <label htmlFor="avatar" className="text-sm font-semibold text-brand-gray-900">
+                    Foto Profil
+                  </label>
+                  <p className="mt-0.5 text-xs text-brand-gray-450">
+                    Wajah atau logo usaha. JPG/PNG, maksimal 5MB.
+                  </p>
+                  <label
+                    htmlFor="avatar"
+                    className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-brand-gray-100 bg-white px-3 py-2 text-xs font-bold text-brand-red hover:bg-brand-gray-60"
+                  >
+                    <Camera className="h-4 w-4" aria-hidden />
+                    {avatarUploading ? 'Mengunggah…' : avatarUrl ? 'Ganti Foto' : 'Pilih Foto'}
+                  </label>
+                  <input
+                    id="avatar"
+                    type="file"
+                    className="hidden"
+                    accept="image/jpeg,image/png,image/jpg"
+                    onChange={handleAvatarChange}
+                  />
+                  {avatarError && <p className="mt-1 text-xs text-brand-error">{avatarError}</p>}
+                </div>
+              </div>
+
+              {isVendor ? (
+                <div>
+                  <span className={LABEL_CLASS}>Nama Tampil</span>
+                  <p className="rounded-md border border-brand-gray-100 bg-brand-gray-60 p-3 text-sm text-brand-gray-700">
+                    {vendor.display_name || '—'}
+                  </p>
+                  <p className="mt-1 text-xs text-brand-gray-450">
+                    Diambil dari langkah Data Badan Usaha. Kembali ke langkah itu untuk mengubahnya.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="display_name_individual" className={LABEL_CLASS}>
+                    Nama Tampil
+                  </label>
+                  <p className={HINT_CLASS}>
+                    Nama ini yang muncul di hasil pencarian dan halaman profilmu. Minimal 3 karakter.
+                  </p>
+                  <input
+                    id="display_name_individual"
+                    type="text"
+                    maxLength={100}
+                    className={INPUT_CLASS}
+                    placeholder="Contoh: Budi Santoso"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                  />
+                </div>
+              )}
+
               <div>
                 <label htmlFor="bio" className={LABEL_CLASS}>
-                  Deskripsi / Pengalaman
+                  Deskripsi / Pengalaman <span className="font-normal text-brand-gray-450">(opsional)</span>
                 </label>
                 <textarea
                   id="bio"
+                  maxLength={500}
                   className={`${INPUT_CLASS} h-24 resize-none`}
                   placeholder={
                     isVendor
@@ -853,23 +1134,21 @@ function MitraRegisterForm() {
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                 />
+                <p className="mt-1 text-right text-xs text-brand-gray-450">{formData.bio.length}/500</p>
               </div>
-              <Button className="w-full mt-4" onClick={nextStep} disabled={!formData.bio}>
-                Selanjutnya
-              </Button>
             </div>
           )}
 
           {currentStep === 'location' && (
-            <div className="space-y-4 animate-in fade-in flex flex-col">
-              <h2 className="text-xl font-bold text-brand-gray-800">
+            <div className="space-y-4 animate-in fade-in">
+              <h2 className={STEP_TITLE_CLASS}>
                 {isVendor ? 'Lokasi Kantor / Basecamp' : 'Lokasi Basecamp'}
               </h2>
-              <p className="text-sm text-brand-gray-400">
+              <p className="text-sm text-brand-gray-700">
                 Tentukan lokasi tempat Anda bekerja (basecamp) di peta. Jarak pesanan dihitung dari lokasi ini.
               </p>
 
-              <div className="min-h-[240px] border border-brand-gray-200 rounded-md overflow-hidden relative">
+              <div className="relative h-56 overflow-hidden rounded-md border border-brand-gray-100 sm:h-64">
                 <MapPicker
                   lat={formData.basecamp_lat}
                   lng={formData.basecamp_lon}
@@ -885,7 +1164,7 @@ function MitraRegisterForm() {
               />
               <div>
                 <label htmlFor="address_detail" className={LABEL_CLASS}>
-                  Detail Alamat (opsional)
+                  Detail Alamat <span className="font-normal text-brand-gray-450">(opsional)</span>
                 </label>
                 <input
                   id="address_detail"
@@ -895,20 +1174,12 @@ function MitraRegisterForm() {
                   onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })}
                 />
               </div>
-
-              <Button
-                className="w-full"
-                onClick={nextStep}
-                disabled={!formData.province || !formData.city || !formData.district}
-              >
-                Selanjutnya
-              </Button>
             </div>
           )}
 
           {currentStep === 'bank' && (
             <div className="space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold text-brand-gray-800">Rekening Pencairan</h2>
+              <h2 className={STEP_TITLE_CLASS}>Rekening Pencairan</h2>
               {isVendor && (
                 <div className="rounded-md border border-brand-warning-border bg-brand-warning-soft p-3">
                   <p className="text-xs leading-relaxed text-brand-gray-700">
@@ -951,7 +1222,7 @@ function MitraRegisterForm() {
                   }
                 />
                 {isReverify && maskedHints.bank && (
-                  <p className="text-xs text-brand-gray-450 mt-1">
+                  <p className="mt-1 text-xs text-brand-gray-450">
                     Rekening tercatat: {maskedHints.bank} — ketik ulang lengkap untuk memastikan tujuan pencairan.
                   </p>
                 )}
@@ -990,37 +1261,58 @@ function MitraRegisterForm() {
                     </span>
                   </div>
                   {isVendor && (
-                    <p className="text-[11px] leading-relaxed text-brand-gray-700 pt-1">
+                    <p className="pt-1 text-[11px] leading-relaxed text-brand-gray-700">
                       Sebagai Mitra Badan Usaha, kamu bertanggung jawab penuh atas personel yang kamu
                       tugaskan ke lokasi pelanggan.
                     </p>
                   )}
-                  <p className="text-[11px] leading-relaxed text-brand-gray-450 pt-1">
+                  <p className="pt-1 text-[11px] leading-relaxed text-brand-gray-450">
                     Tarif dapat berubah sewaktu-waktu; perubahan diumumkan di platform. Pembayaran di luar
                     platform dilarang.
                   </p>
                 </div>
               </LegalConsentCheckbox>
-
-              <Button
-                className="w-full mt-4"
-                onClick={handleSubmit}
-                disabled={
-                  loading ||
-                  !agreed ||
-                  !formData.bank_code ||
-                  !formData.bank_account_number ||
-                  !formData.bank_account_name.trim()
-                }
-              >
-                {loading ? 'Mengirim Data...' : isReverify ? 'Perbaiki & Kirim Ulang' : 'Kirim Pendaftaran'}
-              </Button>
             </div>
           )}
         </div>
+      </MitraPageContainer>
 
-        {!isLastStep && <div className="h-4" />}
-      </div>
+      {/* Satu bilah aksi untuk semua langkah. Sebelumnya tiap langkah menyimpan
+          tombolnya sendiri di dalam badan kartu dan tidak satu pun punya jalan
+          mundur — satu-satunya cara kembali adalah chevron kecil di header. */}
+      <StickyActionBar desktop>
+        <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
+          {stepIndex > 0 && (
+            <Button variant="outline" className="flex-1" onClick={prevStep} disabled={loading}>
+              Kembali
+            </Button>
+          )}
+          <Button
+            className="flex-[2]"
+            onClick={isLastStep ? handleSubmit : nextStep}
+            disabled={!canProceed}
+          >
+            {isLastStep ? submitLabel : 'Selanjutnya'}
+          </Button>
+        </div>
+      </StickyActionBar>
+
+      <MitraModal
+        open={showExitConfirm}
+        onClose={() => setShowExitConfirm(false)}
+        title="Keluar dari pendaftaran?"
+        description="Isian yang sudah kamu masukkan tidak disimpan dan harus diulang dari awal."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1" onClick={() => setShowExitConfirm(false)}>
+              Lanjut Mengisi
+            </Button>
+            <Button variant="danger" className="flex-1" onClick={() => router.back()}>
+              Keluar
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }
