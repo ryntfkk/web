@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { LayoutDashboard, Package, MessageSquare, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, MessageSquare, Settings, ClipboardCheck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useUnreadChatCount } from '@/hooks/useChatRooms';
 
@@ -12,14 +12,24 @@ const navItems = [
   { href: '/mitra/profile', label: 'Profil', icon: Settings },
 ];
 
-export default function MitraBottomNav() {
+// Navigasi mitra yang BELUM disetujui: hanya tujuan yang benar-benar bisa ia
+// pakai (P1-10). Menawarkan "Pesanan" lalu melemparnya kembali ke halaman
+// status adalah jebakan, bukan navigasi.
+const pendingNavItems = [
+  { href: '/mitra/verification-status', label: 'Status', icon: ClipboardCheck },
+  { href: '/mitra/services', label: 'Layanan', icon: Package },
+  { href: '/mitra/profile', label: 'Profil', icon: Settings },
+];
+
+export default function MitraBottomNav({ approved = true }: { approved?: boolean }) {
   const pathname = usePathname();
   const unreadCount = useUnreadChatCount();
+  const items = approved ? navItems : pendingNavItems;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 pb-safe z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const Icon = item.icon;
           return (
