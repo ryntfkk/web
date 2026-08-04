@@ -18,7 +18,7 @@ import {
   type RequirementCatalogItem,
   type ServiceRequirement,
 } from '@/components/ui/requirements-editor';
-import { unwrapData, unitLabel } from '@/lib/order-utils';
+import { unitLabel } from '@/lib/order-utils';
 import { formatPrice } from '@/lib/format';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
@@ -208,7 +208,7 @@ export default function NewMitraServicePage() {
       }
 
       // 2. Upload & lampirkan foto (jika ada)
-      const serviceId = unwrapData<any>(res.data).id;
+      const serviceId = res.data.id;
       if (photos.length > 0 && serviceId) {
         for (let i = 0; i < photos.length; i++) {
           setProgress(`Mengunggah foto ${i + 1}/${photos.length}...`);

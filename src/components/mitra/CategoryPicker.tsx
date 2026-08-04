@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 
 interface Cat {
   id: string;
@@ -42,7 +41,7 @@ export default function CategoryPicker({
     (async () => {
       const res = await fetchAPI<Cat[]>('/categories');
       if (res.success && res.data) {
-        const data = unwrapData<Cat[]>(res.data);
+        const data = (res.data as Cat[]);
         if (Array.isArray(data)) setMains(data);
       }
     })();
@@ -55,7 +54,7 @@ export default function CategoryPicker({
     (async () => {
       const res = await fetchAPI<Cat>(`/categories/${value}`);
       if (res.success && res.data) {
-        const cat = unwrapData<Cat>(res.data);
+        const cat = (res.data as Cat);
         if (cat?.parent_id) {
           setMainId(cat.parent_id);
           setSubId(value);
@@ -76,7 +75,7 @@ export default function CategoryPicker({
     }
     (async () => {
       const res = await fetchAPI<Cat[]>(`/categories/${mainId}/subcategories`);
-      const data = res.success && res.data ? unwrapData<Cat[]>(res.data) : [];
+      const data = res.success && res.data ? (res.data as Cat[]) : [];
       setSubs(Array.isArray(data) ? data : []);
     })();
   }, [mainId]);

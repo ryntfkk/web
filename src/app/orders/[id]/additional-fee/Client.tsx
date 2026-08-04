@@ -7,7 +7,6 @@ import { ArrowLeft, X, AlertTriangle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { formatRupiah as formatPrice } from '@/lib/format';
 import { isInsufficientBalance, payAdditionalFeeWithSnap } from '@/lib/payment';
 import { getErrorMessage } from '@/types/api';
@@ -59,7 +58,7 @@ export default function AdditionalFeeClient() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      setOrder(unwrapData<any>(res.data));
+      setOrder(res.data);
     }
     setLoading(false);
   };
@@ -123,7 +122,7 @@ export default function AdditionalFeeClient() {
   const fetchOrderData = async () => {
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      const data = unwrapData<any>(res.data);
+      const data = res.data;
       setOrder(data);
       return data;
     }

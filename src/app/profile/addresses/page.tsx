@@ -10,7 +10,6 @@ import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
-import { unwrapData } from '@/lib/order-utils';
 
 
 interface Address {
@@ -43,7 +42,7 @@ export default function AddressesPage() {
     try {
       const res = await fetchAPI<any>('/users/me/addresses');
       if (res.success && res.data) {
-        setAddresses(unwrapData(res.data));
+        setAddresses(res.data);
       }
     } finally {
       setLoading(false);

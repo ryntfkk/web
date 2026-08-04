@@ -8,7 +8,6 @@ import Image from 'next/image';
 import { ArrowLeft, Send, Camera, Image as ImageIcon, Loader2 as UploadSpinner } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { ROLE_PARTNER } from '@/lib/constants';
@@ -88,10 +87,9 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
     try {
       const roomRes = await fetchAPI<any>(`/chat/rooms`);
       if (roomRes.success && roomRes.data) {
-        // unwrapData: envelope bisa satu/dua tingkat — samakan dgn endpoint
-        // messages di bawah. Tanpa ini, bila /chat/rooms ganda-wrap, `.find`
-        // melempar & header stuck di skeleton selamanya.
-        const rooms = unwrapData<any[]>(roomRes.data);
+        // Envelope dirapikan di batas API (lib/api.ts), jadi di sini datanya
+        // sudah berupa array room.
+        const rooms = (roomRes.data as any[]);
         const currentRoom = Array.isArray(rooms)
           ? rooms.find((r: any) => r.room_id === roomId)
           : undefined;
@@ -121,7 +119,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             const endpoint = iAmPartner ? '/mitra/orders' : '/orders';
             const ordersRes = await fetchAPI<any>(endpoint);
             if (ordersRes.success && ordersRes.data) {
-              const orders = unwrapData<any[]>(ordersRes.data);
+              const orders = (ordersRes.data as any[]);
               if (Array.isArray(orders)) {
                 // Find an active order with this specific partner/customer
                 const active = orders.find(o => {
@@ -145,7 +143,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
 
       const msgRes = await fetchAPI<any>(`/chat/${roomId}/messages?per_page=100`);
       if (msgRes.success && msgRes.data) {
-        const msgs = unwrapData<Message[]>(msgRes.data);
+        const msgs = (msgRes.data as Message[]);
         if (Array.isArray(msgs)) {
           setMessages(msgs);
           

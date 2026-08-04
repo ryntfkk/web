@@ -8,7 +8,6 @@ import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
-import { unwrapData } from '@/lib/order-utils';
 import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 
@@ -63,7 +62,7 @@ export default function EditAddressPage() {
       setLoading(true);
       const res = await fetchAPI<Address[]>('/users/me/addresses');
       if (res.success && res.data) {
-        const list = unwrapData<Address[]>(res.data);
+        const list = (res.data as Address[]);
         const a = Array.isArray(list) ? list.find((x) => x.id === id) : undefined;
         if (a) {
           setForm({

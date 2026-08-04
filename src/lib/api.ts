@@ -86,8 +86,44 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
   }
   if (typeof data === 'object' && data !== null) {
     (data as ApiResponse<T> & { status?: number }).status = response.status;
+    normalizeEnvelope(data as ApiResponse<T>);
   }
   return data;
+}
+
+/**
+ * P1-12 — SATU tempat yang memahami envelope.
+ *
+ * Backend membungkus setiap respons dengan `{success, message, data, meta}`.
+ * Kalau suatu endpoint keliru membungkusnya DUA kali, dulu tiap halaman
+ * menambal sendiri (`unwrapData`, `Array.isArray(res.data) ? … : res.data.data`),
+ * dan tambalan itu menyembunyikan penyimpangan kontrak alih-alih memperbaikinya.
+ *
+ * Sekarang koreksinya terjadi sekali, di sini, dan berisik saat development
+ * supaya penyimpangannya ketahuan — bukan diam-diam dirapikan selamanya.
+ *
+ * Yang TIDAK dianggap pembungkus ganda: payload yang memang punya field `data`
+ * sebagai bagian isinya (mis. `{data: [...], summary: {...}}` pada riwayat
+ * dompet). Membuka paksa payload seperti itu akan MEMBUANG field saudaranya —
+ * persis kegagalan diam-diam yang dihindari di sini.
+ */
+function normalizeEnvelope<T>(res: ApiResponse<T>): void {
+  const inner = res.data as unknown;
+  if (typeof inner !== 'object' || inner === null || Array.isArray(inner)) return;
+
+  const obj = inner as Record<string, unknown>;
+  const looksLikeEnvelope =
+    'data' in obj && ('success' in obj || 'meta' in obj) && Object.keys(obj).length <= 4;
+  if (!looksLikeEnvelope) return;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(
+      '[api] respons terbungkus dua kali dan dirapikan di batas API. ' +
+        'Perbaiki handler backend-nya, jangan menambal di halaman.',
+      Object.keys(obj),
+    );
+  }
+  res.data = obj.data as T;
 }
 
 // ── Public API helper ───────────────────────────────────────────────

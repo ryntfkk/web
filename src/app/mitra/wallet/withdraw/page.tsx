@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Landmark, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
@@ -42,10 +41,9 @@ export default function WithdrawPage() {
   const fetchBalance = useCallback(async () => {
     const res = await fetchAPI<any>('/wallet/balance');
     if (res.success && res.data) {
-      // unwrapData: envelope bisa satu atau dua tingkat (res.data.data) — samakan
       // dgn payment page. Tanpa ini saldo bisa resolve ke 0 → semua penarikan
       // terblokir. Pakai available_balance (= balance - pending_withdrawal).
-      const data = unwrapData<any>(res.data);
+      const data = res.data;
       setWalletBalance(data?.available_balance ?? data?.balance ?? 0);
     } else {
       setWalletBalance(user?.balance || 0);

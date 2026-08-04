@@ -6,7 +6,6 @@ import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton, Skeleton } from '@/components/ui/skeleton';
@@ -36,7 +35,7 @@ export default function DisputeClient() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      const unwrappedOrder = unwrapData<any>(res.data);
+      const unwrappedOrder = res.data;
       if (unwrappedOrder.status !== 'WAITING_CUSTOMER_CONFIRM' && unwrappedOrder.status !== 'IN_PROGRESS') {
         router.replace(`/orders/${orderId}`);
         return;
@@ -63,7 +62,7 @@ export default function DisputeClient() {
           method: 'POST',
           body: JSON.stringify({ filename: photo.name, content_type: photo.type }),
         });
-        const presigned = presignedRes.success ? unwrapData<any>(presignedRes.data) : null;
+        const presigned = presignedRes.success ? presignedRes.data : null;
         if (!presigned?.upload_url) throw new Error('Gagal mendapatkan upload URL');
 
         const uploadRes = await fetch(presigned.upload_url, {

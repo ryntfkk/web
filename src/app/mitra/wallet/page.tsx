@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, Clock, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/format';
@@ -93,9 +92,7 @@ export default function MitraWalletPage() {
       }
       
       if (balRes.success && balRes.data) {
-        // unwrapData: envelope bisa satu/dua tingkat (res.data.data) — samakan dgn
-        // payment page, kalau tidak saldo bisa tampil Rp 0.
-        const bal = unwrapData<{ balance?: number; available_balance?: number; pending_withdrawal?: number }>(balRes.data);
+        const bal = (balRes.data as { balance?: number; available_balance?: number; pending_withdrawal?: number });
         setBalance({
           ledger: bal?.balance ?? 0,
           available: bal?.available_balance ?? bal?.balance ?? 0,

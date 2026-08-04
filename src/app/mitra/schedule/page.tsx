@@ -9,7 +9,6 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { Loader2 } from 'lucide-react';
-import { unwrapData } from '@/lib/order-utils';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
 
@@ -66,7 +65,7 @@ export default function MitraSchedulePage() {
       ]);
 
       if (schedRes.success && schedRes.data) {
-        const schedData = unwrapData<WorkingHourRow[]>(schedRes.data);
+        const schedData = (schedRes.data as WorkingHourRow[]);
         if (Array.isArray(schedData)) {
           setHasSavedSchedule(schedData.length > 0);
           const next = { ...schedule };
@@ -86,7 +85,7 @@ export default function MitraSchedulePage() {
       }
 
       if (summaryRes.success && summaryRes.data) {
-        setActiveOrderCount(unwrapData<{ active: number }>(summaryRes.data)?.active ?? 0);
+        setActiveOrderCount((summaryRes.data as { active: number })?.active ?? 0);
       }
     } finally {
       setLoading(false);

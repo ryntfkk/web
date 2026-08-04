@@ -9,7 +9,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { fetchAPI } from './api';
-import { unwrapData } from './order-utils';
 import { getErrorMessage } from '@/types/api';
 
 // Fallback base URL untuk redirect Snap bila backend tidak mengirim
@@ -86,8 +85,11 @@ export async function payAdditionalFeeWithSnap(orderId: string): Promise<SnapPay
   return redirectToSnap(res);
 }
 
+/** Bentuk payload Snap yang dipakai di sini; sisanya tidak relevan. */
+type SnapPayload = { redirect_url?: string; token?: string };
+
 function redirectToSnap(res: { success?: boolean; data?: unknown }): SnapPayResult {
-  const snapData = res.success ? unwrapData<any>(res.data) : null;
+  const snapData = (res.success ? res.data : null) as SnapPayload | null;
   const redirectUrl =
     snapData?.redirect_url ||
     (snapData?.token ? `${SNAP_REDIRECT_BASE}/${snapData.token}` : '');

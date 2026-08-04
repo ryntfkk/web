@@ -5,7 +5,6 @@ import { MapPin, MapPinOff, ChevronDown, Navigation, Home, Check, Loader2 } from
 import { Modal } from '@/components/ui/modal';
 import MapView from '@/components/MapView';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useLocationStore } from '@/lib/store/locationStore';
 
@@ -50,7 +49,7 @@ export default function LocationPicker() {
       try {
         const res = await fetchAPI<unknown>('/users/me/addresses');
         if (alive && res.success && res.data) {
-          const data = unwrapData<Address[]>(res.data);
+          const data = (res.data as Address[]);
           setAddresses(Array.isArray(data) ? data.filter((a) => a.lat && a.lon) : []);
         }
       } catch {

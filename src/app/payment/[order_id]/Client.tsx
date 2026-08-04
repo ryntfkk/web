@@ -6,7 +6,6 @@ import { ArrowLeft, Wallet, CreditCard, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { payOrderWithWallet, payOrderWithSnap } from '@/lib/payment';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { formatRupiah } from '@/lib/format';
@@ -31,7 +30,7 @@ export default function PaymentClient() {
   const fetchBalance = useCallback(async () => {
     const res = await fetchAPI<any>('/wallet/balance');
     if (res.success && res.data) {
-      const data = unwrapData<any>(res.data);
+      const data = res.data;
       setWalletBalance(data?.balance ?? 0);
     } else {
       setWalletBalance(user?.balance || 0);
@@ -42,7 +41,7 @@ export default function PaymentClient() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
-      const data = unwrapData<any>(res.data);
+      const data = res.data;
       setOrder(data);
       if (data.status === 'WAITING_ADDITIONAL_PAY') {
         router.replace(`/orders/${orderId}/additional-fee`);

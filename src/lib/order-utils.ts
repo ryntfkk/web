@@ -4,12 +4,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /** Ambil payload dari envelope API, apapun tingkat nesting-nya. */
-export function unwrapData<T = any>(resData: any): T {
-  if (resData && typeof resData === 'object' && 'data' in resData && resData.data !== undefined) {
-    return resData.data as T;
-  }
-  return resData as T;
-}
+// CATATAN (P1-12): `unwrapData` DIHAPUS.
+//
+// Fungsi itu menebak — "kalau ada field `data`, buka" — dan tebakannya
+// membuang field saudara pada payload yang memang berisi `data`
+// (mis. riwayat dompet `{data, summary}`). Pembungkusan ganda kini dirapikan
+// sekali di batas API (`lib/api.ts`, normalizeEnvelope) dan berisik saat
+// development, jadi halaman cukup memakai `res.data` langsung.
+//
+// Jangan menghidupkannya kembali: tambalan per halaman menyembunyikan
+// penyimpangan kontrak alih-alih memperbaikinya.
 
 // ── Satuan harga layanan (unit) ─────────────────────────────────────
 export type ServiceUnit = 'per_hour' | 'per_service' | 'per_unit' | 'per_kg';

@@ -10,7 +10,7 @@ import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { OrderCardSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
+import { FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { formatRupiah as formatPrice, formatDateOnly as formatDate } from '@/lib/format';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { useCartStore } from '@/lib/store/cartStore';
@@ -94,7 +94,7 @@ export default function OrdersPage() {
         credentials: 'include',
       });
       if (res.success && res.data) {
-        const unwrapped = unwrapData<unknown>(res.data);
+        const unwrapped = (res.data as unknown);
         if (Array.isArray(unwrapped)) {
           setOrders(unwrapped as Order[]);
         }
@@ -115,7 +115,7 @@ export default function OrdersPage() {
         showToast('Gagal memuat pesanan ulang', 'error');
         return;
       }
-      const data = unwrapData<ReorderResponse>(res.data);
+      const data = (res.data as ReorderResponse);
       const available = data.items.filter((i) => i.available);
       if (available.length === 0) {
         showToast('Layanan pada pesanan ini sudah tidak tersedia', 'error');

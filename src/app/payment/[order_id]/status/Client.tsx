@@ -5,7 +5,6 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
@@ -86,13 +85,13 @@ export default function PaymentStatusClient() {
   // tertunda dan bertahan lama tanpa terdeteksi.
   const runVerify = useCallback(async (): Promise<VerifyState> => {
     const res = await fetchAPI<ReconcileResult>(`/payments/${midtransTxId}/reconcile`, { method: 'POST' });
-    if (res.success && unwrapData<ReconcileResult>(res.data)?.paid) return 'ok';
+    if (res.success && (res.data as ReconcileResult)?.paid) return 'ok';
 
     // Reconcile tidak memastikan lunas → tanya status order. Kalau webhook sudah
     // masuk, order-nya sendiri yang jadi bukti.
     const orderRes = await fetchAPI<OrderPaymentState>(`/orders/${orderId}`);
     if (orderRes.success) {
-      const order = unwrapData<OrderPaymentState>(orderRes.data);
+      const order = (orderRes.data as OrderPaymentState);
       if (order?.paid_at || (order?.status && PAID_ORDER_STATUSES.has(order.status))) return 'ok';
     }
 

@@ -12,7 +12,7 @@ import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { formatDateOnly, formatPrice } from '@/lib/format';
 import { fetchAPI } from '@/lib/api';
-import { unwrapData, FilterStatus, matchesFilter } from '@/lib/order-utils';
+import { FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import PartnerStatusCard, { type PartnerProfile } from '@/components/profile/PartnerStatusCard';
@@ -72,7 +72,7 @@ export default function ProfilePage() {
       credentials: 'include',
     });
     if (res.success && res.data) {
-      setPartnerStatus(unwrapData<PartnerProfile>(res.data));
+      setPartnerStatus((res.data as PartnerProfile));
     }
     setStatusLoading(false);
   };
@@ -85,7 +85,7 @@ export default function ProfilePage() {
         credentials: 'include',
       });
       if (res.success && res.data) {
-        const unwrapped = unwrapData<unknown>(res.data);
+        const unwrapped = (res.data as unknown);
         setOrders(Array.isArray(unwrapped) ? unwrapped as Order[] : []);
       }
     } finally {

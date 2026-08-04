@@ -11,7 +11,7 @@ import { PLACEHOLDER_AVATAR } from '@/lib/images';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCartStore } from '@/lib/store/cartStore';
-import { unwrapData, unitLabel } from '@/lib/order-utils';
+import { unitLabel } from '@/lib/order-utils';
 import { formatRupiah as formatPrice } from '@/lib/format';
 import { getErrorMessage } from '@/types/api';
 import dynamic from 'next/dynamic';
@@ -267,7 +267,7 @@ export default function BookingClient() {
         setSlotsLoading(true);
         try {
           const res = await fetchAPI<any>(`/orders/${partner.id}/schedule?date=${date}&duration=${totalDuration || 60}`);
-          const data = res.success ? unwrapData<any>(res.data) : null;
+          const data = res.success ? res.data : null;
           if (data && Array.isArray(data.slots)) {
             setAvailableSlots(data.slots);
             setSlotsReason(typeof data.reason === 'string' ? data.reason : '');
@@ -299,19 +299,19 @@ export default function BookingClient() {
       ]);
 
       if (pRes.success && pRes.data) {
-        setPartner(unwrapData(pRes.data));
+        setPartner(pRes.data);
       }
 
       if (sRes.success && sRes.data) {
-        const sData = unwrapData<PartnerService[]>(sRes.data);
+        const sData = (sRes.data as PartnerService[]);
         setServices(Array.isArray(sData) ? sData : []);
       } else if (pRes.success && pRes.data) {
-        const data = unwrapData<any>(pRes.data);
+        const data = pRes.data;
         if (Array.isArray(data?.services)) setServices(data.services);
       }
 
       if (aRes.success && aRes.data) {
-        const addrList = unwrapData<Address[]>(aRes.data);
+        const addrList = (aRes.data as Address[]);
         if (Array.isArray(addrList)) {
           setAddresses(addrList);
           const primary = addrList.find((a: Address) => a.is_default);
@@ -333,7 +333,7 @@ export default function BookingClient() {
     try {
       const aRes = await fetchAPI<any>('/users/me/addresses');
       if (aRes.success && aRes.data) {
-        const addrList = unwrapData<Address[]>(aRes.data);
+        const addrList = (aRes.data as Address[]);
         if (Array.isArray(addrList)) setAddresses(addrList);
       }
     } catch (e) {
@@ -414,7 +414,7 @@ export default function BookingClient() {
           }),
         });
 
-        const presigned = presignedRes.success ? unwrapData<any>(presignedRes.data) : null;
+        const presigned = presignedRes.success ? presignedRes.data : null;
         if (!presigned?.upload_url) {
           throw new Error('Gagal mendapatkan upload URL');
         }
@@ -465,7 +465,7 @@ export default function BookingClient() {
       });
 
       if (res.success && res.data) {
-        const order = unwrapData<any>(res.data);
+        const order = res.data;
         // Bersihkan baris yang sudah dipesan dari keranjang (per service+variasi).
         for (const k of keys) {
           const { serviceId, variationId } = parseKey(k);
@@ -528,10 +528,10 @@ export default function BookingClient() {
       });
 
       if (res.success && res.data) {
-        setPreviewQuote(unwrapData(res.data));
+        setPreviewQuote(res.data);
         setErrorMsg('');
         if (currentPromo) {
-          setPromoDiscount(unwrapData(res.data).discount_amount || 0);
+          setPromoDiscount(res.data.discount_amount || 0);
         }
       } else {
         setPreviewQuote(null);

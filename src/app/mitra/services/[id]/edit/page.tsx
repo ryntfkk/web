@@ -12,7 +12,7 @@ import { fetchAPI } from '@/lib/api';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
-import { unwrapData, unitLabel } from '@/lib/order-utils';
+import { unitLabel } from '@/lib/order-utils';
 import { DynamicStringList } from '@/components/ui/dynamic-string-list';
 import { DynamicFaqList, type Faq } from '@/components/ui/dynamic-faq-list';
 import {
@@ -77,7 +77,7 @@ export default function EditMitraServicePage() {
       try {
         const svcsRes = await fetchAPI<any>('/partners/me/services');
         if (svcsRes.success && svcsRes.data) {
-          const svcsData = unwrapData<any>(svcsRes.data);
+          const svcsData = svcsRes.data;
           if (Array.isArray(svcsData)) {
             const service = svcsData.find((s: any) => s.id === serviceId);
             if (service) {
@@ -121,7 +121,7 @@ export default function EditMitraServicePage() {
 
           const photosRes = await fetchAPI<any>(`/partners/me/services/${serviceId}/photos`);
           if (photosRes.success && photosRes.data) {
-            setExistingPhotos(unwrapData(photosRes.data));
+            setExistingPhotos(photosRes.data);
           }
         }
       } catch (err) {
