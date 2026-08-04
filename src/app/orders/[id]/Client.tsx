@@ -620,55 +620,57 @@ export default function OrderDetailClient() {
         </div>
 
         {/* ── Status hero ─────────────────────────────────────────── */}
-        <div className={`rounded-xl bg-gradient-to-br ${hero.tone} text-white p-5 sm:p-6 mb-4`}>
-          <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className={`rounded-lg sm:rounded-xl bg-gradient-to-br ${hero.tone} text-white p-3 sm:p-6 mb-4`}>
+          <div className="flex items-start justify-between gap-3 sm:gap-4 flex-wrap">
             <div className="min-w-0 flex-1">
-              <StatusBadge status={status} size="sm" className="bg-white/20 border-white/30 text-white mb-2" />
-              <h2 className="text-lg sm:text-xl font-bold leading-snug">{hero.title}</h2>
-              <p className="text-sm text-white/85 mt-1 max-w-xl">{hero.desc}</p>
+              <StatusBadge status={status} size="sm" className="bg-white/20 border-white/30 text-white mb-1.5 sm:mb-2" />
+              <h2 className="text-base sm:text-xl font-bold leading-snug">{hero.title}</h2>
+              {/* Deskripsi panjang disembunyikan di mobile (≤360px) untuk hemat
+                  ruang; judul + badge sudah cukup konteks. Tampilkan penuh di sm+. */}
+              <p className="hidden sm:block text-sm text-white/85 mt-1 max-w-xl">{hero.desc}</p>
             </div>
 
             {status === 'WAITING_PAYMENT' && order.payment_expired_at && (
-              <div className="bg-white/15 rounded-lg px-3 py-2 text-center shrink-0">
-                <p className="text-[11px] text-white/80 mb-0.5">Bayar sebelum</p>
+              <div className="bg-white/15 rounded-md sm:rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-center shrink-0">
+                <p className="text-[10px] sm:text-[11px] text-white/80 mb-0.5">Bayar sebelum</p>
                 <CountdownTimer
                   targetDate={order.payment_expired_at}
                   format="mm:ss"
                   criticalThresholdSeconds={300}
                   onExpire={fetchOrder}
-                  className="!text-white text-lg"
+                  className="!text-white text-base sm:text-lg"
                 />
               </div>
             )}
             {status === 'WAITING_CONFIRMATION' && order.confirmation_expired_at && (
-              <div className="bg-white/15 rounded-lg px-3 py-2 text-center shrink-0">
-                <p className="text-[11px] text-white/80 mb-0.5">Batas konfirmasi</p>
+              <div className="bg-white/15 rounded-md sm:rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-center shrink-0">
+                <p className="text-[10px] sm:text-[11px] text-white/80 mb-0.5">Batas konfirmasi</p>
                 <CountdownTimer
                   targetDate={order.confirmation_expired_at}
                   format="mm:ss"
                   criticalThresholdSeconds={300}
                   onExpire={fetchOrder}
-                  className="!text-white text-lg"
+                  className="!text-white text-base sm:text-lg"
                 />
               </div>
             )}
             {status === 'WAITING_CUSTOMER_CONFIRM' && order.confirmation_expired_at && (
-              <div className="bg-white/15 rounded-lg px-3 py-2 text-center shrink-0">
-                <p className="text-[11px] text-white/80 mb-0.5">Dana cair otomatis dalam</p>
+              <div className="bg-white/15 rounded-md sm:rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-center shrink-0">
+                <p className="text-[10px] sm:text-[11px] text-white/80 mb-0.5">Dana cair otomatis dalam</p>
                 <CountdownTimer
                   targetDate={order.confirmation_expired_at}
                   format="hh:mm:ss"
                   criticalThresholdSeconds={7200}
                   warningThresholdSeconds={43200}
                   onExpire={fetchOrder}
-                  className="!text-white text-lg"
+                  className="!text-white text-base sm:text-lg"
                 />
               </div>
             )}
           </div>
 
           {status === 'CANCELLED' && order.cancellation_reason && (
-            <div className="mt-4 bg-white/15 rounded-lg px-3 py-2 text-sm">
+            <div className="mt-3 sm:mt-4 bg-white/15 rounded-md sm:rounded-lg px-3 py-2 text-sm">
               <span className="text-white/80">Alasan: </span>
               {order.cancellation_reason}
               {order.cancelled_by && (

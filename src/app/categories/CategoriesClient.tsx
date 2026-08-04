@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Loader2, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCategories, useSubcategories } from '@/hooks/useCategories';
@@ -77,32 +77,25 @@ function MainCategoryBlock({ main }: { main: Category }) {
         <ChevronRight className="w-4 h-4 text-brand-gray-400 group-hover:text-brand-red transition-colors" />
       </Link>
 
-      {/* Subkategori */}
+      {/* Subkategori — teks/chip saja, bukan ikon. Ikon hanya untuk kategori
+          utama agar hierarki visual jelas dan halaman tidak berisik. */}
       {isLoading ? (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex flex-col items-center gap-2">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-2xl animate-pulse" />
-              <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
-            </div>
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-24 rounded-full" />
           ))}
         </div>
       ) : !subs || subs.length === 0 ? (
         <p className="text-[13px] text-brand-gray-400 pl-1">Belum ada subkategori.</p>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6">
+        <div className="flex flex-wrap gap-2">
           {subs.map((sub) => (
             <Link
               key={sub.id}
               href={categoryHref(sub)}
-              className="group flex flex-col items-center justify-start cursor-pointer"
+              className="inline-flex items-center px-3 py-2 rounded-full border border-brand-gray-100 bg-white text-[13px] font-medium text-brand-gray-900 hover:border-brand-red hover:text-brand-red transition-colors"
             >
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mb-3 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
-                <Image src={sub.icon_url || '/icons/default.svg'} alt={sub.name} fill className="object-cover" />
-              </div>
-              <span className="text-[12px] sm:text-[14px] font-medium text-brand-gray-900 text-center leading-tight line-clamp-2 px-1 group-hover:text-brand-red transition-colors">
-                {sub.name}
-              </span>
+              {sub.name}
             </Link>
           ))}
         </div>

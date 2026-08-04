@@ -4,7 +4,7 @@ import { getInitial } from '@/lib/utils';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   User, ShieldCheck, CreditCard, LogOut, FileText, CheckCircle,
-  RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, SlidersHorizontal, Phone, Loader2,
+  RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, SlidersHorizontal, Phone, Loader2, ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
@@ -126,6 +126,20 @@ export default function MitraProfilePage() {
         <MenuCard title="Mode">
           <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan jasa sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />
         </MenuCard>
+
+        {/* Mitra tidak punya cara melihat dirinya sebagaimana dilihat pelanggan
+            (P2). Tanpa ini, satu-satunya cara mengecek hasil suntingan profil
+            adalah menebak. */}
+        {user?.username && (
+          <MenuCard title="Etalase">
+            <MenuListItem
+              icon={ExternalLink}
+              label="Lihat Profil Publik"
+              subtitle="Tampilan profilmu di mata pelanggan"
+              href={`/${user.username}`}
+            />
+          </MenuCard>
+        )}
 
         <MenuCard title="Akun & Mitra">
           <MenuListItem icon={ShieldCheck} label="Status Verifikasi Dokumen" subtitle="Cek status & unggah ulang dokumen" href="/mitra/verification-status" />

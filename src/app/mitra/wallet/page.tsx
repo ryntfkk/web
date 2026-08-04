@@ -203,18 +203,24 @@ export default function MitraWalletPage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex w-full bg-white rounded-lg border border-brand-gray-100 p-1 shadow-sm">
             <button 
+              type="button"
+              aria-pressed={filterType === 'ALL'}
               onClick={() => setFilterType('ALL')}
               className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${filterType === 'ALL' ? 'bg-brand-gray-60 text-brand-gray-900' : 'text-brand-gray-450 hover:text-brand-gray-700'}`}
             >
               Semua
             </button>
             <button 
+              type="button"
+              aria-pressed={filterType === 'IN'}
               onClick={() => setFilterType('IN')}
               className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${filterType === 'IN' ? 'bg-brand-success-soft text-brand-success' : 'text-brand-gray-450 hover:text-brand-gray-700'}`}
             >
               Pemasukan
             </button>
             <button 
+              type="button"
+              aria-pressed={filterType === 'OUT'}
               onClick={() => setFilterType('OUT')}
               className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${filterType === 'OUT' ? 'bg-brand-error-soft text-brand-error' : 'text-brand-gray-450 hover:text-brand-gray-700'}`}
             >

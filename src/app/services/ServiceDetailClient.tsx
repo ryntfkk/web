@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
+import { Modal } from '@/components/ui/modal';
 import { fetchAPI } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
 import { useServiceDetail, usePartnerWorkingHours, useServiceReviews } from '@/hooks/useServiceDetail';
@@ -57,6 +58,12 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
   const [shareCopied, setShareCopied] = useState(false);
   // Variasi terpilih (Shopee-style). Kosong = belum memilih.
   const [selectedVariationId, setSelectedVariationId] = useState<string>('');
+  // Modal pilihan variasi (Shopee-style). Saat user klik "Pesan"/"Keranjang"
+  // tanpa memilih variasi wajib, modal muncul; setelah variasi dipilih, aksi
+  // pending dijalankan otomatis.
+  const [variationModalOpen, setVariationModalOpen] = useState(false);
+  // 'order' | 'cart' — aksi yang ditunda hingga variasi dipilih dari modal.
+  const [pendingAction, setPendingAction] = useState<'order' | 'cart' | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // Halaman ini publik — auth hanya dicek saat user melakukan aksi
@@ -130,20 +137,22 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
     } else {
       const vars = service.variations ?? [];
       if (vars.length > 0 && !selectedVariationId) {
-        showToast('Silakan pilih variasi terlebih dahulu', 'error');
+        // Buka modal pilihan variasi, tunda aksi "tambah keranjang".
+        setPendingAction('cart');
+        setVariationModalOpen(true);
         return;
       }
-      const v = vars.find((x) => x.id === selectedVariationId);
       addItem({
         service_id: service.id,
         partner_id: service.partner_id,
         partner_username: service.partner_username,
         service_name: service.name,
-        price: v?.price ?? service.price,
+        price: vars.find((x) => x.id === selectedVariationId)?.price ?? service.price,
         photo_url: service.photo_url || PLACEHOLDER_SERVICE,
-        variation_id: v?.id,
-        variation_name: v?.name,
+        variation_id: vars.find((x) => x.id === selectedVariationId)?.id,
+        variation_name: vars.find((x) => x.id === selectedVariationId)?.name,
       });
+      const v = vars.find((x) => x.id === selectedVariationId);
       showToast(v ? `${service.name} (${v.name}) masuk keranjang` : `${service.name} masuk keranjang`, 'success');
     }
   };
@@ -156,11 +165,39 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
     if (!service) return;
     const vars = service.variations ?? [];
     if (vars.length > 0 && !selectedVariationId) {
-      showToast('Silakan pilih variasi terlebih dahulu', 'error');
+      // Buka modal pilihan variasi, tunda aksi "pesan sekarang".
+      setPendingAction('order');
+      setVariationModalOpen(true);
       return;
     }
     const q = selectedVariationId ? `&variation_id=${selectedVariationId}` : '';
     router.push(`/book/${service.partner_username}?service_id=${service.id}${q}`);
+  };
+
+  // Pilih variasi dari modal → jalankan aksi pending (order/cart) otomatis.
+  const handleVariationPick = (variationId: string) => {
+    setSelectedVariationId(variationId);
+    setVariationModalOpen(false);
+    const action = pendingAction;
+    setPendingAction(null);
+    // Tunda sedikit agar state ter-update sebelum aksi baca selectedVariationId.
+    if (action === 'order') {
+      const q = variationId ? `&variation_id=${variationId}` : '';
+      router.push(`/book/${service!.partner_username}?service_id=${service!.id}${q}`);
+    } else if (action === 'cart' && service) {
+      const v = service.variations?.find((x) => x.id === variationId);
+      addItem({
+        service_id: service.id,
+        partner_id: service.partner_id,
+        partner_username: service.partner_username,
+        service_name: service.name,
+        price: v?.price ?? service.price,
+        photo_url: service.photo_url || PLACEHOLDER_SERVICE,
+        variation_id: v?.id,
+        variation_name: v?.name,
+      });
+      showToast(v ? `${service.name} (${v.name}) masuk keranjang` : `${service.name} masuk keranjang`, 'success');
+    }
   };
 
   // Chat langsung dengan mitra dari halaman detail (pola sama dengan ProfileHeader).
@@ -551,11 +588,11 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
               {requirements.some((r) => r.is_mandatory) && (
                 <a
                   href="#persyaratan"
-                  className="mb-4 flex items-start gap-2 rounded-md border border-brand-warning-border bg-brand-warning-soft p-2.5 text-left"
+                  className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-brand-warning-border bg-brand-warning-soft px-3 py-1.5 text-left hover:border-brand-warning-dark transition-colors"
                 >
-                  <span className="mt-0.5 text-xs font-semibold text-brand-warning-dark">Perlu disiapkan</span>
-                  <span className="min-w-0 text-xs text-brand-gray-700">
-                    Layanan ini menuntut {requirements.filter((r) => r.is_mandatory).length} hal wajib dari kamu — lihat daftarnya
+                  <span className="text-[11px] font-semibold text-brand-warning-dark shrink-0">Perlu disiapkan</span>
+                  <span className="text-[11px] text-brand-gray-700">
+                    {requirements.filter((r) => r.is_mandatory).length} hal wajib · lihat
                   </span>
                 </a>
               )}
@@ -660,10 +697,6 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-brand-gray-700">Estimasi Waktu Kerja</span>
                   <span className="text-brand-gray-900">{service.estimated_duration} menit</span>
-                </div>
-                <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Harga</span>
-                  <span className="text-brand-gray-900">{formatRupiah(displayPrice)} <span className="text-brand-gray-700">/{unitLabel(service.unit)}</span></span>
                 </div>
                 {minOrder > 1 && (
                   <div className="flex py-2">
@@ -955,6 +988,44 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
           </div>
         </div>
       )}
+
+      {/* Variation Picker Modal — muncul saat user klik "Pesan"/"Keranjang"
+          tanpa memilih variasi wajib (pola marketplace). Memakai Modal bersama
+          (bottom-sheet di mobile, kartu di desktop). */}
+      <Modal
+        open={variationModalOpen}
+        onClose={() => { setVariationModalOpen(false); setPendingAction(null); }}
+        title="Pilih Variasi"
+        maxWidthClass="sm:max-w-md"
+      >
+        {hasVariations && (
+          <div className="space-y-3">
+            <p className="text-sm text-brand-gray-700">
+              Pilih variasi untuk melanjutkan {pendingAction === 'order' ? 'pemesanan' : 'menambah ke keranjang'}.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {variations.map((v) => {
+                const active = v.id === selectedVariationId;
+                return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => handleVariationPick(v.id)}
+                    className={`px-3 py-3 rounded-md border text-left transition-colors ${
+                      active
+                        ? 'border-brand-red bg-brand-red-light text-brand-red'
+                        : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
+                    }`}
+                  >
+                    <span className="block font-medium text-sm">{v.name}</span>
+                    <span className="block text-xs text-brand-gray-700 mt-0.5">{formatRupiah(v.price)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

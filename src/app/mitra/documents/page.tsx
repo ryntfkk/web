@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FileText, Plus, Trash2, X, Loader2, ExternalLink } from 'lucide-react';
+import { FileText, Plus, Trash2, X, Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -47,6 +47,26 @@ const STATUS_LABELS: Record<PartnerDocument['status'], string> = {
   REJECTED: 'Ditolak',
   EXPIRED: 'Kadaluarsa',
 };
+
+/**
+ * Masa berlaku dokumen (P2). Sebelumnya tanggalnya hanya dicetak sebagai teks
+ * abu-abu, jadi dokumen yang tinggal seminggu lagi terlihat persis sama dengan
+ * yang masih setahun — mitra baru sadar setelah verifikasinya gugur.
+ *
+ * 30 hari dipakai sebagai ambang peringatan: cukup untuk mengurus perpanjangan
+ * SKCK/izin tanpa membuat peringatan menyala sepanjang tahun.
+ */
+const EXPIRY_WARNING_DAYS = 30;
+
+function expiryState(expiresAt?: string | null): { tone: 'expired' | 'soon' | 'ok'; days: number } | null {
+  if (!expiresAt) return null;
+  const ts = Date.parse(expiresAt);
+  if (Number.isNaN(ts)) return null;
+  const days = Math.ceil((ts - Date.now()) / 86_400_000);
+  if (days < 0) return { tone: 'expired', days };
+  if (days <= EXPIRY_WARNING_DAYS) return { tone: 'soon', days };
+  return { tone: 'ok', days };
+}
 
 export default function MitraDocumentsPage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -251,11 +271,31 @@ export default function MitraDocumentsPage() {
                   {doc.document_number && (
                     <p className="text-xs text-brand-gray-700 mt-1">No: {doc.document_number}</p>
                   )}
-                  {doc.expires_at && (
-                    <p className="text-xs text-brand-gray-450 mt-0.5">
-                      Berlaku s/d: {formatDate(doc.expires_at)}
-                    </p>
-                  )}
+                  {(() => {
+                    const exp = expiryState(doc.expires_at);
+                    if (!exp) return null;
+                    if (exp.tone === 'ok') {
+                      return (
+                        <p className="text-xs text-brand-gray-450 mt-0.5">
+                          Berlaku s/d: {formatDate(doc.expires_at!)}
+                        </p>
+                      );
+                    }
+                    return (
+                      <p
+                        className={`mt-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-semibold ${
+                          exp.tone === 'expired'
+                            ? 'bg-brand-error-soft text-brand-error border border-brand-error-border'
+                            : 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
+                        }`}
+                      >
+                        <AlertTriangle className="w-3 h-3" />
+                        {exp.tone === 'expired'
+                          ? `Kedaluwarsa ${formatDate(doc.expires_at!)} — perlu diperbarui`
+                          : `Akan kedaluwarsa ${exp.days} hari lagi (${formatDate(doc.expires_at!)})`}
+                      </p>
+                    );
+                  })()}
                   {doc.status === 'REJECTED' && doc.rejection_reason && (
                     <p className="text-xs text-brand-error mt-1">{doc.rejection_reason}</p>
                   )}

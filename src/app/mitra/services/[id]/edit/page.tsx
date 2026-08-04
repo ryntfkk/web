@@ -75,11 +75,13 @@ export default function EditMitraServicePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const svcsRes = await fetchAPI<any>('/partners/me/services');
+        // Ambil SATU layanan (P2). Dulu mengunduh seluruh daftar lalu mencari
+        // satu item di klien — makin banyak layanan makin mahal, dan layanan
+        // NONAKTIF tidak pernah ketemu karena daftarnya hanya berisi yang aktif.
+        const svcsRes = await fetchAPI<any>(`/partners/me/services/${serviceId}`);
         if (svcsRes.success && svcsRes.data) {
-          const svcsData = svcsRes.data;
-          if (Array.isArray(svcsData)) {
-            const service = svcsData.find((s: any) => s.id === serviceId);
+          {
+            const service = svcsRes.data;
             if (service) {
               setForm({
                 name: service.name || '',

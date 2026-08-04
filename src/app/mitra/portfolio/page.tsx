@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { Plus, Trash2, Image as ImageIcon, Loader2, X } from 'lucide-react';
+import { Plus, Trash2, Image as ImageIcon, Loader2, X, Pencil } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -24,6 +24,11 @@ export default function MitraPortfolioPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  // Keterangan foto (P2): dulu selalu dikirim kosong saat unggah dan tidak
+  // pernah bisa diubah, jadi field-nya ada di data tapi mati di UI.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [captionDraft, setCaptionDraft] = useState('');
+  const [savingCaption, setSavingCaption] = useState(false);
 
   useEffect(() => {
     if (isAuthorized) {
@@ -49,6 +54,33 @@ export default function MitraPortfolioPage() {
       setError(getErrorMessage(res));
     }
     setDeleteId(null);
+  };
+
+  const startEditCaption = (id: string, current?: string) => {
+    setEditingId(id);
+    setCaptionDraft(current || '');
+  };
+
+  const saveCaption = async () => {
+    if (!editingId || savingCaption) return;
+    setSavingCaption(true);
+    try {
+      const res = await fetchAPI<Portfolio>(`/partners/me/portfolios/${editingId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ caption: captionDraft }),
+      });
+      if (res.success && res.data) {
+        // Pakai nilai dari server, bukan draft lokal: kalau server memangkas
+        // atau menolak, UI tidak boleh menampilkan yang tidak tersimpan.
+        const saved = res.data;
+        setPortfolios(prev => prev.map(p => (p.id === saved.id ? { ...p, caption: saved.caption } : p)));
+        setEditingId(null);
+      } else {
+        setError(getErrorMessage(res) || 'Gagal menyimpan keterangan');
+      }
+    } finally {
+      setSavingCaption(false);
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +168,14 @@ export default function MitraPortfolioPage() {
               {portfolios.map((item) => (
                 <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-brand-gray-100 group bg-white">
                   <img src={item.photo_url} alt="Portfolio" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => startEditCaption(item.id, item.caption)}
+                      className="p-2 bg-white rounded-full text-brand-gray-700 hover:bg-brand-gray-60 transition-colors"
+                      aria-label="Ubah keterangan"
+                    >
+                      <Pencil className="w-5 h-5" />
+                    </button>
                     <button
                       onClick={() => setDeleteId(item.id)}
                       className="p-2 bg-white rounded-full text-brand-error hover:bg-brand-error-soft transition-colors"
@@ -145,6 +184,11 @@ export default function MitraPortfolioPage() {
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
+                  {item.caption && (
+                    <p className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-6 text-[11px] leading-snug text-white line-clamp-2">
+                      {item.caption}
+                    </p>
+                  )}
                 </div>
               ))}
               
@@ -174,6 +218,35 @@ export default function MitraPortfolioPage() {
             <ImageIcon className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
             <p className="text-sm text-brand-gray-700">Belum ada foto portofolio.</p>
             <p className="text-xs text-brand-gray-450 mt-1">Tambahkan foto hasil kerja Anda untuk menarik lebih banyak pelanggan.</p>
+          </div>
+        )}
+
+        {editingId && (
+          <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4 sm:items-center">
+            <div className="w-full max-w-sm rounded-xl bg-white p-5">
+              <h3 className="mb-1 text-base font-semibold text-brand-gray-900">Keterangan Foto</h3>
+              <p className="mb-3 text-xs text-brand-gray-450">
+                Jelaskan pekerjaan pada foto ini — pelanggan memakainya untuk menilai hasil kerjamu.
+              </p>
+              <textarea
+                value={captionDraft}
+                onChange={(e) => setCaptionDraft(e.target.value.slice(0, 255))}
+                rows={3}
+                maxLength={255}
+                autoFocus
+                className="w-full rounded-md border border-brand-gray-200 px-3 py-2 text-sm focus:border-brand-red focus:outline-none"
+                placeholder="Contoh: Servis AC 1 PK, cuci evaporator + isi freon"
+              />
+              <p className="mt-1 text-right text-[11px] text-brand-gray-450">{captionDraft.length}/255</p>
+              <div className="mt-3 flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setEditingId(null)} disabled={savingCaption}>
+                  Batal
+                </Button>
+                <Button className="flex-1" onClick={saveCaption} isLoading={savingCaption}>
+                  Simpan
+                </Button>
+              </div>
+            </div>
           </div>
         )}
 

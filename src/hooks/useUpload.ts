@@ -36,10 +36,20 @@ export function useUpload(fileType: 'avatar' | 'review' = 'avatar') {
         return null;
       }
 
-      const { upload_url, file_url, upload_id } = presignRes.data;
+      // Backend (internal/upload/dto.go) mengembalikan field `presigned_url`
+      // (bukan `upload_url`) di respons presign. `file_url` hanya tersedia di
+      // respons /upload/confirm. Kompatibel dengan handler lama yang memakai
+      // `upload_url`/`file_url` lewat fallback.
+      const presignedUrl = presignRes.data.presigned_url ?? presignRes.data.upload_url;
+      const { upload_id } = presignRes.data;
+      if (!presignedUrl || !upload_id) {
+        setError('Respons upload tidak lengkap');
+        setIsUploading(false);
+        return null;
+      }
 
       // 2. Upload file to S3
-      const s3Res = await fetch(upload_url, {
+      const s3Res = await fetch(presignedUrl, {
         method: 'PUT',
         body: file,
         headers: {
@@ -53,7 +63,7 @@ export function useUpload(fileType: 'avatar' | 'review' = 'avatar') {
         return null;
       }
 
-      // 3. Confirm upload
+      // 3. Confirm upload — file_url final ada di sini.
       const confirmRes = await fetchAPI<any>('/upload/confirm', {
         method: 'POST',
         credentials: 'include',
@@ -63,14 +73,16 @@ export function useUpload(fileType: 'avatar' | 'review' = 'avatar') {
         }),
       });
 
-      if (!confirmRes.success) {
+      if (!confirmRes.success || !confirmRes.data) {
         setError(getErrorMessage(confirmRes) || 'Gagal konfirmasi upload');
         setIsUploading(false);
         return null;
       }
 
       setIsUploading(false);
-      return file_url;
+      // file_url dari confirm adalah URL final (CloudFront bila dikonfigurasi).
+      // Fallback ke file_url presign (handler lama) bila confirm tidak menyertakan.
+      return confirmRes.data.file_url ?? presignRes.data.file_url ?? null;
 
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat upload');

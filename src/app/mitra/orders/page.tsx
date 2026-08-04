@@ -27,20 +27,10 @@ interface Order {
 
 type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
 
-// Pemetaan status backend ke grup filter UI (identik dengan page /orders pelanggan).
-// Status backend: WAITING_CONFIRMATION, WAITING_PAYMENT, PAID, IN_PROGRESS,
-// WAITING_ADDITIONAL_PAY, WAITING_CUSTOMER_CONFIRM, COMPLETED, CANCELLED, DISPUTED
-const FILTER_GROUPS: Record<Exclude<FilterStatus, 'all'>, string[]> = {
-  pending: ['WAITING_CONFIRMATION', 'WAITING_PAYMENT', 'PENDING', 'ACCEPTED'],
-  processing: ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'PROCESSING'],
-  completed: ['COMPLETED'],
-  cancelled: ['CANCELLED'],
-};
-
-function matchesFilter(status: string, filter: FilterStatus): boolean {
-  if (filter === 'all') return true;
-  return FILTER_GROUPS[filter].includes(status);
-}
+// Pemetaan status→kelompok kini hidup di BACKEND (internal/order/list.go) dan
+// dikirim lewat `status_group` (P1-01). Salinan lokalnya dihapus: dua definisi
+// untuk aturan yang sama pasti menyimpang, dan yang di klien hanya bisa
+// menghitung baris yang kebetulan sedang termuat.
 
 // Ambil nama pelanggan apa pun bentuk payload-nya.
 function customerName(o: Order): string {
@@ -187,6 +177,8 @@ export default function MitraOrdersPage() {
             {FILTERS.map(f => (
               <button
                 key={f.key}
+                type="button"
+                aria-pressed={activeFilter === f.key}
                 onClick={() => setActiveFilter(f.key)}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${activeFilter === f.key ? 'bg-brand-red text-white border-brand-red' : 'bg-white text-brand-gray-700 border-brand-gray-100'}`}
               >

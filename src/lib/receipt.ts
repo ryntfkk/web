@@ -49,7 +49,9 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function buildReceiptHtml(o: ReceiptOrder): string {
   const items = o.items ?? [];
-  const paidFees = (o.additional_fees ?? []).filter((f) => f.status === 'paid');
+  // Backend mengirim status enum uppercase ('PAID'). Bandingkan case-insensitive
+  // agar struk tetap benar walau sumber data berubah casing.
+  const paidFees = (o.additional_fees ?? []).filter((f) => (f.status || '').toUpperCase() === 'PAID');
   const paidFeesTotal = paidFees.reduce((s, f) => s + (f.total || 0), 0);
   const grandTotal = (o.total_amount || 0) + paidFeesTotal;
 
