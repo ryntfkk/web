@@ -482,9 +482,16 @@ export default function BookingClient() {
           removeCartItem(serviceId, variationId);
         }
         setSuccessMsg('Pesanan berhasil dibuat!');
-        // replace: back dari detail pesanan tidak boleh kembali ke form
-        // booking yang sudah ter-submit (membingungkan + rawan submit ulang).
-        router.replace(`/orders/${order.id}`);
+        // replace: back dari halaman tujuan tidak boleh kembali ke form booking
+        // yang sudah ter-submit (membingungkan + rawan submit ulang).
+        //
+        // Skema bayar-langsung: pesanan lahir WAITING_PAYMENT, jadi antar
+        // pelanggan langsung ke pembayaran. Fallback ke detail pesanan bila
+        // backend membalas status lain . di sana tombol "Bayar Sekarang" tetap
+        // tersedia, jadi pelanggan tidak pernah buntu.
+        router.replace(
+          order.status === 'WAITING_PAYMENT' ? `/payment/${order.id}` : `/orders/${order.id}`
+        );
         return;
       }
       const msg = getErrorMessage(res);

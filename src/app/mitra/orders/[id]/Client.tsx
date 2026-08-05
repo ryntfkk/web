@@ -124,8 +124,8 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   },
   WAITING_PAYMENT: {
     tone: 'from-brand-orange to-brand-orange-dark',
-    title: 'Menunggu pelanggan membayar',
-    desc: 'Kamu sudah menerima pesanan ini. Jadwalmu sudah dikunci sampai pembayaran masuk.',
+    title: 'Pesanan baru . menunggu pembayaran',
+    desc: 'Jadwalmu sudah dikunci. Begitu pembayaran masuk, kamu wajib mengerjakannya sesuai jadwal.',
   },
   PAID: {
     tone: 'from-brand-info to-brand-info-dark',
@@ -164,17 +164,21 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   },
 };
 
-const STEPS = ['Masuk', 'Diterima', 'Dibayar', 'Dikerjakan', 'Selesai'] as const;
+/** Skema bayar-langsung: tidak ada lagi langkah "Diterima" . mitra tidak
+ *  mengkonfirmasi pesanan baru, jadi tracker tidak boleh mencentangnya. */
+const STEPS = ['Masuk', 'Dibayar', 'Dikerjakan', 'Selesai'] as const;
 
 function currentStep(status: OrderStatus): number {
   switch (status) {
-    case 'WAITING_CONFIRMATION': return 0;
-    case 'WAITING_PAYMENT': return 1;
-    case 'PAID': return 2;
+    // Order historis masih bisa tertinggal di WAITING_CONFIRMATION . perlakukan
+    // sama dengan menunggu bayar, karena keduanya belum menghasilkan uang masuk.
+    case 'WAITING_CONFIRMATION':
+    case 'WAITING_PAYMENT': return 0;
+    case 'PAID': return 1;
     case 'IN_PROGRESS':
-    case 'WAITING_ADDITIONAL_PAY': return 3;
-    case 'WAITING_CUSTOMER_CONFIRM': return 4;
-    case 'COMPLETED': return 5;
+    case 'WAITING_ADDITIONAL_PAY': return 2;
+    case 'WAITING_CUSTOMER_CONFIRM': return 3;
+    case 'COMPLETED': return 4;
     default: return 0;
   }
 }

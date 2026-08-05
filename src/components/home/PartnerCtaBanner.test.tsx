@@ -23,7 +23,11 @@ describe('PartnerCtaBanner', () => {
     const { container } = render(<PartnerCtaBanner />);
     const teks = container.textContent ?? '';
 
-    expect(teks).toContain('gratis');
+    // Tanpa peduli huruf besar/kecil: yang diuji adalah JANJI-nya masih
+    // disebut, bukan di kalimat mana ia ditulis. Copy banner sudah pernah
+    // dirombak dari prosa ("...gratis...") jadi bullet ("Gratis, tanpa
+    // langganan") dan mematahkan test ini padahal maksudnya tetap terpenuhi.
+    expect(teks.toLowerCase()).toContain('gratis');
     expect(teks).toContain('Google');
   });
 });

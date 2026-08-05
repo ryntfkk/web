@@ -130,7 +130,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   WAITING_PAYMENT: {
     tone: 'from-brand-orange to-brand-orange-dark',
     title: 'Selesaikan pembayaran',
-    desc: 'Mitra sudah menerima pesananmu. Bayar sebelum waktu habis agar jadwal tidak hangus.',
+    desc: 'Bayar sebelum waktu habis agar jadwalmu terkunci dan mitra datang sesuai jadwal.',
   },
   PAID: {
     tone: 'from-brand-info to-brand-info-dark',
@@ -170,18 +170,24 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
 };
 
 /** Langkah happy-path. Status yang keluar jalur (CANCELLED/DISPUTED)
- *  tidak memakai tracker ini . lihat renderer di bawah. */
-const STEPS = ['Dipesan', 'Dikonfirmasi', 'Dibayar', 'Dikerjakan', 'Selesai'] as const;
+ *  tidak memakai tracker ini . lihat renderer di bawah.
+ *
+ *  Skema bayar-langsung: tidak ada lagi langkah "Dikonfirmasi" . pesanan lahir
+ *  langsung menunggu pembayaran. Menyisakannya berarti tracker mencentang
+ *  persetujuan mitra yang tidak pernah terjadi. */
+const STEPS = ['Dipesan', 'Dibayar', 'Dikerjakan', 'Selesai'] as const;
 
 function currentStep(status: OrderStatus): number {
   switch (status) {
-    case 'WAITING_CONFIRMATION': return 0;
-    case 'WAITING_PAYMENT': return 1;
-    case 'PAID': return 2;
+    // Order historis masih bisa tertinggal di WAITING_CONFIRMATION . perlakukan
+    // sama dengan menunggu bayar, karena keduanya belum menghasilkan uang masuk.
+    case 'WAITING_CONFIRMATION':
+    case 'WAITING_PAYMENT': return 0;
+    case 'PAID': return 1;
     case 'IN_PROGRESS':
-    case 'WAITING_ADDITIONAL_PAY': return 3;
-    case 'WAITING_CUSTOMER_CONFIRM': return 4;
-    case 'COMPLETED': return 5;
+    case 'WAITING_ADDITIONAL_PAY': return 2;
+    case 'WAITING_CUSTOMER_CONFIRM': return 3;
+    case 'COMPLETED': return 4;
     default: return 0;
   }
 }
