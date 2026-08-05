@@ -3,7 +3,6 @@ import HeroCarousel from '@/components/ui/hero-carousel';
 import CategorySection from '@/components/home/CategorySection';
 import LocationPicker from '@/components/home/LocationPicker';
 import TopPartnersSection from '@/components/home/TopPartnersSection';
-import FeaturedServicesSection from '@/components/home/FeaturedServicesSection';
 import ProductsSection from '@/components/home/ProductsSection';
 import AllServicesSection from '@/components/home/AllServicesSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
@@ -91,11 +90,6 @@ export default async function Home() {
           <RecentlyViewedSection />
           <ProductsSection />
           <PartnerCtaBanner />
-          <FeaturedServicesSection />
-          <PopularCitiesSection />
-          {/* Mitra (geser) lalu katalog "Semua Jasa" yang memuat sendiri saat
-              digulir . section lain sengaja ditaruh DI ATASNYA agar tidak
-              terdorong ke bawah daftar tak berujung. */}
           <TopPartnersSection />
           <AllServicesSection />
 
@@ -113,6 +107,10 @@ export default async function Home() {
               Temukan mitra ahli terbaik di sekitar lokasi Anda. Semua mitra kami telah melalui proses kurasi ketat untuk memastikan kualitas pengerjaan dan kepuasan pelanggan. Nikmati kemudahan bertransaksi langsung dari perangkat Anda dan percayakan urusan Anda pada ahlinya bersama Posko Jasa.
             </p>
           </div>
+
+          {/* Layanan populer per kota . sengaja paling bawah (jangkar SEO lokal,
+              bukan section belanja utama). */}
+          <PopularCitiesSection />
         </div>
       </div>
     </HydrationBoundary>

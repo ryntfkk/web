@@ -23,7 +23,7 @@ export default function CategorySection() {
   return (
     <section className="mb-6 md:mb-8">
       {isLoading ? (
-        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-cols-8 gap-3 sm:gap-4 pb-4 md:pb-0 overflow-x-auto scrollbar-hide">
+        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-flow-row md:grid-cols-8 gap-3 sm:gap-4 pb-4 md:pb-0 overflow-x-auto scrollbar-hide">
           {Array.from({ length: 16 }).map((_, i) => (
             <div
               key={i}
@@ -37,7 +37,7 @@ export default function CategorySection() {
       ) : isError ? (
         <div className="text-sm text-red-500">Gagal memuat kategori.</div>
       ) : (
-        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-cols-8 gap-x-3 gap-y-4 sm:gap-x-4 sm:gap-y-5 pb-4 md:pb-0 overflow-x-auto snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-flow-row md:grid-cols-8 gap-x-3 gap-y-4 sm:gap-x-4 sm:gap-y-5 pb-4 md:pb-0 overflow-x-auto snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayCategories.map((cat: Category) => (
             <button
               key={cat.id}
