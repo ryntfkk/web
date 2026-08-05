@@ -185,7 +185,7 @@ export default function EditMitraServicePage() {
   if (fetchLoading) return <PageSkeleton />;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-28">
       <MitraPageHeader
         title="Edit Layanan"
         variant="form"
@@ -193,7 +193,7 @@ export default function EditMitraServicePage() {
         breadcrumbs={[{ label: 'Layanan', href: '/mitra/services' }, { label: 'Edit Layanan' }]}
       />
 
-      <MitraPageContainer variant="form" className="py-6">
+      <MitraPageContainer variant="form">
         <ServiceForm
           initialValues={initialValues}
           initialVariations={initialVariations}

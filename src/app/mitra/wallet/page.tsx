@@ -9,6 +9,9 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/format';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import MitraSection from '@/components/mitra/MitraSection';
+import DataState from '@/components/mitra/DataState';
 
 interface WalletTransaction {
   id: string;
@@ -123,11 +126,21 @@ export default function MitraWalletPage() {
   if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
+  const filtered = transactions.filter(t =>
+    filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT',
+  );
+
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
-      {/* Header */}
-      <div className="bg-brand-red text-white px-4 pt-4 pb-8 rounded-b-xl shadow-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto">
+    <>
+      {/* Pita merah penuh selebar area konten; isinya tetap di dalam kontainer.
+
+          `relative z-10`, BUKAN `sticky`: pita ini setinggi ~160px dan seluruh
+          blok di bawahnya tidak punya `position`, jadi versi sticky-nya ikut
+          turun saat digulir lalu menutupi riwayat transaksi. Pola yang sama di
+          dashboard memang sudah `relative` . z-10 hanya supaya baris tombol
+          (z-20) yang menimpanya lewat `-mt-4` tetap tampil di atas. */}
+      <div className="bg-brand-red text-white rounded-b-xl shadow-sm relative z-10">
+        <MitraPageContainer variant="detail" className="pt-4 pb-8">
           <div className="flex items-center gap-3 mb-6">
             <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-white/10 rounded-md" aria-label="Kembali">
               <ArrowLeft className="w-5 h-5" />
@@ -150,10 +163,10 @@ export default function MitraWalletPage() {
             </div>
             <WalletIcon className="w-10 h-10 text-white/20" />
           </div>
-        </div>
+        </MitraPageContainer>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-4 relative z-20 flex gap-3">
+      <MitraPageContainer variant="detail" className="py-0 -mt-4 relative z-20 flex gap-3">
         <Button
           className="flex-1 bg-white hover:bg-brand-gray-60 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-md font-bold"
           onClick={() => router.push('/mitra/wallet/withdraw')}
@@ -169,46 +182,53 @@ export default function MitraWalletPage() {
         >
           <History className="w-5 h-5 mr-2 text-brand-gray-700" /> Riwayat Penarikan
         </Button>
-      </div>
+      </MitraPageContainer>
 
-      <div className="max-w-4xl mx-auto px-4 mt-4">
-        <div className="bg-brand-error-soft border border-brand-error-border rounded-lg px-4 py-3 flex items-start gap-2.5">
-          <Clock className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
-          <div>
-            <p className="text-xs font-semibold text-brand-red mb-0.5">Info Penarikan Dana</p>
-            <p className="text-xs text-brand-red leading-snug">
-              {/* Batas & SLA dari DB (platform_settings + platform_profile) .
-                  tidak ada angka maupun janji waktu yang diketik di sini. */}
-              Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>{platformConfig.profile?.withdrawal_sla || '1-2 hari kerja'}</strong>.
-            </p>
+      {/* Desktop: ruangnya dipakai untuk KOLOM, bukan meregangkan kartu. Rail
+          ditulis lebih dulu di DOM supaya urutan bacanya di ponsel tetap
+          "info & ringkasan → riwayat"; di `lg` grid menempatkannya di kanan. */}
+      <MitraPageContainer variant="detail" className="pt-4 lg:grid lg:grid-cols-[1fr_360px] lg:gap-5 lg:items-start space-y-6 lg:space-y-0">
+        <div className="space-y-4 lg:col-start-2 lg:row-start-1">
+          <div className="bg-brand-error-soft border border-brand-error-border rounded-lg px-4 py-3 flex items-start gap-2.5">
+            <Clock className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-brand-red mb-0.5">Info Penarikan Dana</p>
+              <p className="text-xs text-brand-red leading-snug">
+                {/* Batas & SLA dari DB (platform_settings + platform_profile) .
+                    tidak ada angka maupun janji waktu yang diketik di sini. */}
+                Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>{platformConfig.profile?.withdrawal_sla || '1-2 hari kerja'}</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
+              <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Pemasukan</p>
+              <p className="font-bold text-brand-success text-lg">{formatPrice(summary.total_earnings)}</p>
+            </div>
+            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
+              <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Penarikan</p>
+              <p className="font-bold text-brand-gray-900 text-lg">{formatPrice(summary.total_withdrawals)}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 mt-6 flex gap-4">
-        <div className="flex-1 bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
-          <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Pemasukan</p>
-          <p className="font-bold text-brand-success text-lg">{formatPrice(summary.total_earnings)}</p>
-        </div>
-        <div className="flex-1 bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
-          <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Penarikan</p>
-          <p className="font-bold text-brand-gray-900 text-lg">{formatPrice(summary.total_withdrawals)}</p>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-brand-gray-900">Riwayat Transaksi</h3>
-          <select
-            value={timeFilter}
-            onChange={(e) => setTimeFilter(e.target.value as 'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL')}
-            className="text-xs border border-brand-gray-100 rounded-md px-2 py-1 text-brand-gray-700 bg-white focus:outline-none focus:border-brand-red"
-          >
-            <option value="ALL">Semua Waktu</option>
-            <option value="THIS_MONTH">Bulan Ini</option>
-            <option value="LAST_3_MONTHS">3 Bulan Terakhir</option>
-          </select>
-        </div>
+        <MitraSection
+          className="min-w-0 lg:col-start-1 lg:row-start-1"
+          title="Riwayat Transaksi"
+          action={
+            <select
+              aria-label="Rentang waktu"
+              value={timeFilter}
+              onChange={(e) => setTimeFilter(e.target.value as 'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL')}
+              className="text-xs border border-brand-gray-100 rounded-md px-2 py-1 text-brand-gray-700 bg-white focus:outline-none focus:border-brand-red"
+            >
+              <option value="ALL">Semua Waktu</option>
+              <option value="THIS_MONTH">Bulan Ini</option>
+              <option value="LAST_3_MONTHS">3 Bulan Terakhir</option>
+            </select>
+          }
+        >
         <div className="flex items-center justify-between mb-4">
           <div className="flex w-full bg-white rounded-lg border border-brand-gray-100 p-1 shadow-sm">
             <button
@@ -238,36 +258,35 @@ export default function MitraWalletPage() {
           </div>
         </div>
 
-        <div className="space-y-3">
-          {loading ? (
-            [1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center gap-4 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-brand-gray-100" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-brand-gray-100 rounded-md w-1/2" />
-                  <div className="h-3 bg-brand-gray-100 rounded-md w-1/3" />
+        <DataState
+          isLoading={loading}
+          error={error}
+          onRetry={fetchData}
+          isEmpty={filtered.length === 0}
+          emptyIcon={<History className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />}
+          emptyTitle="Belum ada transaksi."
+          skeleton={
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center gap-4 animate-pulse">
+                  <div className="w-10 h-10 rounded-full bg-brand-gray-100" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-brand-gray-100 rounded-md w-1/2" />
+                    <div className="h-3 bg-brand-gray-100 rounded-md w-1/3" />
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : error ? (
-            <div className="text-center py-10 bg-white rounded-lg border border-brand-gray-100">
-              <p className="text-sm font-semibold text-brand-gray-900 mb-1">Gagal memuat transaksi</p>
-              <p className="text-xs text-brand-gray-450 mb-4">{error}</p>
-              <Button variant="outline" onClick={() => fetchData()}>Coba Lagi</Button>
+              ))}
             </div>
-          ) : transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').length === 0 ? (
-            <div className="text-center py-10 bg-white rounded-lg border border-brand-gray-100">
-              <History className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
-              <p className="text-sm text-brand-gray-700">Belum ada transaksi.</p>
-            </div>
-          ) : (
-            transactions.filter(t => filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT').map(t => (
-              <div key={t.id} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+          }
+        >
+          <div className="space-y-3">
+            {filtered.map(t => (
+              <div key={t.id} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-brand-success-soft' : 'bg-brand-error-soft'}`}>
                     {getTransactionIcon(t.type)}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-bold text-brand-gray-900">{t.description}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] text-brand-gray-450">{new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
@@ -279,16 +298,17 @@ export default function MitraWalletPage() {
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <p className={`text-sm font-bold ${t.type === 'CREDIT' ? 'text-brand-success' : 'text-brand-gray-900'}`}>
                     {t.type === 'CREDIT' ? '+' : '-'}{formatPrice(t.amount)}
                   </p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
+            ))}
+          </div>
+        </DataState>
+        </MitraSection>
+      </MitraPageContainer>
+    </>
   );
 }

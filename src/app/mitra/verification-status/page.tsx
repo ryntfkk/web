@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, Clock, XCircle, FileText, AlertCircle } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
@@ -45,11 +46,11 @@ export default function MitraVerificationStatusPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
       {/* Header */}
       <MitraPageHeader title="Status Verifikasi" variant="form" backHref="/mitra/profile" />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <MitraPageContainer variant="form">
         {loading ? (
           <div className="bg-white rounded-lg border border-brand-gray-100 p-6 h-64 animate-pulse flex flex-col items-center justify-center gap-4">
             <div className="w-16 h-16 bg-brand-gray-100 rounded-full" />
@@ -129,7 +130,7 @@ export default function MitraVerificationStatusPage() {
 
           </div>
         )}
-      </div>
+      </MitraPageContainer>
     </div>
   );
 }

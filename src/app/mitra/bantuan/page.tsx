@@ -1,8 +1,9 @@
 "use client";
 
 import Link from 'next/link';
-import { LifeBuoy, MessageCircle, FileText } from 'lucide-react';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { MessageCircle, FileText } from 'lucide-react';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import FaqAccordion from '@/components/help/FaqAccordion';
 
 // Halaman bantuan khusus mitra.
@@ -12,18 +13,19 @@ import FaqAccordion from '@/components/help/FaqAccordion';
 // pencairan) nyempil sebagai satu kategori di sana.
 export default function MitraBantuanPage() {
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
-      <MobilePageHeader
+    <div className="pb-6">
+      {/* MitraPageHeader, bukan MobilePageHeader mentah: yang mentah default ke
+          `max-w-lg` sehingga judulnya berhenti 160px sebelum kartu di bawahnya,
+          dan tanpa tombol kembali halaman ini jadi jalan buntu di desktop
+          (mode mitra tak punya TopNavbar). */}
+      <MitraPageHeader
         title="Bantuan Mitra"
-        icon={<LifeBuoy className="w-5 h-5 text-brand-red" />}
-        alwaysShow
+        variant="form"
+        backHref="/mitra/profile"
+        breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Bantuan' }]}
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-5 space-y-6">
-        <h1 className="hidden lg:flex items-center gap-2 text-xl font-bold text-brand-gray-900">
-          <LifeBuoy className="w-5 h-5 text-brand-red" /> Bantuan Mitra
-        </h1>
-
+      <MitraPageContainer variant="form" className="space-y-6">
         <FaqAccordion audience="PARTNER" placeholder="Cari pertanyaan… (mis. komisi, pencairan)" />
 
         <div className="bg-white rounded-lg border border-brand-gray-100 p-5 text-center">
@@ -46,7 +48,7 @@ export default function MitraBantuanPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </MitraPageContainer>
     </div>
   );
 }

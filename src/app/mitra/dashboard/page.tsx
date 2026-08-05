@@ -15,6 +15,7 @@ import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/ui/toast';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 
 
 interface DashboardData {
@@ -134,11 +135,11 @@ export default function MitraDashboardPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
 
       {/* Header . z-10 di bawah konten (z-20) agar card overlap tampil di atas background merah */}
-      <div className="bg-brand-red text-white px-4 pt-4 pb-12 rounded-b-2xl shadow-sm relative z-10">
-        <div className="max-w-7xl mx-auto">
+      <div className="bg-brand-red text-white rounded-b-2xl shadow-sm relative z-10">
+        <MitraPageContainer variant="dashboard" className="pt-4 pb-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white text-brand-red flex items-center justify-center font-bold overflow-hidden shrink-0">
@@ -179,10 +180,10 @@ export default function MitraDashboardPage() {
               <Power className="w-5 h-5" />
             </button>
           </div>
-        </div>
+        </MitraPageContainer>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 -mt-6 relative z-20 space-y-4">
+      <MitraPageContainer variant="dashboard" className="py-0 -mt-6 relative z-20 space-y-4">
         {/* Stats */}
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 animate-pulse">
@@ -236,6 +237,11 @@ export default function MitraDashboardPage() {
             <span className="text-[10px] font-bold text-brand-gray-700 text-center">Dompet</span>
           </Link>
         </div>
+
+        {/* Dua daftar berdampingan di desktop. Sebagai dua blok penuh selebar
+            1280px keduanya hanya jadi baris-baris panjang dengan ruang kosong
+            di tengah . ruang desktop dipakai untuk kolom, bukan diregangkan. */}
+        <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
 
         {/* Jadwal Kalender Widget */}
         <div className="bg-white rounded-md border border-brand-gray-100 p-4">
@@ -312,7 +318,8 @@ export default function MitraDashboardPage() {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      </MitraPageContainer>
     </div>
   );
 }

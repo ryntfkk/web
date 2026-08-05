@@ -658,7 +658,7 @@ function MitraRegisterForm() {
       : 'Kirim Pendaftaran';
 
   return (
-    <div className="page-h bg-brand-gray-60">
+    <div>
       <MitraPageHeader
         title={isReverify ? 'Verifikasi Ulang' : 'Pendaftaran Mitra'}
         subtitle={`Langkah ${stepIndex + 1} dari ${steps.length} · ${STEP_LABELS[currentStep]}`}
@@ -668,7 +668,7 @@ function MitraRegisterForm() {
 
       {/* pb-32: bilah aksi melayang di atas konten, tanpa ini field terakhir
           tiap langkah tertutup permanen dan tidak bisa digulir keluar. */}
-      <MitraPageContainer variant="form" className="py-5 pb-32">
+      <MitraPageContainer variant="form" className="pb-32">
         {needsPhone && (
           <div className="mb-4 rounded-md border border-brand-warning-border bg-brand-warning-soft p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
@@ -1296,22 +1296,25 @@ function MitraRegisterForm() {
           mundur . satu-satunya cara kembali adalah chevron kecil di header. */}
       {/* Bilah aksi fixed = terpusat pada VIEWPORT, sedangkan konten bergeser
           saat sidebar mitra tampil (kasus pengajuan ulang oleh mitra ditolak).
-          Tanpa padding ini tombolnya tidak sejajar dengan formulir di desktop. */}
-      <StickyActionBar desktop className={isPartnerMode ? 'lg:pl-[calc(15rem+1rem)]' : undefined}>
-        <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
-          {stepIndex > 0 && (
-            <Button variant="outline" className="flex-1" onClick={prevStep} disabled={loading}>
-              Kembali
-            </Button>
-          )}
-          <Button
-            className="flex-[2]"
-            onClick={isLastStep ? handleSubmit : nextStep}
-            disabled={!canProceed}
-          >
-            {isLastStep ? submitLabel : 'Selanjutnya'}
+          `lg:left-60` menggeser bilahnya, `contentClassName` menyamakan lebar
+          isinya dengan MitraPageContainer variant="form". */}
+      <StickyActionBar
+        desktop
+        className={isPartnerMode ? 'lg:left-60' : undefined}
+        contentClassName="max-w-2xl"
+      >
+        {stepIndex > 0 && (
+          <Button variant="outline" className="flex-1" onClick={prevStep} disabled={loading}>
+            Kembali
           </Button>
-        </div>
+        )}
+        <Button
+          className="flex-[2]"
+          onClick={isLastStep ? handleSubmit : nextStep}
+          disabled={!canProceed}
+        >
+          {isLastStep ? submitLabel : 'Selanjutnya'}
+        </Button>
       </StickyActionBar>
 
       <MitraModal

@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { ClipboardCheck } from 'lucide-react';
 
+import MitraPageContainer, { type MitraContainerVariant } from './MitraPageContainer';
+
 /**
  * Ditampilkan di halaman "prepare" (layanan, portofolio, jadwal) untuk mitra
  * yang belum disetujui (P1-10).
@@ -11,10 +13,18 @@ import { ClipboardCheck } from 'lucide-react';
  * memesan . layanannya memang belum tampil publik. Menjelaskannya di tempat ia
  * bekerja lebih jujur daripada membiarkannya menebak.
  */
-export default function PreparationNotice({ status }: { status: 'PENDING' | 'REJECTED' }) {
+export default function PreparationNotice({
+  status,
+  variant = 'list',
+}: {
+  status: 'PENDING' | 'REJECTED';
+  /** Disamakan dengan lebar konten halaman . spanduk yang lebih lebar dari
+   *  formulir di bawahnya terbaca sebagai elemen yang salah tempat. */
+  variant?: MitraContainerVariant;
+}) {
   const rejected = status === 'REJECTED';
   return (
-    <div className="mx-auto max-w-lg px-4 pt-4">
+    <MitraPageContainer variant={variant} className="pt-4 pb-0">
       <div
         className={`flex items-start gap-2.5 rounded-lg border p-3 ${rejected
             ? 'border-brand-error-border bg-brand-error-soft'
@@ -40,6 +50,6 @@ export default function PreparationNotice({ status }: { status: 'PENDING' | 'REJ
           </Link>
         </div>
       </div>
-    </div>
+    </MitraPageContainer>
   );
 }

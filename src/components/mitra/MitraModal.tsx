@@ -28,6 +28,12 @@ interface MitraModalProps {
   children?: ReactNode;
   /** Baris tombol di bawah. */
   footer?: ReactNode;
+  /**
+   * Lebar panel. Default `max-w-sm` (konfirmasi satu kalimat). Naikkan hanya
+   * bila isinya memang butuh . daftar pilihan atau textarea . bukan supaya
+   * dialognya terlihat "lebih penting".
+   */
+  size?: 'sm' | 'lg';
 }
 
 const FOCUSABLE =
@@ -40,6 +46,7 @@ export default function MitraModal({
   description,
   children,
   footer,
+  size = 'sm',
 }: MitraModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
@@ -120,7 +127,7 @@ export default function MitraModal({
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[85vh] w-full max-w-sm flex-col rounded-xl bg-white shadow-lg outline-none"
+        className={`flex max-h-[85vh] w-full flex-col rounded-xl bg-white shadow-lg outline-none ${size === 'lg' ? 'max-w-lg' : 'max-w-sm'}`}
       >
         <div className="flex items-start justify-between gap-3 px-6 pb-2 pt-6">
           <h2 id={titleId} className="text-base font-semibold text-brand-gray-900">

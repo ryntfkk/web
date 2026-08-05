@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { cn } from '@/lib/utils';
+
 /**
  * Lebar konten mode mitra per jenis halaman (§5.3).
  *
@@ -12,6 +14,21 @@ import type { ReactNode } from 'react';
  * kartu. Karena itu tidak ada varian yang melebihi `max-w-7xl`.
  */
 export type MitraContainerVariant = 'form' | 'list' | 'dashboard' | 'detail' | 'profile';
+
+/**
+ * Jarak ke tepi area konten mitra . SATU-SATUNYA sumber; jangan ketik `px-*`
+ * sendiri di halaman.
+ *
+ * Kenapa harus berjenjang: sidebar `w-60` memakan 240px, jadi di laptop 1366px
+ * ruang konten tinggal 1126px . lebih sempit dari `max-w-6xl` (1152px). Capnya
+ * tidak pernah aktif di sana, sehingga `px-4` datar adalah satu-satunya jarak ke
+ * tepi yang tersisa dan konten menempel ke pinggir layar.
+ *
+ * Header WAJIB memakai gutter yang sama (lihat `MitraPageHeader`). Kalau
+ * kontainer `lg:px-8` sementara header tetap `px-4`, judulnya bergeser 16px dari
+ * kartu di bawahnya.
+ */
+export const MITRA_GUTTER = 'px-4 sm:px-6 lg:px-8';
 
 const WIDTHS: Record<MitraContainerVariant, string> = {
   form: 'max-w-2xl',
@@ -37,5 +54,12 @@ export default function MitraPageContainer({
   children,
   className = '',
 }: MitraPageContainerProps) {
-  return <div className={`${WIDTHS[variant]} mx-auto px-4 ${className}`}>{children}</div>;
+  // `cn` (tailwind-merge), bukan template string: halaman yang butuh ritme lain
+  // mengoper `py-8`/`pb-32` lewat className, dan tanpa merge kedua kelas ikut
+  // terpasang lalu urutan CSS-lah yang menentukan pemenangnya . bukan pemanggil.
+  return (
+    <div className={cn(WIDTHS[variant], 'mx-auto', MITRA_GUTTER, 'py-6', className)}>
+      {children}
+    </div>
+  );
 }

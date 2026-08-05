@@ -35,7 +35,7 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
 
   if (authLoading) {
     return (
-      <div className="page-h flex items-center justify-center bg-brand-gray-60">
+      <div className="flex min-h-[100dvh] items-center justify-center">
         <Loader2 className="w-8 h-8 text-brand-red animate-spin" />
       </div>
     );
@@ -46,8 +46,11 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
   }
 
   return (
-    // Mobile: nav hidden -> 100dvh. Desktop: nav visible -> calc(100dvh-4rem).
-    <div className="h-[100dvh] md:h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
+    // Penuh satu layar di SEMUA breakpoint: room chat termasuk `isExcludedFlow`
+    // sehingga MitraBottomNav disembunyikan, dan mode mitra tak punya TopNavbar.
+    // Tidak ada apa pun yang perlu dikurangi . `md:calc(100dvh-4rem)` dulu
+    // menyisakan strip abu 64px di dasar layar desktop.
+    <div className="h-[100dvh] flex flex-col bg-white overflow-hidden">
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List (desktop only) ===== */}

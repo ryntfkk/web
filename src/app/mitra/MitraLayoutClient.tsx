@@ -9,6 +9,7 @@ import { usePartnerVerificationStatus } from '@/hooks/usePartnerVerificationStat
 import { accessLevelFor, canAccess, MITRA_BLOCKED_REDIRECT } from '@/lib/mitra-access';
 import PreparationNotice from '@/components/mitra/PreparationNotice';
 import MitraSidebar from '@/components/layout/MitraSidebar';
+import { cn } from '@/lib/utils';
 
 export default function MitraLayoutClient({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated, user } = useRequireAuth();
@@ -114,10 +115,34 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
     <>
       {showSidebar && <MitraSidebar verification={verification} />}
 
-      {/* lg:pl-60 = lebar sidebar. Konten di dalam halaman yang mengatur
-          lebar bacanya sendiri (§5.3); shell hanya menyediakan ruangnya. */}
-      <div className={showSidebar ? 'lg:pl-60' : ''}>
-        {showPreparationNotice && <PreparationNotice status={verification as 'PENDING' | 'REJECTED'} />}
+      {/* Latar, tinggi, dan ruang nav milik SHELL, bukan halaman. Sebelum ini
+          `page-h bg-brand-gray-60 pb-24` diulang di 21 halaman, dan halaman yang
+          lupa menyalinnya (mis. /mitra/register) kehilangan salah satunya.
+
+          `min-h-[100dvh]`, bukan `.page-h`: utilitas itu `100dvh - 4rem` karena
+          memperhitungkan TopNavbar . dan mode mitra TIDAK punya TopNavbar di
+          breakpoint mana pun (HeaderWrapper menepi untuk /mitra), jadi latar
+          abunya berhenti 64px sebelum dasar layar.
+
+          lg:pl-60 = lebar sidebar. Lebar bacanya diatur halaman lewat
+          MitraPageContainer (§5.3); shell hanya menyediakan ruangnya. */}
+      <div
+        className={cn(
+          'min-h-[100dvh] bg-brand-gray-60',
+          showSidebar && 'lg:pl-60',
+          // Bottom nav tampil sampai `lg`, tapi `pb-16` di <body> root berhenti
+          // di `md` (kelas pelanggan). Tanpa baris ini, 768-1023px kehilangan
+          // ruangnya sementara nav-nya masih menutupi konten.
+          !isExcludedFlow && 'pb-16 lg:pb-0',
+        )}
+      >
+        {showPreparationNotice && (
+          <PreparationNotice
+            status={verification as 'PENDING' | 'REJECTED'}
+            // Halaman `prepare` ada tiga: services & portfolio (list), schedule (form).
+            variant={pathname?.startsWith('/mitra/schedule') ? 'form' : 'list'}
+          />
+        )}
         {children}
       </div>
 

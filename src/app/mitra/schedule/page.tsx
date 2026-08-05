@@ -2,8 +2,10 @@
 import { useToast } from '@/components/ui/toast';
 
 import { useCallback, useEffect, useState } from 'react';
-import { CalendarOff, Clock, Plus, Trash2, X } from 'lucide-react';
+import { CalendarOff, Clock, Copy, Plus, Trash2, X } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
 import MitraSection from '@/components/mitra/MitraSection';
@@ -57,6 +59,34 @@ interface DaySchedule {
 }
 
 const DEFAULT_BREAK = { break_start: '12:00', break_end: '13:00' };
+
+/** Jam kerja baku saat sebuah hari dikembalikan dari 24 jam ke jam biasa. */
+const DEFAULT_HOURS = { start_time: '08:00', end_time: '17:00' };
+
+/**
+ * "Buka 24 jam" = 00:00–23:59, BUKAN 24:00.
+ *
+ * Tiga gerbang menolak jam 24, dan semuanya perlu dilewati:
+ * 1. `parseClock` di backend memakai `time.Parse` . jam 24 di luar rentang;
+ * 2. `validateWorkingHoursBatch` menolak `open >= close`, jadi 00:00–00:00 juga;
+ * 3. CHECK constraint `close_time > open_time` di tabel partner_working_hours.
+ *
+ * `<input type="time">` pun mentok di 23:59, jadi nilainya bisa bolak-balik utuh.
+ */
+const FULL_DAY = { start_time: '00:00', end_time: '23:59' } as const;
+
+const isFullDay = (d: DaySchedule) =>
+  d.start_time === FULL_DAY.start_time && d.end_time === FULL_DAY.end_time;
+
+/** Hari yang dibuka 24 jam TIDAK boleh menyisakan jeda: jeda tetap memblokir
+ *  slot, sehingga "24 jam" jadi janji yang tidak ditepati sistemnya sendiri. */
+const asFullDay = (d: DaySchedule): DaySchedule => ({
+  ...d,
+  is_active: true,
+  ...FULL_DAY,
+  break_start: '',
+  break_end: '',
+});
 
 function formatDateRange(start: string, end: string): string {
   const fmt = (v: string) =>
@@ -161,6 +191,55 @@ export default function MitraSchedulePage() {
   }, [isAuthenticated, user?.active_role, fetchSchedule]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* ── Aksi cepat ──────────────────────────────────────────────────────
+     Semua memakai bentuk fungsional `setSchedule(prev => …)`. Pola per-hari di
+     bawah boleh memakai objek-spread karena hanya menyentuh satu kunci, tapi
+     aksi massal menulis tujuh kunci sekaligus . dengan `{ ...schedule }` yang
+     dibaca dari closure, dua aksi yang di-batch React saling menimpa dan
+     sebagian hari diam-diam tidak ikut berubah. */
+
+  /** Buka 24 jam, seminggu penuh. */
+  const applyAllFullDay = () => {
+    setSchedule(prev =>
+      Object.fromEntries(DAYS.map(d => [d.id, asFullDay(prev[d.id])])),
+    );
+  };
+
+  /** Pola kantor: Senin-Jumat 08:00-17:00, akhir pekan tutup. */
+  const applyWeekdayHours = () => {
+    setSchedule(prev =>
+      Object.fromEntries(
+        DAYS.map(d => {
+          const weekday = d.id !== 'saturday' && d.id !== 'sunday';
+          return [
+            d.id,
+            { ...prev[d.id], is_active: weekday, ...DEFAULT_HOURS, break_start: '', break_end: '' },
+          ];
+        }),
+      ),
+    );
+  };
+
+  /** Salin JAM Senin ke hari lain . `is_active` tiap hari sengaja dipertahankan
+   *  supaya hari yang memang tutup tidak diam-diam ikut dibuka. */
+  const copyMondayToAll = () => {
+    setSchedule(prev => {
+      const src = prev.monday;
+      return Object.fromEntries(
+        DAYS.map(d => [
+          d.id,
+          {
+            ...prev[d.id],
+            start_time: src.start_time,
+            end_time: src.end_time,
+            break_start: src.break_start,
+            break_end: src.break_end,
+          },
+        ]),
+      );
+    });
+  };
+
   const confirmSave = () => {
     // Validasi: jam buka harus lebih awal dari jam tutup untuk setiap hari aktif.
     const invalid = DAYS.find(d => {
@@ -175,7 +254,9 @@ export default function MitraSchedulePage() {
     // bukan sesudah request gagal.
     const badBreak = DAYS.find(d => {
       const s2 = schedule[d.id];
-      if (!s2.is_active || !s2.break_start || !s2.break_end) return false;
+      // Hari 24 jam dikirim tanpa jeda (lihat handleSave), jadi jangan menolak
+      // simpan karena jeda yang tidak akan ikut terkirim.
+      if (!s2.is_active || isFullDay(s2) || !s2.break_start || !s2.break_end) return false;
       return (
         s2.break_start >= s2.break_end ||
         s2.break_start < s2.start_time ||
@@ -213,7 +294,12 @@ export default function MitraSchedulePage() {
           body: JSON.stringify({
             hours: days.map((day) => {
               const d = schedule[day];
-              const hasBreak = Boolean(d.break_start && d.break_end);
+              // Hari 24 jam tak pernah membawa jeda. `asFullDay` sudah
+              // mengosongkannya, tapi mitra juga bisa mengetik 00:00-23:59
+              // manual sementara jeda lamanya masih tersimpan di state . dan
+              // jeda itu TIDAK terlihat lagi di layar (UI-nya disembunyikan
+              // untuk hari 24 jam) sehingga akan tersimpan tanpa ada yang tahu.
+              const hasBreak = !isFullDay(d) && Boolean(d.break_start && d.break_end);
               return {
                 day_of_week: day,
                 open_time: toHms(d.start_time),
@@ -238,6 +324,7 @@ export default function MitraSchedulePage() {
         track('partner_schedule_saved', {
           open_days: days.filter(d => schedule[d].is_active).length,
           days_with_break: days.filter(d => schedule[d].break_start && schedule[d].break_end).length,
+          full_day_count: days.filter(d => schedule[d].is_active && isFullDay(schedule[d])).length,
         });
         showToast('Jadwal berhasil disimpan!');
       } else {
@@ -300,7 +387,7 @@ export default function MitraSchedulePage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-28">
 
       {/* Header */}
       <MitraPageHeader
@@ -310,7 +397,7 @@ export default function MitraSchedulePage() {
         breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Jadwal Operasional' }]}
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <MitraPageContainer variant="form" className="space-y-4">
         <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-4 flex gap-3 items-start mb-2">
           <Clock className="w-5 h-5 text-brand-error shrink-0 mt-0.5" />
           <p className="text-sm text-brand-error font-medium leading-relaxed">
@@ -327,6 +414,24 @@ export default function MitraSchedulePage() {
           </div>
         )}
 
+        {/* Aksi cepat. Tanpa ini menyetel seminggu berarti mengisi 14 input jam
+            satu per satu . dan pola yang paling sering dipakai (buka terus,
+            atau jam kantor) justru yang paling melelahkan diketik. */}
+        {!loading && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-brand-gray-700">Terapkan cepat:</span>
+            <Button variant="outline" size="sm" className="rounded-md" onClick={applyAllFullDay}>
+              Buka 24 Jam
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-md" onClick={applyWeekdayHours}>
+              Sen&ndash;Jum 08&ndash;17
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-md" onClick={copyMondayToAll}>
+              <Copy className="mr-1 h-3.5 w-3.5" aria-hidden /> Salin jam Senin
+            </Button>
+          </div>
+        )}
+
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5, 6, 7].map(i => (
@@ -338,6 +443,7 @@ export default function MitraSchedulePage() {
             {DAYS.map((day, index) => {
               const dayData = schedule[day.id];
               const hasBreak = Boolean(dayData.break_start && dayData.break_end);
+              const fullDay = isFullDay(dayData);
               return (
                 <div key={day.id} className={`p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${index < DAYS.length - 1 ? 'border-b border-brand-gray-100' : ''}`}>
                   <label className="flex items-center gap-3 cursor-pointer min-w-[120px]">
@@ -353,27 +459,54 @@ export default function MitraSchedulePage() {
                   {dayData.is_active ? (
                     <div className="flex flex-col gap-2 pl-7 sm:items-end sm:pl-0">
                       <div className="flex items-center gap-2">
-                        <input
-                          type="time"
-                          aria-label={`Jam buka ${day.label}`}
-                          value={dayData.start_time}
-                          onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, start_time: e.target.value } })}
-                          className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                        />
-                        <span className="text-brand-gray-450 font-medium">-</span>
-                        <input
-                          type="time"
-                          aria-label={`Jam tutup ${day.label}`}
-                          value={dayData.end_time}
-                          onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, end_time: e.target.value } })}
-                          className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                        />
+                        {fullDay ? (
+                          <span className="text-sm font-semibold text-brand-gray-900">Buka 24 jam</span>
+                        ) : (
+                          <>
+                            <input
+                              type="time"
+                              aria-label={`Jam buka ${day.label}`}
+                              value={dayData.start_time}
+                              onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, start_time: e.target.value } })}
+                              className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                            />
+                            <span className="text-brand-gray-450 font-medium">-</span>
+                            <input
+                              type="time"
+                              aria-label={`Jam tutup ${day.label}`}
+                              value={dayData.end_time}
+                              onChange={e => setSchedule({ ...schedule, [day.id]: { ...dayData, end_time: e.target.value } })}
+                              className="p-2 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                            />
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          aria-pressed={fullDay}
+                          aria-label={`Buka 24 jam ${day.label}`}
+                          onClick={() =>
+                            setSchedule({
+                              ...schedule,
+                              [day.id]: fullDay
+                                ? { ...dayData, ...DEFAULT_HOURS }
+                                : asFullDay(dayData),
+                            })
+                          }
+                          className={`shrink-0 rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${fullDay
+                            ? 'border-brand-red bg-brand-error-soft text-brand-red'
+                            : 'border-brand-gray-100 text-brand-gray-700 hover:border-brand-gray-200'
+                            }`}
+                        >
+                          24 Jam
+                        </button>
                       </div>
 
                       {/* Jeda istirahat. Tanpa ini mitra yang buka 08:00-17:00
                           tetap bisa dipesan tepat pukul 12:00, dan menolaknya
-                          manual dihitung sebagai mitra yang tak bisa diandalkan. */}
-                      {hasBreak ? (
+                          manual dihitung sebagai mitra yang tak bisa diandalkan.
+                          Tidak ditawarkan pada hari 24 jam . jeda di sana
+                          membatalkan arti "24 jam" itu sendiri. */}
+                      {fullDay ? null : hasBreak ? (
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-medium text-brand-gray-450">Istirahat</span>
                           <input
@@ -498,24 +631,22 @@ export default function MitraSchedulePage() {
             </p>
           </div>
         </div>
-      </div>
+      </MitraPageContainer>
 
-      {/* Bottom Bar.
+      {/* Bilah simpan.
           lg:left-60 = lebar sidebar. Tanpa ini bilah mulai dari left-0 dan
           menutupi bagian bawah sidebar (menu footer + "Beralih ke Pelanggan")
           di desktop, sekaligus membuat tombol terpusat pada viewport penuh,
           bukan area konten . terlihat bergeser dari form di atasnya. */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 p-4 z-50 lg:left-60">
-        <div className="max-w-2xl mx-auto">
-          <Button
-            className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-lg h-12 text-sm font-bold shadow-sm"
-            onClick={confirmSave}
-            disabled={loading || saving}
-          >
-            {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Simpan Jadwal'}
-          </Button>
-        </div>
-      </div>
+      <StickyActionBar desktop className="lg:left-60" contentClassName="max-w-2xl">
+        <Button
+          className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-md h-12 text-sm font-bold shadow-sm"
+          onClick={confirmSave}
+          disabled={loading || saving}
+        >
+          {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Simpan Jadwal'}
+        </Button>
+      </StickyActionBar>
 
       <MitraModal
         open={showTimeOffModal}

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { ArrowDown, ArrowUp, Image as ImageIcon, Loader2, Pencil, Plus, Tag, Trash2 } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -219,7 +220,7 @@ export default function MitraPortfolioPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
       {/* Header */}
       <MitraPageHeader
         title="Galeri Portofolio"
@@ -229,14 +230,14 @@ export default function MitraPortfolioPage() {
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Galeri Portofolio' }]}
       />
 
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+      <MitraPageContainer variant="list" className="space-y-4">
         {error && (
           <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded-md text-sm">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {loading ? (
             [1, 2].map(i => <div key={i} className="aspect-square bg-brand-gray-100 rounded-lg animate-pulse" />)
           ) : (
@@ -397,7 +398,7 @@ export default function MitraPortfolioPage() {
           accept="image/*"
           onChange={handleFileChange}
         />
-      </div>
+      </MitraPageContainer>
 
       <MitraModal
         open={!!deleteId}

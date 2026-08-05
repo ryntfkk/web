@@ -85,7 +85,11 @@ export default function MitraSidebar({ verification }: Props) {
   };
 
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-60 flex-col border-r border-brand-gray-100 bg-white lg:flex">
+    // z-30 = tangga z-index mode mitra (DEVELOPER_NOTES §UI mode mitra): di atas
+    // header sticky halaman (z-10) dan konten yang menimpa hero (z-20), di bawah
+    // bilah aksi (z-40) dan bottom nav (z-50). Tanpa z eksplisit urutannya cuma
+    // urutan DOM, dan itu berubah diam-diam saat halaman menambah sticky baru.
+    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-60 flex-col border-r border-brand-gray-100 bg-white lg:flex">
       <div className="flex h-16 items-center gap-2 border-b border-brand-gray-100 px-4">
         <span className="text-base font-extrabold tracking-tight text-brand-red">POSKO</span>
         <span className="rounded bg-brand-red-light px-1.5 py-0.5 text-[10px] font-bold text-brand-red">

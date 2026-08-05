@@ -32,6 +32,19 @@ function formatTime(t: string): string {
   return `${match[1]}:${match[2]}`;
 }
 
+/**
+ * Mitra yang buka nonstop menyimpannya sebagai 00:00-23:59 . jam 24 ditolak
+ * parser backend, validator batch, DAN check constraint tabelnya. Tanpa
+ * penerjemahan di sini pelanggan membaca "00:00 - 23:59" dan harus
+ * menyimpulkan sendiri bahwa itu artinya buka 24 jam.
+ */
+function formatRange(open: string, close: string): string {
+  const from = formatTime(open);
+  const to = formatTime(close);
+  if (from === '00:00' && to === '23:59') return '24 Jam';
+  return `${from} - ${to}`;
+}
+
 interface ScheduleViewProps {
   workingHours: WorkingHour[] | undefined;
   isLoading: boolean;
@@ -102,9 +115,7 @@ export default function ScheduleView({
               {DAY_NAMES[wh.day_of_week] || wh.day_of_week}
             </span>
             <span className="text-brand-gray-700">
-              {wh.is_open
-                ? `${formatTime(wh.open_time)} - ${formatTime(wh.close_time)}`
-                : '.'}
+              {wh.is_open ? formatRange(wh.open_time, wh.close_time) : '—'}
             </span>
             <span
               className={`text-[12px] font-medium min-w-[44px] text-right ${wh.is_open ? 'text-green-600' : 'text-red-500'

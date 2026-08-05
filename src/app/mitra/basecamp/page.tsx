@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, MapPin, AlertCircle } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
@@ -116,7 +117,7 @@ export default function MitraBasecampPage() {
   const inputCls = "w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red";
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-28">
       <MitraPageHeader
         title="Alamat Basecamp"
         variant="form"
@@ -124,7 +125,7 @@ export default function MitraBasecampPage() {
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Alamat Basecamp' }]}
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <MitraPageContainer variant="form" className="space-y-6">
         {isVerified && (
           <VerifiedLockNotice
             title="Koordinat & wilayah terkunci"
@@ -182,7 +183,7 @@ export default function MitraBasecampPage() {
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Simpan Basecamp'}
           </Button>
         </div>
-      </div>
+      </MitraPageContainer>
     </div>
   );
 }

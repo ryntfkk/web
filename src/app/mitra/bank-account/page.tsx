@@ -11,6 +11,7 @@ import { useIsPartnerVerified } from '@/hooks/usePartnerVerificationStatus';
 import { VerifiedLockNotice } from '@/components/mitra/VerifiedLockBadge';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { getErrorMessage } from '@/types/api';
 
 
@@ -114,7 +115,7 @@ export default function MitraBankAccountPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
 
       {/* Header */}
       <MitraPageHeader
@@ -124,7 +125,7 @@ export default function MitraBankAccountPage() {
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Rekening Bank' }]}
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <MitraPageContainer variant="form">
         <div className="bg-white rounded-lg border border-brand-gray-100 p-6 mb-6 text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <CreditCard className="w-8 h-8 text-brand-success" />
@@ -200,7 +201,7 @@ export default function MitraBankAccountPage() {
             </div>
           </form>
         )}
-      </div>
+      </MitraPageContainer>
 
       <MitraModal
         open={showOtp}

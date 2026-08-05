@@ -9,6 +9,7 @@ import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { getErrorMessage } from '@/types/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/format';
@@ -211,7 +212,7 @@ export default function WithdrawPage() {
 
   if (success) {
     return (
-      <div className="page-h bg-brand-gray-60 flex flex-col justify-center px-4">
+      <div className="flex min-h-[70vh] flex-col justify-center px-4">
         <div className="bg-white rounded-lg shadow-sm border border-brand-gray-100 p-6 max-w-sm w-full mx-auto text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <Landmark className="w-8 h-8 text-brand-success" />
@@ -233,7 +234,7 @@ export default function WithdrawPage() {
   }
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
       <MitraPageHeader
         title="Tarik Dana"
         variant="form"
@@ -241,8 +242,9 @@ export default function WithdrawPage() {
         breadcrumbs={[{ label: 'Dompet', href: '/mitra/wallet' }, { label: 'Tarik Dana' }]}
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Tarik Dana</h1>
+      {/* Tidak ada <h1> kedua di sini: MitraPageHeader sudah `alwaysShow`, jadi
+          judulnya tampil di desktop juga . dua-duanya berarti dua H1. */}
+      <MitraPageContainer variant="form">
         <div className="bg-brand-red text-white p-4 rounded-lg mb-6 shadow-sm">
           <p className="text-sm text-white/80 mb-1">Saldo Tersedia</p>
           <p className="text-2xl font-bold">{formatPrice(walletBalance)}</p>
@@ -410,7 +412,7 @@ export default function WithdrawPage() {
             </Button>
           </div>
         </form>
-      </div>
+      </MitraPageContainer>
     </div>
   );
 }

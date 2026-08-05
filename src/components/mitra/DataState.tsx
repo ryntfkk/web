@@ -31,8 +31,17 @@ interface DataStateProps {
   /** Aksi pada keadaan kosong, mis. "Tambah Layanan". */
   emptyAction?: ReactNode;
   children: ReactNode;
+  /**
+   * Kelas untuk PEMBUNGKUS wilayah data . bukan untuk kartu di dalamnya, dan
+   * bukan tempat menaruh lebar halaman. Lebar/gutter halaman adalah urusan
+   * `MitraPageContainer`; menyelundupkannya lewat sini membuat kartu
+   * error/empty punya lebar & padding sendiri yang berbeda dari daftar terisi.
+   */
   className?: string;
 }
+
+/** Kartu netral untuk keadaan gagal & kosong . bentuknya harus sama persis. */
+const STATE_CARD = 'rounded-lg border border-brand-gray-100 bg-white py-10 text-center';
 
 export default function DataState({
   isLoading,
@@ -63,31 +72,32 @@ export default function DataState({
 
   if (error) {
     return (
-      <div
-        role="alert"
-        className={`rounded-lg border border-brand-gray-100 bg-white py-10 text-center ${className}`}
-      >
-        <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-brand-warning" />
-        <p className="mb-1 text-sm font-semibold text-brand-gray-900">Gagal memuat data</p>
-        <p className="mx-auto mb-4 max-w-xs px-4 text-xs text-brand-gray-450">{error}</p>
-        {onRetry && (
-          <Button variant="outline" onClick={onRetry}>
-            Coba Lagi
-          </Button>
-        )}
+      <div className={className}>
+        <div role="alert" className={STATE_CARD}>
+          <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-brand-warning" />
+          <p className="mb-1 text-sm font-semibold text-brand-gray-900">Gagal memuat data</p>
+          <p className="mx-auto mb-4 max-w-xs px-4 text-xs text-brand-gray-450">{error}</p>
+          {onRetry && (
+            <Button variant="outline" onClick={onRetry}>
+              Coba Lagi
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
 
   if (isEmpty) {
     return (
-      <div className={`rounded-lg border border-brand-gray-100 bg-white py-10 text-center ${className}`}>
-        {emptyIcon}
-        <p className="mb-1 text-sm text-brand-gray-700">{emptyTitle}</p>
-        {emptyDescription && (
-          <p className="mx-auto mb-4 max-w-xs px-4 text-xs text-brand-gray-450">{emptyDescription}</p>
-        )}
-        {emptyAction}
+      <div className={className}>
+        <div className={STATE_CARD}>
+          {emptyIcon}
+          <p className="mb-1 text-sm text-brand-gray-700">{emptyTitle}</p>
+          {emptyDescription && (
+            <p className="mx-auto mb-4 max-w-xs px-4 text-xs text-brand-gray-450">{emptyDescription}</p>
+          )}
+          {emptyAction}
+        </div>
       </div>
     );
   }

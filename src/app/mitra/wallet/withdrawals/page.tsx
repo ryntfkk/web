@@ -125,7 +125,7 @@ export default function MitraWithdrawalsPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
       <MitraPageHeader
         title="Riwayat Penarikan"
         backHref="/mitra/wallet"
@@ -136,7 +136,7 @@ export default function MitraWithdrawalsPage() {
         ]}
       />
 
-      <MitraPageContainer variant="list" className="py-6">
+      <MitraPageContainer variant="list">
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
           {FILTERS.map((f) => (
             <button
@@ -165,7 +165,9 @@ export default function MitraWithdrawalsPage() {
             status ? undefined : 'Penarikan yang kamu ajukan dari dompet akan tercatat di sini.'
           }
         >
-          <ul className="space-y-3">
+          {/* Ruang desktop dipakai untuk KOLOM . satu kolom di 1152px hanya
+              membuat tiap baris jadi pita panjang berisi empat angka. */}
+          <ul className="grid gap-3 lg:grid-cols-2">
             {items.map((w) => {
               const meta = STATUS_META[w.status] ?? STATUS_META.PENDING;
               const StatusIcon = meta.icon;

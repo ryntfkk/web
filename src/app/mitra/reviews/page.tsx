@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import { Star, MessageSquare } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -114,7 +115,7 @@ export default function MitraReviewsPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="min-h-screen bg-brand-gray-60 pb-20">
+    <div className="pb-6">
       <MitraPageHeader
         title="Ulasan Pelanggan"
         variant="list"
@@ -122,7 +123,7 @@ export default function MitraReviewsPage() {
         breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Ulasan Pelanggan' }]}
       />
 
-      <div className="max-w-3xl mx-auto w-full px-4 py-4 sm:py-6">
+      <MitraPageContainer variant="list">
         {isLoading ? (
           <PageSkeleton />
         ) : (
@@ -159,7 +160,8 @@ export default function MitraReviewsPage() {
                 description="Ulasan dari pelanggan akan muncul di sini setelah pesanan selesai."
               />
             ) : (
-              <div className="space-y-3">
+              // Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu.
+              <div className="grid gap-3 lg:grid-cols-2 items-start">
                 {reviews.map((review) => {
                   const createdMs = Date.parse(review.created_at);
                   const bisaBalas =
@@ -325,7 +327,7 @@ export default function MitraReviewsPage() {
             </Button>
           </div>
         )}
-      </div>
+      </MitraPageContainer>
     </div>
   );
 }

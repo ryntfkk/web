@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import { formatPrice } from '@/lib/format';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 
 export default function AdditionalFeeFormClient() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -97,7 +98,7 @@ export default function AdditionalFeeFormClient() {
 
   if (success) {
     return (
-      <div className="page-h bg-brand-gray-60 flex flex-col justify-center px-4">
+      <div className="flex min-h-[70vh] flex-col justify-center px-4">
         <div className="bg-white rounded-lg shadow-sm border border-brand-gray-100 p-6 max-w-sm w-full mx-auto text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-brand-success" />
@@ -112,18 +113,15 @@ export default function AdditionalFeeFormClient() {
   }
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
-      {/* Header */}
-      <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center px-4 py-4 gap-3">
-          <button onClick={() => router.push(`/mitra/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-md" aria-label="Kembali">
-            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-          </button>
-          <h1 className="text-base font-bold text-brand-gray-900">Ajukan Biaya Tambahan</h1>
-        </div>
-      </div>
+    <div className="pb-6">
+      <MitraPageHeader
+        title="Ajukan Biaya Tambahan"
+        variant="form"
+        backHref={`/mitra/orders/${orderId}`}
+        breadcrumbs={[{ label: 'Pesanan', href: '/mitra/orders' }, { label: 'Biaya Tambahan' }]}
+      />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <MitraPageContainer variant="form">
         <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-4 flex gap-3 items-start mb-6">
           <AlertCircle className="w-5 h-5 text-brand-error shrink-0 mt-0.5" />
           <p className="text-sm text-brand-error font-medium leading-relaxed">
@@ -205,7 +203,7 @@ export default function AdditionalFeeFormClient() {
             </Button>
           </div>
         </form>
-      </div>
+      </MitraPageContainer>
     </div>
   );
 }

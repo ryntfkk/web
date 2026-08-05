@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
-import { containerWidthClass, type MitraContainerVariant } from './MitraPageContainer';
+import { containerWidthClass, MITRA_GUTTER, type MitraContainerVariant } from './MitraPageContainer';
 
 export interface MitraBreadcrumb {
   label: string;
@@ -56,13 +56,14 @@ export default function MitraPageHeader({
         onBack={onBack}
         right={right}
         maxWidthClass={width}
+        gutterClass={MITRA_GUTTER}
       />
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav
           aria-label="Remah roti"
           className="hidden border-b border-brand-gray-100 bg-white lg:block"
         >
-          <ol className={`${width} mx-auto flex items-center gap-1 px-4 py-2 text-xs text-brand-gray-450`}>
+          <ol className={`${width} mx-auto flex items-center gap-1 ${MITRA_GUTTER} py-2 text-xs text-brand-gray-450`}>
             {breadcrumbs.map((crumb, i) => (
               <li key={`${crumb.label}-${i}`} className="flex items-center gap-1">
                 {i > 0 && <ChevronRight className="h-3 w-3 text-brand-gray-100" aria-hidden />}

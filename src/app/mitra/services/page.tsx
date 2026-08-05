@@ -12,6 +12,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import DataState from '@/components/mitra/DataState';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import MitraModal from '@/components/mitra/MitraModal';
 import { useLiveRegion } from '@/components/mitra/useLiveRegion';
 
@@ -114,7 +115,7 @@ export default function MitraServicesPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
 
       {/* Header */}
       {liveRegion}
@@ -123,6 +124,7 @@ export default function MitraServicesPage() {
         title="Layanan Anda"
         variant="list"
         backHref="/mitra/dashboard"
+        breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Layanan' }]}
         right={
           <Link
             href="/mitra/services/new"
@@ -134,8 +136,10 @@ export default function MitraServicesPage() {
         }
       />
 
+      <MitraPageContainer variant="list">
+      {/* Lebar halaman TIDAK dioper lewat `className` DataState . di cabang
+          error/empty kelas itu dulu menempel ke kartunya. */}
       <DataState
-        className="max-w-6xl mx-auto px-4 py-6"
         isLoading={loading}
         error={error}
         onRetry={fetchServices}
@@ -202,6 +206,7 @@ export default function MitraServicesPage() {
           ))}
         </div>
       </DataState>
+      </MitraPageContainer>
 
       <MitraModal
         open={!!deleteId}

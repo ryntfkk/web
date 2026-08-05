@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FileText, Plus, Trash2, Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
 import { Modal } from '@/components/ui/modal';
@@ -240,16 +241,19 @@ export default function MitraDocumentsPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
+    <div className="pb-6">
+      {/* variant="form", bukan "list": badan halaman ini memang selebar formulir.
+          Sebelumnya headernya `list` (1152px) di atas badan 672px, jadi judulnya
+          menggantung jauh di kiri kartu-kartunya. */}
       <MitraPageHeader
         title="Dokumen Pendukung"
         subtitle={isVendor ? 'SKCK, sertifikat, izin usaha, dan dokumen badan usaha' : 'SKCK, sertifikat, dan izin usaha'}
-        variant="list"
+        variant="form"
         backHref="/mitra/profile"
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Dokumen Pendukung' }]}
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <MitraPageContainer variant="form" className="space-y-4">
         {error && (
           <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded-md text-sm">
             {error}
@@ -351,7 +355,7 @@ export default function MitraDocumentsPage() {
             ))}
           </div>
         )}
-      </div>
+      </MitraPageContainer>
 
       <Modal open={isModalOpen} onClose={closeModal} title="Tambah Dokumen">
         <div className="space-y-4">

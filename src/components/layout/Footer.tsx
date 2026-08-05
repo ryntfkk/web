@@ -53,9 +53,12 @@ const FOOTER_COLUMNS: FooterColumn[] = [
 const MAX_POPULAR_CATEGORIES = 4;
 const MAX_POPULAR_CITIES = 3;
 
-function useFooterPopularLinks() {
+function useFooterPopularLinks(enabled: boolean) {
   return useQuery({
     queryKey: ['footer-popular-links'],
+    // Footer tidak dirender di /mitra & /chat . tanpa ini kedua request tetap
+    // ditembakkan di tiap halaman mode mitra untuk tautan yang tak pernah tampil.
+    enabled,
     staleTime: 10 * 60 * 1000,
     queryFn: async () => {
       const [catsRes, citiesRes] = await Promise.all([
@@ -89,10 +92,16 @@ function useFooterPopularLinks() {
 
 export default function Footer() {
   const pathname = usePathname();
+  // Mode mitra TIDAK memakai kerangka pelanggan . `HeaderWrapper` sudah menepi
+  // untuk /mitra, dan footer harus ikut. Tanpa ini dashboard mitra diakhiri
+  // kolom SEO "Kategori Populer/Kota Populer" milik sisi pelanggan, dan
+  // `max-w-[1200px]`-nya terpusat pada VIEWPORT sementara konten bergeser 240px
+  // oleh sidebar . jadi terlihat miring pula.
+  const hidden = pathname.startsWith('/chat') || pathname.startsWith('/mitra');
   // Hook dipanggil sebelum early-return agar rules-of-hooks terpenuhi.
-  const { data: popularLinks } = useFooterPopularLinks();
+  const { data: popularLinks } = useFooterPopularLinks(!hidden);
   const { profile } = usePlatformConfig();
-  if (pathname.startsWith('/chat')) return null;
+  if (hidden) return null;
 
   return (
     <footer className="hidden md:block w-full bg-brand-gray-60 border-t border-brand-gray-100 mt-auto">

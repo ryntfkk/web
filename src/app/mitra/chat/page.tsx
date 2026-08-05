@@ -25,12 +25,14 @@ export default function MitraChatPage() {
     }
   };
 
-  if (authLoading) return <div className="page-h bg-brand-gray-60"><ListItemSkeleton count={8} /></div>;
+  if (authLoading) return <div className="min-h-[100dvh]"><ListItemSkeleton count={8} /></div>;
   if (!isAuthorized) return null;
 
   return (
-    // Tanpa TopNavbar, tapi MitraBottomNav fixed di bawah (4rem).
-    <div className="h-[calc(100dvh-4rem)] flex flex-col bg-white overflow-hidden">
+    // Tanpa TopNavbar. MitraBottomNav (4rem) hanya tampil DI BAWAH lg . di
+    // desktop navigasinya sidebar, jadi mengurangi 4rem di sana menyisakan strip
+    // abu mati di dasar layar.
+    <div className="h-[calc(100dvh-4rem)] lg:h-[100dvh] flex flex-col bg-white overflow-hidden">
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List ===== */}

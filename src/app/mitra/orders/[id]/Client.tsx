@@ -5,7 +5,7 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
-  ArrowLeft, MessageSquare, MapPin, Calendar, Clock, Phone, Loader2, X,
+  MessageSquare, MapPin, Calendar, Clock, Loader2,
   AlertTriangle, Check, Copy, ClipboardList, Wallet, Star, User, HelpCircle, Scale,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,9 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 import { PageSkeleton } from '@/components/ui/skeleton';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import MitraModal from '@/components/mitra/MitraModal';
 import { getErrorMessage } from '@/types/api';
 import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
 import dynamic from 'next/dynamic';
@@ -323,11 +326,11 @@ export default function MitraOrderDetailClient() {
 
   if (loading) {
     return (
-      <div className="page-h bg-brand-gray-60 pb-20">
-        <div className="bg-white border-b border-brand-gray-100 px-4 py-4 lg:hidden">
+      <div className="pb-20">
+        <div className="bg-white border-b border-brand-gray-100 px-4 py-4">
           <div className="h-6 w-40 bg-brand-gray-100 rounded-md animate-pulse" />
         </div>
-        <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
+        <MitraPageContainer variant="detail" className="space-y-4">
           <div className="h-28 bg-brand-gray-100 rounded-lg animate-pulse" />
           {[1, 2, 3].map(i => (
             <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 animate-pulse">
@@ -335,14 +338,14 @@ export default function MitraOrderDetailClient() {
               <div className="h-4 w-1/2 bg-brand-gray-100 rounded-md" />
             </div>
           ))}
-        </div>
+        </MitraPageContainer>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="page-h bg-brand-gray-60 flex items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
           <p className="text-brand-gray-700 mb-4">Pesanan tidak ditemukan.</p>
           <Button onClick={() => router.push('/mitra/orders')}>Kembali ke Daftar</Button>
@@ -520,48 +523,32 @@ export default function MitraOrderDetailClient() {
   );
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-40 lg:pb-10">
+    <div className="pb-40 lg:pb-10">
 
-      <div className="bg-white border-b border-brand-gray-100 px-4 py-3 sticky top-0 z-30 lg:hidden">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/mitra/orders')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-lg" aria-label="Kembali">
-            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-          </button>
-          <div className="min-w-0">
-            <h1 className="text-base font-bold text-brand-gray-900 leading-tight">Detail Pesanan</h1>
-            <p className="text-xs text-brand-gray-450 truncate">{order.order_number}</p>
-          </div>
-          <button
+      {/* Satu header untuk semua breakpoint. Sebelumnya bilah mobile
+          (`lg:hidden`) dan judul desktop (`hidden lg:flex`) ditulis terpisah,
+          dan versi desktopnya kehilangan tombol kembali . padahal mode mitra
+          tidak punya TopNavbar untuk menggantikannya. */}
+      <MitraPageHeader
+        title="Detail Pesanan"
+        subtitle={order.order_number}
+        variant="detail"
+        backHref="/mitra/orders"
+        breadcrumbs={[{ label: 'Pesanan', href: '/mitra/orders' }, { label: order.order_number }]}
+        right={
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-md border-brand-gray-100 text-brand-gray-700"
             onClick={() => setHelpOpen(true)}
-            className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-brand-gray-700 hover:bg-brand-gray-60"
-            aria-label="Bantuan"
           >
-            <HelpCircle className="w-5 h-5" />
-            <span className="text-xs font-medium">Bantuan</span>
-          </button>
-        </div>
-      </div>
+            <HelpCircle className="w-4 h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">Bantuan</span>
+          </Button>
+        }
+      />
 
-      <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6">
-        <div className="hidden lg:flex items-center justify-between mb-5">
-          <div>
-            <h1 className="text-2xl font-bold text-brand-gray-900">Detail Pesanan</h1>
-            <p className="text-sm text-brand-gray-450 mt-1">{order.order_number}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              className="rounded-lg border-brand-gray-100 text-brand-gray-700"
-              onClick={() => setHelpOpen(true)}
-            >
-              <HelpCircle className="w-4 h-4 mr-1.5" /> Bantuan
-            </Button>
-            <Button variant="outline" className="rounded-lg border-brand-gray-100 text-brand-gray-700" onClick={() => router.push('/mitra/orders')}>
-              <ArrowLeft className="w-4 h-4 mr-1.5" /> Semua Pesanan
-            </Button>
-          </div>
-        </div>
-
+      <MitraPageContainer variant="detail">
         {/* ── Status hero ─────────────────────────────────────────── */}
         <div className={`rounded-lg bg-gradient-to-br ${hero.tone} text-white p-5 sm:p-6 mb-4`}>
           <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -929,9 +916,11 @@ export default function MitraOrderDetailClient() {
           </div>
 
           {/* Kolom kanan (desktop): pendapatan + aksi, ikut scroll.
-              lg:top-6, bukan lg:top-20 . mode mitra tidak punya TopNavbar
-              (§7a), jadi 80px hanya membuat kolom mengambang di bawah kosong. */}
-          <div className="space-y-4 lg:sticky lg:top-6">
+              lg:top-28 = tinggi MitraPageHeader (bilah judul + remah roti) plus
+              sedikit jarak. Mode mitra tidak punya TopNavbar, tapi header
+              halamannya `sticky top-0 z-10` . offset yang lebih kecil membuat
+              kartu pendapatan berhenti DI BAWAH header dan tertutup olehnya. */}
+          <div className="space-y-4 lg:sticky lg:top-28">
             {earningsCard}
             {hasActions && (
               <div className="hidden lg:block bg-white rounded-lg border border-brand-gray-100 p-4">
@@ -940,11 +929,12 @@ export default function MitraOrderDetailClient() {
             )}
           </div>
         </div>
-      </div>
+      </MitraPageContainer>
 
-      {/* Action bar mobile */}
+      {/* Action bar mobile . z-40 = tangga z-index mode mitra (di bawah bottom
+          nav z-50, di atas sidebar z-30). */}
       {hasActions && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-20 lg:hidden pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-40 lg:hidden pb-safe">
           <div className="flex flex-col gap-2">{actions}</div>
         </div>
       )}
@@ -958,146 +948,124 @@ export default function MitraOrderDetailClient() {
       />
 
       {/* Accept Modal */}
-      {showAcceptModal && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-white rounded-lg w-full max-w-sm p-6">
-            <h3 className="text-lg font-bold text-brand-gray-900 mb-2">Terima Pesanan?</h3>
-            <p className="text-sm text-brand-gray-700 mb-4">
-              Pastikan kamu siap mengerjakan pesanan sesuai jadwal dan harga yang disepakati.
-            </p>
-            <div className="bg-brand-gray-60 rounded-lg p-3 mb-6 text-sm">
-              <div className="flex justify-between">
-                <span className="text-brand-gray-700">Estimasi pendapatanmu</span>
-                <span className="font-bold text-brand-red">{formatPrice(partnerNet)}</span>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 border-brand-gray-100 text-brand-gray-700" onClick={() => setShowAcceptModal(false)} disabled={actionLoading}>Batal</Button>
-              <Button className="flex-1 bg-brand-success hover:bg-brand-success-dark" onClick={() => handleAction('confirm')} disabled={actionLoading}>
-                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Terima'}
-              </Button>
-            </div>
+      <MitraModal
+        open={showAcceptModal}
+        onClose={() => setShowAcceptModal(false)}
+        title="Terima Pesanan?"
+        description="Pastikan kamu siap mengerjakan pesanan sesuai jadwal dan harga yang disepakati."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md border-brand-gray-100 text-brand-gray-700" onClick={() => setShowAcceptModal(false)} disabled={actionLoading}>Batal</Button>
+            <Button className="flex-1 rounded-md bg-brand-success hover:bg-brand-success-dark" onClick={() => handleAction('confirm')} disabled={actionLoading}>
+              {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Terima'}
+            </Button>
+          </>
+        }
+      >
+        <div className="mt-4 rounded-lg bg-brand-gray-60 p-3 text-sm">
+          <div className="flex justify-between">
+            <span className="text-brand-gray-700">Estimasi pendapatanmu</span>
+            <span className="font-bold text-brand-red">{formatPrice(partnerNet)}</span>
           </div>
         </div>
-      )}
+      </MitraModal>
 
       {/* Reject Modal */}
-      {showRejectModal && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
-          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-lg p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-brand-gray-900">Tolak Pesanan</h3>
-              <button onClick={() => setShowRejectModal(false)} className="p-1 hover:bg-brand-gray-100 rounded-full" aria-label="Tutup">
-                <X className="w-5 h-5 text-brand-gray-450" />
-              </button>
-            </div>
-            <p className="text-sm text-brand-gray-700 mb-4">Silakan pilih alasan penolakan. Ini membantu kami meningkatkan kualitas layanan.</p>
-
-            <div className="space-y-2 mb-6">
-              {['Harga tidak sesuai', 'Jadwal bentrok', 'Di luar area layanan', 'Lainnya'].map(reason => (
-                <button
-                  key={reason}
-                  className={`w-full text-left px-4 py-3 border rounded-lg text-sm transition-colors ${rejectReason === reason ? 'border-brand-red bg-brand-error-soft text-brand-red font-medium' : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-gray-200'}`}
-                  onClick={() => setRejectReason(reason)}
-                >
-                  {reason}
-                </button>
-              ))}
-            </div>
-
-            <Button
-              className="w-full bg-brand-error hover:bg-brand-error-dark"
-              disabled={!rejectReason || actionLoading}
-              onClick={() => handleAction('reject', { reason: rejectReason })}
+      <MitraModal
+        open={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        title="Tolak Pesanan"
+        description="Silakan pilih alasan penolakan. Ini membantu kami meningkatkan kualitas layanan."
+        size="lg"
+        footer={
+          <Button
+            className="w-full rounded-md bg-brand-error hover:bg-brand-error-dark"
+            disabled={!rejectReason || actionLoading}
+            onClick={() => handleAction('reject', { reason: rejectReason })}
+          >
+            {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Konfirmasi Tolak'}
+          </Button>
+        }
+      >
+        <div className="mt-4 space-y-2">
+          {['Harga tidak sesuai', 'Jadwal bentrok', 'Di luar area layanan', 'Lainnya'].map(reason => (
+            <button
+              key={reason}
+              type="button"
+              aria-pressed={rejectReason === reason}
+              className={`w-full text-left px-4 py-3 border rounded-md text-sm transition-colors ${rejectReason === reason ? 'border-brand-red bg-brand-error-soft text-brand-red font-medium' : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-gray-200'}`}
+              onClick={() => setRejectReason(reason)}
             >
-              {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Konfirmasi Tolak'}
-            </Button>
-          </div>
+              {reason}
+            </button>
+          ))}
         </div>
-      )}
+      </MitraModal>
 
       {/* Dispute Modal */}
-      {showDisputeModal && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
-          <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-lg p-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 sm:zoom-in-95">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-brand-gray-900">Lapor Masalah</h3>
-              <button onClick={() => setShowDisputeModal(false)} className="p-2 -mr-2 text-brand-gray-450 hover:text-brand-gray-700" aria-label="Tutup">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <p className="text-sm text-brand-gray-700">
-                Pesanan akan dihentikan sementara (Dispute) dan tim CS akan menengahinya. Berikan alasan masalahmu:
-              </p>
-              <textarea
-                className="w-full border border-brand-gray-100 rounded-lg p-3 text-sm focus:outline-none focus:border-brand-red"
-                placeholder="Tuliskan kendala kamu secara detail..."
-                rows={4}
-                value={disputeReason}
-                onChange={e => setDisputeReason(e.target.value)}
-              />
-            </div>
-
-            <Button
-              className="w-full bg-brand-error hover:bg-brand-error-dark text-white rounded-lg h-12 font-bold"
-              disabled={!disputeReason.trim() || actionLoading}
-              onClick={() => handleAction('dispute')}
-            >
-              {actionLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Kirim Laporan'}
-            </Button>
-          </div>
-        </div>
-      )}
+      <MitraModal
+        open={showDisputeModal}
+        onClose={() => setShowDisputeModal(false)}
+        title="Lapor Masalah"
+        description="Pesanan akan dihentikan sementara (Dispute) dan tim CS akan menengahinya. Berikan alasan masalahmu:"
+        size="lg"
+        footer={
+          <Button
+            className="w-full rounded-md bg-brand-error hover:bg-brand-error-dark text-white h-12 font-bold"
+            disabled={!disputeReason.trim() || actionLoading}
+            onClick={() => handleAction('dispute')}
+          >
+            {actionLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Kirim Laporan'}
+          </Button>
+        }
+      >
+        <textarea
+          className="mt-4 w-full border border-brand-gray-100 rounded-md p-3 text-sm focus:outline-none focus:border-brand-red"
+          placeholder="Tuliskan kendala kamu secara detail..."
+          rows={4}
+          value={disputeReason}
+          onChange={e => setDisputeReason(e.target.value)}
+        />
+      </MitraModal>
 
       {/* Modal Konfirmasi Selesai . mitra harus beratestasi sebelum complete */}
-      {showCompleteModal && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-base font-bold text-brand-gray-900">Tandai Pekerjaan Selesai</h3>
-              <button onClick={() => setShowCompleteModal(false)} className="p-2 -mr-2 text-brand-gray-450 hover:text-brand-gray-700" aria-label="Tutup">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="text-sm text-brand-gray-700 mb-4">
-              Setelah ditandai selesai, pelanggan akan diminta mengkonfirmasi hasil pekerjaan. Dana akan cair setelah pelanggan mengkonfirmasi (atau otomatis dalam 24 jam).
-            </p>
-
-            <div className="p-3 bg-brand-warning-soft border border-brand-warning-border rounded-lg mb-4">
-              <p className="text-xs text-brand-warning-dark font-medium mb-1">💡 Tips:</p>
-              <p className="text-xs text-brand-gray-700">Pastikan kamu sudah mengambil foto hasil pekerjaan sebagai bukti. Upload di bagian foto pesanan jika diperlukan.</p>
-            </div>
-
-            <label className="flex items-start gap-2.5 cursor-pointer mb-5">
-              <input
-                type="checkbox"
-                checked={completeAttestation}
-                onChange={e => setCompleteAttestation(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-brand-success shrink-0"
-              />
-              <span className="text-sm text-brand-gray-700">
-                Saya menyatakan pekerjaan sudah <strong>selesai sepenuhnya</strong> sesuai permintaan pelanggan.
-              </span>
-            </label>
-
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded-lg border-brand-gray-100" onClick={() => setShowCompleteModal(false)}>
-                Batal
-              </Button>
-              <Button
-                className="flex-1 bg-brand-success hover:bg-brand-success-dark rounded-lg"
-                disabled={!completeAttestation || actionLoading}
-                onClick={() => { setShowCompleteModal(false); handleAction('complete'); }}
-              >
-                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Selesai'}
-              </Button>
-            </div>
-          </div>
+      <MitraModal
+        open={showCompleteModal}
+        onClose={() => setShowCompleteModal(false)}
+        title="Tandai Pekerjaan Selesai"
+        description="Setelah ditandai selesai, pelanggan akan diminta mengkonfirmasi hasil pekerjaan. Dana akan cair setelah pelanggan mengkonfirmasi (atau otomatis dalam 24 jam)."
+        footer={
+          <>
+            <Button variant="outline" className="flex-1 rounded-md border-brand-gray-100" onClick={() => setShowCompleteModal(false)}>
+              Batal
+            </Button>
+            <Button
+              className="flex-1 rounded-md bg-brand-success hover:bg-brand-success-dark"
+              disabled={!completeAttestation || actionLoading}
+              onClick={() => { setShowCompleteModal(false); handleAction('complete'); }}
+            >
+              {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Selesai'}
+            </Button>
+          </>
+        }
+      >
+        <div className="mt-4 p-3 bg-brand-warning-soft border border-brand-warning-border rounded-md">
+          <p className="text-xs text-brand-warning-dark font-medium mb-1">💡 Tips:</p>
+          <p className="text-xs text-brand-gray-700">Pastikan kamu sudah mengambil foto hasil pekerjaan sebagai bukti. Upload di bagian foto pesanan jika diperlukan.</p>
         </div>
-      )}
+
+        <label className="mt-4 flex items-start gap-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={completeAttestation}
+            onChange={e => setCompleteAttestation(e.target.checked)}
+            className="mt-0.5 w-4 h-4 accent-brand-success shrink-0"
+          />
+          <span className="text-sm text-brand-gray-700">
+            Saya menyatakan pekerjaan sudah <strong>selesai sepenuhnya</strong> sesuai permintaan pelanggan.
+          </span>
+        </label>
+      </MitraModal>
     </div>
   );
 }

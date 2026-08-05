@@ -3,13 +3,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Package, ArrowLeft, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Calendar, Package, Search, SlidersHorizontal, X } from 'lucide-react';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import DataState from '@/components/mitra/DataState';
+import MitraPageHeader from '@/components/mitra/MitraPageHeader';
+import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 
 interface Order {
   id: string;
@@ -199,17 +201,21 @@ export default function MitraOrdersPage() {
   if (!isAuthorized) return null;
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-24">
-      <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 px-4 py-4">
-            <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-md" aria-label="Kembali">
-              <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-            </button>
-            <h1 className="text-base font-bold text-brand-gray-900">Daftar Pesanan</h1>
-          </div>
+    <div className="pb-6">
+      {/* Header standar, bukan bilah tulis tangan . tombol kembali & remah roti
+          jadi konsisten dengan halaman mitra lain. Toolbar pencarian/filter
+          turun jadi kartu tersendiri: sebagai pita putih selebar layar ia tidak
+          punya batas sama sekali di desktop. */}
+      <MitraPageHeader
+        title="Daftar Pesanan"
+        variant="list"
+        backHref="/mitra/dashboard"
+        breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Pesanan' }]}
+      />
 
-          <div className="px-4 pb-3 flex gap-2">
+      <MitraPageContainer variant="list" className="py-4 space-y-4">
+        <div className="rounded-lg border border-brand-gray-100 bg-white">
+          <div className="p-3 flex gap-2">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -239,7 +245,7 @@ export default function MitraOrdersPage() {
           </div>
 
           {showFilters && (
-            <div id="order-extra-filters" className="border-t border-brand-gray-100 px-4 py-3">
+            <div id="order-extra-filters" className="border-t border-brand-gray-100 p-3">
               <div className="grid gap-3 sm:grid-cols-3">
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-semibold text-brand-gray-700">Jadwal dari</span>
@@ -287,7 +293,7 @@ export default function MitraOrdersPage() {
             </div>
           )}
 
-          <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide border-t border-brand-gray-100 pt-3">
+          <div className="flex gap-2 p-3 overflow-x-auto scrollbar-hide border-t border-brand-gray-100">
             {FILTERS.map(f => (
               <button
                 key={f.key}
@@ -306,12 +312,13 @@ export default function MitraOrdersPage() {
             ))}
           </div>
         </div>
-      </div>
 
       {/* Gagal memuat dibedakan dari "belum ada pesanan" (P1-11): menyamakan
-          keduanya membuat mitra mengira pesanannya hilang. */}
+          keduanya membuat mitra mengira pesanannya hilang.
+          Lebar halaman TIDAK dioper lewat `className` DataState . di cabang
+          error/empty kelas itu dulu menempel ke kartunya, jadi keadaan kosong
+          punya lebar & padding berbeda dari daftar yang terisi. */}
       <DataState
-        className="max-w-6xl mx-auto px-4 py-4"
         isLoading={loading}
         error={error}
         onRetry={() => fetchOrders({ pageToLoad: 1 })}
@@ -328,14 +335,14 @@ export default function MitraOrdersPage() {
           ) : undefined
         }
         skeleton={
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 h-28 animate-pulse" />
             ))}
           </div>
         }
       >
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
           {filteredOrders.map(order => (
             <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-brand-gray-100 rounded-lg p-4 hover:border-brand-red transition-colors">
               <div className="flex justify-between items-start mb-3">
@@ -381,6 +388,7 @@ export default function MitraOrdersPage() {
           </div>
         )}
       </DataState>
+      </MitraPageContainer>
     </div>
   );
 }

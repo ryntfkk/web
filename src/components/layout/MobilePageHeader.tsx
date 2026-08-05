@@ -26,6 +26,12 @@ interface MobilePageHeaderProps {
   /** Lebar maksimum kontainer dalam (sesuaikan dgn lebar konten halaman). Default max-w-lg. */
   maxWidthClass?: string;
   /**
+   * Jarak ke tepi. WAJIB sama dengan gutter kontainer halaman . kalau berbeda,
+   * judul header tidak sejajar dengan kartu di bawahnya. Default `px-4`
+   * (halaman pelanggan); mode mitra mengoper `MITRA_GUTTER`.
+   */
+  gutterClass?: string;
+  /**
    * Tag judul header. Default 'h1' karena di sebagian besar halaman inilah satu-
    * satunya judul. Halaman yang punya H1 sendiri di badan konten (mis. landing
    * SEO /kategori & /jasa) WAJIB set 'p' . kalau tidak, HTML berisi dua H1 dan
@@ -45,6 +51,7 @@ export default function MobilePageHeader({
   right,
   alwaysShow = false,
   maxWidthClass = 'max-w-lg',
+  gutterClass = 'px-4',
   titleAs = 'h1',
 }: MobilePageHeaderProps) {
   const router = useRouter();
@@ -54,7 +61,7 @@ export default function MobilePageHeader({
 
   return (
     <div className={`bg-white border-b border-brand-gray-100 sticky top-0 z-10 ${alwaysShow ? '' : 'lg:hidden'}`}>
-      <div className={`${maxWidthClass} mx-auto flex items-center px-4 py-4 gap-3`}>
+      <div className={`${maxWidthClass} mx-auto flex items-center ${gutterClass} py-4 gap-3`}>
         {backHref ? (
           <Link href={backHref} className={backClass} aria-label="Kembali">
             {arrow}
