@@ -16,7 +16,17 @@ import { getErrorMessage } from '@/types/api';
 
 interface PartnerDocument {
   id: string;
-  doc_type: 'SKCK' | 'SKILL_CERTIFICATE' | 'BUSINESS_LICENSE' | 'OTHER';
+  // P1 FIX (AUDIT #1): tipe verifikasi vendor kini bisa diupload mitra lewat
+  // halaman ini setelah admin ubah tipe ke vendor. KTP & SELFIE_KTP tetap
+  // lewat onboarding/resubmission saja.
+  doc_type:
+    | 'SKCK'
+    | 'SKILL_CERTIFICATE'
+    | 'BUSINESS_LICENSE'
+    | 'OTHER'
+    | 'AKTA_PENDIRIAN'
+    | 'NPWP'
+    | 'NIB';
   file_url: string;
   document_number?: string | null;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED';
@@ -33,6 +43,9 @@ const DOC_TYPE_LABELS: Record<PartnerDocument['doc_type'], string> = {
   SKILL_CERTIFICATE: 'Sertifikat Keahlian',
   BUSINESS_LICENSE: 'Izin Usaha',
   OTHER: 'Dokumen Lainnya',
+  AKTA_PENDIRIAN: 'Akta Pendirian',
+  NPWP: 'NPWP Badan Usaha',
+  NIB: 'NIB',
 };
 
 const STATUS_VARIANTS: Record<PartnerDocument['status'], 'warning' | 'success' | 'error' | 'neutral'> = {
@@ -77,6 +90,8 @@ export default function MitraDocumentsPage() {
   const [documents, setDocuments] = useState<PartnerDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // P1 FIX (AUDIT #1): fetch partner_type untuk menentukan opsi dokumen vendor.
+  const [isVendor, setIsVendor] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -90,11 +105,18 @@ export default function MitraDocumentsPage() {
 
   const fetchDocuments = useCallback(async () => {
     setLoading(true);
-    const res = await fetchAPI<PartnerDocument[]>('/partners/me/documents');
-    if (res.success && res.data) {
-      setDocuments(res.data);
+    // Ambil partner_type sekaligus dengan dokumen — satu round-trip.
+    const [docsRes, meRes] = await Promise.all([
+      fetchAPI<PartnerDocument[]>('/partners/me/documents'),
+      fetchAPI<{ partner_type?: string }>('/partners/me'),
+    ]);
+    if (docsRes.success && docsRes.data) {
+      setDocuments(docsRes.data);
     } else {
-      setError(getErrorMessage(res) || 'Gagal memuat dokumen');
+      setError(getErrorMessage(docsRes) || 'Gagal memuat dokumen');
+    }
+    if (meRes.success && meRes.data?.partner_type === 'vendor') {
+      setIsVendor(true);
     }
     setLoading(false);
   }, []);
@@ -221,7 +243,7 @@ export default function MitraDocumentsPage() {
     <div className="page-h bg-brand-gray-60 pb-24">
       <MitraPageHeader
         title="Dokumen Pendukung"
-        subtitle="SKCK, sertifikat, dan izin usaha"
+        subtitle={isVendor ? 'SKCK, sertifikat, izin usaha, dan dokumen badan usaha' : 'SKCK, sertifikat, dan izin usaha'}
         variant="list"
         backHref="/mitra/profile"
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Dokumen Pendukung' }]}
@@ -345,6 +367,16 @@ export default function MitraDocumentsPage() {
               <option value="SKCK">SKCK</option>
               <option value="BUSINESS_LICENSE">Izin Usaha</option>
               <option value="OTHER">Dokumen Lainnya</option>
+              {/* P1 FIX (AUDIT #1): opsi dokumen verifikasi vendor hanya
+                  muncul bila mitra bertipe vendor. Individual tidak punya
+                  badan usaha. */}
+              {isVendor && (
+                <>
+                  <option value="AKTA_PENDIRIAN">Akta Pendirian</option>
+                  <option value="NPWP">NPWP Badan Usaha</option>
+                  <option value="NIB">NIB</option>
+                </>
+              )}
             </select>
           </div>
 

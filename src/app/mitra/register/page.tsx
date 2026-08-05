@@ -1239,6 +1239,19 @@ function MitraRegisterForm() {
                   value={formData.bank_account_name}
                   onChange={(e) => setFormData({ ...formData, bank_account_name: e.target.value.toUpperCase() })}
                 />
+                {/* AUDIT #2 / Fase 2b: sinyal risiko vendor — nama rekening ≠
+                    legal_entity_name. Bukan disable submit (§10a: sinyal, bukan
+                    gerbang). Pengajuan tetap lolos, ditinjau manual. */}
+                {isVendor &&
+                  formData.bank_account_name.trim() &&
+                  vendor.legal_entity_name.trim() &&
+                  formData.bank_account_name.trim().toUpperCase() !==
+                    vendor.legal_entity_name.trim().toUpperCase() && (
+                    <p className="mt-1.5 rounded-md border border-brand-warning-border bg-brand-warning-soft px-2 py-1.5 text-xs text-brand-warning-dark">
+                      Nama rekening berbeda dari nama badan usaha. Pengajuan akan
+                      ditinjau manual — sebaiknya gunakan rekening atas nama badan usaha.
+                    </p>
+                  )}
               </div>
               {/* Komisi & batas tarik ditampilkan DI SINI, di titik mitra
                   menyetujui — angkanya dari platform_settings, bukan diketik.

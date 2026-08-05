@@ -29,8 +29,10 @@ const EXEMPT_PREFIXES = ['/login', '/register', '/forgot-password', '/legal', '/
  *
  * `cancellation` sengaja tidak masuk: ia kebijakan yang dirujuk S&K, bukan
  * kontrak terpisah — menagih centang untuknya hanya menambah gesekan.
- * `partner-terms` ikut ditagih karena ia kontrak tersendiri bagi mitra; bila
- * belum diterbitkan, `/legal/pending` tidak akan pernah mengembalikannya.
+ * `partner-terms` ikut ditagih karena ia kontrak tersendiri bagi mitra.
+ * Backend memfilter `partner-terms` hanya untuk user yang punya baris partners
+ * hidup (P0 fix, lihat AUDIT-SISTEM-VENDOR.md #3) — sebelumnya v2 sudah terbit
+ * dan menagih pelanggan biasa yang bukan mitra.
  */
 const CONSENT_REQUIRED: LegalDocument['slug'][] = ['terms', 'privacy', 'partner-terms'];
 
