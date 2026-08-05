@@ -12,6 +12,22 @@ import { PageSkeleton, Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 
 
+// Harus SAMA dengan validStatuses di backend disputes/service.go CreateDispute.
+// Kalau daftar ini lebih sempit, halaman memantul balik ke /orders/{id} dan
+// pengguna melihatnya sebagai "halaman mereload" tanpa pesan apa pun.
+const DISPUTABLE_STATUSES = [
+  'PAID',
+  'IN_PROGRESS',
+  'WAITING_ADDITIONAL_PAY',
+  'WAITING_CUSTOMER_CONFIRM',
+];
+
+// Kode error mentah dari backend -> kalimat yang bisa dibaca pengguna.
+const ERROR_MESSAGES: Record<string, string> = {
+  DISPUTE_ALREADY_EXISTS: 'Sengketa untuk pesanan ini sudah pernah diajukan. Buka Ruang Sengketa dari halaman pesanan.',
+  DISPUTE_INVALID_STATUS: 'Status pesanan ini tidak lagi bisa disengketakan.',
+};
+
 export default function DisputeClient() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
@@ -36,11 +52,13 @@ export default function DisputeClient() {
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
       const unwrappedOrder = res.data;
-      if (unwrappedOrder.status !== 'WAITING_CUSTOMER_CONFIRM' && unwrappedOrder.status !== 'IN_PROGRESS') {
+      if (!DISPUTABLE_STATUSES.includes(unwrappedOrder.status)) {
         router.replace(`/orders/${orderId}`);
         return;
       }
       setOrder(unwrappedOrder);
+    } else {
+      setError(getErrorMessage(res));
     }
     setLoading(false);
   };
@@ -90,7 +108,8 @@ export default function DisputeClient() {
         // pengguna dapat memakai tombol "Hubungi CS" (chat) di halaman pesanan.
         router.push(`/orders/${orderId}`);
       } else {
-        setError(getErrorMessage(res));
+        const raw = getErrorMessage(res);
+        setError(ERROR_MESSAGES[raw] || raw || 'Gagal mengirim laporan sengketa.');
       }
     } catch (err: any) {
       setError(err?.message || 'Terjadi kesalahan jaringan.');

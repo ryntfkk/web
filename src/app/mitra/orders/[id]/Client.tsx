@@ -409,24 +409,32 @@ export default function MitraOrderDetailClient() {
       )}
 
       {status === 'PAID' && (() => {
-        // Jendela mulai = H-2 jam s/d H+12 jam (backend validateStartWindow).
-        // Cegah klik terlalu awal di klien supaya mitra tak kena error server.
-        const startEarliest = new Date(new Date(order.scheduled_at).getTime() - 2 * 60 * 60 * 1000);
-        const tooEarly = new Date() < startEarliest;
+        // Tak ada batas awal: mitra boleh mulai lebih cepat dari jadwal bila
+        // sudah sepakat dengan pelanggan. Yang dibatasi hanya sisi akhir .
+        // H+12 jam, setelah itu pesanan masuk pemeriksaan no-show
+        // (backend validateStartWindow).
+        const scheduled = new Date(order.scheduled_at);
+        const startLatest = new Date(scheduled.getTime() + 12 * 60 * 60 * 1000);
+        const expired = new Date() > startLatest;
+        const early = new Date() < scheduled;
         return (
           <div>
             <Button
               className="w-full bg-brand-red hover:bg-brand-red-dark rounded-lg"
               onClick={() => handleAction('start')}
-              disabled={actionLoading || tooEarly}
+              disabled={actionLoading || expired}
             >
               Mulai Kerjakan
             </Button>
-            {tooEarly && (
-              <p className="mt-1.5 text-xs text-brand-gray-450 text-center">
-                Bisa dimulai paling awal <strong>2 jam sebelum jadwal</strong> ({formatDate(startEarliest.toISOString())}).
+            {expired ? (
+              <p className="mt-1.5 text-xs text-brand-error text-center">
+                Batas mulai sudah lewat ({formatDate(startLatest.toISOString())}). Hubungi CS.
               </p>
-            )}
+            ) : early ? (
+              <p className="mt-1.5 text-xs text-brand-gray-450 text-center">
+                Lebih cepat dari jadwal ({formatDate(order.scheduled_at)}). Pastikan pelanggan sudah setuju.
+              </p>
+            ) : null}
           </div>
         );
       })()}
