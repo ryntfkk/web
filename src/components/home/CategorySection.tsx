@@ -17,19 +17,19 @@ export default function CategorySection() {
   const { data: categories, isLoading, isError } = useCategories();
   const [activeMain, setActiveMain] = useState<Category | null>(null);
 
-  // For MVP, just take the first 7 to leave room for the "Lainnya" button
-  const displayCategories = categories?.slice(0, 7) || [];
+  // Ambil hingga 15 kategori + 1 tombol "Lainnya" = 16 item (muat dalam 2 baris x 8 kolom)
+  const displayCategories = categories?.slice(0, 15) || [];
 
   return (
     <section className="mb-6 md:mb-8">
       {isLoading ? (
-        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 scrollbar-hide">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-cols-8 gap-3 sm:gap-4 pb-4 md:pb-0 overflow-x-auto scrollbar-hide">
+          {Array.from({ length: 16 }).map((_, i) => (
             <div
               key={i}
               className="flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center gap-2"
             >
-              <div className="w-[52px] h-[52px] sm:w-[72px] sm:h-[72px] sm:aspect-auto bg-gray-200 rounded-[14px] sm:rounded-2xl animate-pulse" />
+              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] bg-gray-200 rounded-[14px] sm:rounded-2xl animate-pulse" />
               <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
             </div>
           ))}
@@ -37,7 +37,7 @@ export default function CategorySection() {
       ) : isError ? (
         <div className="text-sm text-red-500">Gagal memuat kategori.</div>
       ) : (
-        <div className="flex overflow-x-auto md:grid md:grid-cols-8 gap-4 sm:gap-6 md:gap-4 pb-4 md:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-cols-8 gap-x-3 gap-y-4 sm:gap-x-4 sm:gap-y-5 pb-4 md:pb-0 overflow-x-auto snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayCategories.map((cat: Category) => (
             <button
               key={cat.id}
@@ -46,16 +46,16 @@ export default function CategorySection() {
               aria-haspopup="dialog"
               className="group flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
-              <div className="w-[52px] h-[52px] sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
+              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] mb-2 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
                 <Image
                   src={cat.icon_url || '/icons/default.svg'}
                   alt={cat.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) 52px, 72px"
+                  sizes="(max-width: 640px) 52px, 64px"
                 />
               </div>
-              <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-brand-gray-900 text-center leading-[1.1] line-clamp-2 px-1">
+              <span className="text-[10px] sm:text-[11px] md:text-[13px] font-medium text-brand-gray-900 text-center leading-[1.1] line-clamp-2 px-1">
                 {cat.name}
               </span>
             </button>
@@ -66,10 +66,10 @@ export default function CategorySection() {
             href="/categories"
             className="group flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
           >
-            <div className="w-[52px] h-[52px] sm:w-[72px] sm:h-[72px] mb-2 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
+            <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] mb-2 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
               <span className="text-brand-red font-bold text-[20px] sm:text-[24px]">+</span>
             </div>
-            <span className="text-[10px] sm:text-[12px] md:text-[14px] font-medium text-brand-red text-center leading-[1.1] px-1">
+            <span className="text-[10px] sm:text-[11px] md:text-[13px] font-medium text-brand-red text-center leading-[1.1] px-1">
               Lainnya
             </span>
           </Link>
