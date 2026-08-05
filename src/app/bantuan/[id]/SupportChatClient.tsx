@@ -10,11 +10,55 @@ import { SupportMessage } from '@/lib/support';
 
 const POLL_MS = 7000;
 
+function ChatInput({ onSend, sending }: { onSend: (content: string) => void; sending: boolean }) {
+  const [input, setInput] = useState('');
+
+  const handleSend = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!input.trim() || sending) return;
+    onSend(input);
+    setInput('');
+  };
+
+  return (
+    <div className="bg-white border-t border-brand-gray-100 shrink-0 pb-[env(safe-area-inset-bottom)]">
+      <form onSubmit={handleSend} className="p-3 max-w-lg mx-auto flex flex-col gap-2">
+        <div className="flex items-end gap-2">
+          <div className="flex-1 bg-brand-gray-60 border border-brand-gray-100 rounded-2xl flex items-center pr-1 overflow-hidden focus-within:border-brand-red">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ketik pesan untuk CS…"
+              rows={1}
+              className="w-full bg-transparent p-3 text-base sm:text-sm text-brand-gray-900 focus:outline-none resize-none max-h-32"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || sending}
+              aria-label="Kirim pesan"
+              className={`p-2 rounded-xl shrink-0 ${
+                input.trim() ? 'bg-brand-red text-white hover:bg-brand-red-dark' : 'text-brand-gray-450'
+              }`}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function SupportChatClient({ reportId }: { reportId: string }) {
   const { isAuthorized } = useRequireAuth();
   const router = useRouter();
   const [messages, setMessages] = useState<SupportMessage[]>([]);
-  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,19 +84,17 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const content = input.trim();
-    if (!content || sending) return;
+  const send = async (content: string) => {
+    const txt = content.trim();
+    if (!txt || sending) return;
     setSending(true);
     setError(null);
     const res = await fetchAPI<SupportMessage>(`/reports/${reportId}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ content, message_type: 'text' }),
+      body: JSON.stringify({ content: txt, message_type: 'text' }),
     });
     setSending(false);
     if (res.success && res.data) {
-      setInput('');
       setMessages((prev) => [...prev, res.data as SupportMessage]);
     } else {
       setError(res.message || 'Gagal mengirim pesan.');
@@ -130,39 +172,8 @@ export default function SupportChatClient({ reportId }: { reportId: string }) {
         <div ref={endRef} />
       </div>
 
-      {/* Input */}
-      <div className="bg-white border-t border-brand-gray-100 shrink-0 pb-[env(safe-area-inset-bottom)]">
-        <form onSubmit={send} className="p-3 max-w-lg mx-auto flex flex-col gap-2">
-          {error && <p className="text-xs text-brand-error px-1">{error}</p>}
-          <div className="flex items-end gap-2">
-            <div className="flex-1 bg-brand-gray-60 border border-brand-gray-100 rounded-2xl flex items-center pr-1 overflow-hidden focus-within:border-brand-red">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ketik pesan untuk CS…"
-                rows={1}
-                className="w-full bg-transparent p-3 text-base sm:text-sm text-brand-gray-900 focus:outline-none resize-none max-h-32"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || sending}
-                aria-label="Kirim pesan"
-                className={`p-2 rounded-xl shrink-0 ${
-                  input.trim() ? 'bg-brand-red text-white hover:bg-brand-red-dark' : 'text-brand-gray-450'
-                }`}
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+      {error && <p className="text-xs text-brand-error text-center py-1">{error}</p>}
+      <ChatInput onSend={send} sending={sending} />
     </div>
   );
 }

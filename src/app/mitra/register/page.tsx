@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Building2, Camera, CheckCircle2, FileText, Upload, User } from 'lucide-react';
+import { Building2, Camera, CheckCircle2, FileText, MapPin, Upload, User } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import RegionSelect from '@/components/ui/RegionSelect';
@@ -76,7 +76,11 @@ const MapPicker = dynamic(() => import('@/components/MapPicker'), {
   ssr: false,
   // Tanpa fallback, area peta collapse jadi nol tinggi selama chunk Leaflet
   // dimuat dan seluruh form melompat saat peta akhirnya muncul.
-  loading: () => <div className="h-full w-full animate-pulse bg-brand-gray-60" />,
+  loading: () => (
+    <div className="flex h-64 w-full items-center justify-center rounded-lg bg-brand-gray-60 animate-pulse">
+      <MapPin className="h-8 w-8 text-brand-gray-300" />
+    </div>
+  ),
 });
 
 // Gaya field mengikuti ServiceForm (`components/mitra/ServiceForm.tsx`) dan
@@ -1149,7 +1153,7 @@ function MitraRegisterForm() {
                 Tentukan lokasi tempat Anda bekerja (basecamp) di peta. Jarak pesanan dihitung dari lokasi ini.
               </p>
 
-              <div className="relative h-56 overflow-hidden rounded-md border border-brand-gray-100 sm:h-64">
+              <div className="relative h-64 overflow-hidden rounded-md border border-brand-gray-100">
                 <MapPicker
                   lat={formData.basecamp_lat}
                   lng={formData.basecamp_lon}

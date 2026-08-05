@@ -736,37 +736,41 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
 
             {/* Included / Excluded */}
             {(includedItems.length > 0 || excludedItems.length > 0) && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {includedItems.length > 0 && (
-                  <div className="p-3 bg-brand-success-soft rounded-md border border-brand-success-border">
-                    <h4 className="text-xs font-semibold text-brand-success-dark mb-2 flex items-center gap-1">
-                      <Check className="w-3.5 h-3.5" /> Yang Termasuk
-                    </h4>
-                    <ul className="space-y-2">
-                      {includedItems.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-brand-success-dark leading-relaxed">
-                          <Check className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-success" />
-                          <span className="whitespace-pre-line">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {excludedItems.length > 0 && (
-                  <div className="p-3 bg-brand-error-soft rounded-md border border-brand-error-border">
-                    <h4 className="text-xs font-semibold text-brand-error mb-2 flex items-center gap-1">
-                      <X className="w-3.5 h-3.5" /> Yang Tidak Termasuk
-                    </h4>
-                    <ul className="space-y-2">
-                      {excludedItems.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-brand-error leading-relaxed">
-                          <X className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-error" />
-                          <span className="whitespace-pre-line">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+              <div className="mb-5 border border-brand-gray-100 rounded-xl overflow-hidden">
+                <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-brand-gray-100">
+                  {includedItems.length > 0 && (
+                    <div className="p-4 bg-white">
+                      <h4 className="text-[13px] font-bold text-brand-gray-900 mb-3 flex items-center gap-1.5">
+                        <Check className="w-4 h-4 text-brand-success" />
+                        Yang Termasuk
+                      </h4>
+                      <ul className="space-y-2.5">
+                        {includedItems.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-[13px] text-brand-gray-700 leading-relaxed">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-gray-300 mt-1.5 flex-shrink-0" />
+                            <span className="whitespace-pre-line">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {excludedItems.length > 0 && (
+                    <div className="p-4 bg-brand-gray-50/50">
+                      <h4 className="text-[13px] font-bold text-brand-gray-900 mb-3 flex items-center gap-1.5">
+                        <X className="w-4 h-4 text-brand-gray-400" />
+                        Tidak Termasuk
+                      </h4>
+                      <ul className="space-y-2.5">
+                        {excludedItems.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-[13px] text-brand-gray-600 leading-relaxed">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-gray-300 mt-1.5 flex-shrink-0" />
+                            <span className="whitespace-pre-line">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

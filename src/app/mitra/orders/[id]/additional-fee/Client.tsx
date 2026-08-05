@@ -175,11 +175,22 @@ export default function AdditionalFeeFormClient() {
                 type="number"
                 min="1"
                 max="100"
-                value={form.quantity}
+                value={form.quantity || ''}
                 onChange={e => {
-                  const q = parseInt(e.target.value, 10);
-                  // Clamp minimal 1 (cegah 0/negatif via ketik) & maksimal 100.
-                  setForm({ ...form, quantity: Number.isNaN(q) ? 1 : Math.min(100, Math.max(1, q)) });
+                  const val = e.target.value;
+                  if (val === '') {
+                    setForm({ ...form, quantity: '' as any });
+                    return;
+                  }
+                  const q = parseInt(val, 10);
+                  if (!isNaN(q)) {
+                    setForm({ ...form, quantity: Math.min(100, q) });
+                  }
+                }}
+                onBlur={() => {
+                  if (!form.quantity || Number(form.quantity) < 1) {
+                    setForm({ ...form, quantity: 1 });
+                  }
                 }}
                 className="w-full p-3 border border-brand-gray-100 rounded-md text-sm font-bold text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
