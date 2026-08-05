@@ -34,7 +34,7 @@ const organizationSchema = {
   name: 'Posko Jasa',
   url: SITE,
   logo: `${SITE}/logo.png`,
-  description: 'Marketplace jasa terpercaya . temukan & pesan jasa profesional di dekat Anda.',
+  description: 'Marketplace jasa terpercaya untuk menemukan & memesan jasa profesional di dekat Anda.',
 };
 
 // P2/SE2: Home kini Server Component. Hero + kategori dirender di SERVER (masuk
@@ -93,20 +93,33 @@ export default async function Home() {
           <TopPartnersSection />
           <AllServicesSection />
 
-          {/* Blok Teks SEO - Diletakkan di bawah agar tidak mengganggu hero/nav. 
-              Gunakan sr-only pada mobile agar tidak memakan tempat, 
-              dan kembalikan tampilan normal pada desktop (md:not-sr-only). */}
-          <div className="mt-12 mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100 sr-only md:not-sr-only">
-            <h1 className="text-xl font-bold text-gray-900 mb-3">
-              Marketplace Jasa Terpercaya . Pesan Jasa Profesional di Dekat Anda
+          {/* Blok teks SEO . ditaruh di bawah agar tidak mengganggu hero/nav.
+              sr-only di mobile (tak memakan tempat), tampil normal di desktop.
+              Ini pemegang <h1> halaman, jadi teksnya wajib memuat kata kunci
+              utama . tetapi tampilannya dibuat tenang: tanpa kotak abu-abu,
+              cukup garis pemisah + prosa dua kolom. */}
+          <section className="mt-12 mb-8 border-t border-brand-gray-100 pt-8 sr-only md:not-sr-only">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-red mb-2">
+              Tentang Posko Jasa
+            </p>
+            <h1 className="text-[20px] lg:text-[24px] font-semibold leading-[1.35] text-brand-gray-900 max-w-2xl mb-4">
+              Marketplace jasa terpercaya untuk memesan jasa profesional di dekat Anda
             </h1>
-            <p className="text-gray-600 text-sm leading-relaxed mb-3">
-              Posko Jasa adalah platform marketplace terdepan yang menghubungkan Anda dengan penyedia jasa profesional dan terverifikasi. Kami menyediakan berbagai layanan mulai dari kebersihan rumah, perbaikan elektronik, tukang bangunan, hingga layanan kecantikan dan otomotif. Dengan proses pemesanan yang mudah, transparan, dan aman, Anda bisa menyelesaikan segala kebutuhan harian tanpa ribet.
-            </p>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Temukan mitra ahli terbaik di sekitar lokasi Anda. Semua mitra kami telah melalui proses kurasi ketat untuk memastikan kualitas pengerjaan dan kepuasan pelanggan. Nikmati kemudahan bertransaksi langsung dari perangkat Anda dan percayakan urusan Anda pada ahlinya bersama Posko Jasa.
-            </p>
-          </div>
+            <div className="lg:columns-2 lg:gap-10 max-w-4xl">
+              <p className="text-[14px] leading-[1.8] text-brand-gray-700 mb-4 break-inside-avoid">
+                Posko Jasa menghubungkan Anda dengan penyedia jasa profesional yang sudah
+                terverifikasi: mulai dari kebersihan rumah, perbaikan elektronik, tukang
+                bangunan, hingga layanan kecantikan dan otomotif. Harga tampil di awal,
+                jadwal Anda yang tentukan, dan pembayaran ditahan sampai pekerjaan beres.
+              </p>
+              <p className="text-[14px] leading-[1.8] text-brand-gray-700 break-inside-avoid">
+                Setiap mitra melewati kurasi identitas dan dokumen sebelum bisa menerima
+                pesanan, lalu dinilai langsung oleh pelanggan sesudahnya. Cari yang terdekat
+                dari lokasi Anda, bandingkan rating dan ulasannya, lalu pesan dalam hitungan
+                menit.
+              </p>
+            </div>
+          </section>
 
           {/* Layanan populer per kota . sengaja paling bawah (jangkar SEO lokal,
               bukan section belanja utama). */}

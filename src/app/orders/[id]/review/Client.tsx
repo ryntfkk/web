@@ -246,7 +246,7 @@ export default function ReviewClient() {
           {rating > 0 && (
             <div className="mb-6 pb-6 border-b border-brand-gray-100">
               <p className="text-sm font-medium text-brand-gray-900 mb-1">Nilai per aspek</p>
-              <p className="text-xs text-brand-gray-450 mb-3">Opsional . boleh dilewati.</p>
+              <p className="text-xs text-brand-gray-450 mb-3">Opsional - boleh dilewati.</p>
               <div className="space-y-3">
                 {ASPECTS.map((aspect) => (
                   <div key={aspect.key} className="flex items-center justify-between gap-3">
@@ -266,7 +266,7 @@ export default function ReviewClient() {
           <div className="mb-6">
             <label className="block text-sm font-medium text-brand-gray-900 mb-1">Foto hasil pekerjaan</label>
             <p className="text-xs text-brand-gray-450 mb-3">
-              Opsional . maksimal {MAX_PHOTOS} foto, JPG/PNG ≤ 5MB.
+              Opsional - maksimal {MAX_PHOTOS} foto, JPG/PNG ≤ 5MB.
             </p>
             <div className="flex flex-wrap gap-2">
               {photos.map((url, i) => (

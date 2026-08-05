@@ -146,7 +146,7 @@ export default function MitraReviewsPage() {
                 <div className="text-sm text-brand-gray-700">
                   <p className="font-semibold text-brand-gray-900">{summary.total_reviews} ulasan</p>
                   <p className="text-xs text-brand-gray-450 mt-0.5">
-                    Balas ulasan dalam 7 hari . balasan tampil di profil publik Anda.
+                    Balas ulasan dalam 7 hari - balasan tampil di profil publik Anda.
                   </p>
                 </div>
               </div>

@@ -75,10 +75,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const hasServices = count > 0;
   const minPrice = minServicePrice(list);
   // Tanpa "| Posko Jasa" . template root layout sudah menambahkannya.
-  const title = `Jasa ${cat.name} ${city} . Mitra Terverifikasi`;
+  const title = `Jasa ${cat.name} ${city} - Mitra Terverifikasi`;
   const description =
     `${count > 0 ? `${countLabel(count, hasMore)} ` : ''}jasa ${cat.name} di ${city} dari mitra terverifikasi` +
-    `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Pesan online, ulasan asli . Posko Jasa.`;
+    `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Pesan online, ulasan asli - Posko Jasa.`;
   return {
     title,
     description,
@@ -232,7 +232,7 @@ export default async function LocalCategoryPage({ params }: PageProps) {
           </aside>
         </div>
 
-        <FaqSection items={faq} title={`Pertanyaan Umum . Jasa ${cat.name} di ${city}`} />
+        <FaqSection items={faq} title={`Pertanyaan Umum - Jasa ${cat.name} di ${city}`} />
       </div>
     </div>
   );

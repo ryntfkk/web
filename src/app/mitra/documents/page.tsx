@@ -319,7 +319,7 @@ export default function MitraDocumentsPage() {
                       >
                         <AlertTriangle className="w-3 h-3" />
                         {exp.tone === 'expired'
-                          ? `Kedaluwarsa ${formatDate(doc.expires_at!)} . perlu diperbarui`
+                          ? `Kedaluwarsa ${formatDate(doc.expires_at!)} - perlu diperbarui`
                           : `Akan kedaluwarsa ${exp.days} hari lagi (${formatDate(doc.expires_at!)})`}
                       </p>
                     );

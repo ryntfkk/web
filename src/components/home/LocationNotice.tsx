@@ -36,7 +36,7 @@ export default function LocationNotice() {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[13px] sm:text-[14px] font-semibold text-brand-gray-900">
-          Lokasi tidak aktif . jarak tidak ditampilkan
+          Lokasi tidak aktif - jarak tidak ditampilkan
         </p>
         <p className="text-[12px] text-brand-gray-700 mt-0.5 leading-snug">
           {denied

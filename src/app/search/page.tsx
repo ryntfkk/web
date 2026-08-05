@@ -45,7 +45,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
       c.slug && (c.name.toLowerCase() === qLower || slugify(c.name) === slugify(query)),
   );
 
-  const title = `Cari "${query}" . Posko Jasa`;
+  const title = `Cari "${query}" - Posko Jasa`;
   const description = `Temukan jasa ${query} dari mitra terverifikasi di Posko Jasa. Pesan online, ulasan asli, harga transparan.`;
 
   if (matchedCat?.slug) {

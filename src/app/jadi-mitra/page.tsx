@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   // Tanpa "Posko Jasa": template root sudah menambahkan "| Posko Jasa". Menulisnya
   // di sini membuat merek tercetak dua kali dan judulnya terpotong di hasil
   // pencarian. Judul OG di bawah boleh memuatnya . OG tidak kena template.
-  title: 'Jadi Mitra . Pasang Jasa Gratis, Ditemukan di Google',
+  title: 'Jadi Mitra - Pasang Jasa Gratis, Ditemukan di Google',
   description:
     'Daftar jadi mitra Posko Jasa tanpa biaya pendaftaran, langganan, atau iklan. Setiap layanan Anda mendapat halaman sendiri yang bisa ditemukan lewat pencarian Google, lengkap dengan harga, jadwal, dan pembayaran yang terjamin.',
   alternates: { canonical: `${SITE}/jadi-mitra` },
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   // sering dibagikan lewat WhatsApp, tempat pratinjau tanpa gambar praktis
   // tidak diklik. Aturan yang sama pernah menjatuhkan /kategori & /jasa.
   openGraph: {
-    title: 'Jadi Mitra Posko Jasa . Pasang Jasa Gratis, Ditemukan di Google',
+    title: 'Jadi Mitra Posko Jasa - Pasang Jasa Gratis, Ditemukan di Google',
     description:
       'Tanpa biaya pendaftaran dan langganan. Layanan Anda punya halaman permanen yang terbaca mesin pencari, bukan postingan yang tenggelam dalam hitungan jam.',
     url: `${SITE}/jadi-mitra`,
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
         url: '/og-default.png',
         width: 1200,
         height: 630,
-        alt: 'Jadi mitra Posko Jasa . pasang jasa gratis',
+        alt: 'Jadi mitra Posko Jasa - pasang jasa gratis',
       },
     ],
   },
@@ -331,7 +331,7 @@ export default async function JadiMitraPage() {
             <div className="mt-5 flex gap-2.5 rounded-xl border border-brand-info-light bg-brand-info-soft p-3.5">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-info-dark" aria-hidden />
               <p className="text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-900">
-                Ada selisih paham? Pesanan bisa dibawa ke jalur sengketa. Dana ditahan sampai tim Posko memutuskan . perlindungan untuk kedua pihak.
+                Ada selisih paham? Pesanan bisa dibawa ke jalur sengketa. Dana ditahan sampai tim Posko memutuskan - perlindungan untuk kedua pihak.
               </p>
             </div>
           </div>

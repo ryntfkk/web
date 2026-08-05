@@ -139,7 +139,7 @@ export default function MitraBankAccountPage() {
           <div className="mb-6">
             <VerifiedLockNotice
               title="Rekening terkunci"
-              message="Rekening payout sudah diverifikasi admin. Hubungi admin untuk mengubah (cabut verifikasi) . OTP saja tidak cukup."
+              message="Rekening payout sudah diverifikasi admin. Hubungi admin untuk mengubah (cabut verifikasi) - OTP saja tidak cukup."
             />
           </div>
         )}

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -144,8 +145,20 @@ export default function ProfilePage() {
 
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex items-center gap-4 md:gap-6">
-            <div className="h-16 w-16 md:h-24 md:w-24 bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
-              {getInitial(user?.name || '')}
+            {/* Foto profil . inisial hanya dipakai bila avatar belum diunggah
+                (dulu inisial SELALU dirender, jadi foto tak pernah tampil). */}
+            <div className="relative h-16 w-16 md:h-24 md:w-24 shrink-0 overflow-hidden bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+              {user.avatar_url ? (
+                <Image
+                  src={user.avatar_url}
+                  alt={`Foto profil ${user.name}`}
+                  fill
+                  sizes="(max-width: 768px) 64px, 96px"
+                  className="object-cover"
+                />
+              ) : (
+                getInitial(user?.name || '')
+              )}
             </div>
             <div>
               <h1 className="text-xl md:text-3xl font-extrabold tracking-tight drop-shadow-sm">{user.name}</h1>

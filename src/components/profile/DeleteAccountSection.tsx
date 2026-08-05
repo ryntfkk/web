@@ -66,7 +66,7 @@ export default function DeleteAccountSection() {
             </p>
             <p>
               <span className="font-semibold text-brand-gray-900">Tetap disimpan:</span>{' '}
-              riwayat pesanan, ulasan, dan dokumen verifikasi . untuk penyelesaian
+              riwayat pesanan, ulasan, dan dokumen verifikasi - untuk penyelesaian
               sengketa dan kewajiban pajak.{' '}
               <Link href="/privacy" className="text-brand-red font-medium hover:underline">
                 Selengkapnya

@@ -32,12 +32,12 @@ const META: Record<string, { title: string; description: string }> = {
   cancellation: {
     title: 'Kebijakan Pembatalan & Refund',
     description:
-      'Ketentuan pembatalan pesanan dan pengembalian dana di Posko Jasa . sebelum bayar, setelah bayar, dan bila mitra membatalkan.',
+      'Ketentuan pembatalan pesanan dan pengembalian dana di Posko Jasa - sebelum bayar, setelah bayar, dan bila mitra membatalkan.',
   },
   'partner-terms': {
     title: 'Syarat & Ketentuan Mitra',
     description:
-      'Ketentuan yang berlaku bagi mitra penyedia jasa di Posko Jasa . verifikasi, kewajiban, komisi, dan pencairan dana.',
+      'Ketentuan yang berlaku bagi mitra penyedia jasa di Posko Jasa - verifikasi, kewajiban, komisi, dan pencairan dana.',
   },
 };
 

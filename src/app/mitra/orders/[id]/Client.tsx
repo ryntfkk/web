@@ -126,7 +126,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   },
   PAID: {
     tone: 'from-brand-info to-brand-info-dark',
-    title: 'Sudah dibayar . siap dikerjakan',
+    title: 'Sudah dibayar - siap dikerjakan',
     desc: 'Dana ditahan aman oleh Posko Jasa. Datang sesuai jadwal, lalu tekan "Mulai Kerjakan".',
   },
   IN_PROGRESS: {
@@ -513,7 +513,7 @@ export default function MitraOrderDetailClient() {
       {order.partner_amount_estimated && (
         <p className="mt-1.5 text-xs text-brand-gray-450 flex items-start gap-1">
           <Clock className="w-3 h-3 mt-0.5 shrink-0" />
-          Angka estimasi . dikonfirmasi saat pesanan selesai.
+          Angka estimasi - dikonfirmasi saat pesanan selesai.
         </p>
       )}
     </Section>
@@ -928,8 +928,10 @@ export default function MitraOrderDetailClient() {
             </Section>
           </div>
 
-          {/* Kolom kanan (desktop): pendapatan + aksi, ikut scroll */}
-          <div className="space-y-4 lg:sticky lg:top-20">
+          {/* Kolom kanan (desktop): pendapatan + aksi, ikut scroll.
+              lg:top-6, bukan lg:top-20 . mode mitra tidak punya TopNavbar
+              (§7a), jadi 80px hanya membuat kolom mengambang di bawah kosong. */}
+          <div className="space-y-4 lg:sticky lg:top-6">
             {earningsCard}
             {hasActions && (
               <div className="hidden lg:block bg-white rounded-lg border border-brand-gray-100 p-4">

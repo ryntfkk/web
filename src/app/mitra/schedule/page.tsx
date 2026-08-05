@@ -322,7 +322,7 @@ export default function MitraSchedulePage() {
           <div className="bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4 flex gap-3 items-start mb-2">
             <Clock className="w-5 h-5 text-brand-warning-dark shrink-0 mt-0.5" />
             <p className="text-sm text-brand-warning-dark font-semibold leading-relaxed">
-              Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh . pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
+              Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh - pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
             </p>
           </div>
         )}
@@ -467,7 +467,7 @@ export default function MitraSchedulePage() {
                     {t.reason && <p className="mt-0.5 text-xs text-brand-gray-450">{t.reason}</p>}
                     {t.affected_orders > 0 && (
                       <p className="mt-1 text-xs font-medium text-brand-warning-dark">
-                        {t.affected_orders} pesanan sudah terjadwal di rentang ini . tetap jadi kewajibanmu.
+                        {t.affected_orders} pesanan sudah terjadwal di rentang ini - tetap jadi kewajibanmu.
                       </p>
                     )}
                   </div>
@@ -500,8 +500,12 @@ export default function MitraSchedulePage() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 p-4 z-50">
+      {/* Bottom Bar.
+          lg:left-60 = lebar sidebar. Tanpa ini bilah mulai dari left-0 dan
+          menutupi bagian bawah sidebar (menu footer + "Beralih ke Pelanggan")
+          di desktop, sekaligus membuat tombol terpusat pada viewport penuh,
+          bukan area konten . terlihat bergeser dari form di atasnya. */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 p-4 z-50 lg:left-60">
         <div className="max-w-2xl mx-auto">
           <Button
             className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-lg h-12 text-sm font-bold shadow-sm"
@@ -578,7 +582,7 @@ export default function MitraSchedulePage() {
           </label>
           <p className="text-xs leading-relaxed text-brand-gray-450">
             Cuti hanya menutup pemesanan <strong>baru</strong>. Pesanan yang sudah terjadwal di rentang ini
-            tetap jadi kewajibanmu . batalkan lewat halaman pesanan bila perlu.
+            tetap jadi kewajibanmu - batalkan lewat halaman pesanan bila perlu.
           </p>
         </div>
       </MitraModal>

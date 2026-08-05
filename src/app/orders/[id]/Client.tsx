@@ -149,7 +149,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   },
   WAITING_CUSTOMER_CONFIRM: {
     tone: 'from-brand-blue-dark to-brand-purple-dark',
-    title: 'Pekerjaan selesai . mohon konfirmasi',
+    title: 'Pekerjaan selesai - mohon konfirmasi',
     desc: 'Mitra menyatakan pekerjaan sudah selesai. Periksa hasilnya, lalu tekan Konfirmasi Selesai untuk mencairkan dana. Tanpa konfirmasi dalam 24 jam, dana cair otomatis ke mitra.',
   },
   COMPLETED: {
@@ -531,7 +531,7 @@ export default function OrderDetailClient() {
               onClick={() => router.push('/profile/wallet')}
               className="w-full mt-1 text-left text-xs text-brand-info hover:underline"
             >
-              Dana masuk ke saldo dompetmu . lihat di Dompet →
+              Dana masuk ke saldo dompetmu - lihat di Dompet →
             </button>
           </>
         )}
@@ -1081,7 +1081,7 @@ export default function OrderDetailClient() {
             {/* Dialog ini hanya dibuka saat WAITING_CONFIRMATION / WAITING_PAYMENT
                 (lihat gate tombol di atas) -- status PAID pakai alur sengketa terpisah. */}
             <p className="text-sm text-brand-gray-700 mb-4">
-              Pesanan masih menunggu konfirmasi. Pembatalan gratis . kamu belum dikenakan biaya apapun.
+              Pesanan masih menunggu konfirmasi. Pembatalan gratis - kamu belum dikenakan biaya apapun.
             </p>
 
             <div className="mb-6">

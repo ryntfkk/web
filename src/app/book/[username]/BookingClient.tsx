@@ -632,7 +632,7 @@ export default function BookingClient() {
         )}
         {promoCode && promoDiscount === 0 && (
           <p className="mt-2 text-xs text-brand-gray-450">
-            Kode promo belum diterapkan . klik &quot;Gunakan&quot; untuk memvalidasi dan menerapkannya.
+            Kode promo belum diterapkan - klik &quot;Gunakan&quot; untuk memvalidasi dan menerapkannya.
           </p>
         )}
       </div>
@@ -813,7 +813,7 @@ export default function BookingClient() {
           <div className="p-3 bg-brand-info-soft border border-brand-info-light rounded-lg flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-brand-info shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-brand-info-dark">Pembayaran 100% Aman . Escrow Posko Jasa</p>
+              <p className="text-xs font-semibold text-brand-info-dark">Pembayaran 100% Aman - Escrow Posko Jasa</p>
               <p className="text-[11px] text-brand-info mt-0.5 leading-snug">
                 Uangmu <strong>ditahan oleh Posko Jasa</strong>, bukan langsung ke mitra. Dana baru cair setelah kamu konfirmasi pekerjaan selesai.
               </p>
@@ -823,7 +823,7 @@ export default function BookingClient() {
           <div className="p-2.5 bg-brand-warning-soft border border-brand-warning-border rounded-lg flex items-center gap-2">
             <AlertTriangle className="w-3.5 h-3.5 text-brand-warning shrink-0" />
             <p className="text-[11px] text-brand-warning-dark">
-              Selalu bayar melalui platform. <strong>Jangan bayar cash/transfer langsung</strong> ke mitra . tidak ada perlindungan escrow.
+              Selalu bayar melalui platform. <strong>Jangan bayar cash/transfer langsung</strong> ke mitra - tidak ada perlindungan escrow.
             </p>
           </div>
           {errorMsg && (
@@ -1035,7 +1035,7 @@ export default function BookingClient() {
                               linkLabel="Buka di Google Maps"
                             />
                             <p className="text-[11px] text-brand-gray-450 leading-snug">
-                              Pastikan pin sudah tepat di lokasi pengerjaan . biaya transport dihitung dari titik ini. Jika kurang tepat, tekan <span className="font-semibold text-brand-red">Edit</span> untuk memindahkan pin.
+                              Pastikan pin sudah tepat di lokasi pengerjaan - biaya transport dihitung dari titik ini. Jika kurang tepat, tekan <span className="font-semibold text-brand-red">Edit</span> untuk memindahkan pin.
                             </p>
                           </>
                         ) : (

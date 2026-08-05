@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: PageProps) {
         const area = p.service_area ? ` di ${p.service_area}` : '';
         const desc = (p.bio && p.bio.trim())
           ? p.bio.trim().slice(0, 160)
-          : `Layanan ${p.name}${area} . pesan lewat Posko Jasa.`;
+          : `Layanan ${p.name}${area} - pesan lewat Posko Jasa.`;
         return {
           title: p.name,
           description: desc,
@@ -110,7 +110,7 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: `Profil Mitra . ${username}`,
+    title: `Profil Mitra - ${username}`,
     description: `Lihat profil dan layanan dari ${username} di Posko Jasa.`,
     alternates: { canonical: `https://poskojasa.com/${username}` },
   };

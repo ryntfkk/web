@@ -68,8 +68,8 @@ export default async function HapusAkunPage() {
             </Link>
 
             <p className="mt-5 mb-2">
-              <strong>Jika Anda tidak bisa masuk</strong> . lupa kata sandi, akun
-              tersuspend, atau aplikasi sudah dihapus . kirim permintaan lewat
+              <strong>Jika Anda tidak bisa masuk</strong> - lupa kata sandi, akun
+              tersuspend, atau aplikasi sudah dihapus - kirim permintaan lewat
               email:
             </p>
             {email ? (
@@ -98,7 +98,7 @@ export default async function HapusAkunPage() {
             <ul className="list-disc pl-5 space-y-1">
               <li>Nama, nomor HP, email, dan foto profil</li>
               <li>Data rekening bank</li>
-              <li>Akses masuk . seluruh sesi dicabut dan Anda tidak bisa masuk lagi</li>
+              <li>Akses masuk - seluruh sesi dicabut dan Anda tidak bisa masuk lagi</li>
             </ul>
           </section>
 
@@ -114,7 +114,7 @@ export default async function HapusAkunPage() {
             <p className="mt-2">
               Data ini diperlukan untuk menyelesaikan sengketa atas pekerjaan
               yang telah berjalan dan memenuhi kewajiban pembukuan serta
-              perpajakan . bukan untuk pemasaran. Rinciannya ada di{' '}
+              perpajakan - bukan untuk pemasaran. Rinciannya ada di{' '}
               <Link href="/privacy" className="text-brand-red font-medium hover:underline">
                 Kebijakan Privasi
               </Link>
@@ -129,7 +129,7 @@ export default async function HapusAkunPage() {
             <p>
               Akun dengan <strong>pesanan yang masih berjalan tidak dapat
                 dihapus</strong>. Selesaikan atau batalkan pesanan tersebut lebih
-              dahulu. Bila Anda mitra, pastikan saldo sudah ditarik . penghapusan
+              dahulu. Bila Anda mitra, pastikan saldo sudah ditarik - penghapusan
               akun tidak membatalkan hak atas saldo, tetapi pencairannya menjadi
               lebih rumit.
             </p>

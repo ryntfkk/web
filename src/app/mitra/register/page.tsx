@@ -234,6 +234,9 @@ function MitraRegisterForm() {
   // Server menolak onboarding tanpa nomor terverifikasi. Tampilkan syaratnya di
   // depan, bukan sebagai error setelah lima langkah form dan dua unggahan KTP.
   const needsPhone = !!user && !user.profile_complete;
+  // Shell mitra hanya memasang sidebar untuk akun bermode mitra (pengajuan
+  // ulang); pendaftar baru membuka halaman ini sebagai pelanggan.
+  const isPartnerMode = user?.active_role === 'partner';
 
   const [partnerType, setPartnerType] = useState<PartnerType>('individual');
 
@@ -670,7 +673,7 @@ function MitraRegisterForm() {
           <div className="mb-4 rounded-md border border-brand-warning-border bg-brand-warning-soft p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
             <p className="mt-0.5 text-xs text-brand-gray-700">
-              Pendaftaran mitra butuh nomor WhatsApp terverifikasi . pelanggan dan tim kami
+              Pendaftaran mitra butuh nomor WhatsApp terverifikasi - pelanggan dan tim kami
               menghubungi kamu lewat nomor itu.
             </p>
             <button
@@ -884,7 +887,7 @@ function MitraRegisterForm() {
               </div>
 
               <p className="rounded-md bg-brand-gray-60 p-3 text-xs leading-relaxed text-brand-gray-700">
-                Nomor NPWP dan NIB boleh dikosongkan bila belum di tangan . dokumennya tetap wajib
+                Nomor NPWP dan NIB boleh dikosongkan bila belum di tangan - dokumennya tetap wajib
                 diunggah di bawah, dan nomornya bisa dilengkapi kemudian.
               </p>
 
@@ -937,7 +940,7 @@ function MitraRegisterForm() {
               <div className="border-t border-brand-gray-100 pt-4">
                 <h3 className="text-sm font-bold text-brand-gray-900">Dokumen Badan Usaha</h3>
                 <p className="mt-1 text-xs text-brand-gray-450">
-                  Ketiganya wajib. Pastikan terbaca jelas . dokumen buram adalah alasan penolakan
+                  Ketiganya wajib. Pastikan terbaca jelas - dokumen buram adalah alasan penolakan
                   paling sering. Maksimal 5MB per berkas.
                 </p>
               </div>
@@ -1004,7 +1007,7 @@ function MitraRegisterForm() {
                 />
                 {isReverify && maskedHints.ktp && (
                   <p className="mt-1 text-xs text-brand-gray-450">
-                    NIK tercatat: {maskedHints.ktp} . ketik ulang lengkap untuk memastikan identitas.
+                    NIK tercatat: {maskedHints.ktp} - ketik ulang lengkap untuk memastikan identitas.
                   </p>
                 )}
               </div>
@@ -1221,7 +1224,7 @@ function MitraRegisterForm() {
                 />
                 {isReverify && maskedHints.bank && (
                   <p className="mt-1 text-xs text-brand-gray-450">
-                    Rekening tercatat: {maskedHints.bank} . ketik ulang lengkap untuk memastikan tujuan pencairan.
+                    Rekening tercatat: {maskedHints.bank} - ketik ulang lengkap untuk memastikan tujuan pencairan.
                   </p>
                 )}
               </div>
@@ -1247,7 +1250,7 @@ function MitraRegisterForm() {
                   vendor.legal_entity_name.trim().toUpperCase() && (
                     <p className="mt-1.5 rounded-md border border-brand-warning-border bg-brand-warning-soft px-2 py-1.5 text-xs text-brand-warning-dark">
                       Nama rekening berbeda dari nama badan usaha. Pengajuan akan
-                      ditinjau manual . sebaiknya gunakan rekening atas nama badan usaha.
+                      ditinjau manual - sebaiknya gunakan rekening atas nama badan usaha.
                     </p>
                   )}
               </div>
@@ -1291,7 +1294,10 @@ function MitraRegisterForm() {
       {/* Satu bilah aksi untuk semua langkah. Sebelumnya tiap langkah menyimpan
           tombolnya sendiri di dalam badan kartu dan tidak satu pun punya jalan
           mundur . satu-satunya cara kembali adalah chevron kecil di header. */}
-      <StickyActionBar desktop>
+      {/* Bilah aksi fixed = terpusat pada VIEWPORT, sedangkan konten bergeser
+          saat sidebar mitra tampil (kasus pengajuan ulang oleh mitra ditolak).
+          Tanpa padding ini tombolnya tidak sejajar dengan formulir di desktop. */}
+      <StickyActionBar desktop className={isPartnerMode ? 'lg:pl-[calc(15rem+1rem)]' : undefined}>
         <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
           {stepIndex > 0 && (
             <Button variant="outline" className="flex-1" onClick={prevStep} disabled={loading}>

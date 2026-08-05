@@ -116,7 +116,7 @@ export default function NewAddressPage() {
             </div>
             <p className={`text-xs mt-1.5 flex items-center gap-1 ${pinSet ? 'text-brand-success' : 'text-brand-orange'}`}>
               <MapPin className="w-3.5 h-3.5" />
-              {pinSet ? 'Titik lokasi sudah ditandai.' : 'Titik lokasi belum ditandai . ketuk peta.'}
+              {pinSet ? 'Titik lokasi sudah ditandai.' : 'Titik lokasi belum ditandai - ketuk peta.'}
             </p>
           </div>
 

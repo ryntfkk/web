@@ -12,7 +12,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Syarat & Ketentuan',
-  description: 'Syarat & Ketentuan penggunaan platform POSKO Jasa . aturan dan kewajiban bagi pelanggan dan mitra.',
+  description: 'Syarat & Ketentuan penggunaan platform POSKO Jasa - aturan dan kewajiban bagi pelanggan dan mitra.',
   alternates: { canonical: 'https://poskojasa.com/terms' },
 };
 

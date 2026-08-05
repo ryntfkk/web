@@ -103,19 +103,31 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
   // Shell desktop (P1-13 / §5.2): sidebar menggantikan bottom nav mulai `lg`.
   // Bottom nav yang fixed di layar lebar membuat mode mitra tampak seperti
   // aplikasi ponsel yang diletakkan di tengah layar kosong.
+  // Sidebar hanya untuk akun yang MEMANG sedang bermode mitra. Halaman
+  // pengecualian (/mitra/register) dibuka pelanggan yang belum jadi mitra:
+  // bagi mereka sidebar itu daftar menu ke halaman yang belum jadi miliknya,
+  // sekaligus menggeser formulir 240px ke kanan sementara bilah aksi tetap
+  // terpusat pada viewport - itulah tampilan yang miring di desktop.
+  const showSidebar = isPartnerMode;
+
   return (
     <>
-      <MitraSidebar verification={verification} />
+      {showSidebar && <MitraSidebar verification={verification} />}
 
       {/* lg:pl-60 = lebar sidebar. Konten di dalam halaman yang mengatur
           lebar bacanya sendiri (§5.3); shell hanya menyediakan ruangnya. */}
-      <div className="lg:pl-60">
+      <div className={showSidebar ? 'lg:pl-60' : ''}>
         {showPreparationNotice && <PreparationNotice status={verification as 'PENDING' | 'REJECTED'} />}
         {children}
       </div>
 
-      {/* Bottom nav HANYA di bawah lg . di desktop navigasinya sidebar. */}
-      <div className={`lg:hidden ${isExcludedFlow ? 'hidden md:block lg:hidden' : 'block'}`}>
+      {/* Bottom nav HANYA di bawah lg . di desktop navigasinya sidebar.
+          Excluded flow punya bilah aksi fixed sendiri (mis. Simpan Jadwal,
+          Terima Pesanan). Bottom-nav yang ikut tampil di md menutupi bilah itu
+          (z-50 vs z-50, DOM terakhir menang). Sembunyikan sepenuhnya untuk
+          excluded flow: bilah aksi halaman jadi satu-satunya CTA bawah, dan
+          tombol back di MitraPageHeader cukup untuk navigasi naik di md. */}
+      <div className={`lg:hidden ${isExcludedFlow ? 'hidden' : 'block'}`}>
         <MitraBottomNav approved={verification === 'APPROVED'} />
       </div>
     </>

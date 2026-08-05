@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import HeaderWrapper from "@/components/layout/HeaderWrapper";
@@ -28,7 +28,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://poskojasa.com"),
   title: {
-    default: "Posko Jasa . Marketplace Jasa Terpercaya",
+    default: "Posko Jasa | Marketplace Jasa Terpercaya",
     template: "%s | Posko Jasa",
   },
   description:
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: "https://poskojasa.com",
     siteName: "Posko Jasa",
-    title: "Posko Jasa . Marketplace Jasa Terpercaya",
+    title: "Posko Jasa | Marketplace Jasa Terpercaya",
     description:
       "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
     images: [
@@ -55,13 +55,13 @@ export const metadata: Metadata = {
         url: "/og-default.png",
         width: 1200,
         height: 630,
-        alt: "Posko Jasa . Marketplace Jasa Terpercaya",
+        alt: "Posko Jasa | Marketplace Jasa Terpercaya",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Posko Jasa . Marketplace Jasa Terpercaya",
+    title: "Posko Jasa | Marketplace Jasa Terpercaya",
     description:
       "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
     images: ["/og-default.png"],

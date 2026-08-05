@@ -363,7 +363,7 @@ export default function MitraPortfolioPage() {
           open={!!editingId}
           onClose={() => setEditingId(null)}
           title="Keterangan Foto"
-          description="Jelaskan pekerjaan pada foto ini . pelanggan memakainya untuk menilai hasil kerjamu."
+          description="Jelaskan pekerjaan pada foto ini - pelanggan memakainya untuk menilai hasil kerjamu."
           footer={
             <>
               <Button variant="outline" className="flex-1 rounded-md" onClick={() => setEditingId(null)} disabled={savingCaption}>

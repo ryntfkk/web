@@ -89,7 +89,7 @@ export function RequirementsEditor({ items, catalog, onChange }: RequirementsEdi
         </label>
         <p className="mt-1 text-xs text-brand-gray-450">
           Pelanggan melihat daftar ini di halaman layanan dan menyetujuinya sebelum
-          membayar. Isi hanya yang benar-benar Anda butuhkan . daftar yang terlalu
+          membayar. Isi hanya yang benar-benar Anda butuhkan - daftar yang terlalu
           panjang membuat pelanggan ragu memesan.
         </p>
       </div>
@@ -143,8 +143,8 @@ export function RequirementsEditor({ items, catalog, onChange }: RequirementsEdi
           <div className="flex items-center justify-between">
             <span className="text-xs text-brand-gray-450">
               {r.is_mandatory
-                ? 'Wajib . pekerjaan tidak bisa dilakukan tanpa ini'
-                : 'Disarankan . sebaiknya ada, tapi tidak menghalangi'}
+                ? 'Wajib - pekerjaan tidak bisa dilakukan tanpa ini'
+                : 'Disarankan - sebaiknya ada, tapi tidak menghalangi'}
             </span>
             <Toggle
               checked={r.is_mandatory}

@@ -51,7 +51,7 @@ export interface CompareRow {
 export const COMPARE_ROWS: CompareRow[] = [
   {
     aspek: 'Ditemukan lewat Google',
-    lama: 'Praktis tidak muncul . butuh login dulu untuk dilihat.',
+    lama: 'Praktis tidak muncul - butuh login dulu untuk dilihat.',
     posko: 'Halaman terbuka untuk mesin pencari, terdaftar di sitemap.',
   },
   {
@@ -98,7 +98,7 @@ export const SEO_POINTS = [
   {
     judul: 'Anda ikut di halaman "jasa + kota"',
     contoh: 'poskojasa.com/jasa/service-ac/bekasi',
-    isi: 'Posko punya halaman khusus untuk tiap kombinasi jenis jasa dan kota . persis yang diketik orang saat mencari. Layanan Anda tampil di halaman kota Anda sendiri.',
+    isi: 'Posko punya halaman khusus untuk tiap kombinasi jenis jasa dan kota - persis yang diketik orang saat mencari. Layanan Anda tampil di halaman kota Anda sendiri.',
   },
 ];
 
@@ -112,7 +112,7 @@ export const SETUP_POINTS = [
   },
   {
     judul: 'Variasi layanan',
-    isi: 'Satu layanan bisa punya beberapa pilihan harga . misal AC 0,5 PK, 1 PK, 2 PK.',
+    isi: 'Satu layanan bisa punya beberapa pilihan harga - misal AC 0,5 PK, 1 PK, 2 PK.',
   },
   {
     judul: 'Batas kerja tegas',
@@ -219,11 +219,11 @@ export function partnerFaq(cfg: PlatformConfig): FaqItem[] {
     },
     {
       q: 'Apakah jasa saya akan muncul di pencarian Google?',
-      a: 'Setiap layanan dan profil mitra punya halaman sendiri yang terbuka untuk mesin pencari dan didaftarkan otomatis ke sitemap Posko . berbeda dari postingan di grup atau marketplace media sosial yang umumnya perlu login untuk dilihat. Terindeks bukan jaminan peringkat satu, tetapi halaman Anda ada, permanen, dan bisa terbaca.',
+      a: 'Setiap layanan dan profil mitra punya halaman sendiri yang terbuka untuk mesin pencari dan didaftarkan otomatis ke sitemap Posko - berbeda dari postingan di grup atau marketplace media sosial yang umumnya perlu login untuk dilihat. Terindeks bukan jaminan peringkat satu, tetapi halaman Anda ada, permanen, dan bisa terbaca.',
     },
     {
       q: 'Berapa harga minimum layanan yang boleh dipasang?',
-      a: `Harga layanan minimal ${hargaMin}. Bila jasa yang Anda tawarkan biasanya di bawah itu, gabungkan menjadi satu paket layanan . misalnya beberapa unit sekaligus atau satu kali kunjungan penuh.`,
+      a: `Harga layanan minimal ${hargaMin}. Bila jasa yang Anda tawarkan biasanya di bawah itu, gabungkan menjadi satu paket layanan - misalnya beberapa unit sekaligus atau satu kali kunjungan penuh.`,
     },
     {
       q: 'Siapa saja yang bisa mendaftar jadi mitra?',
@@ -235,7 +235,7 @@ export function partnerFaq(cfg: PlatformConfig): FaqItem[] {
     },
     {
       q: 'Apakah saya harus siap menerima pesanan setiap saat?',
-      a: 'Tidak. Anda mengatur sendiri jam kerja per hari, jeda istirahat, dan tanggal cuti . pesanan di luar jam tersebut tidak akan masuk. Pesanan yang masuk pun tetap bisa Anda tolak.',
+      a: 'Tidak. Anda mengatur sendiri jam kerja per hari, jeda istirahat, dan tanggal cuti - pesanan di luar jam tersebut tidak akan masuk. Pesanan yang masuk pun tetap bisa Anda tolak.',
     },
   ];
 }

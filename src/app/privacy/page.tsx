@@ -9,7 +9,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Kebijakan Privasi',
-  description: 'Kebijakan Privasi POSKO Jasa . bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.',
+  description: 'Kebijakan Privasi POSKO Jasa - bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.',
   alternates: { canonical: 'https://poskojasa.com/privacy' },
 };
 
