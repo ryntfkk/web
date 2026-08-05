@@ -35,6 +35,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/promos',
     '/about',
     '/help',
+    // Landing akuisisi mitra — justru halaman yang paling perlu ditemukan lewat
+    // pencarian ("cara jadi mitra", "pasang jasa online").
+    '/jadi-mitra',
     '/privacy',
     '/terms',
     // Dokumen legal yang dilayani rute generik /legal/[slug]. `partner-terms`

@@ -30,6 +30,10 @@ export type AnalyticsEvent =
   | 'partner_schedule_saved'
   | 'partner_withdrawal_submitted'
   | 'partner_profile_previewed'
+  // ── Akuisisi mitra (halaman /jadi-mitra + banner home) ──
+  | 'partner_landing_viewed'
+  | 'partner_landing_cta_clicked'
+  | 'home_partner_banner_clicked'
   // ── Sisi publik ──
   | 'public_partner_profile_viewed'
   | 'public_partner_service_clicked'

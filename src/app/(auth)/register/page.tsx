@@ -1,19 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import { safeRedirect } from '@/lib/utils';
 import { Stepper } from '@/components/ui/stepper';
 import { PasswordStrength } from '@/components/ui/password-strength';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
 import { useActiveLegalDocuments, recordLegalConsent } from '@/hooks/useLegalConsent';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const { sendOTP, verifyOTPAndRegister, loginWithGoogle, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
+  // Param mentah (bisa null) — disanitasi saat dipakai, mengikuti pola di /login.
+  const rawRedirect = useSearchParams().get('redirect');
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phone, setPhone] = useState('');
@@ -26,12 +29,15 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = useState(false);
   const { data: legalDocs } = useActiveLegalDocuments();
 
-  // Redirect to home if already authenticated
+  // Begitu akun jadi (atau memang sudah login), antar ke tujuan yang diminta.
+  // Sebelumnya SELALU ke '/', jadi niat yang membawa orang ke sini hilang tepat
+  // saat ia berhasil mendaftar — pendaftar dari CTA "jadi mitra" mendarat di
+  // beranda tanpa tahu harus ke mana. safeRedirect menolak tujuan lintas-origin.
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace('/');
+      router.replace(safeRedirect(rawRedirect));
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, rawRedirect]);
 
   // Don't render register form if authenticated
   if (isAuthenticated) {
@@ -147,7 +153,7 @@ export default function RegisterPage() {
                   text="signup_with"
                   onSuccess={async (idToken) => {
                     if (!agreed) return;
-                    await loginWithGoogle(idToken);
+                    await loginWithGoogle(idToken, rawRedirect ?? undefined);
                     if (legalDocs?.length) {
                       await recordLegalConsent(legalDocs, ['terms', 'privacy']);
                     }
@@ -298,3 +304,18 @@ export default function RegisterPage() {
   );
 }
 
+// useSearchParams menuntut batas Suspense agar halaman tetap bisa dirender
+// statis — pola yang sama dipakai /login.
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="page-h flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-red" />
+        </div>
+      }
+    >
+      <RegisterContent />
+    </Suspense>
+  );
+}

@@ -75,7 +75,14 @@ function LoginContent() {
         </h2>
         <p className="mt-1 sm:mt-2 text-center text-sm text-brand-gray-700">
           Atau{' '}
-          <Link href="/register" className="font-medium text-brand-red hover:text-brand-red-dark">
+          {/* Tujuan redirect ikut dibawa ke pendaftaran. Tanpa ini, pengunjung
+              yang datang dari CTA "jadi mitra" kehilangan tujuannya begitu ia
+              sadar belum punya akun — ia mendaftar, lalu mendarat di beranda
+              tanpa petunjuk apa pun tentang niat awalnya. */}
+          <Link
+            href={rawRedirect ? `/register?redirect=${encodeURIComponent(safeRedirect(rawRedirect))}` : '/register'}
+            className="font-medium text-brand-red hover:text-brand-red-dark"
+          >
             daftar baru sekarang
           </Link>
         </p>

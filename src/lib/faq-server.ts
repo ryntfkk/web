@@ -1,7 +1,7 @@
 import { API_URL } from '@/lib/api';
 import type { FaqGroup } from '@/hooks/useFaqs';
 import { renderFaqAnswer } from '@/lib/faq-tokens';
-import { FALLBACK_PLATFORM_CONFIG, type PlatformConfig } from '@/hooks/usePlatformConfig';
+import { getPlatformConfig } from '@/lib/config-server';
 
 // Pengambil FAQ + setelan untuk Server Component.
 //
@@ -39,13 +39,12 @@ async function getJSON<T>(path: string, revalidate: number): Promise<T | null> {
 export async function getFaqsRendered(
   audience: 'CUSTOMER' | 'PARTNER',
 ): Promise<FaqGroup[]> {
-  const [groups, config] = await Promise.all([
+  const [groups, cfg] = await Promise.all([
     getJSON<FaqGroup[]>(`/faqs?audience=${audience}`, 600),
-    getJSON<PlatformConfig>('/config', 600),
+    getPlatformConfig(),
   ]);
   if (!groups) return [];
 
-  const cfg = config ?? FALLBACK_PLATFORM_CONFIG;
   return groups.map((g) => ({
     ...g,
     items: g.items.map((it) => ({ ...it, answer: renderFaqAnswer(it.answer, cfg) })),

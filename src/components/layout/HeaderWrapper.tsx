@@ -48,6 +48,13 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   "disputes",
   "hapus-akun",
   "help",
+  // Landing akuisisi mitra. Sengaja di root, BUKAN /mitra/*: seluruh area
+  // /mitra ber-noindex + di-disallow robots.txt + dipagari useRequireAuth,
+  // sehingga halaman yang tugasnya menjaring pengunjung dari Google tidak
+  // mungkin berdiri di sana. Tidak dimasukkan ke MOBILE_HIDE_PATHS — pembaca
+  // datang dari hasil pencarian tanpa riwayat untuk ditekan "kembali", jadi
+  // TopNavbar justru satu-satunya jalan masuknya ke sisa situs.
+  "jadi-mitra",
   // Route SEO-friendly untuk listing jasa per kategori/kota
   "jasa",
   "kategori",
