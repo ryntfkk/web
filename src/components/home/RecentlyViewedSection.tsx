@@ -1,11 +1,38 @@
 "use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
-import { useRecentlyViewedStore } from '@/lib/store/recentlyViewedStore';
+import { useRecentlyViewedStore, type ViewedService } from '@/lib/store/recentlyViewedStore';
+import { ServiceProductCard } from '@/components/ui/service-product-card';
+import type { PublicService } from '@/hooks/usePublicServices';
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
+
+// Entri localStorage → bentuk PublicService agar bisa dirender dengan kartu
+// produk jasa yang sama seperti section lain (konsistensi tampilan). Field yang
+// tak disimpan di store (jarak, jumlah pesanan) dikosongkan → badge-nya otomatis
+// tidak tampil di kartu.
+function toPublicService(it: ViewedService): PublicService {
+  return {
+    id: it.service_id,
+    partner_id: '',
+    partner_name: it.partner_name ?? '',
+    partner_username: it.partner_username ?? '',
+    partner_avatar_url: it.partner_avatar_url ?? '',
+    category_id: '',
+    category_name: it.category_name ?? '',
+    name: it.service_name,
+    description: '',
+    price: it.price,
+    included_items: [],
+    excluded_items: [],
+    estimated_duration: 0,
+    photo_url: it.photo_url || PLACEHOLDER_IMG,
+    partner_avg_rating: it.partner_avg_rating ?? 0,
+    partner_total_reviews: 0,
+    partner_city: it.partner_city,
+    distance_meters: 0,
+  };
+}
 
 export default function RecentlyViewedSection() {
   // Store dipersist di localStorage → hydrate setelah mount. Guard `mounted`
@@ -32,28 +59,17 @@ export default function RecentlyViewedSection() {
         </button>
       </div>
 
-      <div className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-1">
+      <div
+        className="flex gap-3 md:gap-4 overflow-x-auto snap-x scrollbar-hide pb-1 -mx-3 px-3 sm:-mx-1 sm:px-1"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         {items.map((it) => (
-          <Link
+          <div
             key={it.service_id}
-            href={`/services/${it.service_id}`}
-            className="w-32 sm:w-40 shrink-0 bg-white border border-brand-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all"
+            className="flex-shrink-0 snap-start w-[42vw] max-w-[190px] sm:w-44 lg:w-48"
           >
-            <div className="relative aspect-square bg-brand-gray-60">
-              <Image
-                src={it.photo_url || PLACEHOLDER_IMG}
-                alt={it.service_name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 128px, 160px"
-              />
-            </div>
-            <div className="p-2">
-              <p className="text-sm font-medium text-brand-gray-900 truncate">{it.service_name}</p>
-              {it.category_name && <p className="text-[11px] text-brand-gray-400 truncate">{it.category_name}</p>}
-              <p className="text-sm font-semibold text-brand-red mt-0.5">Rp {it.price.toLocaleString('id-ID')}</p>
-            </div>
-          </Link>
+            <ServiceProductCard service={toPublicService(it)} />
+          </div>
         ))}
       </div>
     </section>

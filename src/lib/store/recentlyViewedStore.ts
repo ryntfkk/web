@@ -8,6 +8,13 @@ export interface ViewedService {
   photo_url: string;
   partner_username?: string;
   category_name?: string;
+  /** Data mitra . dipakai agar kartu "Baru Dilihat" tampil sama dengan kartu
+   *  produk jasa di section lain. Opsional: entri lama di localStorage belum
+   *  memilikinya, kartu tetap dirender dengan nilai default. */
+  partner_name?: string;
+  partner_avatar_url?: string;
+  partner_avg_rating?: number;
+  partner_city?: string;
 }
 
 const MAX = 10;

@@ -10,12 +10,18 @@ import type { Partner } from '@/types/partner';
 
 import { PLACEHOLDER_SERVICE as PLACEHOLDER_IMG } from '@/lib/images';
 
+// Mode geser (horizontal), bukan grid menurun . lebar kartu dikunci agar
+// kartu berikutnya "mengintip" di tepi layar sebagai isyarat bisa digeser.
+const SCROLLER_CLASS =
+  'flex gap-3 md:gap-4 overflow-x-auto snap-x scrollbar-hide pb-1 -mx-3 px-3 sm:-mx-1 sm:px-1';
+const ITEM_CLASS = 'flex-shrink-0 snap-start w-[42vw] max-w-[190px] sm:w-44 lg:w-48';
+
 export default function TopPartnersSection() {
   const { latitude, longitude, hasLocation, permissionStatus } = useUserLocation();
 
   // Ada lokasi → urut TERDEKAT; tanpa lokasi → rating tertinggi. Tanpa filter kota.
   const { data: partners, isLoading, isError, refetch } = usePartners({
-    per_page: 6,
+    per_page: 12,
     sort_by: hasLocation ? 'distance' : 'rating',
     latitude: hasLocation ? latitude ?? undefined : undefined,
     longitude: hasLocation ? longitude ?? undefined : undefined,
@@ -48,9 +54,9 @@ export default function TopPartnersSection() {
       )}
 
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+        <div className={SCROLLER_CLASS} style={{ WebkitOverflowScrolling: 'touch' }}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-[280px] bg-gray-100 animate-pulse rounded-lg" />
+            <div key={i} className={`${ITEM_CLASS} h-[280px] bg-gray-100 animate-pulse rounded-lg`} />
           ))}
         </div>
       ) : isError ? (
@@ -71,9 +77,9 @@ export default function TopPartnersSection() {
           Belum ada mitra.
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+        <div className={SCROLLER_CLASS} style={{ WebkitOverflowScrolling: 'touch' }}>
           {partners?.map((partner: Partner) => (
-            <Link key={partner.id} href={`/${partner.username}`} className="block">
+            <Link key={partner.id} href={`/${partner.username}`} className={`${ITEM_CLASS} block`}>
               <ServiceCard
                 vendorName={partner.name}
                 category={partner.categories?.[0]?.name || 'Umum'}

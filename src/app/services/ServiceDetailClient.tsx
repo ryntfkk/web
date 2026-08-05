@@ -89,6 +89,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
       photo_url: service.photo_url || PLACEHOLDER_SERVICE,
       partner_username: service.partner_username,
       category_name: service.category_name,
+      partner_name: service.partner_name,
+      partner_avatar_url: service.partner_avatar_url,
+      partner_avg_rating: service.partner_avg_rating,
+      partner_city: service.partner_city,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [service?.id]);

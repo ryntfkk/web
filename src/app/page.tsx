@@ -5,6 +5,7 @@ import LocationPicker from '@/components/home/LocationPicker';
 import TopPartnersSection from '@/components/home/TopPartnersSection';
 import FeaturedServicesSection from '@/components/home/FeaturedServicesSection';
 import ProductsSection from '@/components/home/ProductsSection';
+import AllServicesSection from '@/components/home/AllServicesSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
 import PopularCitiesSection from '@/components/home/PopularCitiesSection';
 import PartnerCtaBanner from '@/components/home/PartnerCtaBanner';
@@ -90,9 +91,13 @@ export default async function Home() {
           <RecentlyViewedSection />
           <ProductsSection />
           <PartnerCtaBanner />
-          <TopPartnersSection />
           <FeaturedServicesSection />
           <PopularCitiesSection />
+          {/* Mitra (geser) lalu katalog "Semua Jasa" yang memuat sendiri saat
+              digulir . section lain sengaja ditaruh DI ATASNYA agar tidak
+              terdorong ke bawah daftar tak berujung. */}
+          <TopPartnersSection />
+          <AllServicesSection />
 
           {/* Blok Teks SEO - Diletakkan di bawah agar tidak mengganggu hero/nav. 
               Gunakan sr-only pada mobile agar tidak memakan tempat, 
