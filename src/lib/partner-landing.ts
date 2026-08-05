@@ -18,6 +18,21 @@ import type { FaqItem } from '@/lib/seo';
  * adalah janji yang salah, bukan sekadar teks usang.
  */
 
+/* ─────────── Hero stats ─────────── */
+
+export interface HeroStat {
+  angka: string;
+  label: string;
+}
+
+export const HERO_STATS: HeroStat[] = [
+  { angka: 'Rp 0', label: 'Biaya daftar' },
+  { angka: '24/7', label: 'Halaman aktif' },
+  { angka: '100%', label: 'Anda atur sendiri' },
+];
+
+/* ─────────── Compare rows ─────────── */
+
 /** Satu baris perbandingan: keadaan lama vs keadaan di Posko. */
 export interface CompareRow {
   aspek: string;
@@ -36,35 +51,37 @@ export interface CompareRow {
 export const COMPARE_ROWS: CompareRow[] = [
   {
     aspek: 'Ditemukan lewat Google',
-    lama: 'Praktis tidak muncul di hasil pencarian — sebagian besar butuh login dulu untuk dilihat.',
-    posko: 'Tiap layanan & profil punya halaman sendiri yang terbuka untuk mesin pencari dan terdaftar di sitemap.',
+    lama: 'Praktis tidak muncul — butuh login dulu untuk dilihat.',
+    posko: 'Halaman terbuka untuk mesin pencari, terdaftar di sitemap.',
   },
   {
     aspek: 'Umur postingan',
-    lama: 'Tenggelam dalam hitungan jam terdorong postingan baru. Harus repost terus-menerus.',
-    posko: 'Halaman permanen. Sekali pasang, tetap bisa ditemukan tanpa repost.',
+    lama: 'Tenggelam dalam hitungan jam. Harus repost terus.',
+    posko: 'Halaman permanen. Sekali pasang, tetap ditemukan.',
   },
   {
     aspek: 'Harga & cakupan kerja',
-    lama: 'Dijelaskan ulang di tiap chat. Sering beda-beda dan jadi sumber salah paham.',
-    posko: 'Tersimpan di layanan: harga, satuan, durasi, yang termasuk dan yang tidak.',
+    lama: 'Dijelaskan ulang di tiap chat. Sering jadi salah paham.',
+    posko: 'Tersimpan jelas: harga, satuan, durasi, termasuk & tidak.',
   },
   {
-    aspek: 'Kepercayaan pelanggan baru',
-    lama: 'Hanya klaim sepihak. Pelanggan tak punya cara memeriksa.',
-    posko: 'Rating & ulasan hanya bisa ditulis pelanggan yang benar-benar memesan.',
+    aspek: 'Kepercayaan pelanggan',
+    lama: 'Klaim sepihak. Tak bisa diperiksa.',
+    posko: 'Rating & ulasan dari pelanggan yang benar-benar memesan.',
   },
   {
     aspek: 'Pembayaran',
-    lama: 'Transfer langsung. Risiko tak dibayar setelah pekerjaan selesai ditanggung sendiri.',
-    posko: 'Pembayaran pelanggan ditahan Posko lebih dulu, lalu masuk saldo Anda setelah pekerjaan selesai.',
+    lama: 'Transfer langsung. Risiko tak dibayar.',
+    posko: 'Ditahan Posko dulu, masuk saldo setelah selesai.',
   },
   {
     aspek: 'Jadwal',
-    lama: 'Diatur manual lewat chat. Bentrok jadwal baru ketahuan belakangan.',
-    posko: 'Jam kerja, jeda istirahat, dan cuti Anda otomatis menolak jam yang tidak tersedia.',
+    lama: 'Diatur manual. Bentrok baru ketahuan belakangan.',
+    posko: 'Otomatis menolak jam yang tidak tersedia.',
   },
 ];
+
+/* ─────────── SEO points ─────────── */
 
 /** Mekanisme SEO yang benar-benar berjalan — bukan janji peringkat. */
 export const SEO_POINTS = [
@@ -79,63 +96,69 @@ export const SEO_POINTS = [
     isi: 'Alamat yang bisa Anda cantumkan di stiker, kartu nama, atau bio media sosial. Profil mitra ikut didaftarkan otomatis ke sitemap yang dibaca Google.',
   },
   {
-    judul: 'Anda ikut di halaman “jasa + kota”',
+    judul: 'Anda ikut di halaman "jasa + kota"',
     contoh: 'poskojasa.com/jasa/service-ac/bekasi',
     isi: 'Posko punya halaman khusus untuk tiap kombinasi jenis jasa dan kota — persis yang diketik orang saat mencari. Layanan Anda tampil di halaman kota Anda sendiri.',
   },
 ];
 
+/* ─────────── Setup points ─────────── */
+
 /** Kemampuan yang tidak muat di satu postingan. Semua sudah ada di sistem. */
 export const SETUP_POINTS = [
   {
-    judul: 'Harga yang tidak perlu ditawar ulang',
-    isi: 'Tentukan harga, satuan (per unit, per m², per jam), minimum order, dan perkiraan durasi. Pelanggan melihatnya sebelum memesan.',
+    judul: 'Harga jelas',
+    isi: 'Tentukan harga, satuan, minimum order, dan durasi. Pelanggan lihat sebelum memesan.',
   },
   {
-    judul: 'Variasi dalam satu layanan',
-    isi: 'Satu layanan bisa punya beberapa pilihan dengan harga berbeda — misalnya AC 0,5 PK, 1 PK, dan 2 PK — tanpa membuat tiga layanan terpisah.',
+    judul: 'Variasi layanan',
+    isi: 'Satu layanan bisa punya beberapa pilihan harga — misal AC 0,5 PK, 1 PK, 2 PK.',
   },
   {
-    judul: 'Batas pekerjaan yang tegas',
-    isi: 'Isi daftar “termasuk” dan “tidak termasuk”. Penambahan freon atau material yang tidak Anda tanggung tertulis sejak awal, bukan jadi perdebatan di lokasi.',
+    judul: 'Batas kerja tegas',
+    isi: 'Isi daftar "termasuk" dan "tidak termasuk". Tertulis sejak awal, bukan debat di lokasi.',
   },
   {
-    judul: 'Syarat yang harus disiapkan pelanggan',
-    isi: 'Minta hal yang Anda butuhkan di lokasi — sumber air, akses listrik, area parkir. Pelanggan menyetujuinya saat memesan.',
+    judul: 'Syarat pelanggan',
+    isi: 'Minta apa yang Anda butuhkan di lokasi. Pelanggan menyetujui saat memesan.',
   },
   {
-    judul: 'Jadwal yang menolak sendiri',
-    isi: 'Atur jam kerja per hari, jeda istirahat, dan tanggal cuti. Pesanan di luar jam itu tidak bisa masuk — tidak perlu Anda tolak satu per satu.',
+    judul: 'Jadwal otomatis',
+    isi: 'Atur jam kerja, jeda, dan cuti. Pesanan di luar jam itu tidak masuk.',
   },
   {
-    judul: 'Biaya perjalanan & biaya tambahan',
-    isi: 'Biaya transport dihitung otomatis dari jarak. Bila di lokasi ternyata ada pekerjaan tambahan, ajukan biayanya lewat aplikasi untuk disetujui pelanggan.',
+    judul: 'Biaya transport',
+    isi: 'Dihitung otomatis dari jarak. Biaya tambahan bisa diajukan lewat aplikasi.',
   },
 ];
+
+/* ─────────── Flow steps ─────────── */
 
 /** Alur satu pesanan, dari masuk sampai uangnya bisa ditarik. */
 export const FLOW_STEPS = [
   {
     judul: 'Pesanan masuk',
-    isi: 'Anda dapat notifikasi berisi jenis pekerjaan, lokasi, dan jadwal yang diminta.',
+    isi: 'Notifikasi berisi jenis pekerjaan, lokasi, dan jadwal.',
   },
   {
-    judul: 'Terima atau tolak',
-    isi: 'Keputusan tetap di tangan Anda. Tidak ada kewajiban mengambil semua pesanan.',
+    judul: 'Terima / tolak',
+    isi: 'Keputusan di tangan Anda. Tidak wajib ambil semua.',
   },
   {
-    judul: 'Koordinasi lewat chat',
-    isi: 'Bicarakan detail langsung di aplikasi, tanpa perlu bertukar nomor pribadi lebih dulu.',
+    judul: 'Chat & koordinasi',
+    isi: 'Detail langsung di aplikasi, tanpa tukar nomor pribadi.',
   },
   {
-    judul: 'Kerjakan, lalu tandai selesai',
-    isi: 'Pelanggan sudah membayar di muka ke Posko sebelum Anda berangkat. Anda tinggal bekerja.',
+    judul: 'Kerjakan',
+    isi: 'Pelanggan sudah bayar ke Posko. Anda tinggal bekerja.',
   },
   {
-    judul: 'Dana masuk saldo',
-    isi: 'Setelah pesanan selesai, bagian Anda masuk saldo dan bisa ditarik ke rekening sendiri.',
+    judul: 'Dana masuk',
+    isi: 'Bagian Anda masuk saldo, bisa ditarik ke rekening.',
   },
 ];
+
+/* ─────────── Prep items ─────────── */
 
 /** Yang perlu disiapkan sebelum mendaftar — urut sesuai langkah form. */
 export const PREP_ITEMS = [
@@ -145,6 +168,8 @@ export const PREP_ITEMS = [
   'Titik lokasi basecamp tempat Anda beroperasi',
   'Nomor rekening bank untuk pencairan dana',
 ];
+
+/* ─────────── Early advantages ─────────── */
 
 /**
  * Keunggulan pendaftar awal.
@@ -156,18 +181,20 @@ export const PREP_ITEMS = [
  */
 export const EARLY_ADVANTAGES = [
   {
-    judul: 'Halaman kota Anda masih lengang',
-    isi: 'Halaman “jasa + kota” untuk daerah Anda baru terisi sedikit mitra. Makin awal masuk, makin besar porsi perhatian yang jatuh ke Anda saat ada yang mencari.',
+    judul: 'Halaman kota masih lengang',
+    isi: 'Makin awal masuk, makin besar porsi perhatian yang jatuh ke Anda.',
   },
   {
     judul: 'Ulasan menumpuk lebih dulu',
-    isi: 'Saat pelanggan menelusuri tanpa berbagi lokasi, mitra diurutkan berdasarkan rating. Ulasan yang Anda kumpulkan hari ini jadi keunggulan yang sulit dikejar pendatang baru.',
+    isi: 'Mitra diurutkan berdasarkan rating. Ulasan hari ini jadi keunggulan yang sulit dikejar.',
   },
   {
-    judul: 'Halaman Anda punya waktu untuk dikenali',
-    isi: 'Mesin pencari butuh waktu mengenali halaman baru. Profil yang dibuat sekarang sudah melewati masa itu ketika pesaing Anda baru mulai mendaftar.',
+    judul: 'Halaman dikenali lebih awal',
+    isi: 'Mesin pencari butuh waktu mengenali halaman baru. Profil Anda sudah melewati masa itu.',
   },
 ];
+
+/* ─────────── FAQ ─────────── */
 
 /**
  * FAQ — dipakai sebagai bacaan DAN sebagai JSON-LD FAQPage.

@@ -89,8 +89,8 @@ export default async function Home() {
           <CategorySection />
           <RecentlyViewedSection />
           <ProductsSection />
-          <TopPartnersSection />
           <PartnerCtaBanner />
+          <TopPartnersSection />
           <FeaturedServicesSection />
           <PopularCitiesSection />
 
