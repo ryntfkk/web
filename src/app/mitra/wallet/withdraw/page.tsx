@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Landmark, AlertCircle } from 'lucide-react';
+import { Landmark, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
@@ -37,6 +37,12 @@ export default function WithdrawPage() {
   const [loading, setLoading] = useState(false);
   const platformConfig = usePlatformConfig();
 
+  // H4: OTP withdrawal. Alur: user isi nominal → kirim OTP → input OTP → submit.
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpCooldown, setOtpCooldown] = useState(0); // detik sampai bisa kirim ulang
+
   const [savedBank, setSavedBank] = useState<SavedBank | null>(null);
 
   const fetchBalance = useCallback(async () => {
@@ -65,6 +71,13 @@ export default function WithdrawPage() {
     }
   }, [isAuthorized, fetchBalance, fetchSavedBank]);
 
+  // Cooldown timer untuk kirim ulang OTP (60 detik).
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    const t = setTimeout(() => setOtpCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [otpCooldown]);
+
   const isSubmittingRef = useRef(false);
 
   if (authLoading) {
@@ -74,6 +87,45 @@ export default function WithdrawPage() {
   if (!isAuthorized) {
     return null;
   }
+
+  // H4: Kirim OTP ke nomor HP terverifikasi user. Dipanggil sebelum submit
+  // withdrawal. Rate limit backend: 3 request / 15 menit.
+  const sendOtp = async () => {
+    // Validasi amount dulu supaya OTP tidak dikirim untuk nominal yang akan
+    // ditolak anyway.
+    const minWithdrawal = platformConfig.min_transaction;
+    const maxWithdrawal = platformConfig.max_withdrawal;
+    const numAmount = parseInt(amount.replace(/\D/g, ''), 10);
+    if (!numAmount || numAmount < minWithdrawal) {
+      setError(`Minimal penarikan ${formatPrice(minWithdrawal)}`);
+      return;
+    }
+    if (numAmount > maxWithdrawal) {
+      setError(`Maksimal penarikan ${formatPrice(maxWithdrawal)} per pengajuan`);
+      return;
+    }
+    if (numAmount > walletBalance) {
+      setError('Saldo tidak mencukupi');
+      return;
+    }
+    if (!savedBank) {
+      setError('Silakan tambahkan rekening bank terlebih dahulu');
+      return;
+    }
+
+    setOtpSending(true);
+    setError('');
+    const res = await fetchAPI('/wallet/withdraw/otp', { method: 'POST' });
+    setOtpSending(false);
+
+    if (res.success) {
+      setOtpSent(true);
+      setOtpCooldown(60);
+      setOtp('');
+    } else {
+      setError(getErrorMessage(res));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,16 +154,25 @@ export default function WithdrawPage() {
       setError('Silakan tambahkan rekening bank terlebih dahulu');
       return;
     }
+    // H4: OTP wajib — backend menolak tanpa OTP.
+    if (!otpSent) {
+      setError('Klik "Kirim Kode OTP" terlebih dahulu untuk verifikasi penarikan.');
+      return;
+    }
+    if (!otp || otp.length !== 6) {
+      setError('Masukkan 6 digit kode OTP yang dikirim ke nomor HP Anda.');
+      return;
+    }
 
     isSubmittingRef.current = true;
     setLoading(true);
     setError('');
 
-    // Backend WithdrawRequest hanya menerima { amount } — rekening tujuan
+    // Backend WithdrawRequest menerima { amount, otp } — rekening tujuan
     // memakai rekening tersimpan (mengubahnya butuh OTP).
     const res = await fetchAPI('/wallet/withdraw', {
       method: 'POST',
-      body: JSON.stringify({ amount: numAmount }),
+      body: JSON.stringify({ amount: numAmount, otp }),
     });
 
     if (res.success) {
@@ -125,6 +186,10 @@ export default function WithdrawPage() {
         setError('Masih ada penarikan yang sedang diproses. Tunggu hingga selesai sebelum mengajukan lagi.');
       } else if (errCode === 'WALLET_INSUFFICIENT_BALANCE') {
         setError('Saldo tidak mencukupi.');
+      } else if (errCode === 'OTP_INVALID' || errCode === 'OTP_SEND_FAILED') {
+        setError('Kode OTP salah atau kadaluarsa. Silakan minta OTP baru.');
+        setOtpSent(false);
+        setOtp('');
       } else {
         setError(getErrorMessage(res));
       }
@@ -279,11 +344,67 @@ export default function WithdrawPage() {
 
           {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
 
+          {/* H4: Verifikasi OTP sebelum penarikan. OTP dikirim ke nomor HP
+              terverifikasi user via WhatsApp (Fonnte). */}
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-3">
+            <div className="flex items-start gap-2">
+              <ShieldCheck className="w-5 h-5 text-brand-red shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-brand-gray-900 text-sm">Verifikasi Penarikan</h3>
+                <p className="text-xs text-brand-gray-700 mt-0.5">
+                  Demi keamanan, masukkan kode OTP yang dikirim ke nomor HP terverifikasi Anda.
+                </p>
+              </div>
+            </div>
+
+            {!otpSent ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={sendOtp}
+                disabled={otpSending || otpCooldown > 0}
+                className="w-full rounded-md h-11 text-sm font-semibold border-brand-red text-brand-red hover:bg-brand-red/5"
+              >
+                {otpSending
+                  ? 'Mengirim OTP...'
+                  : otpCooldown > 0
+                    ? `Kirim ulang dalam ${otpCooldown}s`
+                    : 'Kirim Kode OTP'}
+              </Button>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-brand-gray-700 mb-1.5">
+                    Kode OTP (6 digit)
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="______"
+                    className="w-full p-3 border border-brand-gray-100 rounded-md text-center text-2xl font-bold tracking-[0.5em] text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={sendOtp}
+                  disabled={otpSending || otpCooldown > 0}
+                  className="text-xs font-semibold text-brand-red hover:underline disabled:text-brand-gray-400 disabled:no-underline"
+                >
+                  {otpCooldown > 0 ? `Kirim ulang dalam ${otpCooldown}s` : 'Kirim ulang OTP'}
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="pt-4">
             <Button
               type="submit"
               className="w-full bg-brand-red hover:bg-brand-red-dark rounded-md h-12 text-base font-bold"
-              disabled={loading}
+              disabled={loading || !otpSent || otp.length !== 6}
             >
               {loading ? 'Memproses...' : 'Tarik Dana'}
             </Button>
