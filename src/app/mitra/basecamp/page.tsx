@@ -75,20 +75,28 @@ export default function MitraBasecampPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const areaLabel = [kecamatan, kota].filter(Boolean).join(', ');
+      // Mitra approved: jangan kirim field terkunci (basecamp_lat/lon, service_area).
+      // Guard F1 backend membandingkan nilai kiriman vs tersimpan, bukan "apakah
+      // user mengetik" — service_area direkonstruksi dan basecamp punya default
+      // Jakarta, keduanya bisa memicu false-positive `DATA_VERIFIED_LOCKED`.
+      // Backend cabang approved sudah menulis ulang nilai lama, jadi aman dipangkas.
+      const body: Record<string, unknown> = {
+        bio,
+        province: provinsi,
+        city: kota,
+        district: kecamatan,
+        address_detail: detail,
+      };
+      if (!isVerified) {
+        const areaLabel = [kecamatan, kota].filter(Boolean).join(', ');
+        // service_area tetap dikirim agar profil tampil benar sebelum kolom baru dideploy.
+        body.service_area = areaLabel ? [areaLabel] : undefined;
+        body.basecamp_lat = basecamp.lat;
+        body.basecamp_lon = basecamp.lon;
+      }
       const res = await fetchAPI('/partners/me', {
         method: 'PATCH',
-        body: JSON.stringify({
-          bio,
-          // service_area tetap dikirim agar profil tampil benar sebelum kolom baru dideploy.
-          service_area: areaLabel ? [areaLabel] : undefined,
-          province: provinsi,
-          city: kota,
-          district: kecamatan,
-          address_detail: detail,
-          basecamp_lat: basecamp.lat,
-          basecamp_lon: basecamp.lon,
-        }),
+        body: JSON.stringify(body),
       });
       if (res.success) {
         router.back();
@@ -119,8 +127,8 @@ export default function MitraBasecampPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {isVerified && (
           <VerifiedLockNotice
-            title="Basecamp terkunci"
-            message="Lokasi basecamp sudah diverifikasi admin. Hubungi admin untuk mengubah (cabut verifikasi)."
+            title="Koordinat & wilayah terkunci"
+            message="Titik lokasi & wilayah layanan sudah diverifikasi admin. Detail alamat & deskripsi tetap bisa diubah. Hubungi admin untuk mengubah koordinat (cabut verifikasi)."
           />
         )}
         <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-3 flex gap-3">
@@ -134,7 +142,12 @@ export default function MitraBasecampPage() {
           <div>
             <h3 className="font-bold text-brand-gray-900 mb-1">Titik Lokasi Basecamp</h3>
             <p className="text-xs text-brand-gray-400 mb-3">Ketuk/geser pin, atau tekan tombol “Lokasi saya” untuk memakai GPS.</p>
-            <div className="h-64 rounded-lg overflow-hidden border border-brand-gray-100">
+            <div
+              className={`h-64 rounded-lg overflow-hidden border border-brand-gray-100 ${
+                isVerified ? 'pointer-events-none opacity-60' : ''
+              }`}
+              aria-disabled={isVerified || undefined}
+            >
               <MapPicker lat={basecamp.lat} lng={basecamp.lon} onChange={(lat, lng) => setBasecamp({ lat, lon: lng })} />
             </div>
           </div>
@@ -143,7 +156,22 @@ export default function MitraBasecampPage() {
             value={{ province: provinsi, city: kota, district: kecamatan }}
             onChange={(v) => { setProvinsi(v.province); setKota(v.city); setKecamatan(v.district); }}
             selectClassName={inputCls + ' bg-white'}
+            disabled={isVerified}
           />
+          <div>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Deskripsi Diri</label>
+            <textarea
+              className={inputCls}
+              placeholder="Ceritakan pengalaman & keahlianmu (min. 20 karakter untuk skor kelengkapan)"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              rows={4}
+              maxLength={500}
+            />
+            <p className="text-xs text-brand-gray-400 mt-1">
+              Deskripsi hanya bisa diganti, belum bisa dikosongkan.
+            </p>
+          </div>
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Detail Alamat (opsional)</label>
             <input className={inputCls} placeholder="Nama jalan, patokan, dsb." value={detail} onChange={(e) => setDetail(e.target.value)} />
@@ -151,8 +179,8 @@ export default function MitraBasecampPage() {
 
           {error && <div className="text-sm text-brand-error">{error}</div>}
 
-          <Button className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-6" onClick={handleSave} disabled={submitting || isVerified}>
-            {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : isVerified ? 'Terkunci' : 'Simpan Basecamp'}
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-6" onClick={handleSave} disabled={submitting}>
+            {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Simpan Basecamp'}
           </Button>
         </div>
       </div>

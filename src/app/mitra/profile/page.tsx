@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   User, ShieldCheck, CreditCard, LogOut, FileText, CheckCircle,
   RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, SlidersHorizontal, Phone, Loader2, ExternalLink,
+  CalendarDays,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
@@ -156,6 +157,7 @@ export default function MitraProfilePage() {
           <MenuListItem icon={FileText} label="Dokumen Pendukung" subtitle="SKCK, sertifikat, izin usaha" href="/mitra/documents" />
           <MenuListItem icon={User} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
           <MenuListItem icon={MapPin} label="Alamat Basecamp" subtitle="Titik lokasi & jangkauan layanan" href="/mitra/basecamp" />
+          <MenuListItem icon={CalendarDays} label="Jam Operasional" subtitle="Atur jam kerja & cuti" href="/mitra/schedule" />
           <MenuListItem icon={CreditCard} label="Rekening Bank" subtitle="Tujuan pencairan saldo" href="/mitra/bank-account" />
           <MenuListItem icon={ImageIcon} label="Galeri Portofolio" subtitle="Foto hasil pekerjaan" href="/mitra/portfolio" />
           {/* Dua hal berbeda, dan subtitle lama menjanjikan yang kedua sambil
