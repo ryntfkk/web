@@ -5,7 +5,7 @@ import { useAuthStore } from './store/authStore';
 
 /**
  * Batas API adalah satu-satunya tempat envelope dirapikan (P1-12, `unwrapData`
- * sudah dihapus). Kalau lapisan ini salah, SETIAP halaman salah — dan salahnya
+ * sudah dihapus). Kalau lapisan ini salah, SETIAP halaman salah . dan salahnya
  * berupa "tidak ada data" yang tak bisa dibedakan dari kegagalan.
  *
  * Kasus yang diuji mengikuti §14.2: success, body kosong, 4xx, 5xx, dan
@@ -103,7 +103,7 @@ describe('fetchAPI', () => {
 
   it('jaringan mati menghasilkan pesan, bukan lemparan', async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('ECONNREFUSED')) as never;
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => { });
 
     const res = await fetchAPI('/anything');
     expect(res.success).toBe(false);

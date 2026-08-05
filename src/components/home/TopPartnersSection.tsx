@@ -39,7 +39,7 @@ export default function TopPartnersSection() {
         </Link>
       </div>
 
-      {/* Location notice — shown when user denied or hasn't responded yet */}
+      {/* Location notice . shown when user denied or hasn't responded yet */}
       {permissionStatus === 'denied' && (
         <div className="mb-4 flex items-center gap-2 text-[12px] sm:text-[13px] text-brand-gray-700 bg-brand-gray-50 border border-brand-gray-100 rounded-xs px-3 py-2">
           <MapPinOff className="w-4 h-4 flex-shrink-0" />

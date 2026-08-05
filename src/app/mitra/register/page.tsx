@@ -25,7 +25,7 @@ import dynamic from 'next/dynamic';
 type PartnerType = 'individual' | 'vendor';
 
 /**
- * Bentuk badan usaha — cerminan enum `business_entity_form` (migrasi 000063)
+ * Bentuk badan usaha . cerminan enum `business_entity_form` (migrasi 000063)
  * dan `validEntityForms` di `internal/partner/dto.go`. Kalau backend menambah
  * bentuk baru, daftar ini ikut; nilai di luar daftar ditolak server.
  */
@@ -82,7 +82,7 @@ const MapPicker = dynamic(() => import('@/components/MapPicker'), {
 // Gaya field mengikuti ServiceForm (`components/mitra/ServiceForm.tsx`) dan
 // DESIGN_GUIDELINES §4.4: padding 12px, teks 14px. Padding vertikal & ukuran
 // font pada input di bawah 768px tetap ditimpa globals.css (10px / 16px demi
-// mencegah auto-zoom iOS) — itu disengaja, jangan dilawan dari sini.
+// mencegah auto-zoom iOS) . itu disengaja, jangan dilawan dari sini.
 const INPUT_CLASS =
   'w-full rounded-md border border-brand-gray-100 bg-white p-3 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red';
 const LABEL_CLASS = 'mb-2 block text-sm font-semibold text-brand-gray-900';
@@ -94,7 +94,7 @@ const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 /** Kunci tiap langkah. Urutannya ditentukan `stepsFor()`, bukan angka mentah. */
 type StepKey = 'type' | 'business' | 'identity' | 'profile' | 'location' | 'bank';
 
-/** Label pendek untuk indikator progres — panjang akan memaksa scroll di 360px. */
+/** Label pendek untuk indikator progres . panjang akan memaksa scroll di 360px. */
 const STEP_LABELS: Record<StepKey, string> = {
   type: 'Tipe',
   business: 'Usaha',
@@ -108,7 +108,7 @@ const STEP_LABELS: Record<StepKey, string> = {
  * Urutan langkah bergantung tipe mitra (V3).
  *
  * `type` hanya ada saat PENDAFTARAN BARU. Pada verifikasi ulang tipe mitra tidak
- * boleh berubah — mengubahnya berarti mengganti subjek hukum kontrak, dan
+ * boleh berubah . mengubahnya berarti mengganti subjek hukum kontrak, dan
  * backend memang tidak menerima `partner_type` di endpoint resubmission.
  *
  * Data badan usaha datang LEBIH DULU daripada identitas PIC supaya jelas bahwa
@@ -117,7 +117,7 @@ const STEP_LABELS: Record<StepKey, string> = {
  *
  * Dokumen TIDAK lagi berdiri sebagai langkah sendiri. Satu layar penuh yang
  * hanya berisi satu field (dulu: NIK saja, lalu bio saja) membuat pendaftaran
- * terasa panjang tanpa menambah informasi apa pun — dokumen kini menempel pada
+ * terasa panjang tanpa menambah informasi apa pun . dokumen kini menempel pada
  * langkah data yang bersangkutan.
  */
 function stepsFor(type: PartnerType, isReverify: boolean): StepKey[] {
@@ -131,7 +131,7 @@ function stepsFor(type: PartnerType, isReverify: boolean): StepKey[] {
 const isImageUrl = (url: string) => /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(url);
 
 /**
- * Kotak unggah berkas — dipakai KTP maupun dokumen badan usaha.
+ * Kotak unggah berkas . dipakai KTP maupun dokumen badan usaha.
  *
  * Dideklarasikan di lingkup MODUL, bukan di dalam komponen form. Komponen yang
  * dibuat ulang tiap render menghasilkan elemen `<input type="file">` yang baru
@@ -181,13 +181,12 @@ function FilePicker({
       {hint && <p className={HINT_CLASS}>{hint}</p>}
       <label
         htmlFor={id}
-        className={`block cursor-pointer overflow-hidden rounded-md border-2 border-dashed transition-colors ${
-          error
+        className={`block cursor-pointer overflow-hidden rounded-md border-2 border-dashed transition-colors ${error
             ? 'border-brand-error-border bg-brand-error-soft'
             : hasFile
               ? 'border-brand-red/40 bg-white'
               : 'border-brand-gray-200 bg-white hover:bg-brand-gray-60'
-        }`}
+          }`}
       >
         {shownPreview ? (
           // Pratinjau wajib: tanpa ini mitra baru tahu ia salah unggah setelah
@@ -256,7 +255,7 @@ function MitraRegisterForm() {
     bank_account_name: '',
   });
 
-  // Profil publik — bagian akun, BUKAN bagian baris partner. Foto dan nama
+  // Profil publik . bagian akun, BUKAN bagian baris partner. Foto dan nama
   // inilah yang dilihat pelanggan di hasil pencarian, jadi keduanya dikumpulkan
   // saat pendaftaran, bukan ditagih belakangan lewat ProfileCompleteness ketika
   // mitra sudah terlanjur tayang tanpa wajah.
@@ -265,7 +264,7 @@ function MitraRegisterForm() {
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 
-  // Data badan usaha — dipisah dari formData supaya mudah dipastikan TIDAK
+  // Data badan usaha . dipisah dari formData supaya mudah dipastikan TIDAK
   // ikut terkirim saat tipe perorangan (backend menolak field ini bila terisi).
   const [vendor, setVendor] = useState({
     display_name: '',
@@ -282,7 +281,7 @@ function MitraRegisterForm() {
     nib_doc: null as File | null,
   });
 
-  // Verifikasi ulang: URL berkas yang SUDAH ada. Mitra boleh mempertahankannya —
+  // Verifikasi ulang: URL berkas yang SUDAH ada. Mitra boleh mempertahankannya .
   // memaksa unggah ulang KTP hanya karena alamat basecamp ditolak itu menyiksa.
   const [existingPhotos, setExistingPhotos] = useState({ ktp_photo_url: '', selfie_ktp_url: '' });
   const [existingDocs, setExistingDocs] = useState({ akta_url: '', npwp_doc_url: '', nib_doc_url: '' });
@@ -298,7 +297,7 @@ function MitraRegisterForm() {
   const prevStep = () => setStepIndex((s) => Math.max(s - 1, 0));
 
   // Prefill profil dari akun yang sedang login. Nama tampil mitra perorangan
-  // memang nama akunnya — mitra boleh memperbaikinya di sini, dan perbaikan itu
+  // memang nama akunnya . mitra boleh memperbaikinya di sini, dan perbaikan itu
   // disimpan ke /users/me.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -309,7 +308,7 @@ function MitraRegisterForm() {
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // Prefill dari endpoint draft khusus (P0-05). Dulu membaca /partners/me dan
-  // mengharapkan `ktp_number` + data rekening ada di sana — dua-duanya tidak
+  // mengharapkan `ktp_number` + data rekening ada di sana . dua-duanya tidak
   // pernah ada di DTO itu, jadi form selalu kosong tanpa penjelasan.
   useEffect(() => {
     if (!isReverify) return;
@@ -347,7 +346,7 @@ function MitraRegisterForm() {
         selfie_ktp_url: d.selfie_ktp_url || '',
       });
       // Dokumen badan usaha yang sudah tersimpan boleh dipertahankan, sama
-      // seperti foto KTP — kecuali yang memang ditolak admin.
+      // seperti foto KTP . kecuali yang memang ditolak admin.
       const byType = (t: string) => d.documents?.find((doc) => doc.doc_type?.toUpperCase() === t);
       setExistingDocs({
         akta_url: byType('AKTA')?.file_url || '',
@@ -367,7 +366,7 @@ function MitraRegisterForm() {
    * Penjaga ukuran & jenis berkas di sisi klien.
    *
    * Bukan pengganti validasi server, tapi mencegah mitra menunggu unggahan 20MB
-   * selesai hanya untuk ditolak — di koneksi seluler itu menit-menit yang hilang.
+   * selesai hanya untuk ditolak . di koneksi seluler itu menit-menit yang hilang.
    */
   const rejectFile = (file: File, id: string): boolean => {
     if (file.size > MAX_UPLOAD_BYTES) {
@@ -397,7 +396,7 @@ function MitraRegisterForm() {
   };
 
   /**
-   * Avatar diunggah SEGERA saat dipilih, lewat `useUpload('avatar')` — jalur
+   * Avatar diunggah SEGERA saat dipilih, lewat `useUpload('avatar')` . jalur
    * yang sama dengan /mitra/profile dan /profile/account. Sengaja tidak memakai
    * `/partners/upload/presigned-url` seperti dokumen KYC: avatar milik akun dan
    * disimpan lewat PATCH /users/me, sedangkan berkas KYC milik baris partner.
@@ -448,13 +447,13 @@ function MitraRegisterForm() {
     return data.file_url;
   };
 
-  // Syarat lolos tiap langkah — dicerminkan dari validasi backend
+  // Syarat lolos tiap langkah . dicerminkan dari validasi backend
   // (`validatePartnerTypeFields`) supaya pemohon tidak menyelesaikan enam
   // langkah lalu ditolak karena NIB kurang satu digit.
   //
   // NPWP & NIB OPSIONAL. Keduanya terbit lewat DJP dan OSS, sering belum di
   // tangan pemohon pada hari ia mendaftar. Yang tetap wajib adalah DOKUMEN-nya,
-  // yang ditinjau admin — jadi tidak ada verifikasi yang dilonggarkan.
+  // yang ditinjau admin . jadi tidak ada verifikasi yang dilonggarkan.
   const npwpValid = vendor.npwp.length === 0 || (vendor.npwp.length >= 15 && vendor.npwp.length <= 16);
   const nibValid = vendor.nib.length === 0 || vendor.nib.length === 13;
 
@@ -536,7 +535,7 @@ function MitraRegisterForm() {
       // ── Profil akun disimpan LEBIH DULU ──
       // Urutannya penting. Kalau onboarding dijalankan duluan lalu PATCH gagal,
       // mitra sudah terlanjur ada tanpa foto/nama dan tidak bisa mengulang
-      // pendaftaran karena barisnya sudah ada — buntu yang persis sama pernah
+      // pendaftaran karena barisnya sudah ada . buntu yang persis sama pernah
       // terjadi pada /legal/accept (lihat dto.go OnboardingRequest).
       const profilePatch: Record<string, string> = {};
       if (avatarUrl && avatarUrl !== user?.avatar_url) profilePatch.avatar_url = avatarUrl;
@@ -618,7 +617,7 @@ function MitraRegisterForm() {
         // sendiri lewat verifikasi ulang berarti mengganti pihak yang terikat.
         ...(isReverify ? {} : { partner_type: partnerType }),
         // Field badan usaha hanya ikut untuk vendor. Mengirimnya sebagai string
-        // kosong untuk perorangan pun DITOLAK server — dan memang seharusnya:
+        // kosong untuk perorangan pun DITOLAK server . dan memang seharusnya:
         // itu mencegah data badan usaha nyangkut di akun perorangan.
         ...vendorFields,
       };
@@ -627,15 +626,15 @@ function MitraRegisterForm() {
       // menolak user yang sudah punya baris partner (P0-04).
       const res = isReverify
         ? await fetchAPI('/partners/me/resubmission', {
-            method: 'PUT',
-            body: JSON.stringify(payload),
-            credentials: 'include',
-          })
+          method: 'PUT',
+          body: JSON.stringify(payload),
+          credentials: 'include',
+        })
         : await fetchAPI('/partners/onboarding', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            credentials: 'include',
-          });
+          method: 'POST',
+          body: JSON.stringify(payload),
+          credentials: 'include',
+        });
 
       if (!res.success) {
         throw new Error(res.message || (typeof res.error === 'string' ? res.error : 'Gagal mengirim form'));
@@ -671,7 +670,7 @@ function MitraRegisterForm() {
           <div className="mb-4 rounded-md border border-brand-warning-border bg-brand-warning-soft p-4">
             <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
             <p className="mt-0.5 text-xs text-brand-gray-700">
-              Pendaftaran mitra butuh nomor WhatsApp terverifikasi — pelanggan dan tim kami
+              Pendaftaran mitra butuh nomor WhatsApp terverifikasi . pelanggan dan tim kami
               menghubungi kamu lewat nomor itu.
             </p>
             <button
@@ -750,11 +749,10 @@ function MitraRegisterForm() {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => setPartnerType(opt.value)}
-                    className={`flex w-full items-start gap-3 rounded-md border p-3 text-left transition-colors ${
-                      selected
+                    className={`flex w-full items-start gap-3 rounded-md border p-3 text-left transition-colors ${selected
                         ? 'border-brand-red bg-brand-error-soft'
                         : 'border-brand-gray-100 bg-white hover:border-brand-gray-400'
-                    }`}
+                      }`}
                   >
                     <Icon
                       className={`mt-0.5 h-5 w-5 shrink-0 ${selected ? 'text-brand-red' : 'text-brand-gray-450'}`}
@@ -886,7 +884,7 @@ function MitraRegisterForm() {
               </div>
 
               <p className="rounded-md bg-brand-gray-60 p-3 text-xs leading-relaxed text-brand-gray-700">
-                Nomor NPWP dan NIB boleh dikosongkan bila belum di tangan — dokumennya tetap wajib
+                Nomor NPWP dan NIB boleh dikosongkan bila belum di tangan . dokumennya tetap wajib
                 diunggah di bawah, dan nomornya bisa dilengkapi kemudian.
               </p>
 
@@ -939,7 +937,7 @@ function MitraRegisterForm() {
               <div className="border-t border-brand-gray-100 pt-4">
                 <h3 className="text-sm font-bold text-brand-gray-900">Dokumen Badan Usaha</h3>
                 <p className="mt-1 text-xs text-brand-gray-450">
-                  Ketiganya wajib. Pastikan terbaca jelas — dokumen buram adalah alasan penolakan
+                  Ketiganya wajib. Pastikan terbaca jelas . dokumen buram adalah alasan penolakan
                   paling sering. Maksimal 5MB per berkas.
                 </p>
               </div>
@@ -1006,7 +1004,7 @@ function MitraRegisterForm() {
                 />
                 {isReverify && maskedHints.ktp && (
                   <p className="mt-1 text-xs text-brand-gray-450">
-                    NIK tercatat: {maskedHints.ktp} — ketik ulang lengkap untuk memastikan identitas.
+                    NIK tercatat: {maskedHints.ktp} . ketik ulang lengkap untuk memastikan identitas.
                   </p>
                 )}
               </div>
@@ -1092,7 +1090,7 @@ function MitraRegisterForm() {
                 <div>
                   <span className={LABEL_CLASS}>Nama Tampil</span>
                   <p className="rounded-md border border-brand-gray-100 bg-brand-gray-60 p-3 text-sm text-brand-gray-700">
-                    {vendor.display_name || '—'}
+                    {vendor.display_name || '.'}
                   </p>
                   <p className="mt-1 text-xs text-brand-gray-450">
                     Diambil dari langkah Data Badan Usaha. Kembali ke langkah itu untuk mengubahnya.
@@ -1223,7 +1221,7 @@ function MitraRegisterForm() {
                 />
                 {isReverify && maskedHints.bank && (
                   <p className="mt-1 text-xs text-brand-gray-450">
-                    Rekening tercatat: {maskedHints.bank} — ketik ulang lengkap untuk memastikan tujuan pencairan.
+                    Rekening tercatat: {maskedHints.bank} . ketik ulang lengkap untuk memastikan tujuan pencairan.
                   </p>
                 )}
               </div>
@@ -1239,22 +1237,22 @@ function MitraRegisterForm() {
                   value={formData.bank_account_name}
                   onChange={(e) => setFormData({ ...formData, bank_account_name: e.target.value.toUpperCase() })}
                 />
-                {/* AUDIT #2 / Fase 2b: sinyal risiko vendor — nama rekening ≠
+                {/* AUDIT #2 / Fase 2b: sinyal risiko vendor . nama rekening ≠
                     legal_entity_name. Bukan disable submit (§10a: sinyal, bukan
                     gerbang). Pengajuan tetap lolos, ditinjau manual. */}
                 {isVendor &&
                   formData.bank_account_name.trim() &&
                   vendor.legal_entity_name.trim() &&
                   formData.bank_account_name.trim().toUpperCase() !==
-                    vendor.legal_entity_name.trim().toUpperCase() && (
+                  vendor.legal_entity_name.trim().toUpperCase() && (
                     <p className="mt-1.5 rounded-md border border-brand-warning-border bg-brand-warning-soft px-2 py-1.5 text-xs text-brand-warning-dark">
                       Nama rekening berbeda dari nama badan usaha. Pengajuan akan
-                      ditinjau manual — sebaiknya gunakan rekening atas nama badan usaha.
+                      ditinjau manual . sebaiknya gunakan rekening atas nama badan usaha.
                     </p>
                   )}
               </div>
               {/* Komisi & batas tarik ditampilkan DI SINI, di titik mitra
-                  menyetujui — angkanya dari platform_settings, bukan diketik.
+                  menyetujui . angkanya dari platform_settings, bukan diketik.
                   Persetujuan atas skema komisi tak ada artinya kalau angkanya
                   bisa basi. */}
               <LegalConsentCheckbox checked={agreed} onChange={setAgreed} id="mitra-consent">
@@ -1292,7 +1290,7 @@ function MitraRegisterForm() {
 
       {/* Satu bilah aksi untuk semua langkah. Sebelumnya tiap langkah menyimpan
           tombolnya sendiri di dalam badan kartu dan tidak satu pun punya jalan
-          mundur — satu-satunya cara kembali adalah chevron kecil di header. */}
+          mundur . satu-satunya cara kembali adalah chevron kecil di header. */}
       <StickyActionBar desktop>
         <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
           {stepIndex > 0 && (

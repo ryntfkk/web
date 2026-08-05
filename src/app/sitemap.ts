@@ -35,15 +35,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/promos',
     '/about',
     '/help',
-    // Landing akuisisi mitra — justru halaman yang paling perlu ditemukan lewat
+    // Landing akuisisi mitra . justru halaman yang paling perlu ditemukan lewat
     // pencarian ("cara jadi mitra", "pasang jasa online").
     '/jadi-mitra',
     '/privacy',
     '/terms',
     // Dokumen legal yang dilayani rute generik /legal/[slug]. `partner-terms`
-    // sengaja TIDAK didaftarkan — belum diterbitkan, jadi halamannya 404.
+    // sengaja TIDAK didaftarkan . belum diterbitkan, jadi halamannya 404.
     '/legal/cancellation',
-    // Halaman publik permintaan hapus akun (syarat Google Play) — harus
+    // Halaman publik permintaan hapus akun (syarat Google Play) . harus
     // benar-benar dapat ditemukan, bukan hanya ada URL-nya.
     '/hapus-akun',
   ].map((p) => ({
@@ -84,7 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
       }));
   } catch {
-    // abaikan — cukup halaman lain.
+    // abaikan . cukup halaman lain.
   }
 
   // Layanan (paginasi fetch) → detail /services/[id] + kombinasi lokal /jasa.
@@ -129,12 +129,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (parentSlug) jasaCombos.add(`${parentSlug}|${citySlug}`);
     }
   } catch {
-    // API tak tersedia saat build — cukup halaman statis.
+    // API tak tersedia saat build . cukup halaman statis.
   }
 
   // Profil mitra /[username]. Endpoint /partners/usernames memang dibuat untuk
   // keperluan ini (komentar handler: "for static site generation") tapi sebelumnya
-  // tak pernah dipakai — akibatnya SELURUH profil mitra absen dari sitemap padahal
+  // tak pernah dipakai . akibatnya SELURUH profil mitra absen dari sitemap padahal
   // halamannya indexable dan punya schema LocalBusiness + Review.
   let partnerPages: MetadataRoute.Sitemap = [];
   try {
@@ -148,7 +148,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       }));
   } catch {
-    // abaikan — cukup halaman lain.
+    // abaikan . cukup halaman lain.
   }
 
   const localPages: MetadataRoute.Sitemap = [...jasaCombos].map((key) => {

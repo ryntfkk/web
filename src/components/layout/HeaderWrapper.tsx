@@ -29,7 +29,7 @@ const MOBILE_HIDE_PATHS = [
 ];
 
 /**
- * Segmen root yang merupakan halaman betulan — BUKAN username mitra.
+ * Segmen root yang merupakan halaman betulan . BUKAN username mitra.
  *
  * Profil mitra publik ada di rute dinamis `/[username]`, yang menangkap segmen
  * tunggal apa pun di root. Daftar ini yang membedakan `/budi` (profil mitra)
@@ -51,7 +51,7 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   // Landing akuisisi mitra. Sengaja di root, BUKAN /mitra/*: seluruh area
   // /mitra ber-noindex + di-disallow robots.txt + dipagari useRequireAuth,
   // sehingga halaman yang tugasnya menjaring pengunjung dari Google tidak
-  // mungkin berdiri di sana. Tidak dimasukkan ke MOBILE_HIDE_PATHS — pembaca
+  // mungkin berdiri di sana. Tidak dimasukkan ke MOBILE_HIDE_PATHS . pembaca
   // datang dari hasil pencarian tanpa riwayat untuk ditekan "kembali", jadi
   // TopNavbar justru satu-satunya jalan masuknya ke sisa situs.
   "jadi-mitra",
@@ -70,7 +70,7 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   "search",
   "services",
   "terms",
-  // Route group (auth) — folder (auth) tidak menjadi segmen URL, tapi
+  // Route group (auth) . folder (auth) tidak menjadi segmen URL, tapi
   // login/register/forgot-password tetap perlu di-list karena bisa diakses
   // langsung di root.
   "login",
@@ -93,7 +93,7 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
   if (MOBILE_HIDE_PATHS.some((p) => pathname === p)) return true;
 
   // Profil mitra publik punya header kontekstualnya sendiri (tombol kembali +
-  // nama mitra), jadi TopNavbar harus mundur di mobile — kalau tidak, dua
+  // nama mitra), jadi TopNavbar harus mundur di mobile . kalau tidak, dua
   // header sticky bertumpuk dan memakan 8rem dari viewport.
   if (isPartnerProfilePath(pathname)) return true;
 
@@ -115,7 +115,7 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
   if (pathname.startsWith("/register")) return true;
   if (pathname.startsWith("/forgot-password")) return true;
 
-  // Mitra flow pages — semua sub-halaman mitra punya header sendiri
+  // Mitra flow pages . semua sub-halaman mitra punya header sendiri
   if (pathname.startsWith("/mitra/")) return true;
 
   return false;
@@ -125,12 +125,12 @@ export default function HeaderWrapper() {
   const pathname = usePathname();
 
   // Area mitra: header pelanggan tidak boleh muncul di breakpoint mana pun
-  // (mode mitra punya navigasi sendiri — MitraBottomNav)
+  // (mode mitra punya navigasi sendiri . MitraBottomNav)
   if (pathname.startsWith("/mitra")) {
     return null;
   }
 
-  // Kelas diturunkan murni dari pathname, yang sudah tersedia saat SSR — jadi
+  // Kelas diturunkan murni dari pathname, yang sudah tersedia saat SSR . jadi
   // markup server dan client identik dan tidak ada hydration mismatch.
   // Sebelumnya ada guard `mounted` yang merender <TopNavbar /> tanpa pembungkus
   // saat SSR, sehingga di mobile navbar sempat tampil bersamaan dengan header

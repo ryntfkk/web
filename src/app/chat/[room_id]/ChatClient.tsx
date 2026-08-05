@@ -13,7 +13,7 @@ export default function ChatClient({ roomId }: { roomId: string }) {
   const router = useRouter();
   const [selectedRoomId, setSelectedRoomId] = useState(roomId);
 
-  // BottomNav disembunyikan di room chat — hapus padding bawah body agar
+  // BottomNav disembunyikan di room chat . hapus padding bawah body agar
   // area percakapan pas satu layar tanpa scroll kosong.
   useEffect(() => {
     document.body.classList.add('chat-room');
@@ -21,7 +21,7 @@ export default function ChatClient({ roomId }: { roomId: string }) {
   }, []);
 
   // Desktop/tablet (md+): tampilkan split-panel; Mobile: navigasi ke halaman room.
-  // matchMedia mengikuti breakpoint Tailwind `md` (768px) — konsisten dgn /chat page.
+  // matchMedia mengikuti breakpoint Tailwind `md` (768px) . konsisten dgn /chat page.
   const isDesktopViewport = () =>
     typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
 

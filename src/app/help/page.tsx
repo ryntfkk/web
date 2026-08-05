@@ -7,11 +7,11 @@ import { faqJsonLd } from '@/lib/seo';
 import { getFaqsRendered, flattenFaq } from '@/lib/faq-server';
 
 // FAQ dari tabel `faqs` (dikelola admin), bukan array di berkas ini.
-// Jangan menambahkan pertanyaan sebagai konstanta lagi — tambahkan lewat
+// Jangan menambahkan pertanyaan sebagai konstanta lagi . tambahkan lewat
 // /dashboard/faqs. Lihat PLAN-KONTEN-LEGAL-CMS.md §16.
 //
 // Server Component: isinya diambil di server supaya HTML pertama sudah memuat
-// teks FAQ. Sempat sebaliknya setelah Fase 4 — halaman terkirim kosong dan baru
+// teks FAQ. Sempat sebaliknya setelah Fase 4 . halaman terkirim kosong dan baru
 // terisi setelah JS jalan. Interaksi (cari, buka-tutup) tetap di klien lewat
 // FaqAccordion.
 export const revalidate = 600;
@@ -28,7 +28,7 @@ export default async function HelpPage() {
   const faqList = flattenFaq(groups);
   return (
     <div className="page-h bg-brand-gray-60 pb-16 lg:pb-10">
-      {/* Rich result FAQ. Jawaban sudah diinterpolasi di server — kalau tidak,
+      {/* Rich result FAQ. Jawaban sudah diinterpolasi di server . kalau tidak,
           mesin pencari membaca "{{platform_fee_rate}}" mentah. */}
       {faqList.length > 0 && <JsonLd data={faqJsonLd(faqList)} />}
       {/* Hero + search */}
@@ -40,7 +40,7 @@ export default async function HelpPage() {
         </div>
       </div>
 
-      {/* Hub bantuan — perjelas 3 kanal agar user tak bingung ke mana mengadu */}
+      {/* Hub bantuan . perjelas 3 kanal agar user tak bingung ke mana mengadu */}
       <div className="max-w-2xl mx-auto px-4 pt-6">
         <h2 className="text-sm font-semibold text-brand-gray-400 uppercase tracking-wide mb-2 px-1">Butuh bantuan apa?</h2>
         <div className="grid gap-3 sm:grid-cols-3">

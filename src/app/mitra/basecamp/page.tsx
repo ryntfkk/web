@@ -77,7 +77,7 @@ export default function MitraBasecampPage() {
     try {
       // Mitra approved: jangan kirim field terkunci (basecamp_lat/lon, service_area).
       // Guard F1 backend membandingkan nilai kiriman vs tersimpan, bukan "apakah
-      // user mengetik" — service_area direkonstruksi dan basecamp punya default
+      // user mengetik" . service_area direkonstruksi dan basecamp punya default
       // Jakarta, keduanya bisa memicu false-positive `DATA_VERIFIED_LOCKED`.
       // Backend cabang approved sudah menulis ulang nilai lama, jadi aman dipangkas.
       const body: Record<string, unknown> = {
@@ -143,9 +143,8 @@ export default function MitraBasecampPage() {
             <h3 className="font-bold text-brand-gray-900 mb-1">Titik Lokasi Basecamp</h3>
             <p className="text-xs text-brand-gray-400 mb-3">Ketuk/geser pin, atau tekan tombol “Lokasi saya” untuk memakai GPS.</p>
             <div
-              className={`h-64 rounded-lg overflow-hidden border border-brand-gray-100 ${
-                isVerified ? 'pointer-events-none opacity-60' : ''
-              }`}
+              className={`h-64 rounded-lg overflow-hidden border border-brand-gray-100 ${isVerified ? 'pointer-events-none opacity-60' : ''
+                }`}
               aria-disabled={isVerified || undefined}
             >
               <MapPicker lat={basecamp.lat} lng={basecamp.lon} onChange={(lat, lng) => setBasecamp({ lat, lon: lng })} />

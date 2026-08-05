@@ -9,7 +9,7 @@ interface ToggleProps {
   "aria-label"?: string;
 }
 
-/** Switch/toggle standar — satu-satunya implementasi, ganti toggle custom liar. */
+/** Switch/toggle standar . satu-satunya implementasi, ganti toggle custom liar. */
 export function Toggle({ checked, onChange, disabled, "aria-label": ariaLabel }: ToggleProps) {
   return (
     <button

@@ -15,7 +15,7 @@ interface MitraSectionProps {
   action?: ReactNode;
   children: ReactNode;
   className?: string;
-  /** Bungkus isi dengan kartu putih. Default false — banyak isi sudah berupa kartu sendiri. */
+  /** Bungkus isi dengan kartu putih. Default false . banyak isi sudah berupa kartu sendiri. */
   card?: boolean;
 }
 

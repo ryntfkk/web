@@ -4,7 +4,7 @@ import { API_URL } from '@/lib/api';
 import { slugify } from '@/lib/slug';
 import type { Category } from '@/types/category';
 
-// SE: Section "Jasa Populer per Kota" di home — bantu Google menemukan landing
+// SE: Section "Jasa Populer per Kota" di home . bantu Google menemukan landing
 // lokal /jasa/[kategori]/[kota] dari home (1 hop, bukan 2). Server Component agar
 // link masuk HTML awal (kebaca crawler + LCP cepat). Fetch kategori utama + kota
 // yang punya mitra, batasi 6 kategori × 6 kota = maks 36 chip.

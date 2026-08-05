@@ -57,7 +57,7 @@ interface OrderDetail {
   district?: string;
   city?: string;
   province?: string;
-  // Koordinat lokasi pengerjaan (snapshot saat order dibuat) — untuk peta,
+  // Koordinat lokasi pengerjaan (snapshot saat order dibuat) . untuk peta,
   // konsisten dengan detail order mitra.
   service_lat?: number;
   service_lon?: number;
@@ -149,7 +149,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   },
   WAITING_CUSTOMER_CONFIRM: {
     tone: 'from-brand-blue-dark to-brand-purple-dark',
-    title: 'Pekerjaan selesai — mohon konfirmasi',
+    title: 'Pekerjaan selesai . mohon konfirmasi',
     desc: 'Mitra menyatakan pekerjaan sudah selesai. Periksa hasilnya, lalu tekan Konfirmasi Selesai untuk mencairkan dana. Tanpa konfirmasi dalam 24 jam, dana cair otomatis ke mitra.',
   },
   COMPLETED: {
@@ -170,7 +170,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
 };
 
 /** Langkah happy-path. Status yang keluar jalur (CANCELLED/DISPUTED)
- *  tidak memakai tracker ini — lihat renderer di bawah. */
+ *  tidak memakai tracker ini . lihat renderer di bawah. */
 const STEPS = ['Dipesan', 'Dikonfirmasi', 'Dibayar', 'Dikerjakan', 'Selesai'] as const;
 
 function currentStep(status: OrderStatus): number {
@@ -223,7 +223,7 @@ export default function OrderDetailClient() {
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [finishChecked, setFinishChecked] = useState(false);
-  
+
   const isSubmittingRef = React.useRef(false);
 
 
@@ -468,7 +468,7 @@ export default function OrderDetailClient() {
   const hasActions =
     status !== 'CANCELLED' && !(status === 'COMPLETED' && Boolean(order.review));
 
-  /* Ringkasan pembayaran — gaya struk. Dipakai di kolom kanan (desktop)
+  /* Ringkasan pembayaran . gaya struk. Dipakai di kolom kanan (desktop)
      dan inline di aliran utama (mobile). */
   const paymentSummary = (
     <Section title="Ringkasan Pembayaran" icon={Wallet}>
@@ -531,13 +531,13 @@ export default function OrderDetailClient() {
               onClick={() => router.push('/profile/wallet')}
               className="w-full mt-1 text-left text-xs text-brand-info hover:underline"
             >
-              Dana masuk ke saldo dompetmu — lihat di Dompet →
+              Dana masuk ke saldo dompetmu . lihat di Dompet →
             </button>
           </>
         )}
 
         {/* Cara membayar (C6). Saat pelanggan komplain "uang sudah keluar tapi
-            pesanan belum berubah", ini informasi pertama yang dibutuhkan — dan
+            pesanan belum berubah", ini informasi pertama yang dibutuhkan . dan
             justru satu-satunya yang dulu tidak ada di mana pun. */}
         {order.paid_at && (
           <div className="border-t border-brand-gray-100 pt-2 mt-2 space-y-1">
@@ -560,7 +560,7 @@ export default function OrderDetailClient() {
           </div>
         )}
 
-        {/* U3: unduh/cetak struk — hanya setelah pembayaran (ada yang bisa distrukkan). */}
+        {/* U3: unduh/cetak struk . hanya setelah pembayaran (ada yang bisa distrukkan). */}
         {order.paid_at && (
           <button
             onClick={() => printOrderReceipt(order)}
@@ -575,11 +575,11 @@ export default function OrderDetailClient() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-28 lg:pb-10">
-      {/* Header mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      {/* Header mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-brand-gray-100 px-4 py-3 sticky top-0 z-30 lg:hidden">
         <div className="flex items-center gap-3">
           {/* Tujuan tetap (bukan router.back): pengguna bisa tiba di sini dari
-              halaman transien (status pembayaran sukses, form booking) — back
+              halaman transien (status pembayaran sukses, form booking) . back
               berbasis history akan memantulkan mereka ke halaman itu lagi. */}
           <button onClick={() => router.push('/orders')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-lg" aria-label="Kembali">
             <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
@@ -698,13 +698,12 @@ export default function OrderDetailClient() {
                       />
                     )}
                     <div
-                      className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${
-                        done
+                      className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${done
                           ? 'bg-brand-success border-brand-success text-white'
                           : active
-                          ? 'bg-white border-brand-red text-brand-red'
-                          : 'bg-white border-brand-gray-100 text-brand-gray-450'
-                      }`}
+                            ? 'bg-white border-brand-red text-brand-red'
+                            : 'bg-white border-brand-gray-100 text-brand-gray-450'
+                        }`}
                     >
                       {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-brand-red animate-pulse' : 'bg-brand-gray-100'}`} />}
                     </div>
@@ -751,7 +750,7 @@ export default function OrderDetailClient() {
                     </div>
 
                     {/* Badan hukum penerima pembayaran. Hanya ditampilkan bila
-                        BERBEDA dari nama tampil — untuk mitra perorangan
+                        BERBEDA dari nama tampil . untuk mitra perorangan
                         keduanya sama dan barisnya cuma mengulang. */}
                     {order.partner.legal_name &&
                       order.partner.legal_name !== order.partner.name && (
@@ -855,7 +854,7 @@ export default function OrderDetailClient() {
               </div>
             </Section>
 
-            {/* Biaya tambahan — backend mengirim array; tiap item punya status sendiri. */}
+            {/* Biaya tambahan . backend mengirim array; tiap item punya status sendiri. */}
             {(order.additional_fees?.length ?? 0) > 0 && (
               <Section title="Biaya Tambahan" icon={AlertTriangle}>
                 <div className="space-y-2">
@@ -869,11 +868,10 @@ export default function OrderDetailClient() {
                       </div>
                       <div className="text-right shrink-0">
                         <p className="font-semibold text-brand-gray-900">{formatPrice(fee.total)}</p>
-                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                          fee.status === 'PAID' ? 'text-brand-success bg-brand-success/10'
-                          : fee.status === 'REJECTED' ? 'text-brand-gray-450 bg-brand-gray-60'
-                          : 'text-brand-orange bg-brand-orange/10'
-                        }`}>
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${fee.status === 'PAID' ? 'text-brand-success bg-brand-success/10'
+                            : fee.status === 'REJECTED' ? 'text-brand-gray-450 bg-brand-gray-60'
+                              : 'text-brand-orange bg-brand-orange/10'
+                          }`}>
                           {fee.status === 'PAID' ? 'Dibayar' : fee.status === 'REJECTED' ? 'Ditolak' : 'Menunggu persetujuan'}
                         </span>
                       </div>
@@ -918,17 +916,17 @@ export default function OrderDetailClient() {
                     </div>
                   </div>
                 )}
-                {/* Peta koordinat lokasi pengerjaan (snapshot saat order dibuat) —
+                {/* Peta koordinat lokasi pengerjaan (snapshot saat order dibuat) .
                     konsisten dengan detail order mitra. */}
                 {typeof order.service_lat === 'number' && typeof order.service_lon === 'number' &&
                   !(order.service_lat === 0 && order.service_lon === 0) && (
-                  <MapView
-                    lat={order.service_lat}
-                    lng={order.service_lon}
-                    label={order.service_address}
-                    className="h-48"
-                  />
-                )}
+                    <MapView
+                      lat={order.service_lat}
+                      lng={order.service_lon}
+                      label={order.service_address}
+                      className="h-48"
+                    />
+                  )}
               </div>
 
               {(order.requirements?.length ?? 0) > 0 && (
@@ -938,11 +936,10 @@ export default function OrderDetailClient() {
                     {order.requirements!.map((r, i) => (
                       <li key={r.code || `req-${i}`} className="flex items-start gap-2">
                         <span
-                          className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                            r.is_mandatory
+                          className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
                               ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                               : 'bg-brand-gray-60 text-brand-gray-450'
-                          }`}
+                            }`}
                         >
                           {r.is_mandatory ? 'Wajib' : 'Disarankan'}
                         </span>
@@ -1084,7 +1081,7 @@ export default function OrderDetailClient() {
             {/* Dialog ini hanya dibuka saat WAITING_CONFIRMATION / WAITING_PAYMENT
                 (lihat gate tombol di atas) -- status PAID pakai alur sengketa terpisah. */}
             <p className="text-sm text-brand-gray-700 mb-4">
-              Pesanan masih menunggu konfirmasi. Pembatalan gratis — kamu belum dikenakan biaya apapun.
+              Pesanan masih menunggu konfirmasi. Pembatalan gratis . kamu belum dikenakan biaya apapun.
             </p>
 
             <div className="mb-6">

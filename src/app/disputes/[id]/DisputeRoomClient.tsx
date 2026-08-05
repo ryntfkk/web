@@ -62,7 +62,7 @@ export default function DisputeRoomClient() {
   const { data: messages } = useQuery({
     queryKey: ['dispute-messages', disputeId],
     enabled: isAuthorized && !!disputeId,
-    refetchInterval: 5000, // polling ringan — sengketa lebih jarang dari chat biasa
+    refetchInterval: 5000, // polling ringan . sengketa lebih jarang dari chat biasa
     queryFn: async () => {
       const res = await fetchAPI<DisputeMessage[]>(`/disputes/${disputeId}/messages`);
       if (!res.success) throw new Error(res.message || 'Gagal memuat pesan');
@@ -143,13 +143,12 @@ export default function DisputeRoomClient() {
                   {isAdmin && ' • Resmi'}
                 </span>
                 <div
-                  className={`px-3.5 py-2 rounded-2xl shadow-sm text-[14px] leading-relaxed ${
-                    isMe
+                  className={`px-3.5 py-2 rounded-2xl shadow-sm text-[14px] leading-relaxed ${isMe
                       ? 'bg-brand-red text-white rounded-br-sm'
                       : isAdmin
                         ? 'bg-brand-warning-light border border-brand-warning-border text-brand-warning-dark rounded-bl-sm'
                         : 'bg-white border border-brand-gray-100 text-brand-gray-900 rounded-bl-sm'
-                  }`}
+                    }`}
                 >
                   {m.content}
                 </div>

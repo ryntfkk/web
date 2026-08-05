@@ -23,12 +23,12 @@ const inter = Inter({
 
 // SE3: metadata root lengkap. `metadataBase` memperbaiki resolusi URL OG relatif;
 // `template` membuat judul tiap halaman anak konsisten ("%s | Posko Jasa").
-// SE: OG image default 1200×630 (og-default.png) — preview saat di-share
+// SE: OG image default 1200×630 (og-default.png) . preview saat di-share
 // WhatsApp/Twitter/Facebook. Sebelumnya pakai hero-1.png (rasio tidak standar).
 export const metadata: Metadata = {
   metadataBase: new URL("https://poskojasa.com"),
   title: {
-    default: "Posko Jasa — Marketplace Jasa Terpercaya",
+    default: "Posko Jasa . Marketplace Jasa Terpercaya",
     template: "%s | Posko Jasa",
   },
   description:
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: "https://poskojasa.com",
     siteName: "Posko Jasa",
-    title: "Posko Jasa — Marketplace Jasa Terpercaya",
+    title: "Posko Jasa . Marketplace Jasa Terpercaya",
     description:
       "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
     images: [
@@ -55,13 +55,13 @@ export const metadata: Metadata = {
         url: "/og-default.png",
         width: 1200,
         height: 630,
-        alt: "Posko Jasa — Marketplace Jasa Terpercaya",
+        alt: "Posko Jasa . Marketplace Jasa Terpercaya",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Posko Jasa — Marketplace Jasa Terpercaya",
+    title: "Posko Jasa . Marketplace Jasa Terpercaya",
     description:
       "Temukan & pesan jasa profesional terpercaya di dekat Anda.",
     images: ["/og-default.png"],
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   // Verifikasi kepemilikan domain untuk Google Search Console. Next merender ini
   // menjadi <meta name="google-site-verification" ...> di <head> semua halaman.
-  // JANGAN dihapus — Google memeriksa ulang secara berkala; hilang = verifikasi
+  // JANGAN dihapus . Google memeriksa ulang secara berkala; hilang = verifikasi
   // dicabut dan data Search Console berhenti.
   verification: {
     google: "TvH5t6zCpwUyYoV6ClSZTo7d0qop9LM-m1Dl9mffFLc",

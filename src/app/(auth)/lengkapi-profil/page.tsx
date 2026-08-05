@@ -13,7 +13,7 @@ import PhoneVerificationForm from '@/components/auth/PhoneVerificationForm';
  * Akun Google lahir tanpa nomor HP, sementara pemesanan, pendaftaran mitra, dan
  * penarikan dana semuanya menuntut nomor terverifikasi. Sebelum halaman ini,
  * satu-satunya tempat syarat itu muncul adalah tombol "Buat Pesanan" di ujung
- * alur booking — setelah alamat, jadwal, foto, dan promo terlanjur diisi.
+ * alur booking . setelah alamat, jadwal, foto, dan promo terlanjur diisi.
  *
  * SENGAJA bukan gerbang keras: menjelajah dan melihat jasa tetap terbuka, dan
  * "Nanti saja" mengantar ke tujuan semula.
@@ -31,7 +31,7 @@ function LengkapiProfilContent() {
       router.replace(`/login?redirect=${encodeURIComponent('/lengkapi-profil')}`);
       return;
     }
-    // Sudah lengkap (mis. dibuka lagi lewat riwayat browser) — jangan tahan user.
+    // Sudah lengkap (mis. dibuka lagi lewat riwayat browser) . jangan tahan user.
     if (user?.profile_complete) {
       router.replace(next);
     }

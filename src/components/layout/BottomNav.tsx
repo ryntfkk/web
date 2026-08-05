@@ -14,15 +14,15 @@ export default function BottomNav() {
   const unreadCount = useUnreadChatCount();
 
   // Sembunyikan BottomNav pada:
-  // 1. Room chat (/chat/{id}) — area percakapan penuh; daftar chat (/chat) tetap tampil.
-  // 2. Seluruh area mitra (/mitra/*) — punya MitraBottomNav sendiri / flow penuh.
+  // 1. Room chat (/chat/{id}) . area percakapan penuh; daftar chat (/chat) tetap tampil.
+  // 2. Seluruh area mitra (/mitra/*) . punya MitraBottomNav sendiri / flow penuh.
   // 3. Halaman dengan action bar fixed di bawah (booking, payment, detail layanan,
   //    detail pesanan, form alamat) agar tombol aksi tidak tertutup nav.
   //    /orders exact tetap tampil karena Pesanan adalah tab utama.
   const p = pathname ?? '';
 
   // Mode Mitra: di halaman BERSAMA (chat list, notifikasi, dll) tampilkan
-  // MitraBottomNav agar navigasi mitra tetap konsisten (docs 3.2 — Chat
+  // MitraBottomNav agar navigasi mitra tetap konsisten (docs 3.2 . Chat
   // adalah bagian dari mode mitra). Area /mitra/* merender nav-nya sendiri.
   if (activeRole === 'partner') {
     const hideForPartner =
@@ -34,7 +34,7 @@ export default function BottomNav() {
       p.startsWith('/services') ||
       p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
     if (hideForPartner) return null;
-    // Tanpa md:hidden — area mitra memakai MitraBottomNav di semua ukuran layar
+    // Tanpa md:hidden . area mitra memakai MitraBottomNav di semua ukuran layar
     // (header pelanggan tidak ada di mode mitra).
     return <MitraBottomNav />;
   }

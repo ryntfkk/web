@@ -9,7 +9,7 @@ export interface ServiceItemCardProps {
   name: string;
   price: number;
   photoUrl?: string | null;
-  /** Durasi dalam menit — opsional */
+  /** Durasi dalam menit . opsional */
   durationMinutes?: number;
   /** Mode selectable (halaman booking): tampilkan checkbox & state terpilih */
   selected?: boolean;
@@ -20,7 +20,7 @@ export interface ServiceItemCardProps {
 }
 
 /**
- * Kartu layanan horizontal — foto kiri, info di tengah, checkbox/aksi di kanan.
+ * Kartu layanan horizontal . foto kiri, info di tengah, checkbox/aksi di kanan.
  * Dipakai di halaman booking (selectable) dan keranjang (dengan tombol aksi).
  */
 export function ServiceItemCard({
@@ -62,9 +62,8 @@ export function ServiceItemCard({
       {/* Kanan: checkbox (selectable) atau slot aksi */}
       {selectable ? (
         <div
-          className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
-            selected ? 'bg-brand-red border-brand-red' : 'border-brand-gray-200 bg-white'
-          }`}
+          className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${selected ? 'bg-brand-red border-brand-red' : 'border-brand-gray-200 bg-white'
+            }`}
           aria-hidden="true"
         >
           {selected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
@@ -75,13 +74,12 @@ export function ServiceItemCard({
     </>
   );
 
-  const baseClass = `flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-    selectable
+  const baseClass = `flex items-center gap-3 p-3 rounded-lg border transition-colors ${selectable
       ? selected
         ? 'border-brand-red bg-brand-error-soft'
         : 'border-brand-gray-100 bg-white hover:border-brand-red/40'
       : 'border-brand-gray-100 bg-white'
-  } ${className}`;
+    } ${className}`;
 
   if (selectable) {
     return (

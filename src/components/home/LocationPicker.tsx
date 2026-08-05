@@ -20,7 +20,7 @@ interface Address {
 
 /**
  * Pemilih lokasi home ala Grab/ShopeeFood. Koordinat aktif (GPS / alamat
- * tersimpan) men-drive JARAK di kartu jasa & mitra — menggantikan filter kota.
+ * tersimpan) men-drive JARAK di kartu jasa & mitra . menggantikan filter kota.
  */
 export default function LocationPicker() {
   // Picu permintaan lokasi OTOMATIS saat home dimuat (dulu tugas LocationNotice
@@ -79,7 +79,7 @@ export default function LocationPicker() {
   };
 
   const pickAddress = (a: Address) => {
-    setManualLocation(a.lat, a.lon, a.label ? `${a.label} — ${a.address}` : a.address);
+    setManualLocation(a.lat, a.lon, a.label ? `${a.label} . ${a.address}` : a.address);
     setOpen(false);
   };
 
@@ -118,7 +118,7 @@ export default function LocationPicker() {
           <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-brand-error-border bg-brand-error-soft p-3">
             <MapPinOff className="mt-0.5 h-4 w-4 shrink-0 text-brand-red" />
             <p className="text-[12px] leading-snug text-brand-gray-700">
-              <span className="font-semibold text-brand-gray-900">Lokasi tidak aktif — jarak tidak ditampilkan.</span>{' '}
+              <span className="font-semibold text-brand-gray-900">Lokasi tidak aktif . jarak tidak ditampilkan.</span>{' '}
               {permissionStatus === 'denied'
                 ? 'Kamu menolak izin lokasi. Tekan "Gunakan lokasi saat ini" di bawah, atau ubah izin lokasi di pengaturan browser lalu muat ulang.'
                 : 'Aktifkan GPS/izin lokasi, lalu tekan "Gunakan lokasi saat ini" di bawah.'}
@@ -149,7 +149,7 @@ export default function LocationPicker() {
               {locating
                 ? 'Mengambil lokasi…'
                 : permissionStatus === 'denied'
-                  ? 'Izin lokasi ditolak — aktifkan di pengaturan browser'
+                  ? 'Izin lokasi ditolak . aktifkan di pengaturan browser'
                   : 'Deteksi otomatis via GPS'}
             </p>
           </div>
@@ -181,9 +181,8 @@ export default function LocationPicker() {
                     key={a.id}
                     type="button"
                     onClick={() => pickAddress(a)}
-                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
-                      active ? 'border-brand-red bg-brand-red/5' : 'border-brand-gray-100 hover:border-brand-red/50'
-                    }`}
+                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${active ? 'border-brand-red bg-brand-red/5' : 'border-brand-gray-100 hover:border-brand-red/50'
+                      }`}
                   >
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-gray-70 text-brand-gray-700">
                       <Home className="h-4 w-4" />

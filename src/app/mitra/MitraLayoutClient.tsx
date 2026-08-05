@@ -69,7 +69,7 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
     return null;
   }
 
-  // Tahan render sampai status verifikasi diketahui — kalau tidak, halaman
+  // Tahan render sampai status verifikasi diketahui . kalau tidak, halaman
   // operasional sempat terlihat sekejap sebelum redirect. Halaman `always`
   // (status, dokumen, profil) tidak ikut menunggu: justru itu yang dibutuhkan
   // mitra pending, dan menahannya berarti menahan satu-satunya jalan keluar.
@@ -86,7 +86,7 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
     '/mitra/services/new',
     '/mitra/wallet/withdraw',
     '/mitra/basecamp',
-    // Form dengan action bar fixed di bawah — sembunyikan bottom nav agar tombol tidak tertutup.
+    // Form dengan action bar fixed di bawah . sembunyikan bottom nav agar tombol tidak tertutup.
     '/mitra/schedule',
   ];
 
@@ -114,7 +114,7 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
         {children}
       </div>
 
-      {/* Bottom nav HANYA di bawah lg — di desktop navigasinya sidebar. */}
+      {/* Bottom nav HANYA di bawah lg . di desktop navigasinya sidebar. */}
       <div className={`lg:hidden ${isExcludedFlow ? 'hidden md:block lg:hidden' : 'block'}`}>
         <MitraBottomNav approved={verification === 'APPROVED'} />
       </div>

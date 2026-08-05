@@ -77,7 +77,7 @@ export default function MitraSchedulePage() {
     sunday: { is_active: false, start_time: '08:00', end_time: '12:00', break_start: '', break_end: '' },
   });
 
-  // Cuti/libur — daftar terpisah dari pola mingguan karena memang beda sifatnya:
+  // Cuti/libur . daftar terpisah dari pola mingguan karena memang beda sifatnya:
   // pola mingguan berulang, cuti adalah pengecualian bertanggal.
   const [timeOff, setTimeOff] = useState<TimeOff[]>([]);
   const [timeOffError, setTimeOffError] = useState<string | null>(null);
@@ -92,7 +92,7 @@ export default function MitraSchedulePage() {
   const [activeOrderCount, setActiveOrderCount] = useState(0);
   const [showWarningModal, setShowWarningModal] = useState(false);
   // Jadwal di DB. Selama belum tersimpan, nilai di layar hanyalah default UI
-  // dan pelanggan TIDAK bisa memesan — tampilkan peringatan.
+  // dan pelanggan TIDAK bisa memesan . tampilkan peringatan.
   const [hasSavedSchedule, setHasSavedSchedule] = useState(true);
 
 
@@ -171,7 +171,7 @@ export default function MitraSchedulePage() {
       showToast(`Jam ${invalid.label} tidak valid: jam buka harus sebelum jam tutup`, 'error');
       return;
     }
-    // Cerminan validasi backend — supaya mitra tahu sebelum menekan simpan,
+    // Cerminan validasi backend . supaya mitra tahu sebelum menekan simpan,
     // bukan sesudah request gagal.
     const badBreak = DAYS.find(d => {
       const s2 = schedule[d.id];
@@ -200,8 +200,8 @@ export default function MitraSchedulePage() {
   const handleSave = async () => {
     setSaving(true);
     // SATU request untuk seluruh minggu (P1-03). Dulu tujuh PUT paralel: bila
-    // sebagian gagal, mitra tertinggal dengan jadwal campuran — sebagian hari
-    // baru, sebagian lama — tanpa cara tahu yang mana. Sekarang backend
+    // sebagian gagal, mitra tertinggal dengan jadwal campuran . sebagian hari
+    // baru, sebagian lama . tanpa cara tahu yang mana. Sekarang backend
     // menyimpannya dalam satu transaksi: semua tersimpan, atau tidak sama sekali.
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     const toHms = (t: string) => (t && t.length === 5 ? `${t}:00` : t);
@@ -271,7 +271,7 @@ export default function MitraSchedulePage() {
       setShowTimeOffModal(false);
       setTimeOffForm({ start_date: '', end_date: '', reason: '' });
       await fetchSchedule();
-      // Cuti TIDAK membatalkan pesanan yang sudah masuk — katakan itu sekarang,
+      // Cuti TIDAK membatalkan pesanan yang sudah masuk . katakan itu sekarang,
       // bukan biarkan mitra menemukannya saat pelanggan menunggu di rumah.
       const affected = res.data?.affected_orders ?? 0;
       showToast(
@@ -322,7 +322,7 @@ export default function MitraSchedulePage() {
           <div className="bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4 flex gap-3 items-start mb-2">
             <Clock className="w-5 h-5 text-brand-warning-dark shrink-0 mt-0.5" />
             <p className="text-sm text-brand-warning-dark font-semibold leading-relaxed">
-              Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh — pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
+              Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh . pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
             </p>
           </div>
         )}
@@ -467,7 +467,7 @@ export default function MitraSchedulePage() {
                     {t.reason && <p className="mt-0.5 text-xs text-brand-gray-450">{t.reason}</p>}
                     {t.affected_orders > 0 && (
                       <p className="mt-1 text-xs font-medium text-brand-warning-dark">
-                        {t.affected_orders} pesanan sudah terjadwal di rentang ini — tetap jadi kewajibanmu.
+                        {t.affected_orders} pesanan sudah terjadwal di rentang ini . tetap jadi kewajibanmu.
                       </p>
                     )}
                   </div>
@@ -503,7 +503,7 @@ export default function MitraSchedulePage() {
       {/* Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 p-4 z-50">
         <div className="max-w-2xl mx-auto">
-          <Button 
+          <Button
             className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-lg h-12 text-sm font-bold shadow-sm"
             onClick={confirmSave}
             disabled={loading || saving}
@@ -578,7 +578,7 @@ export default function MitraSchedulePage() {
           </label>
           <p className="text-xs leading-relaxed text-brand-gray-450">
             Cuti hanya menutup pemesanan <strong>baru</strong>. Pesanan yang sudah terjadwal di rentang ini
-            tetap jadi kewajibanmu — batalkan lewat halaman pesanan bila perlu.
+            tetap jadi kewajibanmu . batalkan lewat halaman pesanan bila perlu.
           </p>
         </div>
       </MitraModal>

@@ -42,13 +42,13 @@ function pricePhrase(minPrice: number | null): string {
 /** Paragraf pembuka unik untuk halaman kategori (tanpa kota). */
 export function categoryIntro(catName: string, count: number, minPrice: number | null): string {
   const jumlah = count > 0 ? `${count} layanan` : 'layanan';
-  return `Cari jasa ${catName}? Posko Jasa mempertemukan Anda dengan mitra profesional terverifikasi. Bandingkan ${jumlah} ${catName} dengan harga ${pricePhrase(minPrice)}, lihat ulasan asli pelanggan, lalu pesan online — mitra datang sesuai jadwal Anda.`;
+  return `Cari jasa ${catName}? Posko Jasa mempertemukan Anda dengan mitra profesional terverifikasi. Bandingkan ${jumlah} ${catName} dengan harga ${pricePhrase(minPrice)}, lihat ulasan asli pelanggan, lalu pesan online . mitra datang sesuai jadwal Anda.`;
 }
 
 /** Paragraf pembuka unik untuk landing lokal (kategori × kota). */
 export function localIntro(catName: string, city: string, count: number, minPrice: number | null): string {
   const jumlah = count > 0 ? `${count} layanan` : 'layanan';
-  return `Butuh jasa ${catName} di ${city}? Temukan ${jumlah} ${catName} dari mitra terverifikasi yang berbasis di ${city} dan sekitarnya, dengan harga ${pricePhrase(minPrice)}. Pesan online di Posko Jasa — harga transparan, ulasan asli, dan mitra datang ke lokasi Anda.`;
+  return `Butuh jasa ${catName} di ${city}? Temukan ${jumlah} ${catName} dari mitra terverifikasi yang berbasis di ${city} dan sekitarnya, dengan harga ${pricePhrase(minPrice)}. Pesan online di Posko Jasa . harga transparan, ulasan asli, dan mitra datang ke lokasi Anda.`;
 }
 
 export function categoryFaq(catName: string, minPrice: number | null): FaqItem[] {

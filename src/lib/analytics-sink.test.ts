@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
- * Sink analytics. Yang diuji BUKAN "apakah datanya sampai" — itu urusan
- * collector — melainkan dua janji yang kalau dilanggar merugikan pengguna:
+ * Sink analytics. Yang diuji BUKAN "apakah datanya sampai" . itu urusan
+ * collector . melainkan dua janji yang kalau dilanggar merugikan pengguna:
  *
  * 1. Tanpa `NEXT_PUBLIC_ANALYTICS_ENDPOINT`, TIDAK ADA apa pun yang terkirim.
  *    Build yang belum dikonfigurasi tidak boleh diam-diam mengirim data.
@@ -64,7 +64,7 @@ describe('installAnalyticsSink', () => {
   });
 
   // Beacon ditolak browser (mis. payload terlalu besar) tidak boleh berarti
-  // event-nya hilang begitu saja — ada jalur cadangan.
+  // event-nya hilang begitu saja . ada jalur cadangan.
   it('jatuh ke fetch keepalive bila sendBeacon menolak', async () => {
     process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT = 'https://collector.example/e';
     mockBeacon(false);
@@ -103,7 +103,7 @@ describe('installAnalyticsSink', () => {
   it('payload yang sampai ke sink sudah bebas PII', async () => {
     process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT = 'https://collector.example/e';
     const spy = mockBeacon(true);
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => { });
 
     const { installAnalyticsSink } = await import('./analytics-sink');
     const { track } = await import('./analytics');

@@ -15,7 +15,7 @@ import { track } from '@/lib/analytics';
  *
  * Diletakkan setelah "Mitra Terpopuler" dengan sengaja: pembaca baru saja
  * melihat mitra yang sudah jalan, jadi ajakannya jatuh pada momen yang tepat.
- * Tanpa gambar — di sini gradien sudah cukup, dan aset baru di home hanya
+ * Tanpa gambar . di sini gradien sudah cukup, dan aset baru di home hanya
  * menambah beban muat halaman yang paling sering dibuka.
  */
 
@@ -35,17 +35,9 @@ export default function PartnerCtaBanner() {
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           <div className="min-w-0">
-            <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-white/80 sm:text-white/70">
-              Untuk penyedia jasa
-            </p>
             <h2 className="mt-1 sm:mt-1.5 text-[15px] sm:text-[22px] font-bold leading-snug">
               Punya keahlian? Pasang jasa Anda di Posko.
             </h2>
-            <p className="mt-1.5 sm:mt-2 max-w-xl text-[12px] sm:text-sm leading-relaxed text-white/90 sm:text-white/85 line-clamp-2 sm:line-clamp-none">
-              Berhenti repost tiap hari. Di sini tiap layanan punya halaman sendiri yang permanen
-              dan bisa ditemukan lewat Google.
-            </p>
-
             <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 sm:mt-4 sm:gap-x-4 sm:gap-y-2">
               {POIN.map(({ Icon, teks }) => (
                 <li key={teks} className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-medium text-white/95 sm:text-white/90">

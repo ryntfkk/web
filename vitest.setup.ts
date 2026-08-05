@@ -2,7 +2,7 @@ import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 // Tanpa cleanup, komponen dari test sebelumnya tetap ada di document dan
-// query berikutnya menemukan dua elemen — kegagalannya menuduh test yang salah.
+// query berikutnya menemukan dua elemen . kegagalannya menuduh test yang salah.
 afterEach(() => {
   cleanup();
 });

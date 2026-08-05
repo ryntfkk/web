@@ -170,7 +170,7 @@ export default function AdditionalFeeClient() {
     <div className="page-h bg-brand-gray-60 pb-24">
 
       {/* Header */}
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -188,7 +188,7 @@ export default function AdditionalFeeClient() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
-        {/* Judul desktop — countdown ikut dipindah agar tidak hilang saat header mobile disembunyikan. */}
+        {/* Judul desktop . countdown ikut dipindah agar tidak hilang saat header mobile disembunyikan. */}
         <div className="hidden lg:flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold text-brand-gray-900">
             Tagihan Tambahan {pendingFees.length > 1 ? `(1 dari ${pendingFees.length})` : ''}

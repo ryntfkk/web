@@ -92,7 +92,7 @@ export default function MitraWithdrawalsPage() {
       const res = await fetchAPI<Withdrawal[]>(`/wallet/withdrawals?${params.toString()}`);
       if (res.success) {
         const list = res.data ?? [];
-        // Menambah, bukan menimpa, saat "muat lebih banyak" — dan menimpa, bukan
+        // Menambah, bukan menimpa, saat "muat lebih banyak" . dan menimpa, bukan
         // menambah, saat filter berganti.
         setItems((prev) => (append ? [...prev, ...list] : list));
         setTotal(res.pagination?.total ?? list.length);
@@ -144,11 +144,10 @@ export default function MitraWithdrawalsPage() {
               type="button"
               aria-pressed={status === f.value}
               onClick={() => setStatus(f.value)}
-              className={`shrink-0 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-                status === f.value
+              className={`shrink-0 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${status === f.value
                   ? 'border-brand-red bg-brand-error-soft text-brand-red'
                   : 'border-brand-gray-100 bg-white text-brand-gray-700 hover:text-brand-gray-900'
-              }`}
+                }`}
             >
               {f.label}
             </button>
@@ -179,7 +178,7 @@ export default function MitraWithdrawalsPage() {
                         {formatPrice(w.amount)} dikurangi biaya admin {formatPrice(w.admin_fee)}
                       </p>
                     </div>
-                    {/* Status tidak pernah hanya warna — selalu ikon + teks (§6.3). */}
+                    {/* Status tidak pernah hanya warna . selalu ikon + teks (§6.3). */}
                     <span
                       className={`inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold ${meta.className}`}
                     >

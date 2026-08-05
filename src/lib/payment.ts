@@ -57,7 +57,7 @@ export async function payOrderWithWallet(orderId: string): Promise<WalletPayResu
 
 /**
  * Bayar order via Midtrans Snap. Meminta token lalu melakukan redirect
- * penuh ke halaman pembayaran Midtrans — SATU pola untuk semua halaman.
+ * penuh ke halaman pembayaran Midtrans . SATU pola untuk semua halaman.
  * Pada sukses browser berpindah halaman (status 'redirecting' dikembalikan
  * tepat sebelum navigasi).
  */
@@ -73,7 +73,7 @@ export async function payOrderWithSnap(
 }
 
 /**
- * Bayar biaya tambahan (additional fee) via Midtrans Snap — jalur untuk
+ * Bayar biaya tambahan (additional fee) via Midtrans Snap . jalur untuk
  * pelanggan yang saldo dompetnya tidak cukup. Backend menagih fee PENDING
  * tertua dan mengikatnya ke transaksi (fee_id di metadata).
  */

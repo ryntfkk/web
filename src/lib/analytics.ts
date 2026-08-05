@@ -10,7 +10,7 @@
  *
  * 2. **PII disaring di SATU tempat.** §12.1 melarang mengirim NIK, nomor HP,
  *    rekening, detail alamat, isi chat, dan nama pelanggan. Larangan yang hanya
- *    ditulis di dokumen akan dilanggar; di sini ia dieksekusi — properti
+ *    ditulis di dokumen akan dilanggar; di sini ia dieksekusi . properti
  *    berkunci terlarang dibuang sebelum keluar, dan di dev dilaporkan keras.
  *
  * Belum ada penyedia analytics yang dipasang. `sink` sengaja dibiarkan bisa
@@ -41,7 +41,7 @@ export type AnalyticsEvent =
   | 'public_partner_booking_started'
   | 'public_partner_booking_completed';
 
-/** Nilai properti dibatasi ke skalar — objek bersarang menyelundupkan PII. */
+/** Nilai properti dibatasi ke skalar . objek bersarang menyelundupkan PII. */
 export type AnalyticsProps = Record<string, string | number | boolean | null | undefined>;
 
 /**
@@ -89,11 +89,11 @@ export function sanitizeProps(props?: AnalyticsProps): AnalyticsProps {
   for (const [key, value] of Object.entries(props)) {
     if (isForbiddenKey(key)) {
       if (process.env.NODE_ENV !== 'production') {
-        // Keras dan berisik di dev — inilah satu-satunya momen pelanggaran ini
+        // Keras dan berisik di dev . inilah satu-satunya momen pelanggaran ini
         // masih murah untuk diperbaiki.
         console.error(
           `[analytics] properti "${key}" mengandung data pribadi dan DIBUANG. ` +
-            'Lihat §12.1: jangan kirim NIK, HP, rekening, alamat, isi chat, atau nama pelanggan.',
+          'Lihat §12.1: jangan kirim NIK, HP, rekening, alamat, isi chat, atau nama pelanggan.',
         );
       }
       continue;
@@ -107,9 +107,9 @@ export function sanitizeProps(props?: AnalyticsProps): AnalyticsProps {
 
 type Sink = (event: AnalyticsEvent, props: AnalyticsProps) => void;
 
-// Default no-op: belum ada penyedia yang dipasang. Bukan console.log — event
+// Default no-op: belum ada penyedia yang dipasang. Bukan console.log . event
 // analytics yang membanjiri console membuat log debug asli tak terbaca.
-let sink: Sink = () => {};
+let sink: Sink = () => { };
 
 /** Dipanggil sekali saat penyedia analytics dipasang. */
 export function setAnalyticsSink(next: Sink): void {

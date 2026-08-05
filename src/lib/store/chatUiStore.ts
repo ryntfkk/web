@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 // State UI untuk floating chat panel (desktop).
-// Tidak dipersist — panel selalu tertutup saat halaman dimuat ulang.
+// Tidak dipersist . panel selalu tertutup saat halaman dimuat ulang.
 
 interface ChatUiState {
   isPanelOpen: boolean;

@@ -25,7 +25,7 @@ const DAY_ORDER = [
 
 function formatTime(t: string): string {
   // Backend menyerialisasi kolom TIME sebagai RFC3339 ("0000-01-01T08:00:00Z")
-  // atau "HH:MM:SS" — ambil komponen jam:menit di mana pun posisinya
+  // atau "HH:MM:SS" . ambil komponen jam:menit di mana pun posisinya
   // (regex tidak boleh ter-anchor di awal string).
   const match = t.match(/(\d{2}):(\d{2})/);
   if (!match) return t;
@@ -104,12 +104,11 @@ export default function ScheduleView({
             <span className="text-brand-gray-700">
               {wh.is_open
                 ? `${formatTime(wh.open_time)} - ${formatTime(wh.close_time)}`
-                : '—'}
+                : '.'}
             </span>
             <span
-              className={`text-[12px] font-medium min-w-[44px] text-right ${
-                wh.is_open ? 'text-green-600' : 'text-red-500'
-              }`}
+              className={`text-[12px] font-medium min-w-[44px] text-right ${wh.is_open ? 'text-green-600' : 'text-red-500'
+                }`}
             >
               {wh.is_open ? 'Buka' : 'Tutup'}
             </span>

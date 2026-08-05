@@ -203,7 +203,7 @@ export default function EditAddressPage() {
             {!hasCoords && (
               <p className="text-xs mt-1.5 flex items-center gap-1 text-brand-orange">
                 <MapPin className="w-3.5 h-3.5" />
-                Titik lokasi belum ada — ketuk peta untuk menandai.
+                Titik lokasi belum ada . ketuk peta untuk menandai.
               </p>
             )}
           </div>

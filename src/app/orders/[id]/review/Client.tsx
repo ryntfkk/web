@@ -104,7 +104,7 @@ export default function ReviewClient() {
     if (comment.trim().length < 10) { setError('Ulasan wajib diisi minimal 10 karakter.'); return; }
     setSubmitting(true);
     setError('');
-    // Aspek yang tidak diisi (0) TIDAK dikirim — backend membedakan null
+    // Aspek yang tidak diisi (0) TIDAK dikirim . backend membedakan null
     // ("tidak dinilai") dari angka, dan menolak nilai di luar 1–5.
     const aspekTerisi = Object.fromEntries(
       Object.entries(aspects).filter(([, v]) => v > 0),
@@ -123,7 +123,7 @@ export default function ReviewClient() {
       setSubmitted(true);
     } else {
       // Backend memakai kode mesin REVIEW_ALREADY_EXISTS (message = kode itu
-      // sendiri, bukan teks Inggris "already reviewed") — cocokkan res.code.
+      // sendiri, bukan teks Inggris "already reviewed") . cocokkan res.code.
       if (res.code === 'REVIEW_ALREADY_EXISTS') {
         router.replace(`/orders/${orderId}`);
       } else {
@@ -180,7 +180,7 @@ export default function ReviewClient() {
           <div className="bg-brand-surface-warm rounded-lg p-4 text-left mb-6">
             <p className="font-semibold text-sm text-brand-gray-900 mb-1">{order?.partner?.name}</p>
             <div className="flex items-center gap-1 mb-2">
-              {[1,2,3,4,5].map(s => (
+              {[1, 2, 3, 4, 5].map(s => (
                 <Star key={s} className={`w-4 h-4 ${s <= rating ? 'fill-brand-warning text-brand-warning' : 'text-brand-gray-100'}`} />
               ))}
               <span className="text-xs text-brand-gray-700 ml-1">{rating}/5</span>
@@ -201,7 +201,7 @@ export default function ReviewClient() {
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       {/* Header */}
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
       <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
@@ -241,12 +241,12 @@ export default function ReviewClient() {
             )}
           </div>
 
-          {/* Rating per aspek — opsional, muncul setelah bintang utama dipilih
+          {/* Rating per aspek . opsional, muncul setelah bintang utama dipilih
               agar form tidak terasa panjang di awal. */}
           {rating > 0 && (
             <div className="mb-6 pb-6 border-b border-brand-gray-100">
               <p className="text-sm font-medium text-brand-gray-900 mb-1">Nilai per aspek</p>
-              <p className="text-xs text-brand-gray-450 mb-3">Opsional — boleh dilewati.</p>
+              <p className="text-xs text-brand-gray-450 mb-3">Opsional . boleh dilewati.</p>
               <div className="space-y-3">
                 {ASPECTS.map((aspect) => (
                   <div key={aspect.key} className="flex items-center justify-between gap-3">
@@ -266,7 +266,7 @@ export default function ReviewClient() {
           <div className="mb-6">
             <label className="block text-sm font-medium text-brand-gray-900 mb-1">Foto hasil pekerjaan</label>
             <p className="text-xs text-brand-gray-450 mb-3">
-              Opsional — maksimal {MAX_PHOTOS} foto, JPG/PNG ≤ 5MB.
+              Opsional . maksimal {MAX_PHOTOS} foto, JPG/PNG ≤ 5MB.
             </p>
             <div className="flex flex-wrap gap-2">
               {photos.map((url, i) => (
@@ -284,9 +284,8 @@ export default function ReviewClient() {
               ))}
               {photos.length < MAX_PHOTOS && (
                 <label
-                  className={`w-20 h-20 rounded-lg border border-dashed border-brand-gray-100 flex flex-col items-center justify-center gap-1 text-brand-gray-450 ${
-                    isUploading ? 'opacity-50' : 'cursor-pointer hover:border-brand-red hover:text-brand-red'
-                  }`}
+                  className={`w-20 h-20 rounded-lg border border-dashed border-brand-gray-100 flex flex-col items-center justify-center gap-1 text-brand-gray-450 ${isUploading ? 'opacity-50' : 'cursor-pointer hover:border-brand-red hover:text-brand-red'
+                    }`}
                 >
                   <ImagePlus className="w-5 h-5" />
                   <span className="text-[10px]">{isUploading ? 'Mengunggah…' : 'Tambah'}</span>

@@ -6,7 +6,7 @@ import MitraModal from './MitraModal';
 /**
  * Perilaku fokus modal (P2 a11y). Ini bukan kosmetik: tanpa focus trap, Tab
  * keluar dari dialog dan menjelajahi halaman di belakangnya yang tidak terlihat
- * — pengguna keyboard menekan tombol yang tidak bisa ia lihat, termasuk aksi
+ * . pengguna keyboard menekan tombol yang tidak bisa ia lihat, termasuk aksi
  * destruktif di daftar di baliknya.
  */
 function openModal(onClose = vi.fn()) {
@@ -83,7 +83,7 @@ describe('MitraModal', () => {
   });
 
   // Tanpa cabang shift, Shift+Tab dari elemen pertama tetap lolos keluar dialog
-  // — separuh trap sama saja dengan tanpa trap.
+  // . separuh trap sama saja dengan tanpa trap.
   it('Shift+Tab dari elemen pertama membungkus ke elemen terakhir', () => {
     openModal();
     const tutup = screen.getByRole('button', { name: 'Tutup' });

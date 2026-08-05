@@ -6,7 +6,7 @@ import { getErrorMessage } from '@/types/api';
  * Upload file ke S3 lewat presigned URL.
  *
  * `fileType` menentukan prefix object key di bucket dan HARUS ada di
- * `allowedFileTypes` backend (internal/upload/service.go) — nilai di luar daftar
+ * `allowedFileTypes` backend (internal/upload/service.go) . nilai di luar daftar
  * ditolak 400 karena file_type ikut menyusun path S3.
  */
 export function useUpload(fileType: 'avatar' | 'review' = 'avatar') {
@@ -63,7 +63,7 @@ export function useUpload(fileType: 'avatar' | 'review' = 'avatar') {
         return null;
       }
 
-      // 3. Confirm upload — file_url final ada di sini.
+      // 3. Confirm upload . file_url final ada di sini.
       const confirmRes = await fetchAPI<any>('/upload/confirm', {
         method: 'POST',
         credentials: 'include',

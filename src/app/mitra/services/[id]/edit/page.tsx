@@ -46,7 +46,7 @@ interface ServicePhoto {
 /**
  * Field & validasinya dipakai bersama halaman "tambah" lewat `ServiceForm`
  * (P2). Yang khas di sini: prefill dari server dan pengelolaan foto yang sudah
- * tersimpan — foto lama dihapus lewat endpointnya sendiri, bukan ikut PATCH.
+ * tersimpan . foto lama dihapus lewat endpointnya sendiri, bukan ikut PATCH.
  */
 export default function EditMitraServicePage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -67,7 +67,7 @@ export default function EditMitraServicePage() {
   const loadService = useCallback(async () => {
     try {
       // Ambil SATU layanan (P2). Dulu mengunduh seluruh daftar lalu mencari
-      // satu item di klien — makin banyak layanan makin mahal, dan layanan
+      // satu item di klien . makin banyak layanan makin mahal, dan layanan
       // NONAKTIF tidak pernah ketemu karena daftarnya hanya berisi yang aktif.
       const svcRes = await fetchAPI<ServiceDetail>(`/partners/me/services/${serviceId}`);
       if (!svcRes.success || !svcRes.data) {
@@ -89,24 +89,24 @@ export default function EditMitraServicePage() {
         excluded_items: service.excluded_items || [],
         faqs: service.faqs || [],
         // Prefill persyaratan: backend mengembalikan label yang sudah ter-resolve,
-        // tapi form menyimpan code/custom_label — item katalog dikenali dari
+        // tapi form menyimpan code/custom_label . item katalog dikenali dari
         // code-nya, sisanya jadi teks bebas.
         requirements: Array.isArray(service.requirements)
           ? service.requirements.map((r) => ({
-              code: r.code || undefined,
-              custom_label: r.code ? undefined : r.label || '',
-              note: r.note || '',
-              is_mandatory: r.is_mandatory ?? true,
-            }))
+            code: r.code || undefined,
+            custom_label: r.code ? undefined : r.label || '',
+            note: r.note || '',
+            is_mandatory: r.is_mandatory ?? true,
+          }))
           : [],
       });
 
       setInitialVariations(
         Array.isArray(service.variations)
           ? service.variations.map((v) => ({
-              name: v.name || '',
-              price: v.price ? String(v.price) : '',
-            }))
+            name: v.name || '',
+            price: v.price ? String(v.price) : '',
+          }))
           : [],
       );
 

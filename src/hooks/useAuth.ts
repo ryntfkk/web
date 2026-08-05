@@ -115,7 +115,7 @@ export function useAuth() {
   const logout = async () => {
     setLoading(true);
     try {
-      // Attempt to invalidate the refresh token on the server —
+      // Attempt to invalidate the refresh token on the server .
       // but ALWAYS clean up local state & redirect, even on network error.
       await fetchAPI('/auth/logout', { method: 'POST', credentials: 'include' });
     } finally {

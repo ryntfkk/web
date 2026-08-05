@@ -9,7 +9,7 @@ import MitraServicesPage from './page';
  * 1. Gagal-memuat ≠ "belum ada layanan" (P1-11).
  * 2. Toggle aktif/nonaktif memakai keadaan dari SERVER, bukan negasi lokal
  *    (P0-01). Kalau server menolak, layar tidak boleh menampilkan keadaan
- *    yang tidak nyata — mitra akan mengira layanannya tayang padahal tidak.
+ *    yang tidak nyata . mitra akan mengira layanannya tayang padahal tidak.
  */
 const fetchAPI = vi.hoisted(() => vi.fn());
 const showToast = vi.hoisted(() => vi.fn());
@@ -82,7 +82,7 @@ describe('Halaman layanan mitra', () => {
     fireEvent.click(checkbox);
 
     await waitFor(() => expect(showToast).toHaveBeenCalledWith('Layanan sedang dipesan', 'error'));
-    // Tetap aktif — keadaan server yang menang, bukan niat klik.
+    // Tetap aktif . keadaan server yang menang, bukan niat klik.
     expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(true);
   });
 

@@ -46,7 +46,7 @@ type ActiveTab = 'profile' | 'orders' | 'settings';
 export default function ProfilePage() {
   const { logout, loading } = useAuth();
   // useRequireAuth menunggu isInitializing (silent refresh) selesai sebelum
-  // redirect ke /login — mencegah hard-load mental ke login saat sesi masih ada.
+  // redirect ke /login . mencegah hard-load mental ke login saat sesi masih ada.
   const { isLoading: authLoading, isAuthorized, isAuthenticated, user } = useRequireAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ActiveTab>('profile');
@@ -171,9 +171,9 @@ export default function ProfilePage() {
         onSuccess={() => setShowPhoneModal(false)}
       />
 
-      {/* Mobile Hub (< lg) — tiap menu navigasi ke halamannya sendiri */}
+      {/* Mobile Hub (< lg) . tiap menu navigasi ke halamannya sendiri */}
       <div className="lg:hidden max-w-lg mx-auto px-4 py-6 space-y-4">
-        {/* Transaction Summary — Item 19 */}
+        {/* Transaction Summary . Item 19 */}
         {orders.length > 0 && (
           <div className="bg-white rounded-lg border border-brand-gray-100 p-4">
             <div className="flex items-center justify-between mb-3">
@@ -225,7 +225,7 @@ export default function ProfilePage() {
         <p className="text-center text-xs text-brand-gray-400">Versi 1.0.0</p>
       </div>
 
-      {/* Desktop (lg+) — Two Column Layout dengan tab */}
+      {/* Desktop (lg+) . Two Column Layout dengan tab */}
       <div className="hidden lg:block max-w-6xl mx-auto px-4 py-6">
         <div className="flex gap-6">
 
@@ -252,7 +252,7 @@ export default function ProfilePage() {
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="space-y-4">
-                {/* Transaction Summary — Item 19 */}
+                {/* Transaction Summary . Item 19 */}
                 {orders.length > 0 && (
                   <div className="bg-white rounded-lg border border-brand-gray-100 p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -331,18 +331,16 @@ export default function ProfilePage() {
                       <button
                         key={filter.key}
                         onClick={() => setActiveFilter(filter.key)}
-                        className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded border transition-colors ${
-                          activeFilter === filter.key
+                        className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded border transition-colors ${activeFilter === filter.key
                             ? 'bg-brand-red text-white border-brand-red'
                             : 'bg-white text-brand-gray-700 border-brand-gray-100 hover:border-brand-red'
-                        }`}
+                          }`}
                       >
                         {filter.label}
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                          activeFilter === filter.key
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeFilter === filter.key
                             ? 'bg-white/20 text-white'
                             : 'bg-brand-gray-100 text-brand-gray-700'
-                        }`}>
+                          }`}>
                           {filterCounts[filter.key]}
                         </span>
                       </button>

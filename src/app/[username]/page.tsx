@@ -12,12 +12,12 @@ interface PageProps {
 }
 
 // Base API ABSOLUT untuk fetch sisi-server. `API_URL` bisa relatif ('/api/v1',
-// dipakai proxy dev di .env.local) — dan fetch relatif GAGAL di server Node.
+// dipakai proxy dev di .env.local) . dan fetch relatif GAGAL di server Node.
 // Pakai API_URL bila sudah absolut (http...), else fallback ke domain produksi.
 const SERVER_API = API_URL.startsWith('http') ? API_URL : 'https://api.poskojasa.com/api/v1';
 
 // P2/SE2: ambil data publik mitra di server agar konten profil (nama, bio, rating,
-// layanan) masuk HTML awal — LCP cepat + kebaca crawler. queryKey & bentuk nilai
+// layanan) masuk HTML awal . LCP cepat + kebaca crawler. queryKey & bentuk nilai
 // SAMA seperti hook (usePartnerProfile/usePartnerServices) sehingga klien hydrate
 // tanpa refetch. Portfolio & review (bawah lipatan) tetap di-fetch klien.
 // THROW saat gagal: prefetchQuery menangkapnya sendiri → query tak tersimpan
@@ -34,7 +34,7 @@ async function fetchData<T>(path: string): Promise<T> {
 
 // `/[username]` adalah catch-all di ROOT: setiap URL tak dikenal (/kontak,
 // /promo-lebaran, dst.) mendarat di sini. Dulu semuanya dijawab HTTP 200 berisi
-// "Tidak Ditemukan" = SOFT-404 tanpa batas — Google menganggapnya halaman valid
+// "Tidak Ditemukan" = SOFT-404 tanpa batas . Google menganggapnya halaman valid
 // dan memboroskan crawl budget pada URL yang jumlahnya tak terhingga.
 // Dibedakan bertingkat: 'missing' → 404 sungguhan; 'error' (API bermasalah) →
 // JANGAN 404, agar saat API down profil mitra yang sah tidak hilang dari indeks.
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: PageProps) {
         const area = p.service_area ? ` di ${p.service_area}` : '';
         const desc = (p.bio && p.bio.trim())
           ? p.bio.trim().slice(0, 160)
-          : `Layanan ${p.name}${area} — pesan lewat Posko Jasa.`;
+          : `Layanan ${p.name}${area} . pesan lewat Posko Jasa.`;
         return {
           title: p.name,
           description: desc,
@@ -110,7 +110,7 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: `Profil Mitra — ${username}`,
+    title: `Profil Mitra . ${username}`,
     description: `Lihat profil dan layanan dari ${username} di Posko Jasa.`,
     alternates: { canonical: `https://poskojasa.com/${username}` },
   };
@@ -122,18 +122,18 @@ export default async function PartnerProfilePage({ params }: PageProps) {
 
   const { notFound } = await import('next/navigation');
 
-  // Guard against undefined username only — validity is checked by the API
+  // Guard against undefined username only . validity is checked by the API
   if (!username) {
     notFound();
   }
 
   // Ambil data publik mitra (profil + layanan) di server SEKALI, lalu isi cache
-  // React Query via setQueryData supaya klien hydrate tanpa refetch — sekaligus
+  // React Query via setQueryData supaya klien hydrate tanpa refetch . sekaligus
   // datanya dipakai membangun JSON-LD di bawah.
   // Fetch di-dedupe Next dengan generateMetadata.
   const enc = encodeURIComponent(username);
   // SE: fetch reviews juga di server untuk Review schema (JSON-LD di HTML awal).
-  // Limit 5 — cukup untuk rich snippet; sisanya di-fetch klien untuk UI.
+  // Limit 5 . cukup untuk rich snippet; sisanya di-fetch klien untuk UI.
   const [partnerResult, services, reviewsData] = await Promise.all([
     getPartner(enc),
     fetchData<PartnerService[]>(`/partners/${enc}/services`).catch(() => null),
@@ -157,57 +157,57 @@ export default async function PartnerProfilePage({ params }: PageProps) {
   if (services) queryClient.setQueryData(['partnerServices', username], services);
   if (reviewsData) queryClient.setQueryData(['partnerReviews', username, 10, 1], reviewsData);
 
-  // SE6: LocalBusiness — nama, foto, area layanan, rating agregat.
+  // SE6: LocalBusiness . nama, foto, area layanan, rating agregat.
   // aggregateRating HANYA disertakan bila ada ulasan: reviewCount 0 = schema
   // invalid & bisa kena penalti rich-result.
   // SE: address lengkap (city/district/province) ditambahkan untuk geotargeting
-  // query "[jasa] di [kota]" — backend sudah ekspos field ini di profil publik.
+  // query "[jasa] di [kota]" . backend sudah ekspos field ini di profil publik.
   const partnerSchema = profile
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'LocalBusiness',
-        name: profile.name,
-        url: `${SITE}/${username}`,
-        ...(profile.bio ? { description: profile.bio.slice(0, 300) } : {}),
-        ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
-        ...(profile.service_area ? { areaServed: profile.service_area } : {}),
-        ...(profile.city || profile.district || profile.province
-          ? {
-              address: {
-                '@type': 'PostalAddress',
-                ...(profile.city ? { addressLocality: profile.city } : {}),
-                ...(profile.district ? { addressRegion: profile.district } : {}),
-                ...(profile.province ? { addressCountry: 'ID', name: profile.province } : {}),
-              },
-            }
-          : {}),
-        ...(profile.total_reviews > 0
-          ? {
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: profile.avg_rating,
-                reviewCount: profile.total_reviews,
-                bestRating: 5,
-                worstRating: 1,
-              },
-            }
-          : {}),
-      }
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: profile.name,
+      url: `${SITE}/${username}`,
+      ...(profile.bio ? { description: profile.bio.slice(0, 300) } : {}),
+      ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
+      ...(profile.service_area ? { areaServed: profile.service_area } : {}),
+      ...(profile.city || profile.district || profile.province
+        ? {
+          address: {
+            '@type': 'PostalAddress',
+            ...(profile.city ? { addressLocality: profile.city } : {}),
+            ...(profile.district ? { addressRegion: profile.district } : {}),
+            ...(profile.province ? { addressCountry: 'ID', name: profile.province } : {}),
+          },
+        }
+        : {}),
+      ...(profile.total_reviews > 0
+        ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: profile.avg_rating,
+            reviewCount: profile.total_reviews,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+        : {}),
+    }
     : null;
 
-  // SE6: BreadcrumbList — Beranda › nama mitra.
+  // SE6: BreadcrumbList . Beranda › nama mitra.
   const breadcrumbSchema = profile
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Beranda', item: SITE },
-          { '@type': 'ListItem', position: 2, name: profile.name, item: `${SITE}/${username}` },
-        ],
-      }
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Beranda', item: SITE },
+        { '@type': 'ListItem', position: 2, name: profile.name, item: `${SITE}/${username}` },
+      ],
+    }
     : null;
 
-  // SE: Review schema individual — eligible rich snippet bintang di Google.
+  // SE: Review schema individual . eligible rich snippet bintang di Google.
   // Hanya review dengan rating & comment (reviewBody kosong = schema tipis).
   // Batas 5 review (cukup untuk rich snippet; sisanya di UI klien).
   // SE: image_urls disertakan bila ada (reviewImage → Google Image Search).

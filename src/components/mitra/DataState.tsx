@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
  * Keadaan satu wilayah data: memuat / gagal / kosong / ada isi (§6.4).
  *
  * Alasannya bukan kerapian. Sebelum ini tiap halaman menuliskan sendiri
- * cabang-cabangnya, dan yang paling sering hilang justru **gagal-memuat** —
+ * cabang-cabangnya, dan yang paling sering hilang justru **gagal-memuat** .
  * halaman langsung jatuh ke "belum ada data", sehingga mitra mengira
  * pesanan/mutasi/layanannya hilang padahal request-nya yang gagal (P1-11).
  *

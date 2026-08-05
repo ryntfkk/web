@@ -8,13 +8,13 @@ import type { FaqItem } from '@/lib/seo';
  *
  * Dipisah dari komponennya karena teks yang sama dipakai DUA kali: sebagai
  * bacaan di halaman, dan sebagai JSON-LD FAQPage untuk rich result. Ditulis
- * dua kali, keduanya pasti menyimpang — dan yang menyimpang itu justru yang
+ * dua kali, keduanya pasti menyimpang . dan yang menyimpang itu justru yang
  * dibaca Google.
  *
  * ATURAN: tidak ada angka bisnis sebagai literal di berkas ini. Komisi, biaya
  * penarikan, dan harga layanan minimum SELALU diturunkan dari PlatformConfig
  * yang diambil dari /config, supaya perubahan admin ikut terbawa tanpa
- * redeploy. Halaman ini membuat janji publik soal biaya — angka basi di sini
+ * redeploy. Halaman ini membuat janji publik soal biaya . angka basi di sini
  * adalah janji yang salah, bukan sekadar teks usang.
  */
 
@@ -44,14 +44,14 @@ export interface CompareRow {
  * Perbandingan dengan cara jualan yang ditinggalkan mitra.
  *
  * Klaim soal platform lain sengaja ditulis hati-hati ("praktis tidak muncul",
- * "butuh login") — itu yang bisa dipertahankan. Klaim absolut soal produk pihak
+ * "butuh login") . itu yang bisa dipertahankan. Klaim absolut soal produk pihak
  * lain tidak bisa kita buktikan dan tidak perlu: kelemahannya sudah dirasakan
  * sendiri oleh orang yang membaca halaman ini.
  */
 export const COMPARE_ROWS: CompareRow[] = [
   {
     aspek: 'Ditemukan lewat Google',
-    lama: 'Praktis tidak muncul — butuh login dulu untuk dilihat.',
+    lama: 'Praktis tidak muncul . butuh login dulu untuk dilihat.',
     posko: 'Halaman terbuka untuk mesin pencari, terdaftar di sitemap.',
   },
   {
@@ -83,7 +83,7 @@ export const COMPARE_ROWS: CompareRow[] = [
 
 /* ─────────── SEO points ─────────── */
 
-/** Mekanisme SEO yang benar-benar berjalan — bukan janji peringkat. */
+/** Mekanisme SEO yang benar-benar berjalan . bukan janji peringkat. */
 export const SEO_POINTS = [
   {
     judul: 'Tiap layanan punya halamannya sendiri',
@@ -98,7 +98,7 @@ export const SEO_POINTS = [
   {
     judul: 'Anda ikut di halaman "jasa + kota"',
     contoh: 'poskojasa.com/jasa/service-ac/bekasi',
-    isi: 'Posko punya halaman khusus untuk tiap kombinasi jenis jasa dan kota — persis yang diketik orang saat mencari. Layanan Anda tampil di halaman kota Anda sendiri.',
+    isi: 'Posko punya halaman khusus untuk tiap kombinasi jenis jasa dan kota . persis yang diketik orang saat mencari. Layanan Anda tampil di halaman kota Anda sendiri.',
   },
 ];
 
@@ -112,7 +112,7 @@ export const SETUP_POINTS = [
   },
   {
     judul: 'Variasi layanan',
-    isi: 'Satu layanan bisa punya beberapa pilihan harga — misal AC 0,5 PK, 1 PK, 2 PK.',
+    isi: 'Satu layanan bisa punya beberapa pilihan harga . misal AC 0,5 PK, 1 PK, 2 PK.',
   },
   {
     judul: 'Batas kerja tegas',
@@ -160,10 +160,10 @@ export const FLOW_STEPS = [
 
 /* ─────────── Prep items ─────────── */
 
-/** Yang perlu disiapkan sebelum mendaftar — urut sesuai langkah form. */
+/** Yang perlu disiapkan sebelum mendaftar . urut sesuai langkah form. */
 export const PREP_ITEMS = [
-  'Foto KTP dan swafoto memegang KTP',
-  'Data badan usaha beserta dokumennya — khusus pendaftar vendor/PT/CV',
+  'Foto KTP',
+  'Data badan usaha beserta dokumennya (khusus vendor/PT/CV)',
   'Foto profil dan deskripsi singkat keahlian Anda',
   'Titik lokasi basecamp tempat Anda beroperasi',
   'Nomor rekening bank untuk pencairan dana',
@@ -197,7 +197,7 @@ export const EARLY_ADVANTAGES = [
 /* ─────────── FAQ ─────────── */
 
 /**
- * FAQ — dipakai sebagai bacaan DAN sebagai JSON-LD FAQPage.
+ * FAQ . dipakai sebagai bacaan DAN sebagai JSON-LD FAQPage.
  *
  * Menerima config sebagai argumen, bukan membacanya sendiri, supaya pemanggil
  * di server yang menentukan kapan datanya diambil (dan berkas ini tetap murni).
@@ -219,11 +219,11 @@ export function partnerFaq(cfg: PlatformConfig): FaqItem[] {
     },
     {
       q: 'Apakah jasa saya akan muncul di pencarian Google?',
-      a: 'Setiap layanan dan profil mitra punya halaman sendiri yang terbuka untuk mesin pencari dan didaftarkan otomatis ke sitemap Posko — berbeda dari postingan di grup atau marketplace media sosial yang umumnya perlu login untuk dilihat. Terindeks bukan jaminan peringkat satu, tetapi halaman Anda ada, permanen, dan bisa terbaca.',
+      a: 'Setiap layanan dan profil mitra punya halaman sendiri yang terbuka untuk mesin pencari dan didaftarkan otomatis ke sitemap Posko . berbeda dari postingan di grup atau marketplace media sosial yang umumnya perlu login untuk dilihat. Terindeks bukan jaminan peringkat satu, tetapi halaman Anda ada, permanen, dan bisa terbaca.',
     },
     {
       q: 'Berapa harga minimum layanan yang boleh dipasang?',
-      a: `Harga layanan minimal ${hargaMin}. Bila jasa yang Anda tawarkan biasanya di bawah itu, gabungkan menjadi satu paket layanan — misalnya beberapa unit sekaligus atau satu kali kunjungan penuh.`,
+      a: `Harga layanan minimal ${hargaMin}. Bila jasa yang Anda tawarkan biasanya di bawah itu, gabungkan menjadi satu paket layanan . misalnya beberapa unit sekaligus atau satu kali kunjungan penuh.`,
     },
     {
       q: 'Siapa saja yang bisa mendaftar jadi mitra?',
@@ -235,7 +235,7 @@ export function partnerFaq(cfg: PlatformConfig): FaqItem[] {
     },
     {
       q: 'Apakah saya harus siap menerima pesanan setiap saat?',
-      a: 'Tidak. Anda mengatur sendiri jam kerja per hari, jeda istirahat, dan tanggal cuti — pesanan di luar jam tersebut tidak akan masuk. Pesanan yang masuk pun tetap bisa Anda tolak.',
+      a: 'Tidak. Anda mengatur sendiri jam kerja per hari, jeda istirahat, dan tanggal cuti . pesanan di luar jam tersebut tidak akan masuk. Pesanan yang masuk pun tetap bisa Anda tolak.',
     },
   ];
 }

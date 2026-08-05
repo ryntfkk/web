@@ -46,7 +46,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
   },
 ];
 
-// SE: "Jasa Populer" — link ke landing lokal /jasa/[slug]/[kota] dari setiap
+// SE: "Jasa Populer" . link ke landing lokal /jasa/[slug]/[kota] dari setiap
 // halaman (footer tampil di semua page). Bantu Google discover landing lokal
 // + navigasi pelanggan. Fetch kategori utama + kota mitra via React Query;
 // link selalu valid (slug & kota dari API, bukan hardcode).
@@ -119,7 +119,7 @@ export default function Footer() {
             </nav>
           ))}
 
-          {/* Jasa Populer — landing lokal */}
+          {/* Jasa Populer . landing lokal */}
           {popularLinks && popularLinks.length > 0 && (
             <nav aria-label="Jasa Populer">
               <h3 className="text-[14px] font-semibold text-brand-gray-900 mb-3">
@@ -144,7 +144,7 @@ export default function Footer() {
         {/* Bar bawah */}
         <div className="mt-10 pt-6 border-t border-brand-gray-100 flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Identitas & kontak dari platform_profile. Field kosong tidak
-              dirender — lebih baik absen daripada mencetak placeholder yang
+              dirender . lebih baik absen daripada mencetak placeholder yang
               terbaca seperti data hilang. */}
           <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 text-[13px] text-brand-gray-700">
             <span>&copy; {new Date().getFullYear()} {profile?.legal_name || profile?.brand_name || 'POSKO JASA'}</span>

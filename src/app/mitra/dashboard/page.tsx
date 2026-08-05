@@ -4,8 +4,8 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Bell, Settings, LayoutDashboard, Wrench, Wallet, Calendar, 
+import {
+  Bell, Settings, LayoutDashboard, Wrench, Wallet, Calendar,
   ChevronRight, Star, TrendingUp, Package, Power, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,7 @@ interface DashboardData {
     customer_name: string;
     status: OrderStatus;
     total_amount: number;
-    // Pendapatan bersih mitra (setelah komisi platform) — tampilkan ini, bukan
+    // Pendapatan bersih mitra (setelah komisi platform) . tampilkan ini, bukan
     // total_amount (bruto yang dibayar pelanggan).
     partner_amount?: number;
     partner_amount_estimated?: boolean;
@@ -56,7 +56,7 @@ export default function MitraDashboardPage() {
 
   // K1-interim: polling senyap tiap 45s agar order baru & badge notif muncul
   // tanpa reload manual (mitra tak punya push/WS real-time saat ini). Hanya saat
-  // tab terlihat — hemat request. Tanpa spinner (silent) agar tak berkedip.
+  // tab terlihat . hemat request. Tanpa spinner (silent) agar tak berkedip.
   useEffect(() => {
     if (!isAuthenticated) return;
     const id = setInterval(() => {
@@ -88,7 +88,7 @@ export default function MitraDashboardPage() {
     setLoading(false);
   };
 
-  // Sekali per kunjungan, bukan tiap polling 45 detik — kalau ikut polling,
+  // Sekali per kunjungan, bukan tiap polling 45 detik . kalau ikut polling,
   // "dashboard viewed" berubah jadi ukuran lama tab dibiarkan terbuka dan tidak
   // lagi berarti apa pun.
   const dashboardTracked = useRef(false);
@@ -136,7 +136,7 @@ export default function MitraDashboardPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
 
-      {/* Header — z-10 di bawah konten (z-20) agar card overlap tampil di atas background merah */}
+      {/* Header . z-10 di bawah konten (z-20) agar card overlap tampil di atas background merah */}
       <div className="bg-brand-red text-white px-4 pt-4 pb-12 rounded-b-[2rem] shadow-sm relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -199,7 +199,7 @@ export default function MitraDashboardPage() {
               <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><TrendingUp className="w-3.5 h-3.5" /> Pendapatan Hari Ini</p>
               <p className="text-lg font-bold text-brand-success">{formatPrice(data?.stats.today_income || 0)}</p>
             </div>
-            {/* Kartu rating jadi tautan ke halaman ulasan — di sanalah mitra
+            {/* Kartu rating jadi tautan ke halaman ulasan . di sanalah mitra
                 membalas ulasan pelanggan (batas balas 7 hari). */}
             <Link
               href="/mitra/reviews"
@@ -241,7 +241,7 @@ export default function MitraDashboardPage() {
             <h3 className="font-bold text-brand-gray-900">Jadwal Mendatang</h3>
             <Calendar className="w-5 h-5 text-brand-red" />
           </div>
-          
+
           <div className="space-y-3">
             {loading ? (
               <div className="h-16 bg-brand-gray-100 rounded-md animate-pulse" />
@@ -251,24 +251,24 @@ export default function MitraDashboardPage() {
               </div>
             ) : (
               upcomingOrders.map(order => {
-                  const date = new Date(order.scheduled_at);
-                  const isToday = new Date().toDateString() === date.toDateString();
-                  return (
-                    <Link key={order.id} href={`/mitra/orders/${order.id}`} className="flex items-center gap-3 p-3 border border-brand-gray-100 rounded-md hover:border-brand-red transition-colors">
-                      <div className={`w-12 h-12 rounded-md flex flex-col items-center justify-center shrink-0 ${isToday ? 'bg-brand-red text-white' : 'bg-brand-gray-60 text-brand-gray-900'}`}>
-                        <span className="text-xs font-semibold">{date.toLocaleDateString('id-ID', { month: 'short' })}</span>
-                        <span className="text-lg font-bold leading-none">{date.getDate()}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-brand-gray-900 truncate">{order.customer_name}</p>
-                        <p className="text-xs text-brand-gray-700 flex items-center gap-1 mt-0.5">
-                          <Clock className="w-3 h-3" /> {formatTime(order.scheduled_at)}
-                        </p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-brand-gray-450" />
-                    </Link>
-                  );
-                })
+                const date = new Date(order.scheduled_at);
+                const isToday = new Date().toDateString() === date.toDateString();
+                return (
+                  <Link key={order.id} href={`/mitra/orders/${order.id}`} className="flex items-center gap-3 p-3 border border-brand-gray-100 rounded-md hover:border-brand-red transition-colors">
+                    <div className={`w-12 h-12 rounded-md flex flex-col items-center justify-center shrink-0 ${isToday ? 'bg-brand-red text-white' : 'bg-brand-gray-60 text-brand-gray-900'}`}>
+                      <span className="text-xs font-semibold">{date.toLocaleDateString('id-ID', { month: 'short' })}</span>
+                      <span className="text-lg font-bold leading-none">{date.getDate()}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-brand-gray-900 truncate">{order.customer_name}</p>
+                      <p className="text-xs text-brand-gray-700 flex items-center gap-1 mt-0.5">
+                        <Clock className="w-3 h-3" /> {formatTime(order.scheduled_at)}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-brand-gray-450" />
+                  </Link>
+                );
+              })
             )}
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function MitraDashboardPage() {
             <h3 className="font-bold text-brand-gray-900">Pesanan Aktif</h3>
             <Link href="/mitra/orders" className="text-xs font-semibold text-brand-red hover:underline">Lihat Semua</Link>
           </div>
-          
+
           <div className="space-y-3">
             {loading ? (
               <div className="h-20 bg-brand-gray-100 rounded-md animate-pulse" />

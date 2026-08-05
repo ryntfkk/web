@@ -21,7 +21,7 @@ interface MitraPageHeaderProps {
   /** Menentukan lebar bilah header agar sejajar dengan konten di bawahnya. */
   variant?: MitraContainerVariant;
   /**
-   * Remah roti — hanya dirender mulai `lg`. Di mobile tombol back sudah menjadi
+   * Remah roti . hanya dirender mulai `lg`. Di mobile tombol back sudah menjadi
    * satu-satunya jalur "ke atas", dan remah roti di layar sempit hanya memakan
    * baris tanpa menambah informasi.
    */
@@ -32,7 +32,7 @@ interface MitraPageHeaderProps {
  * Header standar halaman mode mitra (§6.4).
  *
  * Membungkus `MobilePageHeader` dengan `alwaysShow` karena area mitra TIDAK
- * punya TopNavbar di breakpoint mana pun — tanpa `alwaysShow` halaman mitra di
+ * punya TopNavbar di breakpoint mana pun . tanpa `alwaysShow` halaman mitra di
  * desktop kehilangan judul dan tombol kembali sekaligus.
  */
 export default function MitraPageHeader({

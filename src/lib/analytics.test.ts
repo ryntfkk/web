@@ -9,7 +9,7 @@ import { sanitizeProps, setAnalyticsSink, track } from './analytics';
  */
 describe('sanitizeProps', () => {
   beforeEach(() => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => { });
   });
   afterEach(() => {
     vi.restoreAllMocks();
@@ -44,7 +44,7 @@ describe('sanitizeProps', () => {
 
   // Data katalog publik BUKAN PII. Kalau ikut terbuang, funnel "profil → klik
   // layanan → booking" kehilangan dimensi yang justru jadi alasan mengukurnya.
-  it('tidak membuang nama layanan / mitra — itu data katalog publik', () => {
+  it('tidak membuang nama layanan / mitra . itu data katalog publik', () => {
     const out = sanitizeProps({ service_name: 'Cuci AC', partner_username: 'sejahtera' });
     expect(out.service_name).toBe('Cuci AC');
     expect(out.partner_username).toBe('sejahtera');
@@ -54,19 +54,19 @@ describe('sanitizeProps', () => {
     expect(sanitizeProps({ a: 1, b: undefined })).toEqual({ a: 1 });
   });
 
-  it('null dipertahankan — itu nilai yang bermakna, beda dari tidak ada', () => {
+  it('null dipertahankan . itu nilai yang bermakna, beda dari tidak ada', () => {
     expect(sanitizeProps({ service_id: null })).toEqual({ service_id: null });
   });
 });
 
 describe('track', () => {
   afterEach(() => {
-    setAnalyticsSink(() => {});
+    setAnalyticsSink(() => { });
     vi.restoreAllMocks();
   });
 
   it('meneruskan event & properti yang sudah disaring ke sink', () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => { });
     const sink = vi.fn();
     setAnalyticsSink(sink);
 
@@ -76,9 +76,9 @@ describe('track', () => {
   });
 
   // Analytics yang gagal tidak boleh menjatuhkan alur yang sedang dijalani
-  // pengguna — mitra tidak peduli event-nya terkirim, ia peduli pesanannya masuk.
+  // pengguna . mitra tidak peduli event-nya terkirim, ia peduli pesanannya masuk.
   it('tidak melempar walau sink error', () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => { });
     setAnalyticsSink(() => {
       throw new Error('provider mati');
     });

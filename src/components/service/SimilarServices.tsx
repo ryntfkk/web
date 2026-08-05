@@ -6,7 +6,7 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 
 /**
- * "Layanan serupa" — rekomendasi lintas-mitra pada kategori yang sama
+ * "Layanan serupa" . rekomendasi lintas-mitra pada kategori yang sama
  * (pola "Kamu mungkin suka" Shopee / "Produk terkait" Tokopedia). Melengkapi
  * MoreFromPartner (yang menampilkan mitra yang sama). Memakai filter kategori
  * server-side pada endpoint /services. Menyembunyikan diri saat kosong.

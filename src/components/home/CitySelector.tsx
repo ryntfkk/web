@@ -63,7 +63,7 @@ export default function CitySelector() {
         <div className="w-5 h-5 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red group-hover:bg-brand-red group-hover:text-white transition-colors duration-200 shrink-0">
           <MapPin className="w-3 h-3" />
         </div>
-        
+
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-gray-400 shrink-0 hidden xs:inline">
             Lokasi:
@@ -74,9 +74,8 @@ export default function CitySelector() {
         </div>
 
         <ChevronDown
-          className={`w-3.5 h-3.5 text-brand-gray-400 group-hover:text-brand-red transition-transform duration-200 shrink-0 ${
-            isOpen ? 'rotate-180 text-brand-red' : ''
-          }`}
+          className={`w-3.5 h-3.5 text-brand-gray-400 group-hover:text-brand-red transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-brand-red' : ''
+            }`}
         />
       </button>
 
@@ -124,7 +123,7 @@ export default function CitySelector() {
               </button>
             </div>
 
-            {/* Search Input — tombol GPS dihapus: lokasi diminta OTOMATIS untuk
+            {/* Search Input . tombol GPS dihapus: lokasi diminta OTOMATIS untuk
                 menghitung jarak (lihat LocationNotice); pemilih kota ini murni
                 untuk memfilter wilayah, bukan menentukan lokasi presisi. */}
             <div className="p-3 sm:p-4 bg-brand-gray-50 border-b border-brand-gray-100 shrink-0">
@@ -157,17 +156,15 @@ export default function CitySelector() {
               <button
                 type="button"
                 onClick={() => handleSelectCity('')}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                  !city
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${!city
                     ? 'bg-brand-red/5 border-brand-red text-brand-red font-bold shadow-2xs'
                     : 'border-transparent hover:bg-brand-gray-70 text-brand-gray-900'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      !city ? 'bg-brand-red text-white' : 'bg-brand-gray-100 text-brand-gray-700'
-                    }`}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${!city ? 'bg-brand-red text-white' : 'bg-brand-gray-100 text-brand-gray-700'
+                      }`}
                   >
                     <Globe className="w-4 h-4" />
                   </div>
@@ -200,17 +197,15 @@ export default function CitySelector() {
                       key={cityName}
                       type="button"
                       onClick={() => handleSelectCity(cityName)}
-                      className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                        isSelected
+                      className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${isSelected
                           ? 'bg-brand-red/5 border-brand-red text-brand-red font-bold shadow-2xs'
                           : 'border-transparent hover:bg-brand-gray-70 text-brand-gray-900'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                            isSelected ? 'bg-brand-red text-white' : 'bg-brand-gray-70 text-brand-gray-400'
-                          }`}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? 'bg-brand-red text-white' : 'bg-brand-gray-70 text-brand-gray-400'
+                            }`}
                         >
                           <MapPin className="w-4 h-4" />
                         </div>

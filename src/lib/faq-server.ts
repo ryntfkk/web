@@ -8,7 +8,7 @@ import { getPlatformConfig } from '@/lib/config-server';
 // Kenapa perlu: setelah FAQ pindah ke DB (Fase 4), /help mengambilnya di klien
 // sehingga HTML yang dikirim server TIDAK LAGI memuat teks FAQ sama sekali.
 // Sebelum Fase 4, teks itu ada di JSX dan ikut ter-render. Itu regresi
-// keterindeksan yang tidak disengaja — halaman bantuan justru halaman yang
+// keterindeksan yang tidak disengaja . halaman bantuan justru halaman yang
 // paling sering dicari lewat mesin pencari.
 //
 // Dengan mengambilnya di server, HTML kembali memuat isinya DAN kita bisa
@@ -33,7 +33,7 @@ async function getJSON<T>(path: string, revalidate: number): Promise<T | null> {
 /**
  * FAQ dengan token {{...}} SUDAH diganti nilai nyata.
  *
- * Interpolasi dilakukan di server juga — kalau tidak, JSON-LD akan memuat
+ * Interpolasi dilakukan di server juga . kalau tidak, JSON-LD akan memuat
  * "{{platform_fee_rate}}" mentah dan itu yang terbaca mesin pencari.
  */
 export async function getFaqsRendered(

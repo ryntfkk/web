@@ -77,7 +77,7 @@ function MainCategoryBlock({ main }: { main: Category }) {
         <ChevronRight className="w-4 h-4 text-brand-gray-400 group-hover:text-brand-red transition-colors" />
       </Link>
 
-      {/* Subkategori — teks/chip saja, bukan ikon. Ikon hanya untuk kategori
+      {/* Subkategori . teks/chip saja, bukan ikon. Ikon hanya untuk kategori
           utama agar hierarki visual jelas dan halaman tidak berisik. */}
       {isLoading ? (
         <div className="flex flex-wrap gap-2">

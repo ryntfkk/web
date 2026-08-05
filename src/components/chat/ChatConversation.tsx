@@ -94,7 +94,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
           ? rooms.find((r: any) => r.room_id === roomId)
           : undefined;
         if (currentRoom) {
-          // Tentukan lawan bicara PER-room via user.id — bukan active_role global,
+          // Tentukan lawan bicara PER-room via user.id . bukan active_role global,
           // yang keliru untuk user dual-role (mitra yang juga jadi pelanggan) pada
           // room di sisi lain. Fallback ke active_role bila backend belum kirim id.
           const hasIds = user?.id && currentRoom.partner_id && currentRoom.customer_id;
@@ -125,7 +125,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 const active = orders.find(o => {
                   const isActiveStatus = ['WAITING_CONFIRMATION', 'WAITING_PAYMENT', 'PAID', 'IN_PROGRESS'].includes(o.status);
                   if (!isActiveStatus) return false;
-                  
+
                   if (iAmPartner) {
                     return o.user?.id === currentRoom.customer_id || o.user_id === currentRoom.customer_id;
                   } else {
@@ -146,7 +146,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         const msgs = (msgRes.data as Message[]);
         if (Array.isArray(msgs)) {
           setMessages(msgs);
-          
+
           // Mark room as read if there are unread messages from the other person
           const hasUnread = msgs.some(m => !m.is_read && m.sender_id !== user?.id);
           if (hasUnread) {
@@ -193,7 +193,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       created_at: new Date().toISOString(),
       status: 'pending'
     };
-    
+
     setMessages(prev => [...prev, tempMsg]);
 
     const res = await fetchAPI<any>(`/chat/${roomId}/messages`, {
@@ -368,7 +368,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 {activeOrder.items?.length > 1 && ` +${activeOrder.items.length - 1} lainnya`}
               </span>
             </div>
-            <Link 
+            <Link
               href={isMitra ? `/mitra/orders/${activeOrder.id}` : `/orders/${activeOrder.id}`}
               className="shrink-0 bg-brand-red-soft text-brand-red hover:bg-brand-red-soft px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
             >
@@ -413,11 +413,10 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 )}
                 <div className={`flex flex-col mb-4 max-w-[80%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}>
                   <div
-                    className={`px-4 py-2.5 rounded-2xl shadow-sm ${
-                      isMe
+                    className={`px-4 py-2.5 rounded-2xl shadow-sm ${isMe
                         ? 'bg-brand-red text-white rounded-br-sm'
                         : 'bg-white border border-brand-gray-100 text-brand-gray-900 rounded-bl-sm'
-                    }`}
+                      }`}
                   >
                     {msg.message_type === 'image' && (
                       <a href={msg.content} target="_blank" rel="noopener noreferrer">
@@ -492,66 +491,65 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 </div>
               )}
               <div className="flex items-end gap-2">
-              {/* Input file tersembunyi: galeri & kamera (capture di mobile) */}
-              <input
-                ref={galleryInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageSelect}
-              />
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={handleImageSelect}
-              />
-              <button
-                type="button"
-                onClick={() => galleryInputRef.current?.click()}
-                disabled={uploading}
-                title="Kirim foto dari galeri"
-                className="p-2.5 text-brand-gray-700 hover:bg-brand-gray-60 rounded-full transition-colors shrink-0 disabled:opacity-50"
-              >
-                {uploading ? <UploadSpinner className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
-              </button>
-              <button
-                type="button"
-                onClick={() => cameraInputRef.current?.click()}
-                disabled={uploading}
-                title="Ambil foto dengan kamera"
-                className="p-2.5 text-brand-gray-700 hover:bg-brand-gray-60 rounded-full transition-colors shrink-0 disabled:opacity-50 sm:hidden"
-              >
-                <Camera className="w-5 h-5" />
-              </button>
-            <div className="flex-1 bg-brand-gray-60 border border-brand-gray-100 rounded-2xl flex items-center pr-1 overflow-hidden transition-colors focus-within:border-brand-red">
-              <textarea
-                value={input}
-                onChange={handleTyping}
-                placeholder="Ketik pesan..."
-                className="w-full bg-transparent p-3 text-base sm:text-sm text-brand-gray-900 focus:outline-none resize-none max-h-32"
-                rows={1}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim()}
-                className={`p-2 rounded-xl transition-colors shrink-0 ${
-                  input.trim() ? 'bg-brand-red text-white hover:bg-brand-red-dark shadow-sm' : 'text-brand-gray-450'
-                }`}
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-            </div>
-          </form>
+                {/* Input file tersembunyi: galeri & kamera (capture di mobile) */}
+                <input
+                  ref={galleryInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageSelect}
+                />
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handleImageSelect}
+                />
+                <button
+                  type="button"
+                  onClick={() => galleryInputRef.current?.click()}
+                  disabled={uploading}
+                  title="Kirim foto dari galeri"
+                  className="p-2.5 text-brand-gray-700 hover:bg-brand-gray-60 rounded-full transition-colors shrink-0 disabled:opacity-50"
+                >
+                  {uploading ? <UploadSpinner className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => cameraInputRef.current?.click()}
+                  disabled={uploading}
+                  title="Ambil foto dengan kamera"
+                  className="p-2.5 text-brand-gray-700 hover:bg-brand-gray-60 rounded-full transition-colors shrink-0 disabled:opacity-50 sm:hidden"
+                >
+                  <Camera className="w-5 h-5" />
+                </button>
+                <div className="flex-1 bg-brand-gray-60 border border-brand-gray-100 rounded-2xl flex items-center pr-1 overflow-hidden transition-colors focus-within:border-brand-red">
+                  <textarea
+                    value={input}
+                    onChange={handleTyping}
+                    placeholder="Ketik pesan..."
+                    className="w-full bg-transparent p-3 text-base sm:text-sm text-brand-gray-900 focus:outline-none resize-none max-h-32"
+                    rows={1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim()}
+                    className={`p-2 rounded-xl transition-colors shrink-0 ${input.trim() ? 'bg-brand-red text-white hover:bg-brand-red-dark shadow-sm' : 'text-brand-gray-450'
+                      }`}
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         )}
       </div>

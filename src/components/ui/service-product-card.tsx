@@ -12,7 +12,7 @@ import { Price } from '@/components/ui/price';
 import { formatCompactNumber } from '@/lib/format';
 
 // Ambang badge "Terpercaya" (gaya Star Seller / Power Merchant): performa nyata
-// (banyak pesanan selesai + rating tinggi), bukan sekadar terdaftar — jadi badge
+// (banyak pesanan selesai + rating tinggi), bukan sekadar terdaftar . jadi badge
 // tampil selektif, bukan di semua kartu. Tunable.
 const TRUSTED_MIN_ORDERS = 20;
 const TRUSTED_MIN_RATING = 4.7;
@@ -25,7 +25,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
   const isTrusted =
     orderCount >= TRUSTED_MIN_ORDERS && (service.partner_avg_rating ?? 0) >= TRUSTED_MIN_RATING;
 
-  // SE: alt text dinamis untuk Google Image Search — sertakan keyword
+  // SE: alt text dinamis untuk Google Image Search . sertakan keyword
   // "jasa [kategori] di [kota]" agar gambar muncul di pencarian gambar
   // berdasarkan intent lokasi (mis. "jasa ac semarang").
   const imageAlt = [

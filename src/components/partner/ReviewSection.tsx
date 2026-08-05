@@ -10,7 +10,7 @@ interface ReviewSectionProps {
   summary: ReviewSummary;
   /** Judul blok. Halaman produk memakai "Ulasan Layanan Ini". */
   title?: string;
-  /** Copy saat belum ada ulasan — harus menyebut lingkupnya (mitra vs layanan). */
+  /** Copy saat belum ada ulasan . harus menyebut lingkupnya (mitra vs layanan). */
   emptyText?: string;
   /** Aksi di kaki blok, mis. tautan ke seluruh ulasan mitra. */
   footer?: React.ReactNode;
@@ -48,7 +48,7 @@ function AspectRatings({ review }: { review: PartnerReview }) {
   );
 }
 
-/** Foto yang dilampirkan pelanggan. Dibuka di tab baru — bukan lightbox penuh. */
+/** Foto yang dilampirkan pelanggan. Dibuka di tab baru . bukan lightbox penuh. */
 function ReviewPhotos({ urls, author }: { urls: string[]; author: string }) {
   if (!urls.length) return null;
   return (

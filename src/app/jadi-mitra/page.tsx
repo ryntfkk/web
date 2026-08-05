@@ -40,7 +40,7 @@ import AnimateOnScroll from './AnimateOnScroll';
  *
  * SENGAJA di root (/jadi-mitra), BUKAN di bawah /mitra. Seluruh area /mitra
  * ber-`robots: noindex` (mitra/layout.tsx), di-disallow robots.txt, dan
- * dipagari useRequireAuth — pengunjung anonim beserta Googlebot hanya akan
+ * dipagari useRequireAuth . pengunjung anonim beserta Googlebot hanya akan
  * menerima halaman kosong di sana. Halaman yang tugasnya menjaring orang dari
  * hasil pencarian tidak bisa berdiri di belakang ketiga pagar itu.
  *
@@ -49,7 +49,7 @@ import AnimateOnScroll from './AnimateOnScroll';
  * perubahan admin terbawa tanpa redeploy Amplify, dan tetap ada di HTML awal.
  *
  * CATATAN: bila menambah rute root baru seperti ini, `RESERVED_ROOT_SEGMENTS`
- * di components/layout/HeaderWrapper.tsx WAJIB ikut diperbarui — kalau tidak,
+ * di components/layout/HeaderWrapper.tsx WAJIB ikut diperbarui . kalau tidak,
  * rutenya dikira username mitra dan header hilang di mobile.
  */
 export const revalidate = 600;
@@ -59,18 +59,18 @@ const SITE = 'https://poskojasa.com';
 export const metadata: Metadata = {
   // Tanpa "Posko Jasa": template root sudah menambahkan "| Posko Jasa". Menulisnya
   // di sini membuat merek tercetak dua kali dan judulnya terpotong di hasil
-  // pencarian. Judul OG di bawah boleh memuatnya — OG tidak kena template.
-  title: 'Jadi Mitra — Pasang Jasa Gratis, Ditemukan di Google',
+  // pencarian. Judul OG di bawah boleh memuatnya . OG tidak kena template.
+  title: 'Jadi Mitra . Pasang Jasa Gratis, Ditemukan di Google',
   description:
     'Daftar jadi mitra Posko Jasa tanpa biaya pendaftaran, langganan, atau iklan. Setiap layanan Anda mendapat halaman sendiri yang bisa ditemukan lewat pencarian Google, lengkap dengan harga, jadwal, dan pembayaran yang terjamin.',
   alternates: { canonical: `${SITE}/jadi-mitra` },
   // `images`, `siteName`, dan `locale` WAJIB diulang di sini. Next MENGGANTI
-  // objek openGraph milik root layout, tidak menggabungnya — tanpa ini halaman
+  // objek openGraph milik root layout, tidak menggabungnya . tanpa ini halaman
   // terkirim tanpa og:image sama sekali. Justru halaman inilah yang paling
   // sering dibagikan lewat WhatsApp, tempat pratinjau tanpa gambar praktis
   // tidak diklik. Aturan yang sama pernah menjatuhkan /kategori & /jasa.
   openGraph: {
-    title: 'Jadi Mitra Posko Jasa — Pasang Jasa Gratis, Ditemukan di Google',
+    title: 'Jadi Mitra Posko Jasa . Pasang Jasa Gratis, Ditemukan di Google',
     description:
       'Tanpa biaya pendaftaran dan langganan. Layanan Anda punya halaman permanen yang terbaca mesin pencari, bukan postingan yang tenggelam dalam hitungan jam.',
     url: `${SITE}/jadi-mitra`,
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
         url: '/og-default.png',
         width: 1200,
         height: 630,
-        alt: 'Jadi mitra Posko Jasa — pasang jasa gratis',
+        alt: 'Jadi mitra Posko Jasa . pasang jasa gratis',
       },
     ],
   },
@@ -99,7 +99,7 @@ export default async function JadiMitraPage() {
   const biayaTarik = formatRupiah(cfg.withdrawal_fee);
   const hargaMin = formatRupiah(cfg.min_transaction);
 
-  // Angka nol ditulis lewat formatRupiah juga, bukan literal "Rp 0" — supaya
+  // Angka nol ditulis lewat formatRupiah juga, bukan literal "Rp 0" . supaya
   // format ribuan/spasi persis sama dengan baris berbayar di bawahnya.
   const gratis = formatRupiah(0);
 
@@ -117,7 +117,7 @@ export default async function JadiMitraPage() {
       <TrackLandingView />
 
       {/* ════════════════════════════════════════════════════════════════
-          HERO — Compact, impactful, stat pills
+          HERO . Compact, impactful, stat pills
           ════════════════════════════════════════════════════════════════ */}
       <header className="relative overflow-hidden bg-gradient-to-br from-brand-red via-brand-red to-brand-red-dark text-white">
         {/* Subtle decorative circles */}
@@ -129,7 +129,7 @@ export default async function JadiMitraPage() {
             <Sparkles className="h-3.5 w-3.5" /> Pendaftaran mitra sedang dibuka
           </p>
           <h1 className="text-[22px] sm:text-3xl md:text-4xl font-extrabold leading-[1.2]">
-            Pasang jasa Anda di Posko —{' '}
+            Pasang jasa Anda di Posko .{' '}
             <span className="text-white/90">ditemukan di Google</span>
           </h1>
           <p className="mt-3 text-[13px] sm:text-[15px] leading-relaxed text-white/85 max-w-xl">
@@ -171,7 +171,7 @@ export default async function JadiMitraPage() {
       </header>
 
       {/* ════════════════════════════════════════════════════════════════
-          PERBANDINGAN — Compact visual grid
+          PERBANDINGAN . Compact visual grid
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
         <section className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
@@ -211,7 +211,7 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          SEO — Compact numbered cards
+          SEO . Compact numbered cards
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
         <section className="bg-white sm:mx-auto sm:max-w-3xl sm:rounded-2xl">
@@ -261,7 +261,7 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          SETUP LAYANAN — Icon Grid Cards
+          SETUP LAYANAN . Icon Grid Cards
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
         <section className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
@@ -287,7 +287,7 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          ALUR TRANSAKSI — Horizontal stepper
+          ALUR TRANSAKSI . Horizontal stepper
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
         <section className="bg-white sm:mx-auto sm:max-w-3xl sm:rounded-2xl">
@@ -331,7 +331,7 @@ export default async function JadiMitraPage() {
             <div className="mt-5 flex gap-2.5 rounded-xl border border-brand-info-light bg-brand-info-soft p-3.5">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-info-dark" aria-hidden />
               <p className="text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-900">
-                Ada selisih paham? Pesanan bisa dibawa ke jalur sengketa. Dana ditahan sampai tim Posko memutuskan — perlindungan untuk kedua pihak.
+                Ada selisih paham? Pesanan bisa dibawa ke jalur sengketa. Dana ditahan sampai tim Posko memutuskan . perlindungan untuk kedua pihak.
               </p>
             </div>
           </div>
@@ -339,7 +339,7 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          BIAYA — Prominent numbers
+          BIAYA . Prominent numbers
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
         <section id="biaya" className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
@@ -362,11 +362,10 @@ export default async function JadiMitraPage() {
                 >
                   <dt className="text-[12px] sm:text-[13px] text-brand-gray-700">{b.label}</dt>
                   <dd
-                    className={`shrink-0 font-bold ${
-                      b.gratisFlag
+                    className={`shrink-0 font-bold ${b.gratisFlag
                         ? 'text-[15px] sm:text-[16px] text-brand-success'
                         : 'text-[13px] sm:text-[14px] text-brand-gray-900'
-                    }`}
+                      }`}
                   >
                     {b.nilai}
                   </dd>
@@ -389,7 +388,7 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          KEUNGGULAN PENDAFTAR AWAL — Gradient highlight cards
+          KEUNGGULAN PENDAFTAR AWAL . Gradient highlight cards
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
         <section className="bg-white sm:mx-auto sm:max-w-3xl sm:rounded-2xl">
@@ -453,7 +452,7 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          PENUTUP — Bold CTA
+          PENUTUP . Bold CTA
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
         <section className="mx-auto mt-6 w-full max-w-3xl px-4">

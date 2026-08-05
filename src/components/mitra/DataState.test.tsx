@@ -8,7 +8,7 @@ import DataState from './DataState';
  * (§6.4, P1-11): `loading → error → empty → isi`.
  *
  * Menukar `error` dan `empty` adalah cara paling gampang menghadirkan kembali
- * bug aslinya — daftar kosong DAN gagal-memuat sama-sama berarti "tidak ada
+ * bug aslinya . daftar kosong DAN gagal-memuat sama-sama berarti "tidak ada
  * baris", sehingga kegagalan request tampil sebagai "belum ada data" dan mitra
  * mengira pesanan/mutasi/layanannya hilang. Test ini yang menjaganya.
  */
@@ -24,7 +24,7 @@ describe('DataState', () => {
     expect(screen.queryByText('isi asli')).toBeNull();
   });
 
-  it('mendahulukan error walau data kosong — INI inti bug P1-11', () => {
+  it('mendahulukan error walau data kosong . INI inti bug P1-11', () => {
     render(
       <DataState isLoading={false} error="Koneksi terputus" isEmpty>
         <div>isi asli</div>

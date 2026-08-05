@@ -45,7 +45,7 @@ export default function AdditionalFeeFormClient() {
       setError('Harga satuan minimal Rp 5.000');
       return;
     }
-    // Batas dari platform_settings — sumber yang sama dengan yang ditegakkan
+    // Batas dari platform_settings . sumber yang sama dengan yang ditegakkan
     // backend di AddAdditionalFees, jadi tidak bisa lagi berbeda diam-diam.
     if (unitPrice * qty > platformConfig.max_additional_fee) {
       setError(`Total tagihan tidak boleh melebihi ${formatPrice(platformConfig.max_additional_fee)}`);
@@ -77,7 +77,7 @@ export default function AdditionalFeeFormClient() {
     } else {
       setError(getErrorMessage(res));
     }
-    
+
     setLoading(false);
   };
 

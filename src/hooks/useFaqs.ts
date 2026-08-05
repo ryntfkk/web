@@ -3,7 +3,7 @@ import { fetchAPI } from '@/lib/api';
 
 // FAQ dikelola admin (tabel `faqs`), tidak lagi array di JSX.
 // Dikelompokkan per kategori oleh backend dengan urutan tetap mengikuti
-// sort_order — jangan mengurutkan ulang di klien.
+// sort_order . jangan mengurutkan ulang di klien.
 
 export interface FaqItem {
   id: string;

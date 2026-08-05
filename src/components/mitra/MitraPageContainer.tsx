@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
  *
  * Ada supaya lebarnya berhenti diketik ulang di tiap halaman. Sebelum ini
  * setiap halaman memilih `max-w-*` sendiri, dan hasilnya form fokus, daftar,
- * dan dashboard punya lebar yang tidak berhubungan satu sama lain — di layar
+ * dan dashboard punya lebar yang tidak berhubungan satu sama lain . di layar
  * lebar ketiganya terlihat seperti tiga aplikasi berbeda.
  *
  * Ruang desktop dipakai untuk KOLOM dan whitespace, bukan untuk membesarkan

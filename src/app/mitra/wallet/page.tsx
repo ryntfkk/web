@@ -90,7 +90,7 @@ export default function MitraWalletPage() {
           });
         }
       }
-      
+
       if (balRes.success && balRes.data) {
         const bal = (balRes.data as { balance?: number; available_balance?: number; pending_withdrawal?: number });
         setBalance({
@@ -161,7 +161,7 @@ export default function MitraWalletPage() {
           <ArrowUpRight className="w-5 h-5 mr-2 text-brand-red" /> Tarik Dana
         </Button>
         {/* Penarikan punya lifecycle sendiri (ditolak, alasannya, ke rekening
-            mana) yang tak muat di baris mutasi — karenanya layar terpisah. */}
+            mana) yang tak muat di baris mutasi . karenanya layar terpisah. */}
         <Button
           variant="outline"
           className="flex-1 bg-white hover:bg-brand-gray-60 text-brand-gray-900 shadow-sm border border-brand-gray-100 h-12 rounded-md font-bold"
@@ -177,7 +177,7 @@ export default function MitraWalletPage() {
           <div>
             <p className="text-xs font-semibold text-brand-red mb-0.5">Info Penarikan Dana</p>
             <p className="text-xs text-brand-red leading-snug">
-              {/* Batas & SLA dari DB (platform_settings + platform_profile) —
+              {/* Batas & SLA dari DB (platform_settings + platform_profile) .
                   tidak ada angka maupun janji waktu yang diketik di sini. */}
               Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>{platformConfig.profile?.withdrawal_sla || '1-2 hari kerja'}</strong>.
             </p>
@@ -199,7 +199,7 @@ export default function MitraWalletPage() {
       <div className="max-w-4xl mx-auto px-4 mt-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-brand-gray-900">Riwayat Transaksi</h3>
-          <select 
+          <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value as 'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL')}
             className="text-xs border border-brand-gray-100 rounded-md px-2 py-1 text-brand-gray-700 bg-white focus:outline-none focus:border-brand-red"
@@ -211,7 +211,7 @@ export default function MitraWalletPage() {
         </div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex w-full bg-white rounded-lg border border-brand-gray-100 p-1 shadow-sm">
-            <button 
+            <button
               type="button"
               aria-pressed={filterType === 'ALL'}
               onClick={() => setFilterType('ALL')}
@@ -219,7 +219,7 @@ export default function MitraWalletPage() {
             >
               Semua
             </button>
-            <button 
+            <button
               type="button"
               aria-pressed={filterType === 'IN'}
               onClick={() => setFilterType('IN')}
@@ -227,7 +227,7 @@ export default function MitraWalletPage() {
             >
               Pemasukan
             </button>
-            <button 
+            <button
               type="button"
               aria-pressed={filterType === 'OUT'}
               onClick={() => setFilterType('OUT')}

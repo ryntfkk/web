@@ -9,7 +9,7 @@ import { FALLBACK_PLATFORM_CONFIG, type PlatformConfig } from '@/hooks/usePlatfo
  *
  * Angka yang dijanjikan di sana WAJIB berasal dari /config, karena admin bisa
  * mengubah komisi kapan saja lewat panel. Begitu ada yang menuliskannya sebagai
- * literal ("12%"), halaman diam-diam berbohong pada hari komisinya diubah —
+ * literal ("12%"), halaman diam-diam berbohong pada hari komisinya diubah .
  * dan tak ada yang menyadarinya sampai mitra protes soal potongan yang tidak
  * sesuai dengan yang ia baca sebelum mendaftar. Test ini yang menjaganya.
  */
@@ -80,7 +80,7 @@ describe('partnerFaq', () => {
 
   it('menyebut komisi terbuka pada pertanyaan “apakah gratis”', () => {
     // Framing yang disepakati: gratis di depan, komisi TETAP diungkap di tempat
-    // orang bertanya soal gratis — bukan disembunyikan ke pertanyaan lain.
+    // orang bertanya soal gratis . bukan disembunyikan ke pertanyaan lain.
     const jawabanGratis = partnerFaq(configPalsu()).find((f) =>
       f.q.toLowerCase().includes('gratis'),
     );

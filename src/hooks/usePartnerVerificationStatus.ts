@@ -4,7 +4,7 @@ import { fetchAPI } from '@/lib/api';
 // F2 (MITRA-IMPLEMENTATION-PLAN): hook tunggal untuk status verifikasi mitra.
 // Backend kirim enum LOWERCASE ('pending'/'approved'/'rejected'); hook
 // normalisasi ke UPPERCASE supaya konsumen tidak perlu .toUpperCase() tiap
-// tempat. Default fail-closed ke 'PENDING' (bukan 'VERIFIED') — lihat plan §2.
+// tempat. Default fail-closed ke 'PENDING' (bukan 'VERIFIED') . lihat plan §2.
 //
 // isVerified = true HANYA jika status 'APPROVED'. Dipakai untuk sembunyikan
 // tombol hapus/edit data verifikasi di halaman mitra.

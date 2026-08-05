@@ -9,7 +9,7 @@ import { X } from 'lucide-react';
  * Tiga hal yang sebelumnya hilang di setiap dialog yang ditulis manual:
  *
  * 1. **Focus trap.** Tanpa ini Tab keluar dari dialog dan menjelajahi halaman di
- *    belakangnya yang tidak terlihat — pengguna keyboard menekan tombol yang
+ *    belakangnya yang tidak terlihat . pengguna keyboard menekan tombol yang
  *    tidak bisa ia lihat, termasuk aksi destruktif di daftar di baliknya.
  * 2. **Escape menutup.** Satu-satunya jalan keluar dulu adalah menemukan tombol
  *    X secara visual.
@@ -58,7 +58,7 @@ export default function MitraModal({
       if (e.key !== 'Tab' || !panelRef.current) return;
 
       // Penyaringnya sengaja TIDAK memakai `offsetParent !== null`. Properti itu
-      // bernilai null untuk subtree berposisi fixed — persis bentuk dialog ini —
+      // bernilai null untuk subtree berposisi fixed . persis bentuk dialog ini .
       // sehingga daftar fokusable jadi kosong dan focus trap diam-diam tidak
       // melakukan apa pun. Isi panel selalu benar-benar dirender saat terbuka,
       // jadi yang perlu dibuang hanya yang eksplisit disembunyikan/dinonaktifkan.

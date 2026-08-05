@@ -34,7 +34,7 @@ const organizationSchema = {
   name: 'Posko Jasa',
   url: SITE,
   logo: `${SITE}/logo.png`,
-  description: 'Marketplace jasa terpercaya — temukan & pesan jasa profesional di dekat Anda.',
+  description: 'Marketplace jasa terpercaya . temukan & pesan jasa profesional di dekat Anda.',
 };
 
 // P2/SE2: Home kini Server Component. Hero + kategori dirender di SERVER (masuk
@@ -84,7 +84,7 @@ export default async function Home() {
         {/* Hero Section - Auto-sliding Carousel */}
         <HeroCarousel />
 
-          {/* Main Content Area - Better mobile padding */}
+        {/* Main Content Area - Better mobile padding */}
         <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-6 flex-1">
           <CategorySection />
           <RecentlyViewedSection />
@@ -99,7 +99,7 @@ export default async function Home() {
               dan kembalikan tampilan normal pada desktop (md:not-sr-only). */}
           <div className="mt-12 mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100 sr-only md:not-sr-only">
             <h1 className="text-xl font-bold text-gray-900 mb-3">
-              Marketplace Jasa Terpercaya — Pesan Jasa Profesional di Dekat Anda
+              Marketplace Jasa Terpercaya . Pesan Jasa Profesional di Dekat Anda
             </h1>
             <p className="text-gray-600 text-sm leading-relaxed mb-3">
               Posko Jasa adalah platform marketplace terdepan yang menghubungkan Anda dengan penyedia jasa profesional dan terverifikasi. Kami menyediakan berbagai layanan mulai dari kebersihan rumah, perbaikan elektronik, tukang bangunan, hingga layanan kecantikan dan otomotif. Dengan proses pemesanan yang mudah, transparan, dan aman, Anda bisa menyelesaikan segala kebutuhan harian tanpa ribet.

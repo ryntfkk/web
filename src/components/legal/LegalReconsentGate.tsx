@@ -15,7 +15,7 @@ import type { LegalDocument } from '@/hooks/useLegalConsent';
  * Tanpa ini, menerbitkan versi baru S&K tidak pernah ditagihkan ke pengguna
  * lama: mereka tetap terikat versi yang dulu mereka setujui, sementara aplikasi
  * berjalan dengan aturan yang baru. Selisih itu persis yang dipersoalkan saat
- * sengketa — "saya menyetujui teks yang mana?".
+ * sengketa . "saya menyetujui teks yang mana?".
  *
  * Backend sudah menyediakan seluruh mekanismenya (`GET /legal/pending` +
  * `POST /legal/accept`); komponen ini hanya menagihnya.
@@ -28,10 +28,10 @@ const EXEMPT_PREFIXES = ['/login', '/register', '/forgot-password', '/legal', '/
  * Dokumen yang benar-benar menuntut PERSETUJUAN, bukan sekadar pemberitahuan.
  *
  * `cancellation` sengaja tidak masuk: ia kebijakan yang dirujuk S&K, bukan
- * kontrak terpisah — menagih centang untuknya hanya menambah gesekan.
+ * kontrak terpisah . menagih centang untuknya hanya menambah gesekan.
  * `partner-terms` ikut ditagih karena ia kontrak tersendiri bagi mitra.
  * Backend memfilter `partner-terms` hanya untuk user yang punya baris partners
- * hidup (P0 fix, lihat AUDIT-SISTEM-VENDOR.md #3) — sebelumnya v2 sudah terbit
+ * hidup (P0 fix, lihat AUDIT-SISTEM-VENDOR.md #3) . sebelumnya v2 sudah terbit
  * dan menagih pelanggan biasa yang bukan mitra.
  */
 const CONSENT_REQUIRED: LegalDocument['slug'][] = ['terms', 'privacy', 'partner-terms'];

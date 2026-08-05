@@ -6,7 +6,7 @@ import { usePartnerServices } from '@/hooks/usePartnerProfile';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
 
 /**
- * "Layanan lain dari mitra ini" — pola cross-sell standar marketplace besar
+ * "Layanan lain dari mitra ini" . pola cross-sell standar marketplace besar
  * (Tokopedia "Produk lainnya dari toko ini", Amazon "More from this seller").
  * Memakai endpoint yang sudah ada (usePartnerServices → /partners/:username/services)
  * sehingga tak perlu perubahan backend. Menyembunyikan diri saat loading/kosong.

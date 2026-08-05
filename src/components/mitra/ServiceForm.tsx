@@ -21,7 +21,7 @@ import { usePlatformConfig } from '@/hooks/usePlatformConfig';
  * Satu form untuk BUAT dan EDIT layanan (P2).
  *
  * Sebelumnya `/mitra/services/new` dan `/mitra/services/[id]/edit` adalah dua
- * berkas ~450 baris yang isinya nyaris identik — termasuk seluruh aturan
+ * berkas ~450 baris yang isinya nyaris identik . termasuk seluruh aturan
  * validasi harga, durasi, dan variasi. Setiap perbaikan harus dikerjakan dua
  * kali, dan yang terjadi berulang kali adalah dikerjakan sekali: form edit
  * sempat tidak menampilkan batas harga minimum yang sudah lama ada di form
@@ -114,14 +114,14 @@ export default function ServiceForm({
   onSubmit,
   photoSection,
 }: ServiceFormProps) {
-  // MinTransaction dari platform_settings — bukan konstanta 50000 yang harus
+  // MinTransaction dari platform_settings . bukan konstanta 50000 yang harus
   // disamakan manual dengan backend setiap kali admin mengubahnya.
   const MIN_PRICE = usePlatformConfig().min_transaction;
 
   const [form, setForm] = useState<ServiceFormValues>(initialValues ?? EMPTY_SERVICE_FORM);
   const [variations, setVariations] = useState<ServiceVariationDraft[]>(initialVariations ?? []);
   const [validationError, setValidationError] = useState('');
-  // Katalog persyaratan datang dari backend, bukan dihardcode — admin bisa
+  // Katalog persyaratan datang dari backend, bukan dihardcode . admin bisa
   // menambah/menonaktifkan item tanpa deploy web.
   const [reqCatalog, setReqCatalog] = useState<RequirementCatalogItem[]>([]);
 
@@ -137,14 +137,14 @@ export default function ServiceForm({
   }, [initialVariations]);
 
   useEffect(() => {
-    // Pelengkap: gagal memuat katalog TIDAK boleh menghalangi mitra menyimpan —
+    // Pelengkap: gagal memuat katalog TIDAK boleh menghalangi mitra menyimpan .
     // ia masih bisa menulis persyaratan sebagai teks bebas.
     let alive = true;
     fetchAPI<RequirementCatalogItem[]>('/partners/requirement-catalog')
       .then((res) => {
         if (alive && res.success && res.data) setReqCatalog(res.data);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       alive = false;
     };
@@ -287,7 +287,7 @@ export default function ServiceForm({
         </p>
       </div>
 
-      {/* Variasi (opsional) — bila diisi, harga tunggal disembunyikan. */}
+      {/* Variasi (opsional) . bila diisi, harga tunggal disembunyikan. */}
       <VariationsEditor value={variations} onChange={setVariations} minPrice={MIN_PRICE} />
 
       <div className="grid grid-cols-2 gap-4">

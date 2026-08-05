@@ -49,7 +49,7 @@ export default function MitraPortfolioPage() {
     if (isAuthorized) {
       fetchPortfolios();
       // Daftar layanan untuk dropdown kaitan. Kegagalannya tidak ditampilkan
-      // sebagai error halaman — galerinya sendiri tetap berguna tanpa itu.
+      // sebagai error halaman . galerinya sendiri tetap berguna tanpa itu.
       fetchAPI<ServiceOption[]>('/partners/me/services').then((res) => {
         if (res.success) setServices(res.data ?? []);
       });
@@ -107,7 +107,7 @@ export default function MitraPortfolioPage() {
    * Memindahkan satu foto naik/turun lalu MENYIMPAN seluruh urutan.
    *
    * Urutan baru dipasang optimistis supaya panah terasa responsif, tetapi kalau
-   * server menolak, daftar diambil ulang — layar tidak boleh menampilkan urutan
+   * server menolak, daftar diambil ulang . layar tidak boleh menampilkan urutan
    * yang tidak tersimpan.
    */
   const moveItem = async (index: number, direction: -1 | 1) => {
@@ -247,7 +247,7 @@ export default function MitraPortfolioPage() {
                     <img src={item.photo_url} alt={item.caption || 'Foto portofolio'} className="h-full w-full object-cover" />
 
                     {/* Foto pertama itulah yang dilihat calon pelanggan lebih
-                        dulu — katakan begitu, jangan biarkan mitra menebak
+                        dulu . katakan begitu, jangan biarkan mitra menebak
                         kenapa urutan penting. */}
                     {index === 0 && (
                       <span className="absolute left-1.5 top-1.5 rounded-md bg-brand-red px-1.5 py-0.5 text-[9px] font-bold text-white">
@@ -329,9 +329,9 @@ export default function MitraPortfolioPage() {
                   </div>
                 </div>
               ))}
-              
+
               {portfolios.length < 5 && (
-                <div 
+                <div
                   onClick={() => !uploading && fileInputRef.current?.click()}
                   className={`aspect-square rounded-lg border-2 border-dashed border-brand-gray-200 flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer bg-white ${uploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-brand-red hover:bg-brand-red-soft'}`}
                 >
@@ -350,7 +350,7 @@ export default function MitraPortfolioPage() {
             </>
           )}
         </div>
-        
+
         {!loading && portfolios.length === 0 && (
           <div className="text-center py-10">
             <ImageIcon className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
@@ -363,7 +363,7 @@ export default function MitraPortfolioPage() {
           open={!!editingId}
           onClose={() => setEditingId(null)}
           title="Keterangan Foto"
-          description="Jelaskan pekerjaan pada foto ini — pelanggan memakainya untuk menilai hasil kerjamu."
+          description="Jelaskan pekerjaan pada foto ini . pelanggan memakainya untuk menilai hasil kerjamu."
           footer={
             <>
               <Button variant="outline" className="flex-1 rounded-md" onClick={() => setEditingId(null)} disabled={savingCaption}>

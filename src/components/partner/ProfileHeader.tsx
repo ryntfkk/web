@@ -25,7 +25,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const currentUser = useAuthStore(state => state.user);
   const openPanel = useChatUiStore((s) => s.openPanel);
   // Mitra yang membuka profilnya sendiri tidak boleh chat/lapor/pesan ke diri
-  // sendiri — backend menolaknya (SELF_ORDER / cannot chat with yourself).
+  // sendiri . backend menolaknya (SELF_ORDER / cannot chat with yourself).
   const isOwnProfile = !!currentUser?.id && currentUser.id === profile.user_id;
 
   // Favorit mitra. partner_id memakai partners.id (= profile.id), bukan user_id.
@@ -140,7 +140,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               </p>
             )}
 
-            {/* Bio — inline di bawah nama */}
+            {/* Bio . inline di bawah nama */}
             {typeof profile.bio === 'string' && profile.bio.trim().length > 0 && (
               <p className="text-sm text-brand-gray-700 leading-relaxed whitespace-pre-line mb-3 mt-1">
                 {profile.bio}
@@ -160,7 +160,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               )}
             </div>
 
-            {/* Spesialisasi diturunkan dari kategori layanan aktif — bukan klaim
+            {/* Spesialisasi diturunkan dari kategori layanan aktif . bukan klaim
                 bebas yang diketik mitra. */}
             {!!profile.categories?.length && (
               <div className="flex flex-wrap gap-1.5 mb-3">

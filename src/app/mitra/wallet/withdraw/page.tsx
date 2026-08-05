@@ -131,7 +131,7 @@ export default function WithdrawPage() {
     e.preventDefault();
     if (isSubmittingRef.current) return;
 
-    // Validasi dulu, baru kunci submit — mengunci sebelum validasi membuat
+    // Validasi dulu, baru kunci submit . mengunci sebelum validasi membuat
     // form mati permanen setelah satu kali error validasi (ref tidak pernah
     // di-reset di jalur early-return).
     const minWithdrawal = platformConfig.min_transaction;
@@ -154,7 +154,7 @@ export default function WithdrawPage() {
       setError('Silakan tambahkan rekening bank terlebih dahulu');
       return;
     }
-    // H4: OTP wajib — backend menolak tanpa OTP.
+    // H4: OTP wajib . backend menolak tanpa OTP.
     if (!otpSent) {
       setError('Klik "Kirim Kode OTP" terlebih dahulu untuk verifikasi penarikan.');
       return;
@@ -168,7 +168,7 @@ export default function WithdrawPage() {
     setLoading(true);
     setError('');
 
-    // Backend WithdrawRequest menerima { amount, otp } — rekening tujuan
+    // Backend WithdrawRequest menerima { amount, otp } . rekening tujuan
     // memakai rekening tersimpan (mengubahnya butuh OTP).
     const res = await fetchAPI('/wallet/withdraw', {
       method: 'POST',
@@ -177,7 +177,7 @@ export default function WithdrawPage() {
 
     if (res.success) {
       // Jumlahnya ikut karena itu dimensi produk yang sah; nomor rekening
-      // TIDAK — lihat daftar terlarang di lib/analytics.ts (§12.1).
+      // TIDAK . lihat daftar terlarang di lib/analytics.ts (§12.1).
       track('partner_withdrawal_submitted', { amount: numAmount });
       setSuccess(true);
     } else {
@@ -222,7 +222,7 @@ export default function WithdrawPage() {
               ? `Dana akan masuk ke rekening kamu dalam ${platformConfig.profile.withdrawal_sla}.`
               : 'Dana akan masuk ke rekening kamu setelah pengajuan disetujui.'}
           </p>
-          {/* replace: layar sukses ini transien — back dari dompet tidak boleh
+          {/* replace: layar sukses ini transien . back dari dompet tidak boleh
               memantulkan pengguna kembali ke "Penarikan Berhasil" yang basi. */}
           <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded-md" onClick={() => router.replace('/mitra/wallet')}>
             Kembali ke Dompet
@@ -248,7 +248,7 @@ export default function WithdrawPage() {
           <p className="text-2xl font-bold">{formatPrice(walletBalance)}</p>
         </div>
 
-        {/* Server menolak penarikan tanpa nomor terverifikasi — nomor itu juga
+        {/* Server menolak penarikan tanpa nomor terverifikasi . nomor itu juga
             penjaga OTP saat mengganti rekening. Munculkan sebelum user mengisi
             nominal, bukan sebagai error di ujung. */}
         {user && !user.profile_complete && (
@@ -289,7 +289,7 @@ export default function WithdrawPage() {
             <p className="text-xs text-brand-gray-450 mt-2 flex items-center gap-1 mb-4">
               <AlertCircle className="w-3.5 h-3.5" /> Minimal {formatPrice(platformConfig.min_transaction)}
             </p>
-            
+
             <div className="border-t border-brand-gray-100 pt-3 space-y-2">
               <div className="flex justify-between text-sm text-brand-gray-700">
                 <span>Biaya Admin</span>
@@ -305,15 +305,15 @@ export default function WithdrawPage() {
           <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-bold text-brand-gray-900">Rekening Tujuan</h3>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => router.push('/mitra/bank-account')}
                 className="text-sm font-semibold text-brand-red hover:underline"
               >
                 Ubah Rekening
               </button>
             </div>
-            
+
             {savedBank ? (
               <div className="bg-brand-gray-60 border border-brand-gray-100 p-4 rounded-lg">
                 <div className="flex items-start justify-between">
@@ -330,7 +330,7 @@ export default function WithdrawPage() {
             ) : (
               <div className="bg-brand-error-soft border border-brand-error-border p-4 rounded-lg text-center">
                 <p className="text-sm text-brand-error font-medium mb-2">Rekening belum ditambahkan.</p>
-                <Button 
+                <Button
                   type="button"
                   variant="outline"
                   onClick={() => router.push('/mitra/bank-account')}

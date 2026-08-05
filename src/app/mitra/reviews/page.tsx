@@ -17,7 +17,7 @@ import type { PartnerReview, ReviewSummary } from '@/hooks/usePartnerProfile';
 import { formatDistanceToNow } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 
-// Batas balas 7 hari sejak ulasan dibuat — ditegakkan backend
+// Batas balas 7 hari sejak ulasan dibuat . ditegakkan backend
 // (reviews/service.go: RESPONSE_DEADLINE_PASSED). Dicerminkan di UI agar mitra
 // tidak mengetik balasan panjang lalu ditolak.
 const RESPONSE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -54,10 +54,10 @@ export default function MitraReviewsPage() {
   const [sending, setSending] = useState<string | null>(null);
 
   // React Query, bukan useEffect+setState: selain sesuai konvensi repo, ini juga
-  // memberi `dataUpdatedAt` — stempel waktu murni untuk menghitung sisa jendela
+  // memberi `dataUpdatedAt` . stempel waktu murni untuk menghitung sisa jendela
   // balas tanpa memanggil Date.now() saat render.
   // Paginasi, bukan potongan 50 pertama (P1-07): mitra dengan ulasan lebih
-  // banyak dari itu tidak akan pernah bisa melihat — apalagi membalas — yang lama.
+  // banyak dari itu tidak akan pernah bisa melihat . apalagi membalas . yang lama.
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(1);
 
@@ -81,7 +81,7 @@ export default function MitraReviewsPage() {
   const reviews = Array.isArray(data?.reviews) ? data.reviews : [];
   const summary = data?.summary ?? null;
   // summary.total_reviews dihitung server atas SELURUH ulasan, jadi jumlah
-  // halaman di sini jujur — bukan tebakan dari panjang array.
+  // halaman di sini jujur . bukan tebakan dari panjang array.
   const totalPages = summary ? Math.max(1, Math.ceil(summary.total_reviews / PAGE_SIZE)) : 1;
 
   const handleReply = async (reviewId: string) => {
@@ -135,11 +135,10 @@ export default function MitraReviewsPage() {
                     {[1, 2, 3, 4, 5].map((s) => (
                       <Star
                         key={s}
-                        className={`w-3.5 h-3.5 ${
-                          s <= Math.round(summary.avg_rating)
+                        className={`w-3.5 h-3.5 ${s <= Math.round(summary.avg_rating)
                             ? 'fill-brand-warning text-brand-warning'
                             : 'fill-brand-gray-100 text-brand-gray-100'
-                        }`}
+                          }`}
                       />
                     ))}
                   </div>
@@ -147,7 +146,7 @@ export default function MitraReviewsPage() {
                 <div className="text-sm text-brand-gray-700">
                   <p className="font-semibold text-brand-gray-900">{summary.total_reviews} ulasan</p>
                   <p className="text-xs text-brand-gray-450 mt-0.5">
-                    Balas ulasan dalam 7 hari — balasan tampil di profil publik Anda.
+                    Balas ulasan dalam 7 hari . balasan tampil di profil publik Anda.
                   </p>
                 </div>
               </div>
@@ -201,11 +200,10 @@ export default function MitraReviewsPage() {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 ${
-                                  i < review.rating
+                                className={`w-3 h-3 ${i < review.rating
                                     ? 'fill-brand-warning text-brand-warning'
                                     : 'fill-brand-gray-100 text-brand-gray-100'
-                                }`}
+                                  }`}
                               />
                             ))}
                           </div>
@@ -286,7 +284,7 @@ export default function MitraReviewsPage() {
                             </p>
                           )}
 
-                          {/* Melapor tidak menghapus ulasan — tim moderasi yang
+                          {/* Melapor tidak menghapus ulasan . tim moderasi yang
                               memutuskan. Dikatakan di sini agar mitra tidak
                               mengira ulasannya akan hilang otomatis. */}
                           <div className="mt-3 border-t border-brand-gray-100 pt-2">

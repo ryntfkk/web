@@ -5,7 +5,7 @@ import { silentRefresh, fetchAPI } from '@/lib/api';
 import { useAuthStore, User } from '@/lib/store/authStore';
 
 /**
- * AuthProvider — runs ONCE on app start to attempt a silent token refresh
+ * AuthProvider . runs ONCE on app start to attempt a silent token refresh
  * using the HttpOnly refresh_token cookie set by the backend.
  *
  * Flow:
@@ -25,7 +25,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const finishInitialization = useAuthStore((s) => s.finishInitialization);
 
   useEffect(() => {
-    // Strict Mode in dev fires effects twice — guard with a ref
+    // Strict Mode in dev fires effects twice . guard with a ref
     if (ran.current) return;
     ran.current = true;
 
@@ -67,7 +67,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     init();
   }, [finishInitialization, login, logout]);
 
-  // Don't block rendering — children handle their own loading states.
+  // Don't block rendering . children handle their own loading states.
   // The `isInitializing` flag is available in the store for any component
   // that wants to show a full-screen spinner during the initial check.
   return <>{children}</>;

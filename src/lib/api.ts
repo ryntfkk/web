@@ -92,7 +92,7 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
 }
 
 /**
- * P1-12 — SATU tempat yang memahami envelope.
+ * P1-12 . SATU tempat yang memahami envelope.
  *
  * Backend membungkus setiap respons dengan `{success, message, data, meta}`.
  * Kalau suatu endpoint keliru membungkusnya DUA kali, dulu tiap halaman
@@ -100,11 +100,11 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
  * dan tambalan itu menyembunyikan penyimpangan kontrak alih-alih memperbaikinya.
  *
  * Sekarang koreksinya terjadi sekali, di sini, dan berisik saat development
- * supaya penyimpangannya ketahuan — bukan diam-diam dirapikan selamanya.
+ * supaya penyimpangannya ketahuan . bukan diam-diam dirapikan selamanya.
  *
  * Yang TIDAK dianggap pembungkus ganda: payload yang memang punya field `data`
  * sebagai bagian isinya (mis. `{data: [...], summary: {...}}` pada riwayat
- * dompet). Membuka paksa payload seperti itu akan MEMBUANG field saudaranya —
+ * dompet). Membuka paksa payload seperti itu akan MEMBUANG field saudaranya .
  * persis kegagalan diam-diam yang dihindari di sini.
  */
 function normalizeEnvelope<T>(res: ApiResponse<T>): void {
@@ -119,7 +119,7 @@ function normalizeEnvelope<T>(res: ApiResponse<T>): void {
   if (process.env.NODE_ENV !== 'production') {
     console.warn(
       '[api] respons terbungkus dua kali dan dirapikan di batas API. ' +
-        'Perbaiki handler backend-nya, jangan menambal di halaman.',
+      'Perbaiki handler backend-nya, jangan menambal di halaman.',
       Object.keys(obj),
     );
   }
@@ -174,14 +174,14 @@ export async function fetchAPI<T>(
         return parseResponse<T>(retryResponse);
       }
 
-      // Refresh failed — clear auth state so the UI reacts
+      // Refresh failed . clear auth state so the UI reacts
       useAuthStore.getState().logout();
     }
 
     return parseResponse<T>(response);
   } catch (error) {
     console.error(`API Error on ${endpoint}:`, error);
-    // M1: set `message` JUGA (bukan hanya `error`) — banyak komponen membaca
+    // M1: set `message` JUGA (bukan hanya `error`) . banyak komponen membaca
     // `res.message` langsung; tanpa ini mereka menampilkan pesan kosong saat
     // server mati / internet putus. Pesan ramah-pengguna (Bahasa Indonesia).
     return {
@@ -203,7 +203,7 @@ export async function apiFetchRaw(
 ): Promise<Response> {
   const accessToken = useAuthStore.getState().accessToken;
   const headers = new Headers(options.headers);
-  
+
   if (!headers.has('X-Platform')) headers.set('X-Platform', 'web');
   if (!headers.has('X-App-Version')) headers.set('X-App-Version', '1.0.0');
 

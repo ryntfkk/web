@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchAPI } from '@/lib/api';
 
-// Daftar kota yang punya mitra approved — mengisi dropdown filter kota.
+// Daftar kota yang punya mitra approved . mengisi dropdown filter kota.
 export function useCities() {
   return useQuery({
     queryKey: ['partner-cities'],

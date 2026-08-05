@@ -44,7 +44,7 @@ async function getCategory(slug: string): Promise<Category | null> {
 /**
  * Ambil PAGE_SIZE+1 layanan: kelebihan satu baris dipakai HANYA untuk tahu masih
  * ada sisa, tidak dirender. Tanpa ini judul & meta description menyebut angka
- * pasti ("24 layanan") padahal itu cuma batas halaman — klaim yang salah di SERP.
+ * pasti ("24 layanan") padahal itu cuma batas halaman . klaim yang salah di SERP.
  */
 async function getServices(categoryId: string) {
   const rows = (await getJSON<PublicService[]>(`/services?category=${categoryId}&limit=${PAGE_SIZE + 1}&offset=0`)) ?? [];
@@ -156,7 +156,7 @@ export default async function CategoryPage({ params }: PageProps) {
       <JsonLd data={breadcrumbSchema} />
       {serviceList.length > 0 && <JsonLd data={itemListSchema} />}
       <JsonLd data={faqJsonLd(faq)} />
-      {/* titleAs="p": H1 halaman ada di bawah — header ini hanya navigasi. */}
+      {/* titleAs="p": H1 halaman ada di bawah . header ini hanya navigasi. */}
       <MobilePageHeader
         title={cat.name}
         titleAs="p"
@@ -167,7 +167,7 @@ export default async function CategoryPage({ params }: PageProps) {
       <div className="container mx-auto max-w-[1200px] w-full px-3 sm:px-4 lg:px-6 py-3 sm:py-5 lg:py-6">
         <Breadcrumbs crumbs={crumbs} />
 
-        {/* Judul halaman — dirapatkan di mobile, tetap lega di desktop. */}
+        {/* Judul halaman . dirapatkan di mobile, tetap lega di desktop. */}
         <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-5">
           <div className="w-10 h-10 sm:w-12 sm:h-12 relative rounded-xl overflow-hidden bg-brand-gray-50 border border-brand-gray-100 shrink-0">
             <Image src={cat.icon_url || '/icons/default.svg'} alt={cat.name} fill className="object-cover" sizes="48px" />
@@ -220,7 +220,7 @@ export default async function CategoryPage({ params }: PageProps) {
           </div>
 
           <aside className="mt-5 lg:mt-0 lg:sticky lg:top-4 space-y-3 sm:space-y-4">
-            {/* Intro unik (anti thin-content) — di desktop mengisi kolom samping,
+            {/* Intro unik (anti thin-content) . di desktop mengisi kolom samping,
                 di mobile turun ke bawah daftar supaya kartu tampil lebih dulu. */}
             <AsideCard title={`Tentang jasa ${cat.name}`}>
               <p className="text-[12.5px] sm:text-[13px] leading-relaxed text-brand-gray-700">{intro}</p>

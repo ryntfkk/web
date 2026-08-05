@@ -15,7 +15,7 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-/** Error boundary standar — pasang di root layout & flow kritis (booking, payment). */
+/** Error boundary standar . pasang di root layout & flow kritis (booking, payment). */
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
 

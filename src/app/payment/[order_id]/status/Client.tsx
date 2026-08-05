@@ -37,7 +37,7 @@ function mapStatus(
 
 // Status order yang HANYA mungkin tercapai setelah pembayaran masuk. Dipakai
 // sebagai sumber kebenaran kedua: bila webhook Midtrans sudah menyentuh order,
-// halaman ini tidak boleh mengatakan pembayaran belum terkonfirmasi — kontradiksi
+// halaman ini tidak boleh mengatakan pembayaran belum terkonfirmasi . kontradiksi
 // dengan /orders/{id} adalah yang paling membingungkan pelanggan.
 const PAID_ORDER_STATUSES = new Set([
   'PAID',
@@ -51,7 +51,7 @@ const PAID_ORDER_STATUSES = new Set([
 /** 'unpaid' = server memastikan belum lunas. 'error' = kami tidak tahu (gagal teknis). */
 type VerifyState = 'checking' | 'ok' | 'unpaid' | 'error';
 
-/** Bentuk minimal yang dibaca halaman ini — bukan DTO order/reconcile lengkap. */
+/** Bentuk minimal yang dibaca halaman ini . bukan DTO order/reconcile lengkap. */
 type ReconcileResult = { paid?: boolean };
 type OrderPaymentState = { status?: string; paid_at?: string };
 
@@ -68,7 +68,7 @@ export default function PaymentStatusClient() {
 
   const [countdown, setCountdown] = useState(5);
   // Verifikasi server sebelum mengklaim sukses. Query param dari redirect
-  // Midtrans bisa dimanipulasi/basi — sumber kebenaran adalah reconcile.
+  // Midtrans bisa dimanipulasi/basi . sumber kebenaran adalah reconcile.
   // Untuk pembayaran wallet (tanpa midtransTxId) hasilnya sudah sinkron
   // dari respons API, jadi langsung 'ok'.
   const needsVerify = status === 'success' && !!midtransTxId;
@@ -109,7 +109,7 @@ export default function PaymentStatusClient() {
   }, [isAuthorized, needsVerify, runVerify]);
 
   // "Cek Lagi" harus benar-benar mengecek ulang. Reload penuh hanya mengulang
-  // request yang sama sambil membuang state — bagi pelanggan tampak tidak terjadi
+  // request yang sama sambil membuang state . bagi pelanggan tampak tidak terjadi
   // apa-apa.
   const handleRecheck = async () => {
     if (rechecking) return;
@@ -129,7 +129,7 @@ export default function PaymentStatusClient() {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            // replace: halaman status transien — back dari detail pesanan
+            // replace: halaman status transien . back dari detail pesanan
             // tidak boleh kembali ke kartu "Pembayaran Berhasil" yang basi.
             router.replace(`/orders/${orderId}`);
             return 0;
@@ -180,7 +180,7 @@ export default function PaymentStatusClient() {
     );
   }
 
-  // Kami gagal memverifikasi (403/5xx/jaringan) — bukan berarti uangnya tidak
+  // Kami gagal memverifikasi (403/5xx/jaringan) . bukan berarti uangnya tidak
   // masuk. Katakan apa adanya: jangan menuduh pembayaran tertunda atas dasar
   // kegagalan teknis kami sendiri.
   if (status === 'success' && verify === 'error') {

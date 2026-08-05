@@ -15,7 +15,7 @@ import { useActiveLegalDocuments, recordLegalConsent } from '@/hooks/useLegalCon
 function RegisterContent() {
   const { sendOTP, verifyOTPAndRegister, loginWithGoogle, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
-  // Param mentah (bisa null) — disanitasi saat dipakai, mengikuti pola di /login.
+  // Param mentah (bisa null) . disanitasi saat dipakai, mengikuti pola di /login.
   const rawRedirect = useSearchParams().get('redirect');
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -31,7 +31,7 @@ function RegisterContent() {
 
   // Begitu akun jadi (atau memang sudah login), antar ke tujuan yang diminta.
   // Sebelumnya SELALU ke '/', jadi niat yang membawa orang ke sini hilang tepat
-  // saat ia berhasil mendaftar — pendaftar dari CTA "jadi mitra" mendarat di
+  // saat ia berhasil mendaftar . pendaftar dari CTA "jadi mitra" mendarat di
   // beranda tanpa tahu harus ke mana. safeRedirect menolak tujuan lintas-origin.
   useEffect(() => {
     if (isAuthenticated) {
@@ -64,7 +64,7 @@ function RegisterContent() {
     if (!agreed) return;
     const res = await verifyOTPAndRegister(phone, otp, username, name, password);
     // Dicatat setelah registrasi berhasil, saat token sudah ada. Kegagalan
-    // pencatatan tidak membatalkan registrasi — akunnya sudah jadi; gate
+    // pencatatan tidak membatalkan registrasi . akunnya sudah jadi; gate
     // /legal/pending yang akan menagih persetujuan di kunjungan berikutnya.
     if (res?.success && legalDocs?.length) {
       await recordLegalConsent(legalDocs, ['terms', 'privacy']);
@@ -144,7 +144,7 @@ function RegisterContent() {
 
               {/* Daftar via Google juga membuat akun, jadi jalur ini tidak
                   boleh lolos tanpa persetujuan. State `agreed` dipakai bersama
-                  dengan form HP di langkah 3 — sekali dicentang, berlaku untuk
+                  dengan form HP di langkah 3 . sekali dicentang, berlaku untuk
                   jalur mana pun yang dipakai pengguna. */}
               <LegalConsentCheckbox checked={agreed} onChange={setAgreed} id="legal-consent-google" />
 
@@ -286,7 +286,7 @@ function RegisterContent() {
                 >
                   {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Selesai & Daftar'}
                 </button>
-                
+
                 <button
                   type="button"
                   onClick={() => setStep(2)}
@@ -305,7 +305,7 @@ function RegisterContent() {
 }
 
 // useSearchParams menuntut batas Suspense agar halaman tetap bisa dirender
-// statis — pola yang sama dipakai /login.
+// statis . pola yang sama dipakai /login.
 export default function RegisterPage() {
   return (
     <Suspense

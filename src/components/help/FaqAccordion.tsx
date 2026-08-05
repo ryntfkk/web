@@ -21,7 +21,7 @@ export default function FaqAccordion({
   placeholder?: string;
   /**
    * Hasil ambil di server. Dipakai sebagai data awal supaya isi FAQ sudah ada
-   * di HTML pertama — tanpa ini halaman terkirim kosong dan baru terisi setelah
+   * di HTML pertama . tanpa ini halaman terkirim kosong dan baru terisi setelah
    * JS jalan, yang membuat isinya lemah untuk mesin pencari.
    */
   initialGroups?: FaqGroup[];

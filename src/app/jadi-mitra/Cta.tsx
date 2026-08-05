@@ -9,7 +9,7 @@ import { track } from '@/lib/analytics';
  * Pulau klien di halaman yang selebihnya dirender di server.
  *
  * Halaman /jadi-mitra sengaja Server Component supaya seluruh teksnya masuk
- * HTML pertama — itu inti janji halaman ini. Hanya dua hal yang butuh JS:
+ * HTML pertama . itu inti janji halaman ini. Hanya dua hal yang butuh JS:
  * mencatat kunjungan dan mencatat klik CTA. Keduanya dipisah ke sini agar sisa
  * halaman tetap nol JS.
  */
@@ -31,7 +31,7 @@ export function TrackLandingView() {
 }
 
 interface CtaDaftarProps {
-  /** Bagian halaman tempat tombol ini berada — dipakai membandingkan CTA mana yang bekerja. */
+  /** Bagian halaman tempat tombol ini berada . dipakai membandingkan CTA mana yang bekerja. */
   position: string;
   label?: string;
   variant?: 'primary' | 'outline';
@@ -47,7 +47,7 @@ interface CtaDaftarProps {
  */
 export function CtaDaftar({
   position,
-  label = 'Daftar Jadi Mitra — Gratis',
+  label = 'Daftar Jadi Mitra. Gratis',
   variant = 'primary',
   className = '',
 }: CtaDaftarProps) {

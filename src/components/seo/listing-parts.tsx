@@ -12,7 +12,7 @@ export interface Crumb {
 
 /**
  * Breadcrumb terlihat. Disembunyikan di mobile (sm:) karena di sana sudah ada
- * MobilePageHeader dengan tombol kembali — dua baris navigasi = boros ruang.
+ * MobilePageHeader dengan tombol kembali . dua baris navigasi = boros ruang.
  */
 export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   return (
@@ -91,7 +91,7 @@ const TRUST_POINTS = [
   { Icon: CalendarCheck, text: 'Pesan online, mitra datang sesuai jadwal Anda' },
 ];
 
-/** Blok kepercayaan — mengisi kolom samping desktop sekaligus sinyal E-E-A-T. */
+/** Blok kepercayaan . mengisi kolom samping desktop sekaligus sinyal E-E-A-T. */
 export function TrustBox() {
   return (
     <AsideCard title="Kenapa pesan di Posko Jasa">

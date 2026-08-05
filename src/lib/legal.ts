@@ -2,7 +2,7 @@ import { API_URL } from '@/lib/api';
 
 // Pengambil dokumen legal untuk Server Component.
 //
-// Sejak Fase 5, /terms & /privacy TIDAK lagi menyimpan teksnya di JSX — isinya
+// Sejak Fase 5, /terms & /privacy TIDAK lagi menyimpan teksnya di JSX . isinya
 // datang dari tabel legal_documents. Itu menutup duplikasi yang sebelumnya
 // memaksa setiap perubahan teks legal diterapkan di dua tempat, dan membuat
 // tanggal "Terakhir diperbarui" mustahil basi karena diambil dari effective_at.
@@ -42,7 +42,7 @@ export async function getLegalDocument(slug: LegalSlug): Promise<LegalDocument |
   }
 }
 
-/** "3 Agustus 2026" — untuk baris "Terakhir diperbarui". */
+/** "3 Agustus 2026" . untuk baris "Terakhir diperbarui". */
 export function formatEffectiveDate(iso: string): string {
   return new Date(iso).toLocaleDateString('id-ID', {
     day: 'numeric',

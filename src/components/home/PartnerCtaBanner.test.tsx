@@ -9,7 +9,7 @@ import PartnerCtaBanner from './PartnerCtaBanner';
  * Tautannya juga yang membawa otoritas dari halaman paling sering dibuka ke
  * halaman akuisisi mitra. Kalau href-nya salah ketik atau berubah jadi
  * /mitra/... (area ber-noindex yang memagari pengunjung anonim), banner tetap
- * TAMPAK baik-baik saja — yang hilang adalah tujuannya.
+ * TAMPAK baik-baik saja . yang hilang adalah tujuannya.
  */
 describe('PartnerCtaBanner', () => {
   it('menaut ke /jadi-mitra, bukan ke area /mitra yang tertutup', () => {

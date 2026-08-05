@@ -1,7 +1,7 @@
 import { setAnalyticsSink, type AnalyticsEvent, type AnalyticsProps } from './analytics';
 
 /**
- * Pemasangan penyedia analytics — sengaja VENDOR-NEUTRAL.
+ * Pemasangan penyedia analytics . sengaja VENDOR-NEUTRAL.
  *
  * Tidak ada SDK pihak ketiga yang dipasang, dan itu keputusan, bukan
  * kemalasan:
@@ -14,7 +14,7 @@ import { setAnalyticsSink, type AnalyticsEvent, type AnalyticsProps } from './an
  *   mengubah satu URL.
  *
  * Yang dikirim adalah POST JSON biasa ke endpoint yang ditentukan
- * `NEXT_PUBLIC_ANALYTICS_ENDPOINT`. Collector apa pun bisa menerimanya —
+ * `NEXT_PUBLIC_ANALYTICS_ENDPOINT`. Collector apa pun bisa menerimanya .
  * PostHog (`/capture`), Plausible, atau endpoint milik sendiri.
  *
  * **Tanpa env itu, tidak ada apa pun yang terkirim.** Itu keadaan default dan
@@ -31,7 +31,7 @@ const ENDPOINT = process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT;
  * (`booking_started` lalu pengguna menutup tab). `fetch` dibatalkan browser
  * saat navigasi; `sendBeacon` dijadwalkan browser untuk tetap dikirim.
  *
- * Mengembalikan false bila browser menolak — pemanggil di bawah lalu jatuh ke
+ * Mengembalikan false bila browser menolak . pemanggil di bawah lalu jatuh ke
  * `fetch` dengan `keepalive`.
  */
 function beacon(url: string, body: string): boolean {
@@ -49,7 +49,7 @@ function beacon(url: string, body: string): boolean {
 }
 
 /**
- * Dipanggil sekali dari provider aplikasi. Aman dipanggil berkali-kali —
+ * Dipanggil sekali dari provider aplikasi. Aman dipanggil berkali-kali .
  * memasang sink adalah operasi idempoten.
  */
 export function installAnalyticsSink(): void {
@@ -57,7 +57,7 @@ export function installAnalyticsSink(): void {
 
   setAnalyticsSink((event: AnalyticsEvent, props: AnalyticsProps) => {
     // Properti sudah disaring PII oleh `track()` sebelum sampai ke sini.
-    // Jangan menambahkan field baru di titik ini — apa pun yang ditambahkan
+    // Jangan menambahkan field baru di titik ini . apa pun yang ditambahkan
     // melewati penyaring itu.
     const body = JSON.stringify({
       event,
@@ -71,13 +71,13 @@ export function installAnalyticsSink(): void {
     if (beacon(ENDPOINT, body)) return;
 
     // Cadangan: keepalive membuat request tetap hidup melewati navigasi.
-    // Kegagalannya sengaja ditelan — telemetri tidak boleh memunculkan error
+    // Kegagalannya sengaja ditelan . telemetri tidak boleh memunculkan error
     // di console pengguna, apalagi menjatuhkan alur yang sedang berjalan.
     void fetch(ENDPOINT, {
       method: 'POST',
       body,
       keepalive: true,
       headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-    }).catch(() => {});
+    }).catch(() => { });
   });
 }

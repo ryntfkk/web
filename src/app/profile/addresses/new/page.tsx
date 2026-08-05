@@ -35,7 +35,7 @@ export default function NewAddressPage() {
     latitude: -6.200000,
     longitude: 106.816666,
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   // Koordinat awal hanya PUSAT peta (Jakarta); pin dianggap valid hanya setelah
@@ -102,8 +102,8 @@ export default function NewAddressPage() {
       <div className="max-w-lg mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Tambah Alamat Baru</h1>
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
-          
-          {/* Pin lokasi — koordinat harus cocok dengan alamat (dipakai untuk hitung jarak & ongkos ke basecamp mitra) */}
+
+          {/* Pin lokasi . koordinat harus cocok dengan alamat (dipakai untuk hitung jarak & ongkos ke basecamp mitra) */}
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Titik Lokasi (Pinpoint)</label>
             <p className="text-xs text-brand-gray-400 mb-2">Ketuk peta untuk menandai lokasi persis alamat ini.</p>
@@ -116,7 +116,7 @@ export default function NewAddressPage() {
             </div>
             <p className={`text-xs mt-1.5 flex items-center gap-1 ${pinSet ? 'text-brand-success' : 'text-brand-orange'}`}>
               <MapPin className="w-3.5 h-3.5" />
-              {pinSet ? 'Titik lokasi sudah ditandai.' : 'Titik lokasi belum ditandai — ketuk peta.'}
+              {pinSet ? 'Titik lokasi sudah ditandai.' : 'Titik lokasi belum ditandai . ketuk peta.'}
             </p>
           </div>
 

@@ -144,7 +144,7 @@ export default function CartPage() {
                   <ChevronRight className="w-4 h-4 text-brand-gray-450" />
                 </Link>
 
-                {/* Items — kartu horizontal yang sama dengan halaman booking */}
+                {/* Items . kartu horizontal yang sama dengan halaman booking */}
                 <div className="p-3 space-y-2">
                   {group.items.map((item) => (
                     <ServiceItemCard
@@ -192,7 +192,7 @@ export default function CartPage() {
 
       {/* Total + Checkout utama. BottomNav tidak tampil di /cart,
           jadi bar selalu berada di paling bawah layar (bottom-0).
-          Checkout tunggal hanya saat 1 mitra — pemesanan memang per mitra. */}
+          Checkout tunggal hanya saat 1 mitra . pemesanan memang per mitra. */}
       {items.length > 0 && (
         <StickyActionBar className="bottom-0">
           <div className="flex-1 min-w-0">

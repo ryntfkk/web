@@ -78,7 +78,7 @@ export default function MitraServicesPage() {
   };
 
   // Endpoint khusus availability (P0-01). PATCH /partners/me/services/:id
-  // menuntut payload layanan LENGKAP — mengirim `{is_active}` ke sana berarti
+  // menuntut payload layanan LENGKAP . mengirim `{is_active}` ke sana berarti
   // menimpa layanan dengan field kosong, dan `is_active` bahkan tidak ada di
   // DTO-nya sehingga toggle tidak pernah benar-benar bekerja.
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
@@ -168,7 +168,7 @@ export default function MitraServicesPage() {
                   <p className="font-bold text-brand-red">{formatPrice(s.price)}</p>
                 </div>
               </div>
-              
+
               {s.description && (
                 <p className="text-sm text-brand-gray-700 mb-3 line-clamp-2">{s.description}</p>
               )}
@@ -186,7 +186,7 @@ export default function MitraServicesPage() {
                     {togglingId === s.id ? 'Menyimpan…' : s.is_active ? 'Aktif' : 'Nonaktif'}
                   </span>
                 </label>
-                
+
                 <div className="flex items-center gap-1">
                   <Link href={`/mitra/services/${s.id}/edit`}>
                     <button className="p-2 text-brand-gray-450 hover:text-brand-red hover:bg-brand-error-soft rounded-md transition-colors" aria-label="Edit">

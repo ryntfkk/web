@@ -4,12 +4,12 @@ import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import LegalMarkdown from '@/components/legal/LegalMarkdown';
 import { getLegalDocument, formatEffectiveDate } from '@/lib/legal';
 
-// Isi dari tabel legal_documents — lihat catatan di app/terms/page.tsx.
+// Isi dari tabel legal_documents . lihat catatan di app/terms/page.tsx.
 export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Kebijakan Privasi',
-  description: 'Kebijakan Privasi POSKO Jasa — bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.',
+  description: 'Kebijakan Privasi POSKO Jasa . bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.',
   alternates: { canonical: 'https://poskojasa.com/privacy' },
 };
 

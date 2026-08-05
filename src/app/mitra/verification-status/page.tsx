@@ -32,7 +32,7 @@ export default function MitraVerificationStatusPage() {
     if (res.success && res.data) {
       // Backend mengirim enum lowercase: 'approved' | 'pending' | 'rejected'.
       // Petakan ke vocab UI (VERIFIED/PENDING/REJECTED) agar status tampil benar.
-      // F2: default fail-closed ke 'pending' (bukan 'approved') — lihat plan §2.
+      // F2: default fail-closed ke 'pending' (bukan 'approved') . lihat plan §2.
       const raw = String(res.data.verification_status || 'pending').toUpperCase();
       const mapped = raw === 'APPROVED' ? 'VERIFIED' : raw === 'REJECTED' ? 'REJECTED' : raw === 'PENDING' ? 'PENDING' : (raw as 'PENDING' | 'VERIFIED' | 'REJECTED');
       setStatus(mapped);
@@ -58,7 +58,7 @@ export default function MitraVerificationStatusPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-brand-gray-100 p-6 text-center shadow-sm">
-            
+
             {status === 'VERIFIED' && (
               <>
                 <div className="w-20 h-20 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-brand-success-light">
@@ -113,7 +113,7 @@ export default function MitraVerificationStatusPage() {
                 <p className="text-sm text-brand-gray-700 mb-6 leading-relaxed">
                   Maaf, dokumen yang Anda ajukan tidak memenuhi persyaratan kami. Silakan perbaiki dan unggah ulang dokumen Anda.
                 </p>
-                
+
                 {reason && (
                   <div className="bg-brand-error-soft rounded-lg p-4 text-left border border-brand-error-border mb-6">
                     <p className="text-xs font-bold text-brand-error uppercase tracking-wider mb-1">Alasan Penolakan:</p>

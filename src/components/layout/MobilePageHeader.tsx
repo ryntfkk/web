@@ -28,7 +28,7 @@ interface MobilePageHeaderProps {
   /**
    * Tag judul header. Default 'h1' karena di sebagian besar halaman inilah satu-
    * satunya judul. Halaman yang punya H1 sendiri di badan konten (mis. landing
-   * SEO /kategori & /jasa) WAJIB set 'p' — kalau tidak, HTML berisi dua H1 dan
+   * SEO /kategori & /jasa) WAJIB set 'p' . kalau tidak, HTML berisi dua H1 dan
    * Google mendapat dua judul yang bersaing pada satu halaman.
    */
   titleAs?: 'h1' | 'p';

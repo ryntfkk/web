@@ -32,7 +32,7 @@ export default function MitraProfilePage() {
   const fetchProfile = useCallback(async () => {
     const res = await fetchAPI<{ verification_status?: string }>('/partners/me');
     if (res.success && res.data) {
-      // F2: default fail-closed ke PENDING (bukan VERIFIED) — lihat plan §2.
+      // F2: default fail-closed ke PENDING (bukan VERIFIED) . lihat plan §2.
       // Backend enum lowercase; .toUpperCase() di render.
       setVerificationStatus(res.data.verification_status || 'pending');
     }
@@ -55,7 +55,7 @@ export default function MitraProfilePage() {
     const fileUrl = await uploadFile(file);
     if (fileUrl) {
       // /users/me, BUKAN /partners/me: avatar milik akun, dan
-      // partner.UpdateProfileRequest tidak punya field avatar_url sama sekali —
+      // partner.UpdateProfileRequest tidak punya field avatar_url sama sekali .
       // backend membalas sukses lalu membuangnya, sehingga foto hanya berubah di
       // layar sampai halaman dimuat ulang (P0-03). Sama dengan /profile/account.
       const res = await fetchAPI('/users/me', {
@@ -84,7 +84,7 @@ export default function MitraProfilePage() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-24">
-      {/* Header — hero premium */}
+      {/* Header . hero premium */}
       <div className="bg-gradient-to-br from-brand-red via-brand-red-accent to-brand-red text-white px-4 py-6 md:py-10 relative overflow-hidden shadow-md">
         {/* Decorative background shapes */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
@@ -111,11 +111,10 @@ export default function MitraProfilePage() {
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Mode Mitra
               </span>
               {verificationStatus !== null && (
-                <span className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${
-                  isVerified ? 'bg-brand-success-soft/90 backdrop-blur-sm text-brand-success-dark border-brand-success-light' :
-                  isPending ? 'bg-brand-orange-soft/90 backdrop-blur-sm text-brand-amber-dark border-brand-orange-light' :
-                  'bg-white/90 backdrop-blur-sm text-brand-error-dark border-brand-error-light'
-                }`}>
+                <span className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${isVerified ? 'bg-brand-success-soft/90 backdrop-blur-sm text-brand-success-dark border-brand-success-light' :
+                    isPending ? 'bg-brand-orange-soft/90 backdrop-blur-sm text-brand-amber-dark border-brand-orange-light' :
+                      'bg-white/90 backdrop-blur-sm text-brand-error-dark border-brand-error-light'
+                  }`}>
                   {isVerified && <CheckCircle className="w-3.5 h-3.5" />}
                   {isVerified ? 'Terverifikasi' : isPending ? 'Menunggu Verifikasi' : 'Ditolak'}
                 </span>
@@ -126,7 +125,7 @@ export default function MitraProfilePage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
-        {/* Ditaruh paling atas: yang belum terisi punya akibat langsung —
+        {/* Ditaruh paling atas: yang belum terisi punya akibat langsung .
             tanpa layanan aktif mitra tak muncul di pencarian sama sekali. */}
         <ProfileCompleteness />
 

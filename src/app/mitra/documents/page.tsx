@@ -20,13 +20,13 @@ interface PartnerDocument {
   // halaman ini setelah admin ubah tipe ke vendor. KTP & SELFIE_KTP tetap
   // lewat onboarding/resubmission saja.
   doc_type:
-    | 'SKCK'
-    | 'SKILL_CERTIFICATE'
-    | 'BUSINESS_LICENSE'
-    | 'OTHER'
-    | 'AKTA_PENDIRIAN'
-    | 'NPWP'
-    | 'NIB';
+  | 'SKCK'
+  | 'SKILL_CERTIFICATE'
+  | 'BUSINESS_LICENSE'
+  | 'OTHER'
+  | 'AKTA_PENDIRIAN'
+  | 'NPWP'
+  | 'NIB';
   file_url: string;
   document_number?: string | null;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED';
@@ -65,7 +65,7 @@ const STATUS_LABELS: Record<PartnerDocument['status'], string> = {
 /**
  * Masa berlaku dokumen (P2). Sebelumnya tanggalnya hanya dicetak sebagai teks
  * abu-abu, jadi dokumen yang tinggal seminggu lagi terlihat persis sama dengan
- * yang masih setahun — mitra baru sadar setelah verifikasinya gugur.
+ * yang masih setahun . mitra baru sadar setelah verifikasinya gugur.
  *
  * 30 hari dipakai sebagai ambang peringatan: cukup untuk mengurus perpanjangan
  * SKCK/izin tanpa membuat peringatan menyala sepanjang tahun.
@@ -105,7 +105,7 @@ export default function MitraDocumentsPage() {
 
   const fetchDocuments = useCallback(async () => {
     setLoading(true);
-    // Ambil partner_type sekaligus dengan dokumen — satu round-trip.
+    // Ambil partner_type sekaligus dengan dokumen . satu round-trip.
     const [docsRes, meRes] = await Promise.all([
       fetchAPI<PartnerDocument[]>('/partners/me/documents'),
       fetchAPI<{ partner_type?: string }>('/partners/me'),
@@ -312,15 +312,14 @@ export default function MitraDocumentsPage() {
                     }
                     return (
                       <p
-                        className={`mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
-                          exp.tone === 'expired'
+                        className={`mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${exp.tone === 'expired'
                             ? 'bg-brand-error-soft text-brand-error border border-brand-error-border'
                             : 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
-                        }`}
+                          }`}
                       >
                         <AlertTriangle className="w-3 h-3" />
                         {exp.tone === 'expired'
-                          ? `Kedaluwarsa ${formatDate(doc.expires_at!)} — perlu diperbarui`
+                          ? `Kedaluwarsa ${formatDate(doc.expires_at!)} . perlu diperbarui`
                           : `Akan kedaluwarsa ${exp.days} hari lagi (${formatDate(doc.expires_at!)})`}
                       </p>
                     );

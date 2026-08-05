@@ -30,7 +30,7 @@ interface MitraOrderDetail {
   order_number: string;
   status: OrderStatus;
   total_amount: number;
-  // Pendapatan mitra setelah potongan platform — bukan total_amount, yang
+  // Pendapatan mitra setelah potongan platform . bukan total_amount, yang
   // merupakan jumlah yang dibayar pelanggan.
   partner_amount?: number;
   platform_fee?: number;
@@ -58,7 +58,7 @@ interface MitraOrderDetail {
   service_lon?: number;
   notes?: string;
   photos?: string[];
-  // Snapshot persyaratan saat pesanan dibuat — apa yang DIJANJIKAN pelanggan.
+  // Snapshot persyaratan saat pesanan dibuat . apa yang DIJANJIKAN pelanggan.
   // Ini bukti bila di lokasi ternyata tidak tersedia; jangan dibaca ulang dari
   // layanan, karena mitra bisa mengubah persyaratannya setelah order jalan.
   requirements?: {
@@ -111,7 +111,7 @@ const ADDITIONAL_FEE_LABEL: Record<string, string> = {
   REJECTED: 'Ditolak pelanggan',
 };
 
-/** Hero per status, ditulis dari sudut pandang MITRA — apa yang terjadi dan
+/** Hero per status, ditulis dari sudut pandang MITRA . apa yang terjadi dan
  *  apa yang harus mitra lakukan sekarang. */
 const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> = {
   WAITING_CONFIRMATION: {
@@ -126,7 +126,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   },
   PAID: {
     tone: 'from-brand-info to-brand-info-dark',
-    title: 'Sudah dibayar — siap dikerjakan',
+    title: 'Sudah dibayar . siap dikerjakan',
     desc: 'Dana ditahan aman oleh Posko Jasa. Datang sesuai jadwal, lalu tekan "Mulai Kerjakan".',
   },
   IN_PROGRESS: {
@@ -297,7 +297,7 @@ export default function MitraOrderDetailClient() {
       if (action === 'dispute') setShowDisputeModal(false);
       await fetchOrder();
     } else {
-      // `code` dari backend, BUKAN pesan yang sudah diterjemahkan — pesan
+      // `code` dari backend, BUKAN pesan yang sudah diterjemahkan . pesan
       // berubah kapan saja, kode tidak, dan hanya kode yang bisa dikelompokkan.
       track('partner_order_action_failed', { action, order_id: orderId, code: res.code ?? null });
       showToast(getErrorMessage(res), 'error');
@@ -391,7 +391,7 @@ export default function MitraOrderDetailClient() {
 
   /* Aksi dipakai dua kali: bottom bar (mobile) & sidebar (desktop).
      Kolom, bukan baris: tiap status menyusun barisnya sendiri sehingga tombol
-     tidak pernah berebut ruang. Chat tidak diulang — sudah ada di kartu Pemesan. */
+     tidak pernah berebut ruang. Chat tidak diulang . sudah ada di kartu Pemesan. */
   const actions = (
     <>
       {status === 'WAITING_CONFIRMATION' && (
@@ -471,7 +471,7 @@ export default function MitraOrderDetailClient() {
     </>
   );
 
-  /* Rincian pendapatan — kartu terpenting bagi mitra, jadi ia yang sticky
+  /* Rincian pendapatan . kartu terpenting bagi mitra, jadi ia yang sticky
      di kolom kanan pada desktop. */
   const earningsCard = (
     <Section title="Rincian Pendapatan" icon={Wallet}>
@@ -513,7 +513,7 @@ export default function MitraOrderDetailClient() {
       {order.partner_amount_estimated && (
         <p className="mt-1.5 text-xs text-brand-gray-450 flex items-start gap-1">
           <Clock className="w-3 h-3 mt-0.5 shrink-0" />
-          Angka estimasi — dikonfirmasi saat pesanan selesai.
+          Angka estimasi . dikonfirmasi saat pesanan selesai.
         </p>
       )}
     </Section>
@@ -618,8 +618,8 @@ export default function MitraOrderDetailClient() {
                 <span className="text-white/70">
                   {' '}· dibatalkan oleh {
                     order.cancelled_by === 'PARTNER' ? 'kamu'
-                    : order.cancelled_by === 'CUSTOMER' ? 'pelanggan'
-                    : 'sistem'
+                      : order.cancelled_by === 'CUSTOMER' ? 'pelanggan'
+                        : 'sistem'
                   }
                 </span>
               )}
@@ -639,11 +639,10 @@ export default function MitraOrderDetailClient() {
                     {i > 0 && (
                       <div className={`absolute top-[11px] right-1/2 w-full h-0.5 ${i <= step ? 'bg-brand-success' : 'bg-brand-gray-100'}`} aria-hidden />
                     )}
-                    <div className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${
-                      done ? 'bg-brand-success border-brand-success text-white'
-                      : active ? 'bg-white border-brand-red text-brand-red'
-                      : 'bg-white border-brand-gray-100 text-brand-gray-450'
-                    }`}>
+                    <div className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${done ? 'bg-brand-success border-brand-success text-white'
+                        : active ? 'bg-white border-brand-red text-brand-red'
+                          : 'bg-white border-brand-gray-100 text-brand-gray-450'
+                      }`}>
                       {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-brand-red animate-pulse' : 'bg-brand-gray-100'}`} />}
                     </div>
                     <span className={`mt-1.5 text-[10px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-brand-gray-900' : done ? 'text-brand-gray-700' : 'text-brand-gray-450'}`}>
@@ -717,13 +716,13 @@ export default function MitraOrderDetailClient() {
                 {/* Peta koordinat alamat pelanggan (snapshot saat order dibuat). */}
                 {typeof order.service_lat === 'number' && typeof order.service_lon === 'number' &&
                   !(order.service_lat === 0 && order.service_lon === 0) && (
-                  <MapView
-                    lat={order.service_lat}
-                    lng={order.service_lon}
-                    label={order.service_address}
-                    className="h-48"
-                  />
-                )}
+                    <MapView
+                      lat={order.service_lat}
+                      lng={order.service_lon}
+                      label={order.service_address}
+                      className="h-48"
+                    />
+                  )}
               </div>
 
               {(order.requirements?.length ?? 0) > 0 && (
@@ -735,11 +734,10 @@ export default function MitraOrderDetailClient() {
                     {order.requirements!.map((r, i) => (
                       <li key={r.code || `req-${i}`} className="flex items-start gap-2">
                         <span
-                          className={`mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
-                            r.is_mandatory
+                          className={`mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
                               ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                               : 'bg-brand-gray-60 text-brand-gray-450'
-                          }`}
+                            }`}
                         >
                           {r.is_mandatory ? 'Wajib' : 'Disarankan'}
                         </span>
@@ -822,10 +820,9 @@ export default function MitraOrderDetailClient() {
                   {order.additional_fees.map(fee => (
                     <div key={fee.id} className="flex justify-between gap-3 text-sm">
                       <div className="min-w-0">
-                        <p className={`font-medium truncate ${
-                          fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
-                          : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
-                        }`}>
+                        <p className={`font-medium truncate ${fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
+                            : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
+                          }`}>
                           {fee.item_name}
                           <span className="ml-1 text-xs font-normal">({fee.quantity}× {formatPrice(fee.price)})</span>
                         </p>
@@ -833,10 +830,9 @@ export default function MitraOrderDetailClient() {
                           {fee.type === 'material' ? 'Material' : 'Jasa'} · {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
                         </p>
                       </div>
-                      <span className={`font-medium shrink-0 ${
-                        fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
-                        : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
-                      }`}>
+                      <span className={`font-medium shrink-0 ${fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
+                          : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
+                        }`}>
                         + {formatPrice(fee.total)}
                       </span>
                     </div>
@@ -850,7 +846,7 @@ export default function MitraOrderDetailClient() {
               </Section>
             )}
 
-            {/* Yang dibayar pelanggan — konteks, bukan pendapatan mitra */}
+            {/* Yang dibayar pelanggan . konteks, bukan pendapatan mitra */}
             <Section title="Yang Dibayar Pelanggan" icon={Wallet}>
               <div className="space-y-1.5 text-sm">
                 {order.total_service_price !== undefined && (
@@ -1053,7 +1049,7 @@ export default function MitraOrderDetailClient() {
         </div>
       )}
 
-      {/* Modal Konfirmasi Selesai — mitra harus beratestasi sebelum complete */}
+      {/* Modal Konfirmasi Selesai . mitra harus beratestasi sebelum complete */}
       {showCompleteModal && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center">
           <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-lg p-6">

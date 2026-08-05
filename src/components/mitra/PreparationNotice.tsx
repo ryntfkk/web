@@ -8,7 +8,7 @@ import { ClipboardCheck } from 'lucide-react';
  * yang belum disetujui (P1-10).
  *
  * Tanpa ini, mitra menyiapkan etalasenya lalu bingung kenapa tidak ada yang
- * memesan — layanannya memang belum tampil publik. Menjelaskannya di tempat ia
+ * memesan . layanannya memang belum tampil publik. Menjelaskannya di tempat ia
  * bekerja lebih jujur daripada membiarkannya menebak.
  */
 export default function PreparationNotice({ status }: { status: 'PENDING' | 'REJECTED' }) {
@@ -16,11 +16,10 @@ export default function PreparationNotice({ status }: { status: 'PENDING' | 'REJ
   return (
     <div className="mx-auto max-w-lg px-4 pt-4">
       <div
-        className={`flex items-start gap-2.5 rounded-lg border p-3 ${
-          rejected
+        className={`flex items-start gap-2.5 rounded-lg border p-3 ${rejected
             ? 'border-brand-error-border bg-brand-error-soft'
             : 'border-brand-warning-border bg-brand-warning-soft'
-        }`}
+          }`}
       >
         <ClipboardCheck
           className={`mt-0.5 h-4 w-4 shrink-0 ${rejected ? 'text-brand-red' : 'text-brand-warning-dark'}`}

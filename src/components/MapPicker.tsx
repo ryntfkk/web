@@ -41,7 +41,7 @@ function loadGoogleMaps(): Promise<void> {
     document.head.appendChild(script);
   });
 
-  // Jangan cache promise yang gagal — supaya bisa retry saat mount berikutnya.
+  // Jangan cache promise yang gagal . supaya bisa retry saat mount berikutnya.
   mapsPromise = p;
   p.catch(() => { if (mapsPromise === p) mapsPromise = null; });
   return p;

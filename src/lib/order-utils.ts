@@ -6,7 +6,7 @@
 /** Ambil payload dari envelope API, apapun tingkat nesting-nya. */
 // CATATAN (P1-12): `unwrapData` DIHAPUS.
 //
-// Fungsi itu menebak — "kalau ada field `data`, buka" — dan tebakannya
+// Fungsi itu menebak . "kalau ada field `data`, buka" . dan tebakannya
 // membuang field saudara pada payload yang memang berisi `data`
 // (mis. riwayat dompet `{data, summary}`). Pembungkusan ganda kini dirapikan
 // sekali di batas API (`lib/api.ts`, normalizeEnvelope) dan berisik saat

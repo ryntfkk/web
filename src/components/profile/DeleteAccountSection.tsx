@@ -10,11 +10,11 @@ import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
 import { useAuthStore } from '@/lib/store/authStore';
 
-// Jalur hapus akun untuk pengguna sendiri — syarat Google Play.
+// Jalur hapus akun untuk pengguna sendiri . syarat Google Play.
 //
 // Sengaja seringkas mungkin: satu tombol, satu dialog, satu panggilan API.
 // Yang TIDAK boleh dipangkas adalah keterangan "yang dihapus vs yang tetap
-// disimpan" — Play mewajibkan aplikasi menyatakan data mana yang benar-benar
+// disimpan" . Play mewajibkan aplikasi menyatakan data mana yang benar-benar
 // hilang dan mana yang ditahan, dan itu juga yang membuat Kebijakan Privasi
 // kita tidak berbohong.
 export default function DeleteAccountSection() {
@@ -66,7 +66,7 @@ export default function DeleteAccountSection() {
             </p>
             <p>
               <span className="font-semibold text-brand-gray-900">Tetap disimpan:</span>{' '}
-              riwayat pesanan, ulasan, dan dokumen verifikasi — untuk penyelesaian
+              riwayat pesanan, ulasan, dan dokumen verifikasi . untuk penyelesaian
               sengketa dan kewajiban pajak.{' '}
               <Link href="/privacy" className="text-brand-red font-medium hover:underline">
                 Selengkapnya

@@ -5,7 +5,7 @@ import type { ChatRoom } from '@/components/chat/ChatRoomList';
 
 /**
  * Daftar room chat via React Query dengan key ['chat-rooms'].
- * PENTING: key ini di-invalidate oleh ChatProvider saat pesan WS masuk —
+ * PENTING: key ini di-invalidate oleh ChatProvider saat pesan WS masuk .
  * daftar & unread count ter-update realtime tanpa polling.
  */
 export function useChatRooms() {
@@ -25,7 +25,7 @@ export function useChatRooms() {
   });
 }
 
-/** Total pesan belum dibaca di semua room — untuk badge launcher chat. */
+/** Total pesan belum dibaca di semua room . untuk badge launcher chat. */
 export function useUnreadChatCount(): number {
   const { data } = useChatRooms();
   return (data ?? []).reduce((sum, r) => sum + (r.unread_count ?? 0), 0);

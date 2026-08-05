@@ -70,7 +70,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
     ],
   };
 
-  // SE: ItemList — membantu Google tahu ini daftar layanan terstruktur (eligible
+  // SE: ItemList . membantu Google tahu ini daftar layanan terstruktur (eligible
   // rich result). Pola sama dengan /kategori/[slug]. Batas 20 item (guideline
   // schema.org); URL canonical ke detail layanan.
   const itemListSchema = {

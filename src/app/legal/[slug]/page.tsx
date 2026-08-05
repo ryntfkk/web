@@ -16,14 +16,14 @@ const SITE = 'https://poskojasa.com';
  * Rute generik untuk dokumen legal yang TIDAK punya halaman khususnya sendiri.
  *
  * Latar: menerbitkan dokumen dari panel admin tidak otomatis membuat halamannya.
- * `cancellation` sempat terbit tanpa bisa dibaca siapa pun — `/cancellation`
+ * `cancellation` sempat terbit tanpa bisa dibaca siapa pun . `/cancellation`
  * malah tertangkap rute `[username]` dan merender "Mitra Tidak Ditemukan"
  * dengan status 200. Rute ini menutup celah itu sekaligus untuk dokumen legal
  * berikutnya (mis. `partner-terms`), tanpa perlu menambah folder tiap kali.
  */
 
 // `privacy` & `terms` punya halaman kanoniknya sendiri dan dialihkan 308 di
-// next.config.ts — BUKAN di sini. Redirect dari dalam page terbukti tidak
+// next.config.ts . BUKAN di sini. Redirect dari dalam page terbukti tidak
 // tereksekusi pada deployment Amplify ini.
 
 // Slug yang dilayani rute ini = kunci META di bawah. Satu sumber, jadi
@@ -32,12 +32,12 @@ const META: Record<string, { title: string; description: string }> = {
   cancellation: {
     title: 'Kebijakan Pembatalan & Refund',
     description:
-      'Ketentuan pembatalan pesanan dan pengembalian dana di Posko Jasa — sebelum bayar, setelah bayar, dan bila mitra membatalkan.',
+      'Ketentuan pembatalan pesanan dan pengembalian dana di Posko Jasa . sebelum bayar, setelah bayar, dan bila mitra membatalkan.',
   },
   'partner-terms': {
     title: 'Syarat & Ketentuan Mitra',
     description:
-      'Ketentuan yang berlaku bagi mitra penyedia jasa di Posko Jasa — verifikasi, kewajiban, komisi, dan pencairan dana.',
+      'Ketentuan yang berlaku bagi mitra penyedia jasa di Posko Jasa . verifikasi, kewajiban, komisi, dan pencairan dana.',
   },
 };
 
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
 
   // `robots: noindex` di sini BUKAN hiasan: `notFound()` pada rute dinamis
-  // disajikan Amplify dengan status 200 (soft-404) — perilaku yang sama pada
+  // disajikan Amplify dengan status 200 (soft-404) . perilaku yang sama pada
   // /kategori, /services, dan /jasa. noindex-lah yang benar-benar mencegah
   // halaman kosong terindeks.
   const meta = META[slug];
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Dokumen tidak ditemukan', robots: { index: false, follow: false } };
   }
 
-  // Dokumen yang belum diterbitkan tidak boleh diindeks — halaman ini akan
+  // Dokumen yang belum diterbitkan tidak boleh diindeks . halaman ini akan
   // menjadi 404 di render, dan meminta Google mengindeksnya hanya menghasilkan
   // soft-404.
   const doc = await getLegalDocument(slug as LegalSlug);

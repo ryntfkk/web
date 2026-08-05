@@ -16,7 +16,7 @@ export interface User {
   /**
    * WAJIB, bukan opsional. Saat field ini opsional, guard `phone_verified === false`
    * diam-diam berubah jadi `undefined === false` setiap kali user dimuat dari
-   * /users/me (yang dulu tidak mengirimkannya) — penjaga yang lolos type-check
+   * /users/me (yang dulu tidak mengirimkannya) . penjaga yang lolos type-check
    * tapi tidak pernah menyala. Backend kini selalu mengirim keenam field ini.
    */
   phone_verified: boolean;
@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   accessToken: null,
   isAuthenticated: false,
-  isInitializing: true, // starts true — AuthProvider flips it after silent refresh
+  isInitializing: true, // starts true . AuthProvider flips it after silent refresh
   isAuthLoading: false,
 
   setAuthLoading: (loading) => set({ isAuthLoading: loading }),

@@ -31,7 +31,7 @@ async function getCategories(): Promise<Category[]> {
 // SE: metadata dinamis + canonical strategy. Bila query cocok dengan nama/slug
 // kategori yang ada, set canonical ke /kategori/[slug] (hindari duplikasi konten
 // dengan halaman kategori yang lebih SEO-optimized). Bila tidak cocok, canonical
-// ke /search?q=[query] sendiri (tangkap long-tail). TIDAK set noindex — biarkan
+// ke /search?q=[query] sendiri (tangkap long-tail). TIDAK set noindex . biarkan
 // indexable untuk kata kunci long-tail yang tidak punya halaman kategori sendiri.
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const params = await searchParams;
@@ -45,7 +45,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
       c.slug && (c.name.toLowerCase() === qLower || slugify(c.name) === slugify(query)),
   );
 
-  const title = `Cari "${query}" — Posko Jasa`;
+  const title = `Cari "${query}" . Posko Jasa`;
   const description = `Temukan jasa ${query} dari mitra terverifikasi di Posko Jasa. Pesan online, ulasan asli, harga transparan.`;
 
   if (matchedCat?.slug) {

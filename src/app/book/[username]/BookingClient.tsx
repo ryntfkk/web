@@ -74,7 +74,7 @@ interface Address {
 }
 
 export default function BookingClient() {
-  // useRequireAuth menunggu silent-refresh (isInitializing) sebelum memutuskan —
+  // useRequireAuth menunggu silent-refresh (isInitializing) sebelum memutuskan .
   // tanpa ini, isAuthenticated sesaat false saat reload dan user yang sudah login
   // terlempar ke /login. Redirect ditangani oleh hook.
   const { isAuthenticated, isInitializing, user } = useRequireAuth();
@@ -104,7 +104,7 @@ export default function BookingClient() {
   const [loading, setLoading] = useState(true);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
 
-  // Form State — model per-BARIS. Kunci baris = `${serviceId}::${variationId ?? ''}`.
+  // Form State . model per-BARIS. Kunci baris = `${serviceId}::${variationId ?? ''}`.
   // Layanan yang sama dengan variasi berbeda = dua baris terpisah (mendukung
   // keranjang yang memuat beberapa variasi dari satu layanan).
   const [selectedLines, setSelectedLines] = useState<Record<string, boolean>>({});
@@ -122,30 +122,30 @@ export default function BookingClient() {
   const [idempotencyKey, setIdempotencyKey] = useState<string>('');
   const [previewQuote, setPreviewQuote] = useState<any>(null);
   // Persetujuan persyaratan pelanggan (R2 §8.3). SATU checkbox untuk seluruh
-  // daftar — bukan satu per item: banyak checkbox menaikkan gesekan tanpa
+  // daftar . bukan satu per item: banyak checkbox menaikkan gesekan tanpa
   // menambah nilai sebagai bukti.
   //
   // Yang disimpan adalah KUNCI daftar yang disetujui, bukan boolean. Dengan
   // begitu persetujuan otomatis batal saat daftarnya berubah (mis. pelanggan
-  // menambah layanan lain), tanpa perlu useEffect yang mereset — pelanggan
+  // menambah layanan lain), tanpa perlu useEffect yang mereset . pelanggan
   // tidak bisa menyetujui daftar lama lalu memesan daftar baru.
   const [agreedRequirementsKey, setAgreedRequirementsKey] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [showAddressList, setShowAddressList] = useState(false);
   const [showCancelPolicy, setShowCancelPolicy] = useState(false);
-  
+
   // Slots State
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [slotsReason, setSlotsReason] = useState<string>('');
   const [slotsLoading, setSlotsLoading] = useState(false);
-  
+
   // Refs
   const preselectedRef = useRef(false);
   // Ditandai saat pelanggan menekan "Edit" alamat (buka tab baru). Saat tab
   // order kembali fokus, kita refresh alamat + preview agar koordinat & biaya
   // transport ikut ter-update tanpa perlu reload manual.
   const addressEditedRef = useRef(false);
-  const refreshOnReturnRef = useRef<() => void>(() => {});
+  const refreshOnReturnRef = useRef<() => void>(() => { });
 
   // ── Model baris (service_id + variation_id) ─────────────────────────────
   const KEY_SEP = '::';
@@ -212,7 +212,7 @@ export default function BookingClient() {
     setIdempotencyKey(uuid);
   }, [selectedLines, date, time, addressId, notes, photos.length, promoCode]);
 
-  // Diskon promo divalidasi terhadap subtotal — jika pilihan layanan
+  // Diskon promo divalidasi terhadap subtotal . jika pilihan layanan
   // berubah, diskon lama tidak lagi valid dan harus divalidasi ulang.
   useEffect(() => {
     setPromoDiscount(0);
@@ -232,7 +232,7 @@ export default function BookingClient() {
       preselectedRef.current = true;
 
       // Bangun baris pra-pilih. Variasi diterapkan HANYA bila id-nya valid pada
-      // daftar variasi terkini — id basi (mitra sudah mengedit layanan) dibiarkan
+      // daftar variasi terkini . id basi (mitra sudah mengedit layanan) dibiarkan
       // agar pelanggan memilih ulang di langkah 1 (cegah INVALID_VARIATION).
       const nextKeys: Record<string, boolean> = {};
       let needsPick = false;
@@ -431,7 +431,7 @@ export default function BookingClient() {
         photoUrls.push(presigned.file_url);
       }
 
-      // 2. Prepare JSON body — pakai idempotencyKey yang stabil selama
+      // 2. Prepare JSON body . pakai idempotencyKey yang stabil selama
       //    form tidak berubah, agar retry tidak membuat pesanan ganda.
       // Satu item order per BARIS terpilih. variation_id hanya dikirim bila valid
       // pada variasi terkini (cegah id basi memicu INVALID_VARIATION).
@@ -508,7 +508,7 @@ export default function BookingClient() {
 
   const fetchPreview = async (currentPromo?: string) => {
     if (!partner?.id || !addressId || !date || !time) return;
-    
+
     const items = activeKeys().map((k) => {
       const { serviceId } = parseKey(k);
       const v = variationOfKey(k);
@@ -521,8 +521,8 @@ export default function BookingClient() {
 
     setPreviewLoading(true);
     try {
-      // Jadwal mitra selalu dalam WIB. Kirim offset +07:00 eksplisit —
-      // sama persis dengan submitOrder — agar preview tidak bergeser
+      // Jadwal mitra selalu dalam WIB. Kirim offset +07:00 eksplisit .
+      // sama persis dengan submitOrder . agar preview tidak bergeser
       // untuk pengguna di zona waktu non-WIB (WITA/WIT/luar negeri).
       const payload = {
         partner_id: partner.id,
@@ -556,21 +556,21 @@ export default function BookingClient() {
   };
 
   // Debounce 400ms: perubahan cepat (mis. klik +/- kuantitas berkali-kali)
-  // tidak menembakkan /orders/preview per klik — hanya state akhir yang dihitung.
+  // tidak menembakkan /orders/preview per klik . hanya state akhir yang dihitung.
   useEffect(() => {
     if (step !== 2) return;
     const t = setTimeout(() => {
       fetchPreview(promoDiscount > 0 ? promoCode : undefined);
     }, 400);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, addressId, date, time, selectedLines, quantities]);
 
   const validatePromo = async () => {
     if (!promoCode) return;
     // fetchPreview mensyaratkan alamat + jadwal (butuh koordinat & waktu untuk
     // menghitung transport/diskon). Tanpa ini ia return diam-diam sehingga tombol
-    // "Gunakan" terkesan tidak berfungsi — beri pesan yang jelas.
+    // "Gunakan" terkesan tidak berfungsi . beri pesan yang jelas.
     if (!addressId || !date || !time) {
       setErrorMsg('Pilih alamat, tanggal, dan waktu terlebih dahulu sebelum memakai promo.');
       return;
@@ -612,7 +612,7 @@ export default function BookingClient() {
   const selectedAddress = addresses.find((a) => a.id === addressId);
   const selectedKeyList = activeKeys();
 
-  // Section Promo — dipakai di kolom kiri (mobile) & kolom kanan (desktop)
+  // Section Promo . dipakai di kolom kiri (mobile) & kolom kanan (desktop)
   const promoSection = (
     <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
       <div className="px-4 py-2.5 border-b border-brand-gray-100 flex items-center gap-2">
@@ -632,14 +632,14 @@ export default function BookingClient() {
         )}
         {promoCode && promoDiscount === 0 && (
           <p className="mt-2 text-xs text-brand-gray-450">
-            Kode promo belum diterapkan — klik &quot;Gunakan&quot; untuk memvalidasi dan menerapkannya.
+            Kode promo belum diterapkan . klik &quot;Gunakan&quot; untuk memvalidasi dan menerapkannya.
           </p>
         )}
       </div>
     </div>
   );
 
-  // Section Kebijakan Pembatalan — ditampilkan di step 2 sebelum submit
+  // Section Kebijakan Pembatalan . ditampilkan di step 2 sebelum submit
   const cancelPolicySection = (
     <div className="bg-white rounded-xl border border-brand-gray-100 overflow-hidden">
       <button
@@ -675,7 +675,7 @@ export default function BookingClient() {
             Biaya admin/layanan platform tidak dikembalikan pada pembatalan.{' '}
             {/* Ringkasan di atas adalah rangkuman; yang mengikat adalah dokumen
                 resminya. Sebelum ada /legal/[slug], tautan ini tidak mungkin
-                dibuat — dokumennya belum punya halaman. */}
+                dibuat . dokumennya belum punya halaman. */}
             <a
               href="/legal/cancellation"
               target="_blank"
@@ -709,7 +709,7 @@ export default function BookingClient() {
     .join('|');
   const agreeRequirements = requirementsKey !== '' && agreedRequirementsKey === requirementsKey;
 
-  // Section Persyaratan — ditampilkan di step 2 sebelum submit
+  // Section Persyaratan . ditampilkan di step 2 sebelum submit
   const requirementsSection = previewRequirements.length > 0 && (
     <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3">
       <div className="flex items-center gap-2">
@@ -720,11 +720,10 @@ export default function BookingClient() {
         {previewRequirements.map((r, i) => (
           <li key={r.code || `custom-${i}`} className="flex items-start gap-2">
             <span
-              className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                r.is_mandatory
+              className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
                   ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                   : 'bg-brand-gray-60 text-brand-gray-450'
-              }`}
+                }`}
             >
               {r.is_mandatory ? 'Wajib' : 'Disarankan'}
             </span>
@@ -754,7 +753,7 @@ export default function BookingClient() {
     </div>
   );
 
-  // Section Rincian Pembayaran — withAction=true menampilkan tombol submit (desktop)
+  // Section Rincian Pembayaran . withAction=true menampilkan tombol submit (desktop)
   const summarySection = (withAction: boolean) => (
     <div className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3 shadow-sm">
       <h3 className="text-sm font-bold text-brand-gray-900 border-b border-brand-gray-100 pb-2">Rincian Pembayaran</h3>
@@ -814,7 +813,7 @@ export default function BookingClient() {
           <div className="p-3 bg-brand-info-soft border border-brand-info-light rounded-lg flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-brand-info shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-brand-info-dark">Pembayaran 100% Aman — Escrow Posko Jasa</p>
+              <p className="text-xs font-semibold text-brand-info-dark">Pembayaran 100% Aman . Escrow Posko Jasa</p>
               <p className="text-[11px] text-brand-info mt-0.5 leading-snug">
                 Uangmu <strong>ditahan oleh Posko Jasa</strong>, bukan langsung ke mitra. Dana baru cair setelah kamu konfirmasi pekerjaan selesai.
               </p>
@@ -824,7 +823,7 @@ export default function BookingClient() {
           <div className="p-2.5 bg-brand-warning-soft border border-brand-warning-border rounded-lg flex items-center gap-2">
             <AlertTriangle className="w-3.5 h-3.5 text-brand-warning shrink-0" />
             <p className="text-[11px] text-brand-warning-dark">
-              Selalu bayar melalui platform. <strong>Jangan bayar cash/transfer langsung</strong> ke mitra — tidak ada perlindungan escrow.
+              Selalu bayar melalui platform. <strong>Jangan bayar cash/transfer langsung</strong> ke mitra . tidak ada perlindungan escrow.
             </p>
           </div>
           {errorMsg && (
@@ -872,7 +871,7 @@ export default function BookingClient() {
           <div className="space-y-4">
             {/* Syarat nomor terverifikasi dimunculkan DI SINI, bukan hanya saat
                 submit. Sebelumnya user Google baru tahu setelah mengisi alamat,
-                jadwal, foto, dan promo — titik yang paling mahal untuk gagal. */}
+                jadwal, foto, dan promo . titik yang paling mahal untuk gagal. */}
             {isAuthenticated && user && !user.profile_complete && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
                 <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
@@ -941,7 +940,7 @@ export default function BookingClient() {
                   );
                 }
 
-                // Layanan BERVARIASI: pilih satu ATAU LEBIH variasi — tiap chip
+                // Layanan BERVARIASI: pilih satu ATAU LEBIH variasi . tiap chip
                 // aktif jadi baris pesanan sendiri (bisa 2 variasi sekaligus).
                 const anyActive = vars.some((v) => selectedLines[lineKey(s.id, v.id)]);
                 return (
@@ -1013,7 +1012,7 @@ export default function BookingClient() {
                             </div>
                             <p className="text-xs text-brand-gray-700 leading-snug">{selectedAddress.address}</p>
                           </div>
-                          {/* Edit koordinat/alamat — buka di tab baru agar isian pesanan tidak hilang. */}
+                          {/* Edit koordinat/alamat . buka di tab baru agar isian pesanan tidak hilang. */}
                           <a
                             href={`/profile/addresses/edit/${selectedAddress.id}`}
                             target="_blank"
@@ -1026,7 +1025,7 @@ export default function BookingClient() {
                         </div>
                         {/* Peta verifikasi koordinat alamat yang dipilih. */}
                         {typeof selectedAddress.lat === 'number' && typeof selectedAddress.lon === 'number' &&
-                        !(selectedAddress.lat === 0 && selectedAddress.lon === 0) ? (
+                          !(selectedAddress.lat === 0 && selectedAddress.lon === 0) ? (
                           <>
                             <MapView
                               lat={selectedAddress.lat}
@@ -1036,7 +1035,7 @@ export default function BookingClient() {
                               linkLabel="Buka di Google Maps"
                             />
                             <p className="text-[11px] text-brand-gray-450 leading-snug">
-                              Pastikan pin sudah tepat di lokasi pengerjaan — biaya transport dihitung dari titik ini. Jika kurang tepat, tekan <span className="font-semibold text-brand-red">Edit</span> untuk memindahkan pin.
+                              Pastikan pin sudah tepat di lokasi pengerjaan . biaya transport dihitung dari titik ini. Jika kurang tepat, tekan <span className="font-semibold text-brand-red">Edit</span> untuk memindahkan pin.
                             </p>
                           </>
                         ) : (
@@ -1139,30 +1138,30 @@ export default function BookingClient() {
                     const qty = qtyOfKey(k);
                     const dur = serviceDuration(s) || 0;
                     return (
-                    <div key={k} className="flex items-center gap-3 px-3 sm:px-4 py-2.5">
-                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-brand-red-light shrink-0">
-                        {servicePhoto(s) ? (
-                          <Image src={servicePhoto(s)!} alt={s.name} fill className="object-cover" sizes="48px" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center"><Tag className="w-4 h-4 text-brand-gray-450" /></div>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-brand-gray-900 truncate">{s.name}</p>
-                        {v && <p className="text-xs text-brand-red truncate">{v.name}</p>}
-                        {dur ? <p className="text-xs text-brand-gray-450">± {dur * qty} menit</p> : null}
-                        {/* Stepper kuantitas (jumlah jam / unit / jasa / kg) */}
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <button type="button" aria-label="Kurangi" onClick={() => setQtyKey(k, qty - 1)} disabled={qty <= minOrderOfKey(k)}
-                            className="w-6 h-6 rounded border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:border-brand-red/50 disabled:opacity-40 disabled:cursor-not-allowed">−</button>
-                          <span className="text-xs font-semibold text-brand-gray-900 min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
-                          <button type="button" aria-label="Tambah" onClick={() => setQtyKey(k, qty + 1)} disabled={qty >= 100}
-                            className="w-6 h-6 rounded border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:border-brand-red/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
-                          {minOrderOfKey(k) > 1 && <span className="text-[10px] text-brand-gray-450">min {minOrderOfKey(k)}</span>}
+                      <div key={k} className="flex items-center gap-3 px-3 sm:px-4 py-2.5">
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-brand-red-light shrink-0">
+                          {servicePhoto(s) ? (
+                            <Image src={servicePhoto(s)!} alt={s.name} fill className="object-cover" sizes="48px" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center"><Tag className="w-4 h-4 text-brand-gray-450" /></div>
+                          )}
                         </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-brand-gray-900 truncate">{s.name}</p>
+                          {v && <p className="text-xs text-brand-red truncate">{v.name}</p>}
+                          {dur ? <p className="text-xs text-brand-gray-450">± {dur * qty} menit</p> : null}
+                          {/* Stepper kuantitas (jumlah jam / unit / jasa / kg) */}
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <button type="button" aria-label="Kurangi" onClick={() => setQtyKey(k, qty - 1)} disabled={qty <= minOrderOfKey(k)}
+                              className="w-6 h-6 rounded border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:border-brand-red/50 disabled:opacity-40 disabled:cursor-not-allowed">−</button>
+                            <span className="text-xs font-semibold text-brand-gray-900 min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
+                            <button type="button" aria-label="Tambah" onClick={() => setQtyKey(k, qty + 1)} disabled={qty >= 100}
+                              className="w-6 h-6 rounded border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:border-brand-red/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
+                            {minOrderOfKey(k) > 1 && <span className="text-[10px] text-brand-gray-450">min {minOrderOfKey(k)}</span>}
+                          </div>
+                        </div>
+                        <p className="text-sm font-bold text-brand-gray-900 shrink-0">{formatPrice(unitPriceOfKey(k) * qty)}</p>
                       </div>
-                      <p className="text-sm font-bold text-brand-gray-900 shrink-0">{formatPrice(unitPriceOfKey(k) * qty)}</p>
-                    </div>
                     );
                   })}
                 </div>

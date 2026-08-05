@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import {
-  Clock, Package, CheckCircle, XCircle, AlertTriangle, 
+  Clock, Package, CheckCircle, XCircle, AlertTriangle,
   CreditCard, Wrench, HelpCircle, DollarSign
 } from 'lucide-react';
 
@@ -24,7 +24,7 @@ interface StatusConfig {
   icon: React.ElementType;
 }
 
-// Semua warna status memakai token brand (globals.css @theme) — dilarang hex/class liar.
+// Semua warna status memakai token brand (globals.css @theme) . dilarang hex/class liar.
 const STATUS_MAP: Record<OrderStatus, StatusConfig> = {
   WAITING_CONFIRMATION: {
     label: 'Menunggu Konfirmasi',

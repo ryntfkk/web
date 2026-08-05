@@ -26,7 +26,7 @@ export function PageSkeleton({ className }: { className?: string }) {
   );
 }
 
-/** Skeleton kartu layanan — bentuk mengikuti ServiceCard vertikal. */
+/** Skeleton kartu layanan . bentuk mengikuti ServiceCard vertikal. */
 export function ServiceCardSkeleton() {
   return (
     <div className="rounded-lg border border-brand-gray-100 bg-white overflow-hidden">
@@ -41,7 +41,7 @@ export function ServiceCardSkeleton() {
   );
 }
 
-/** Grid skeleton kartu layanan — jumlah & kolom mengikuti grid listing standar. */
+/** Grid skeleton kartu layanan . jumlah & kolom mengikuti grid listing standar. */
 export function ServiceGridSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">

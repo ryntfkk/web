@@ -6,12 +6,12 @@ import { formatFeeRate, type PlatformConfig } from '@/hooks/usePlatformConfig';
 // Jawaban FAQ boleh memuat {{nama_setelan}}; nilainya diambil LIVE dari
 // platform_settings / platform_profile saat render. Ini yang membuat FAQ tidak
 // pernah bisa berbohong soal uang: admin TIDAK BISA mengetik "12%" secara
-// harfiah lalu lupa memperbaruinya ketika komisi berubah — ia mengetik
+// harfiah lalu lupa memperbaruinya ketika komisi berubah . ia mengetik
 // {{platform_fee_rate}} dan angkanya selalu ikut.
 //
 // Token yang tidak dikenal SENGAJA dibiarkan apa adanya (mis. "{{typo}}").
 // Menggantinya dengan string kosong akan menghasilkan kalimat rumpang yang
-// terbaca seperti kalimat sah — admin tidak akan pernah sadar ada salah ketik.
+// terbaca seperti kalimat sah . admin tidak akan pernah sadar ada salah ketik.
 
 export const FAQ_TOKENS = [
   'platform_fee_rate',

@@ -26,12 +26,12 @@ export default function PartnerProfileClient({ username }: { username: string })
   const { data: profile, isLoading: isProfileLoading, isError: isProfileError, error: profileError } = usePartnerProfile(username);
   const { data: services, isLoading: isServicesLoading } = usePartnerServices(username);
   const { data: portfolios, isLoading: isPortfoliosLoading } = usePartnerPortfolios(username);
-  // P1-07: 10 ulasan pertama dulu tidak punya jalan keluar sama sekali —
+  // P1-07: 10 ulasan pertama dulu tidak punya jalan keluar sama sekali .
   // ulasan lama tak pernah bisa dibaca calon pelanggan.
   const [reviewLimit, setReviewLimit] = useState(10);
   const { data: reviewData, isFetching: isReviewsFetching } = usePartnerReviews(username, reviewLimit);
   // Jam operasional sudah lama tersedia sebagai endpoint publik dan dipakai
-  // halaman produk, tetapi profil mitra — tempat orang justru mencarinya —
+  // halaman produk, tetapi profil mitra . tempat orang justru mencarinya .
   // tidak pernah menampilkannya (C5).
   const { data: workingHours, isLoading: isHoursLoading } = usePartnerWorkingHours(profile?.id);
 
@@ -93,11 +93,11 @@ export default function PartnerProfileClient({ username }: { username: string })
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 sm:pb-12">
-      {/* Header kontekstual (tombol kembali) — hanya mobile. Di desktop TopNavbar
+      {/* Header kontekstual (tombol kembali) . hanya mobile. Di desktop TopNavbar
           sudah jadi satu-satunya header.
           top-0, bukan top-16: HeaderWrapper menyembunyikan TopNavbar di mobile
           untuk rute profil mitra, jadi tidak ada apa pun di atas header ini.
-          Sebelumnya top-16 menggeser header ini ke bawah TopNavbar — menambal
+          Sebelumnya top-16 menggeser header ini ke bawah TopNavbar . menambal
           tampilan dua header, bukan menghapusnya. */}
       <div className="bg-white px-4 py-3 sticky top-0 z-10 border-b border-brand-gray-100 flex items-center gap-3 lg:hidden">
         <button
@@ -121,21 +121,19 @@ export default function PartnerProfileClient({ username }: { username: string })
               <div className="flex border-b border-brand-gray-100">
                 <button
                   onClick={() => setActiveTab('services')}
-                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${
-                    activeTab === 'services'
+                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${activeTab === 'services'
                       ? 'border-brand-red text-brand-red'
                       : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
-                  }`}
+                    }`}
                 >
                   Layanan
                 </button>
                 <button
                   onClick={() => setActiveTab('portfolio')}
-                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${
-                    activeTab === 'portfolio'
+                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${activeTab === 'portfolio'
                       ? 'border-brand-red text-brand-red'
                       : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
-                  }`}
+                    }`}
                 >
                   Portofolio
                 </button>
@@ -155,7 +153,7 @@ export default function PartnerProfileClient({ username }: { username: string })
               <ScheduleView workingHours={workingHours} isLoading={isHoursLoading} />
             </div>
 
-            {/* Trust signals — pricing transparency + off-platform warning */}
+            {/* Trust signals . pricing transparency + off-platform warning */}
             <div className="bg-white rounded-md shadow-sm p-4 sm:p-5 space-y-3">
               <div className="flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-brand-info mt-0.5 shrink-0" />

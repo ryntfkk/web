@@ -55,11 +55,11 @@ function submit() {
 }
 
 /**
- * Aturan validasi layanan dulu ditulis DUA KALI — di halaman "tambah" dan
- * "edit" — dan berulang kali hanya diperbaiki di salah satunya. Sekarang satu
+ * Aturan validasi layanan dulu ditulis DUA KALI . di halaman "tambah" dan
+ * "edit" . dan berulang kali hanya diperbaiki di salah satunya. Sekarang satu
  * `ServiceForm`, dan test ini yang memastikan aturannya tidak diam-diam hilang.
  */
-describe('ServiceForm — validasi', () => {
+describe('ServiceForm . validasi', () => {
   it('mengirim payload bertipe angka saat semua terisi benar', () => {
     const onSubmit = renderForm(lengkap());
     submit();
@@ -82,7 +82,7 @@ describe('ServiceForm — validasi', () => {
 
   // Durasi punya DUA lapis penjaga: atribut `min="15"` (validasi native
   // browser) dan aturan JS di handleSubmit. Yang penting bagi produk adalah
-  // form tidak pernah terkirim — lapisan mana yang menahannya tidak relevan,
+  // form tidak pernah terkirim . lapisan mana yang menahannya tidak relevan,
   // dan menuntut pesan error tertentu berarti menguji browser, bukan kode ini.
   it('tidak mengirim form bila durasi di bawah 15 menit', () => {
     const onSubmit = renderForm(lengkap({ duration_minutes: '10' }));

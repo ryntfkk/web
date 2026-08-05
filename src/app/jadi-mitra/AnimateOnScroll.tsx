@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 
 /**
  * Wrapper ringan: menampilkan children dengan animasi fade-in + slide-up
- * saat masuk viewport. Menggunakan IntersectionObserver — tidak ada library
+ * saat masuk viewport. Menggunakan IntersectionObserver . tidak ada library
  * animasi tambahan, tidak ada runtime cost sebelum elemen terlihat.
  */
 export default function AnimateOnScroll({
@@ -14,7 +14,7 @@ export default function AnimateOnScroll({
 }: {
   children: ReactNode;
   className?: string;
-  /** Delay tambahan dalam ms — berguna untuk stagger antar-elemen. */
+  /** Delay tambahan dalam ms . berguna untuk stagger antar-elemen. */
   delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);

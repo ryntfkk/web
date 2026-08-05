@@ -24,7 +24,7 @@ interface ServiceCardProps {
   /**
    * Layanan menuntut sesuatu yang WAJIB disiapkan pelanggan (C3). Hanya penanda;
    * daftarnya di halaman detail. Ditampilkan di kartu supaya pelanggan tahu
-   * sebelum masuk — persyaratan yang baru terlihat di kaki halaman detail sudah
+   * sebelum masuk . persyaratan yang baru terlihat di kaki halaman detail sudah
    * terlambat untuk memengaruhi pilihannya.
    */
   hasMandatoryRequirements?: boolean;

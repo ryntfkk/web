@@ -13,7 +13,7 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
   const [selectedRoomId, setSelectedRoomId] = useState(roomId);
 
   // MitraBottomNav disembunyikan di room chat (via MitraLayoutClient excludeBottomNav)
-  // — hapus padding bawah body agar area percakapan pas satu layar.
+  // . hapus padding bawah body agar area percakapan pas satu layar.
   useEffect(() => {
     document.body.classList.add('chat-room');
     return () => document.body.classList.remove('chat-room');

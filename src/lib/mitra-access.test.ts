@@ -5,7 +5,7 @@ import { accessLevelFor, canAccess, MITRA_BLOCKED_REDIRECT } from './mitra-acces
 /**
  * Matrix akses mode mitra (P1-10). Ini aturan keamanan, bukan kosmetik:
  * sebelum ada matrix ini mitra pending/rejected bisa membuka semua halaman
- * operasional, menekan tombolnya, lalu ditolak backend — atau lebih buruk,
+ * operasional, menekan tombolnya, lalu ditolak backend . atau lebih buruk,
  * dibalas sukses atas nol baris.
  */
 describe('accessLevelFor', () => {
@@ -63,7 +63,7 @@ describe('canAccess', () => {
     expect(canAccess('/mitra/wallet', 'PENDING')).toBe(false);
   });
 
-  it('mitra rejected sama seperti pending — jalan keluarnya lewat halaman akun', () => {
+  it('mitra rejected sama seperti pending . jalan keluarnya lewat halaman akun', () => {
     expect(canAccess('/mitra/verification-status', 'REJECTED')).toBe(true);
     expect(canAccess('/mitra/orders', 'REJECTED')).toBe(false);
   });

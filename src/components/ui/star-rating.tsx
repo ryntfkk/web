@@ -19,7 +19,7 @@ const GAPS = { sm: 'gap-0.5', md: 'gap-1', lg: 'gap-1.5' } as const;
  * Rating bintang. Dua mode:
  * - Interaktif (default): klik untuk memilih 1–5 (onChange).
  * - `readonly`: display saja; mendukung nilai pecahan (mis. 4.5) via overlay
- *   clip-width — setengah bintang terisi sesuai fraksi.
+ *   clip-width . setengah bintang terisi sesuai fraksi.
  */
 export function StarRating({
   value = 0,

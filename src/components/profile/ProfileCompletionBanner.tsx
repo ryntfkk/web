@@ -7,7 +7,7 @@ interface ProfileCompletionBannerProps {
 }
 
 /**
- * Pengingat persisten untuk akun yang belum punya nomor terverifikasi —
+ * Pengingat persisten untuk akun yang belum punya nomor terverifikasi .
  * terutama akun Google, yang lahir tanpa nomor sama sekali.
  *
  * Ada karena interstitial /lengkapi-profil bisa dilewati ("Nanti saja"); tanpa

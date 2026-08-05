@@ -51,7 +51,7 @@ function loadGoogleMaps(): Promise<void> {
   return p;
 }
 
-// MapView — peta READ-ONLY (marker tidak bisa digeser) untuk menampilkan
+// MapView . peta READ-ONLY (marker tidak bisa digeser) untuk menampilkan
 // koordinat alamat pelanggan di detail pesanan mitra. Selalu menyertakan
 // tautan "Buka di Google Maps" sebagai fallback (mis. API key belum diset).
 export default function MapView({ lat, lng, label, className, linkLabel }: MapViewProps) {

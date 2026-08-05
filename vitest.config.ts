@@ -7,7 +7,7 @@ import path from 'node:path';
  * Sengaja TANPA `@vitejs/plugin-react`: plugin itu menarik toolchain Babel yang
  * bentrok dengan versi @babel/core milik Next di repo ini. Transformasi JSX
  * diserahkan ke esbuild bawaan Vitest (`jsx: 'automatic'`), yang sudah cukup
- * untuk komponen — Fast Refresh memang tidak relevan di dalam test.
+ * untuk komponen . Fast Refresh memang tidak relevan di dalam test.
  */
 export default defineConfig({
   esbuild: {

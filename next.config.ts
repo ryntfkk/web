@@ -5,7 +5,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const nextConfig: NextConfig = {
   output: 'standalone',
   // Tailwind v4 + App Router: default cssChunking me-reorder chunk CSS saat
-  // navigasi klien sehingga presedensi utility (cascade layer) berubah —
+  // navigasi klien sehingga presedensi utility (cascade layer) berubah .
   // gaya/teks "berubah sendiri" & md:hidden kalah (bottom nav muncul di desktop).
   // 'strict' memaksa urutan CSS mengikuti urutan import → deterministik.
   experimental: {
@@ -51,13 +51,13 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       // Dokumen legal yang punya halaman kanoniknya sendiri: satu dokumen harus
-      // satu URL. Rute generik /legal/[slug] TIDAK boleh ikut menyajikannya —
+      // satu URL. Rute generik /legal/[slug] TIDAK boleh ikut menyajikannya .
       // teks identik di dua alamat memecah bobot SEO.
       //
       // Ditangani di sini, bukan lewat permanentRedirect() di dalam page:
       // terbukti redirect dari dalam page TIDAK tereksekusi pada deployment
       // Amplify ini (/legal/privacy malah menyajikan halaman "tidak ditemukan"
-      // ber-status 200) — konsisten dengan catatan pada redirect /services di atas.
+      // ber-status 200) . konsisten dengan catatan pada redirect /services di atas.
       {
         source: '/legal/privacy',
         destination: '/privacy',
@@ -152,8 +152,8 @@ const nextConfig: NextConfig = {
       },
       {
         // Foto profil dari akun Google (avatar_url diisi saat registrasi Google).
-        // Tanpa entri ini, next/image MELEMPAR error — bukan sekadar gagal
-        // memuat gambar — sehingga halaman yang menampilkan avatar mitra ikut
+        // Tanpa entri ini, next/image MELEMPAR error . bukan sekadar gagal
+        // memuat gambar . sehingga halaman yang menampilkan avatar mitra ikut
         // tumbang. Lihat BookingClient.tsx yang merender partner.avatar_url.
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',

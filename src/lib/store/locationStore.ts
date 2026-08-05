@@ -13,7 +13,7 @@ interface LocationState {
   isResolved: boolean;
   /** True when we have real coordinates from the user. */
   hasLocation: boolean;
-  /** Label lokasi aktif untuk kapsul home (mis. "Lokasi saat ini" / "Rumah — Jl. …"). */
+  /** Label lokasi aktif untuk kapsul home (mis. "Lokasi saat ini" / "Rumah . Jl. …"). */
   label: string;
   /** Asal koordinat aktif. */
   source: LocationSource;
@@ -105,14 +105,14 @@ export const useLocationStore = create<LocationState>()(
       partialize: (s) =>
         s.hasLocation
           ? {
-              latitude: s.latitude,
-              longitude: s.longitude,
-              permissionStatus: s.permissionStatus,
-              isResolved: true,
-              hasLocation: true,
-              label: s.label,
-              source: s.source,
-            }
+            latitude: s.latitude,
+            longitude: s.longitude,
+            permissionStatus: s.permissionStatus,
+            isResolved: true,
+            hasLocation: true,
+            label: s.label,
+            source: s.source,
+          }
           : ({} as Partial<LocationState>),
     },
   ),

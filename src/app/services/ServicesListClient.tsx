@@ -32,7 +32,7 @@ export default function ServicesListClient({
     <div className="min-h-screen bg-brand-gray-60 flex flex-col">
       <MobilePageHeader title="Semua Layanan" titleAs="p" backHref="/" maxWidthClass="max-w-6xl" />
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
-        {/* Breadcrumb desktop — konsisten dengan /kategori/[slug] & /jasa/... */}
+        {/* Breadcrumb desktop . konsisten dengan /kategori/[slug] & /jasa/... */}
         <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-[13px] text-brand-gray-400 mb-4">
           <Link href="/" className="hover:text-brand-red transition-colors">Beranda</Link>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -51,11 +51,10 @@ export default function ServicesListClient({
         <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
           <Link
             href="/services"
-            className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${
-              !activeCategory
+            className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${!activeCategory
                 ? 'bg-brand-blue text-white border-brand-blue'
                 : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-blue'
-            }`}
+              }`}
           >
             Semua
           </Link>
@@ -63,11 +62,10 @@ export default function ServicesListClient({
             <Link
               key={cat.id}
               href={`/services?category=${cat.id}`}
-              className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${
-                activeCategory === cat.id
+              className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${activeCategory === cat.id
                   ? 'bg-brand-blue text-white border-brand-blue'
                   : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-blue'
-              }`}
+                }`}
             >
               {cat.name}
             </Link>

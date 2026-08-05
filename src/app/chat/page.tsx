@@ -14,7 +14,7 @@ export default function ChatListPage() {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   // Desktop/tablet (md+): tampilkan di panel kanan; Mobile: navigasi ke halaman room.
-  // matchMedia mengikuti breakpoint Tailwind `md` (768px) — satu sumber kebenaran.
+  // matchMedia mengikuti breakpoint Tailwind `md` (768px) . satu sumber kebenaran.
   const isDesktopViewport = () =>
     typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
 

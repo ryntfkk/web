@@ -3,7 +3,7 @@ import { fetchAPI } from '@/lib/api';
 
 // Setelan platform LIVE dari `platform_settings` di DB (endpoint publik
 // `GET /config`). Admin bisa mengubah komisi/tarif/batas kapan saja lewat
-// panel — tanpa hook ini, web menampilkan angka lama sampai deploy ulang
+// panel . tanpa hook ini, web menampilkan angka lama sampai deploy ulang
 // Amplify. Angka bisnis DILARANG diketik langsung di JSX; lihat
 // PLAN-KONTEN-LEGAL-CMS.md §5.1.
 export interface PlatformConfig {
@@ -19,7 +19,7 @@ export interface PlatformConfig {
   /** Plafon total per item biaya tambahan yang boleh diajukan mitra. */
   max_additional_fee: number;
   /**
-   * Identitas & kontak platform. Setiap field boleh kosong — tampilkan secara
+   * Identitas & kontak platform. Setiap field boleh kosong . tampilkan secara
    * KONDISIONAL, jangan cetak "-": itu memberi kesan datanya ada tapi hilang.
    * Absen sama sekali bila profil gagal dibaca.
    */
@@ -37,13 +37,13 @@ export interface PlatformProfile {
   dpo_email: string;
   withdrawal_sla: string;
   /**
-   * SLA verifikasi mitra. KOSONG = tidak ada janji waktu — UI wajib memakai copy
+   * SLA verifikasi mitra. KOSONG = tidak ada janji waktu . UI wajib memakai copy
    * netral, bukan mengarang tenggat (P1-15).
    */
   verification_sla?: string;
 }
 
-// Cadangan saat /config gagal dimuat — selaras DefaultPlatformSettings di
+// Cadangan saat /config gagal dimuat . selaras DefaultPlatformSettings di
 // backend/internal/config/config.go. Ini SATU-SATUNYA tempat angka ini boleh
 // muncul sebagai literal di web.
 export const FALLBACK_PLATFORM_CONFIG: PlatformConfig = {
@@ -59,7 +59,7 @@ export const FALLBACK_PLATFORM_CONFIG: PlatformConfig = {
 };
 
 /**
- * Setelan platform, tak pernah undefined — mengembalikan cadangan selama
+ * Setelan platform, tak pernah undefined . mengembalikan cadangan selama
  * fetch berjalan atau bila gagal, sehingga pemanggil tidak perlu menangani
  * state kosong (dan tidak tergoda menulis `?? 0.12` sendiri).
  */

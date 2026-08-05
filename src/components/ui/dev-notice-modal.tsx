@@ -9,7 +9,7 @@ const STORAGE_KEY = "posko_dev_notice_dismissed";
 /**
  * DevNoticeModal
  * One-time notice telling visitors the website is still under development.
- * Shown once per browser — dismissal is remembered in localStorage.
+ * Shown once per browser . dismissal is remembered in localStorage.
  */
 export function DevNoticeModal() {
   const [isOpen, setIsOpen] = useState(false);

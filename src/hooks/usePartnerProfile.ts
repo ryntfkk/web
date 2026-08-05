@@ -75,7 +75,7 @@ export interface PartnerReview {
   customer_id: string;
   partner_id: string;
   rating: number;
-  // SE: per-aspect ratings (nullable — tidak semua review mengisi).
+  // SE: per-aspect ratings (nullable . tidak semua review mengisi).
   rating_quality?: number;
   rating_punctuality?: number;
   rating_communication?: number;

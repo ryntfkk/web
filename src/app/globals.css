@@ -66,7 +66,7 @@
   --color-brand-red-dark: #90121a;
   --color-brand-red-light: #f0eded;
 
-  /* U1 — Brand Blue (merah tetap primary/CTA; biru = link, tab aktif, fokus,
+  /* U1 . Brand Blue (merah tetap primary/CTA; biru = link, tab aktif, fokus,
      header peran-kerja). Token additif: mengaktifkan utility bg-/text-/border-
      brand-blue tanpa mengubah surface abu yang ada. Rasio target 60% putih /
      30% biru+netral / 10% merah. Remap penuh secondary/accent → biru menyusul
@@ -94,7 +94,7 @@
   --color-brand-orange-light: #FEEBC8;
 
   /* Fase-0 token extension: warna-warna ini sudah de-facto dipakai di 20+ file
-     tapi belum punya token. Jangan tambah hex baru di luar daftar ini —
+     tapi belum punya token. Jangan tambah hex baru di luar daftar ini .
      warna baru WAJIB lewat token di sini dulu. */
   --color-brand-gray-300: #c9bcba; /* timeline dots, border muted */
   --color-brand-gray-450: #9e8e8c; /* muted text (pengganti hardcode #9e8e8c) */
@@ -199,7 +199,7 @@
   --sidebar-ring: #1e4fd6;
 }
 
-/* Catatan: tema .dark dihapus 2026-07-19 — dead code (tidak ada toggle & tidak
+/* Catatan: tema .dark dihapus 2026-07-19 . dead code (tidak ada toggle & tidak
    ada utility `dark:`; warna di-hardcode hex di seluruh halaman). Dark mode yang
    sebenarnya adalah proyek terpisah: perlu migrasi hex → token semantik dulu. */
 
@@ -250,7 +250,7 @@
   min-height: calc(100dvh - 4rem);
 }
 
-/* Safe-area bawah (iOS home indicator) — dipakai bottom nav fixed */
+/* Safe-area bawah (iOS home indicator) . dipakai bottom nav fixed */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }

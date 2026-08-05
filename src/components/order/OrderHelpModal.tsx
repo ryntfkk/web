@@ -8,7 +8,7 @@ import { createSupportThread } from '@/lib/support';
 
 /**
  * Modal konfirmasi "Hubungi Admin" untuk halaman detail pesanan.
- * Sebelumnya tombol Bantuan LANGSUNG membuat thread laporan tanpa konfirmasi —
+ * Sebelumnya tombol Bantuan LANGSUNG membuat thread laporan tanpa konfirmasi .
  * kini pengguna mengonfirmasi + bisa menuliskan masalahnya dulu (seperti
  * marketplace lain), baru thread dibuat & diarahkan ke /bantuan/[id].
  */

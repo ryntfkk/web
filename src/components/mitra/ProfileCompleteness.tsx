@@ -11,7 +11,7 @@ import { useAuthStore } from '@/lib/store/authStore';
  * Skor kelengkapan profil mitra (P2).
  *
  * Bukan gamifikasi. Setiap butir di sini adalah hal yang, bila kosong, punya
- * akibat nyata dan spesifik — dan akibat itulah yang ditulis, bukan "lengkapi
+ * akibat nyata dan spesifik . dan akibat itulah yang ditulis, bukan "lengkapi
  * profil Anda". Mitra yang tak punya layanan aktif TIDAK muncul di pencarian
  * sama sekali; mitra tanpa rekening tak bisa mencairkan uangnya. Itu yang perlu
  * ia tahu, bukan bahwa skornya 60%.

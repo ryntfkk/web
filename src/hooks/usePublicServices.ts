@@ -29,7 +29,7 @@ export interface PublicService {
   /** Jumlah pesanan SELESAI untuk layanan ini (social proof di kartu). */
   total_orders?: number;
   /**
-   * Layanan menuntut sesuatu yang WAJIB disiapkan pelanggan (C3). Penanda saja —
+   * Layanan menuntut sesuatu yang WAJIB disiapkan pelanggan (C3). Penanda saja .
    * daftarnya hanya ada di endpoint detail, sengaja tidak dibawa query daftar.
    */
   has_mandatory_requirements?: boolean;
@@ -51,7 +51,7 @@ interface PublicServicesParams {
 }
 
 interface UsePublicServicesOptions {
-  /** Data awal (mis. dari SSR) — dipakai sebagai cache React Query tanpa refetch
+  /** Data awal (mis. dari SSR) . dipakai sebagai cache React Query tanpa refetch
    *  selama belum stale. Cocokkan dengan params yang diberikan agar query key-nya
    *  sama dengan fetch SSR yang menghasilkan data ini. */
   initialData?: PublicService[];

@@ -51,7 +51,7 @@ export default function GoogleSignInButton({
   // Pemanggil (halaman login/register) mengoper arrow function inline, sehingga
   // identitasnya baru pada SETIAP render. Kalau effect render tombol bergantung
   // padanya, tiap ketikan satu huruf akan menghapus (innerHTML = '') lalu membuat
-  // ulang iframe tombol Google — dan di mobile pembongkaran iframe di dekat input
+  // ulang iframe tombol Google . dan di mobile pembongkaran iframe di dekat input
   // yang sedang fokus membuat fokus lepas → keyboard menutup sendiri.
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);

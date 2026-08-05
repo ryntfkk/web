@@ -1,22 +1,22 @@
 import type { PartnerVerificationStatus } from '@/hooks/usePartnerVerificationStatus';
 
 /**
- * Matrix akses mode mitra (P1-10) — SATU definisi untuk seluruh aplikasi.
+ * Matrix akses mode mitra (P1-10) . SATU definisi untuk seluruh aplikasi.
  *
  * Sebelumnya mitra berstatus pending/rejected bisa membuka semua halaman
- * operasional. Halamannya memuat, tombolnya bisa ditekan, lalu backend menolak —
+ * operasional. Halamannya memuat, tombolnya bisa ditekan, lalu backend menolak .
  * atau lebih buruk, membalas sukses atas nol baris. Yang dilihat mitra adalah
  * aplikasi yang seolah berfungsi padahal belum boleh dipakai.
  *
  * Tiga tingkat, dan pembagiannya berdasar satu pertanyaan: **apakah halaman ini
  * mengandaikan bisnisnya sudah hidup?**
  *
- * - `always`  — akun & berkas. Justru inilah yang harus dikerjakan mitra pending.
- * - `prepare` — menyiapkan etalase. Aman sebelum disetujui karena layanan mitra
+ * - `always`  . akun & berkas. Justru inilah yang harus dikerjakan mitra pending.
+ * - `prepare` . menyiapkan etalase. Aman sebelum disetujui karena layanan mitra
  *               non-approved TIDAK tampil publik (query publik menyaring
  *               `verification_status = 'approved'`), jadi tak ada pelanggan yang
  *               bisa memesannya lebih dulu.
- * - `live`    — mengandaikan ada pesanan, pelanggan, atau uang. Tidak masuk akal
+ * - `live`    . mengandaikan ada pesanan, pelanggan, atau uang. Tidak masuk akal
  *               sebelum disetujui.
  */
 export type MitraAccessLevel = 'always' | 'prepare' | 'live';
@@ -46,7 +46,7 @@ const ACCESS_RULES: Array<{ prefix: string; level: MitraAccessLevel }> = [
 ];
 
 /**
- * Rute mitra yang tidak terdaftar dianggap `live` — fail-closed. Halaman baru
+ * Rute mitra yang tidak terdaftar dianggap `live` . fail-closed. Halaman baru
  * lebih baik terlalu tertutup lalu ketahuan, daripada diam-diam terbuka untuk
  * mitra yang belum diverifikasi.
  */
@@ -74,6 +74,6 @@ export function canAccess(
 /**
  * Ke mana mitra diarahkan saat menyentuh halaman yang belum boleh dibuka.
  * Selalu halaman status: di sanalah alasannya dijelaskan dan langkah
- * berikutnya diberikan — bukan halaman kosong tanpa penjelasan.
+ * berikutnya diberikan . bukan halaman kosong tanpa penjelasan.
  */
 export const MITRA_BLOCKED_REDIRECT = '/mitra/verification-status';

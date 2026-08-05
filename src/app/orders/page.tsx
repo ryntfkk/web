@@ -69,7 +69,7 @@ interface Order {
 
 export default function OrdersPage() {
   // useRequireAuth menunggu isInitializing (silent refresh) selesai sebelum
-  // redirect ke /login — mencegah hard-load mental ke login saat sesi masih ada.
+  // redirect ke /login . mencegah hard-load mental ke login saat sesi masih ada.
   const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -185,7 +185,7 @@ export default function OrdersPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
 
-      {/* Header khusus mobile — di desktop TopNavbar sudah jadi satu-satunya header. */}
+      {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
       <MobilePageHeader title="Riwayat Pesanan" backHref="/profile" maxWidthClass="max-w-6xl" />
 
       <div className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
@@ -220,8 +220,8 @@ export default function OrdersPage() {
                       {filter.label}
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded-md shrink-0 ${activeFilter === filter.key
-                        ? 'bg-brand-red text-white'
-                        : 'bg-brand-gray-100 text-brand-gray-700'
+                      ? 'bg-brand-red text-white'
+                      : 'bg-brand-gray-100 text-brand-gray-700'
                       }`}>
                       {filterCounts[filter.key]}
                     </span>
@@ -284,7 +284,7 @@ export default function OrdersPage() {
                   <div className="absolute top-2 right-4 w-3 h-3 bg-brand-warning rounded-full opacity-70"></div>
                   <div className="absolute bottom-4 left-2 w-2 h-2 bg-brand-info rounded-full opacity-70"></div>
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-brand-gray-900 mb-2">
                   {searchQuery ? 'Pesanan Tidak Ditemukan' : activeFilter === 'all' ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan'}
                 </h3>
@@ -319,18 +319,18 @@ export default function OrdersPage() {
                           </div>
                           <span className="text-xs font-bold text-brand-gray-900">{order.order_number}</span>
                         </div>
-                        
+
                         {/* Visual Progress Stepper */}
                         {(() => {
                           const s = order.status;
-                          if (s === 'CANCELLED') return <div className="text-xs font-bold text-brand-error flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> Dibatalkan</div>;
-                          if (s === 'COMPLETED') return <div className="text-xs font-bold text-brand-success flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5"/> Selesai</div>;
-                          
+                          if (s === 'CANCELLED') return <div className="text-xs font-bold text-brand-error flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> Dibatalkan</div>;
+                          if (s === 'COMPLETED') return <div className="text-xs font-bold text-brand-success flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Selesai</div>;
+
                           // Active Stepper Logic
                           const step1Active = true; // Always active if not cancelled
                           const step2Active = ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM'].includes(s);
                           const step3Active = false; // Because it's not COMPLETED if we reach here
-                          
+
                           return (
                             <div className="flex items-center w-full max-w-sm mt-1">
                               {/* Step 1: Menunggu */}
@@ -355,7 +355,7 @@ export default function OrdersPage() {
                         })()}
                       </div>
 
-                      {/* Layanan — baris produk ala Shopee (thumbnail besar) */}
+                      {/* Layanan . baris produk ala Shopee (thumbnail besar) */}
                       <div className="px-4 py-3 divide-y divide-brand-red-light">
                         {order.items?.slice(0, 2).map(item => {
                           const thumb = item.photo_url || item.service_photo_url;
@@ -408,7 +408,7 @@ export default function OrdersPage() {
                         </span>
                       </div>
 
-                      {/* Total — rata kanan ala Shopee */}
+                      {/* Total . rata kanan ala Shopee */}
                       <div className="px-4 py-2.5 bg-brand-gray-55 border-t border-brand-red-light flex items-center justify-end gap-1.5">
                         <span className="text-xs text-brand-gray-700">Total Pesanan:</span>
                         <span className="text-base font-bold text-brand-red">
@@ -417,7 +417,7 @@ export default function OrdersPage() {
                       </div>
                     </Link>
 
-                    {/* Aksi — di luar Link agar tombol tak memicu navigasi */}
+                    {/* Aksi . di luar Link agar tombol tak memicu navigasi */}
                     <div className="px-4 py-2.5 border-t border-brand-red-light flex items-center justify-end gap-2 flex-wrap">
                       {order.status === 'WAITING_PAYMENT' && (
                         <Link href={`/payment/${order.id}`}>

@@ -17,7 +17,7 @@ interface Order {
   status: OrderStatus;
   total_amount: number;
   // Pendapatan bersih mitra (setelah komisi platform). Ini yang ditampilkan
-  // sebagai penghasilan — bukan total_amount (bruto yang dibayar pelanggan).
+  // sebagai penghasilan . bukan total_amount (bruto yang dibayar pelanggan).
   partner_amount?: number;
   partner_amount_estimated?: boolean;
   scheduled_at: string;
@@ -35,7 +35,7 @@ interface ServiceOption {
 
 /**
  * Filter tambahan yang dikirim ke SERVER (P2). Rentang tanggalnya menyaring
- * `scheduled_at` — tanggal PEKERJAAN, bukan tanggal pesanan dibuat. Itulah
+ * `scheduled_at` . tanggal PEKERJAAN, bukan tanggal pesanan dibuat. Itulah
  * tanggal yang dimaksud mitra saat bertanya "pesanan minggu lalu apa saja".
  */
 interface ExtraFilters {
@@ -139,7 +139,7 @@ export default function MitraOrdersPage() {
   }, [isAuthenticated, user?.active_role, fetchOrders, fetchCounts]);
 
   // Daftar layanan untuk dropdown filter. Diambil sekali; kegagalannya tidak
-  // ditampilkan sebagai error halaman — filter layanan cuma tak tersedia,
+  // ditampilkan sebagai error halaman . filter layanan cuma tak tersedia,
   // sedangkan daftar pesanannya sendiri tetap berguna.
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -168,7 +168,7 @@ export default function MitraOrdersPage() {
 
   // Status difilter SERVER; di sini tinggal pencarian teks atas baris yang
   // sudah termuat. Pencarian lintas seluruh riwayat butuh dukungan backend
-  // tersendiri — jangan berpura-pura sudah punya.
+  // tersendiri . jangan berpura-pura sudah punya.
   const filteredOrders = orders.filter(o => {
     const q = search.toLowerCase();
     return q === '' ||
@@ -183,7 +183,7 @@ export default function MitraOrdersPage() {
 
   // Badge tab dihitung dari SELURUH pesanan tanpa memandang filter tanggal/
   // layanan (endpoint ringkasan memang begitu). Menampilkannya berdampingan
-  // dengan daftar yang sudah tersaring akan berbohong — jadi saat filter
+  // dengan daftar yang sudah tersaring akan berbohong . jadi saat filter
   // tambahan aktif, angkanya disembunyikan alih-alih dipoles.
   const showCounts = !hasExtraFilters;
 
@@ -225,11 +225,10 @@ export default function MitraOrdersPage() {
               aria-expanded={showFilters}
               aria-controls="order-extra-filters"
               onClick={() => setShowFilters(v => !v)}
-              className={`shrink-0 inline-flex items-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition-colors ${
-                hasExtraFilters
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition-colors ${hasExtraFilters
                   ? 'border-brand-red bg-brand-error-soft text-brand-red'
                   : 'border-brand-gray-100 bg-white text-brand-gray-700'
-              }`}
+                }`}
             >
               <SlidersHorizontal className="w-4 h-4" aria-hidden />
               Filter

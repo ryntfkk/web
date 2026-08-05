@@ -54,7 +54,7 @@ function LoginContent() {
     // Mobile: rata atas dengan padding ringkas agar form langsung terlihat tanpa scroll.
     // Desktop (sm+): tetap terpusat vertikal; 4rem = tinggi TopNavbar (h-16).
     <div className="min-h-[calc(100dvh-4rem)] bg-brand-gray-60 flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
-      {/* Back button khusus mobile — di mobile TopNavbar disembunyikan di halaman login. */}
+      {/* Back button khusus mobile . di mobile TopNavbar disembunyikan di halaman login. */}
       <Link
         href="/"
         aria-label="Kembali ke beranda"
@@ -77,7 +77,7 @@ function LoginContent() {
           Atau{' '}
           {/* Tujuan redirect ikut dibawa ke pendaftaran. Tanpa ini, pengunjung
               yang datang dari CTA "jadi mitra" kehilangan tujuannya begitu ia
-              sadar belum punya akun — ia mendaftar, lalu mendarat di beranda
+              sadar belum punya akun . ia mendaftar, lalu mendarat di beranda
               tanpa petunjuk apa pun tentang niat awalnya. */}
           <Link
             href={rawRedirect ? `/register?redirect=${encodeURIComponent(safeRedirect(rawRedirect))}` : '/register'}
@@ -91,7 +91,7 @@ function LoginContent() {
       <div className="mt-6 sm:mt-8 mx-auto w-full max-w-md">
         <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
           <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
-            
+
             {error && (
               <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-100">
                 {error}

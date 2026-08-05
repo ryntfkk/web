@@ -11,7 +11,7 @@ import Link from 'next/link';
 interface Props {
   checked: boolean;
   onChange: (v: boolean) => void;
-  /** Konteks tambahan di atas checkbox — mis. rincian komisi untuk mitra. */
+  /** Konteks tambahan di atas checkbox . mis. rincian komisi untuk mitra. */
   children?: React.ReactNode;
   id?: string;
 }

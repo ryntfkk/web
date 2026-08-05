@@ -62,11 +62,11 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
   // tanpa memilih variasi wajib, modal muncul; setelah variasi dipilih, aksi
   // pending dijalankan otomatis.
   const [variationModalOpen, setVariationModalOpen] = useState(false);
-  // 'order' | 'cart' — aksi yang ditunda hingga variasi dipilih dari modal.
+  // 'order' | 'cart' . aksi yang ditunda hingga variasi dipilih dari modal.
   const [pendingAction, setPendingAction] = useState<'order' | 'cart' | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Halaman ini publik — auth hanya dicek saat user melakukan aksi
+  // Halaman ini publik . auth hanya dicek saat user melakukan aksi
   // (tambah keranjang / pesan), bukan saat melihat halaman.
   const { isAuthenticated } = useAuthStore();
   const { addItem, removeItem, isInCart } = useCartStore();
@@ -380,7 +380,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
           <div className="flex flex-col md:flex-row">
             {/* Left: Images */}
             <div className="w-full md:w-[42%] p-3 sm:p-4">
-              {/* Main Image — swipeable carousel (all photos) */}
+              {/* Main Image . swipeable carousel (all photos) */}
               <div className="relative w-full aspect-square bg-brand-gray-25 rounded-md overflow-hidden group">
                 {/* Distance Badge */}
                 {distance && (
@@ -389,7 +389,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     <span className="text-[11px] sm:text-[12px] font-medium leading-none">{distance}</span>
                   </div>
                 )}
-                
+
                 <div
                   ref={carouselRef}
                   onScroll={handleCarouselScroll}
@@ -464,9 +464,8 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                 <button
                   onClick={handleFavToggle}
                   disabled={favBusy}
-                  className={`flex items-center gap-1 text-xs hover:text-brand-red disabled:opacity-50 ${
-                    isFav ? 'text-brand-red' : 'text-brand-gray-700'
-                  }`}
+                  className={`flex items-center gap-1 text-xs hover:text-brand-red disabled:opacity-50 ${isFav ? 'text-brand-red' : 'text-brand-gray-700'
+                    }`}
                 >
                   <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
                   {isFav ? 'Tersimpan' : 'Favorit'}
@@ -518,11 +517,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     onClick={handleFavToggle}
                     disabled={favBusy}
                     aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
-                    className={`p-1.5 rounded-full transition-colors disabled:opacity-50 ${
-                      isFav
+                    className={`p-1.5 rounded-full transition-colors disabled:opacity-50 ${isFav
                         ? 'text-brand-red bg-brand-red-light'
                         : 'text-brand-gray-700 hover:text-brand-red hover:bg-brand-red-light'
-                    }`}
+                      }`}
                   >
                     <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
                   </button>
@@ -567,11 +565,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                           key={v.id}
                           type="button"
                           onClick={() => setSelectedVariationId(active ? '' : v.id)}
-                          className={`px-3 py-2 rounded-md border text-sm text-left transition-colors ${
-                            active
+                          className={`px-3 py-2 rounded-md border text-sm text-left transition-colors ${active
                               ? 'border-brand-red bg-brand-red-light text-brand-red'
                               : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
-                          }`}
+                            }`}
                         >
                           <span className="font-medium">{v.name}</span>
                           <span className="block text-xs text-brand-gray-700">{formatRupiah(v.price)}</span>
@@ -582,7 +579,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                 </div>
               )}
 
-              {/* Penanda persyaratan wajib — di dekat harga, bukan hanya di kaki
+              {/* Penanda persyaratan wajib . di dekat harga, bukan hanya di kaki
                   halaman. Persyaratan yang baru terlihat setelah menggulir penuh
                   tidak memenuhi fungsinya (C3). */}
               {requirements.some((r) => r.is_mandatory) && (
@@ -623,7 +620,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     <p className="text-sm font-semibold text-brand-gray-900 truncate">{service.partner_name}</p>
                     {/* Untuk mitra badan usaha, nama merek bukan penerima uang.
                         Pelanggan berhak tahu badan hukum mana yang menerima
-                        pembayarannya SEBELUM memesan — detail pesanan sudah
+                        pembayarannya SEBELUM memesan . detail pesanan sudah
                         menampilkannya, halaman produk dulu belum. */}
                     {service.partner_type === 'vendor' &&
                       service.partner_legal_name &&
@@ -770,13 +767,13 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
             )}
 
             {/* Persyaratan pelanggan (R2 §8.3). Ditempatkan SEBELUM FAQ karena
-                ini bukan informasi tambahan — pelanggan harus tahu apa yang
+                ini bukan informasi tambahan . pelanggan harus tahu apa yang
                 harus ia sediakan sebelum memutuskan memesan. */}
             <div id="persyaratan" className="scroll-mt-20" />
             {requirements.length === 0 ? (
               /* Blok ini SELALU tampil, termasuk saat kosong (C3). Menyembunyikannya
                  membuat "tidak ada persyaratan khusus" tidak bisa dibedakan dari
-                 "gagal dimuat" — pelanggan tak punya cara tahu mana yang terjadi. */
+                 "gagal dimuat" . pelanggan tak punya cara tahu mana yang terjadi. */
               <div className="mt-4 border-t border-brand-gray-100 pt-4">
                 <h3 className="text-sm font-semibold text-brand-gray-900 mb-1">
                   Yang Perlu Kamu Siapkan
@@ -800,11 +797,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                       className="flex items-start gap-2 rounded-md border border-brand-gray-100 p-2.5"
                     >
                       <span
-                        className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                          r.is_mandatory
+                        className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
                             ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                             : 'bg-brand-gray-50 text-brand-gray-450'
-                        }`}
+                          }`}
                       >
                         {r.is_mandatory ? 'Wajib' : 'Disarankan'}
                       </span>
@@ -852,7 +848,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         </div>
 
         {/* Ulasan LAYANAN INI (C2). Sebelumnya halaman produk sama sekali tidak
-            punya isi ulasan — pelanggan harus pergi ke profil mitra tepat saat
+            punya isi ulasan . pelanggan harus pergi ke profil mitra tepat saat
             sedang memutuskan membeli. */}
         <div id="ulasan" className="mt-4 scroll-mt-20">
           {reviewsLoading ? (
@@ -911,7 +907,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         />
       </div>
 
-      {/* Mobile Action Bar — sticky bawah (Fase 1); desktop pakai tombol di panel info. */}
+      {/* Mobile Action Bar . sticky bawah (Fase 1); desktop pakai tombol di panel info. */}
       <StickyActionBar className="sm:hidden">
         <Button
           variant="outline"
@@ -946,7 +942,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setShowSchedule(false)}>
           <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-xl max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
             {/* top-0: sticky di sini relatif terhadap modal (max-h-[80vh]
-                overflow-auto), bukan terhadap viewport — top-16 membuat judulnya
+                overflow-auto), bukan terhadap viewport . top-16 membuat judulnya
                 mengambang 64px dari tepi atas modal saat isinya di-scroll. */}
             <div className="sticky top-0 bg-white border-b border-brand-gray-100 px-4 py-3 flex items-center justify-between">
               <h2 className="text-base font-semibold text-brand-gray-900">Jadwal {service.partner_name}</h2>
@@ -989,7 +985,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         </div>
       )}
 
-      {/* Variation Picker Modal — muncul saat user klik "Pesan"/"Keranjang"
+      {/* Variation Picker Modal . muncul saat user klik "Pesan"/"Keranjang"
           tanpa memilih variasi wajib (pola marketplace). Memakai Modal bersama
           (bottom-sheet di mobile, kartu di desktop). */}
       <Modal
@@ -1011,11 +1007,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     key={v.id}
                     type="button"
                     onClick={() => handleVariationPick(v.id)}
-                    className={`px-3 py-3 rounded-md border text-left transition-colors ${
-                      active
+                    className={`px-3 py-3 rounded-md border text-left transition-colors ${active
                         ? 'border-brand-red bg-brand-red-light text-brand-red'
                         : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
-                    }`}
+                      }`}
                   >
                     <span className="block font-medium text-sm">{v.name}</span>
                     <span className="block text-xs text-brand-gray-700 mt-0.5">{formatRupiah(v.price)}</span>
@@ -1032,9 +1027,9 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
 
 // `serviceId` opsional: dipakai route baru /services/[id] (SSR + metadata).
 // Bila tidak diberikan, komponen jatuh kembali ke query param ?id= (URL lama
-// tetap berfungsi) — lihat DetailContent.
+// tetap berfungsi) . lihat DetailContent.
 // `categorySlug` & `localLandingHref` dari Server Component (fetch kategori by ID)
-// — dipakai untuk link visible ke landing lokal /jasa/[slug]/[kota].
+// . dipakai untuk link visible ke landing lokal /jasa/[slug]/[kota].
 export default function ServiceDetailClient({ serviceId, categorySlug, localLandingHref }: { serviceId?: string; categorySlug?: string; localLandingHref?: string }) {
   return (
     <Suspense fallback={<div className="p-4 text-center">Memuat layanan...</div>}>

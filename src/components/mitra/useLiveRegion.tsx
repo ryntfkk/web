@@ -7,14 +7,14 @@ import { useCallback, useState } from 'react';
  *
  * Toast di aplikasi ini dirender di luar alur baca dan tanpa `role="status"`,
  * jadi pengguna pembaca layar tidak pernah tahu bahwa "Layanan diaktifkan" atau
- * "Gagal menyimpan" barusan terjadi — bagi mereka tombol itu tampak tidak
+ * "Gagal menyimpan" barusan terjadi . bagi mereka tombol itu tampak tidak
  * melakukan apa pun. Live region menutup celah itu tanpa mengubah tampilan.
  *
  * `politeness`: pakai `assertive` hanya untuk kegagalan yang menghentikan
  * pekerjaan; selebihnya `polite` agar tidak memotong bacaan yang sedang jalan.
  *
  * Pesan disimpan bersama penghitung agar dua pengumuman yang sama persis
- * berturut-turut tetap dibacakan — tanpa itu React tidak me-render ulang dan
+ * berturut-turut tetap dibacakan . tanpa itu React tidak me-render ulang dan
  * pengumuman kedua hilang diam-diam.
  */
 export function useLiveRegion() {

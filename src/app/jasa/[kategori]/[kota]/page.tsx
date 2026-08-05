@@ -50,7 +50,7 @@ async function resolve(kategoriSlug: string, kotaSlug: string) {
 /**
  * Ambil PAGE_SIZE+1: kelebihan satu baris hanya penanda "masih ada sisa", tidak
  * dirender. Tanpa ini meta description mengklaim angka pasti padahal itu batas
- * halaman — klaim keliru yang tampil di hasil pencarian.
+ * halaman . klaim keliru yang tampil di hasil pencarian.
  */
 async function getServices(categoryId: string, city: string) {
   const rows =
@@ -74,11 +74,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const count = list.length;
   const hasServices = count > 0;
   const minPrice = minServicePrice(list);
-  // Tanpa "| Posko Jasa" — template root layout sudah menambahkannya.
-  const title = `Jasa ${cat.name} ${city} — Mitra Terverifikasi`;
+  // Tanpa "| Posko Jasa" . template root layout sudah menambahkannya.
+  const title = `Jasa ${cat.name} ${city} . Mitra Terverifikasi`;
   const description =
     `${count > 0 ? `${countLabel(count, hasMore)} ` : ''}jasa ${cat.name} di ${city} dari mitra terverifikasi` +
-    `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Pesan online, ulasan asli — Posko Jasa.`;
+    `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Pesan online, ulasan asli . Posko Jasa.`;
   return {
     title,
     description,
@@ -155,7 +155,7 @@ export default async function LocalCategoryPage({ params }: PageProps) {
       <JsonLd data={breadcrumbSchema} />
       {serviceList.length > 0 && <JsonLd data={itemListSchema} />}
       <JsonLd data={faqJsonLd(faq)} />
-      {/* titleAs="p": H1 halaman ada di bawah — header ini hanya navigasi. */}
+      {/* titleAs="p": H1 halaman ada di bawah . header ini hanya navigasi. */}
       <MobilePageHeader
         title={`${cat.name} ${city}`}
         titleAs="p"
@@ -175,7 +175,7 @@ export default async function LocalCategoryPage({ params }: PageProps) {
           </p>
         </div>
 
-        {/* Desktop: dua kolom — kolom samping mengisi ruang kosong saat kota ini
+        {/* Desktop: dua kolom . kolom samping mengisi ruang kosong saat kota ini
             baru punya sedikit mitra. Mobile: menumpuk di bawah daftar. */}
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_296px] lg:gap-6 lg:items-start">
           <div className="min-w-0">
@@ -232,7 +232,7 @@ export default async function LocalCategoryPage({ params }: PageProps) {
           </aside>
         </div>
 
-        <FaqSection items={faq} title={`Pertanyaan Umum — Jasa ${cat.name} di ${city}`} />
+        <FaqSection items={faq} title={`Pertanyaan Umum . Jasa ${cat.name} di ${city}`} />
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ export interface ChatRoom {
 interface ChatRoomListProps {
   onSelect: (roomId: string) => void;
   selectedRoomId?: string | null;
-  /** Padding lebih rapat — untuk floating panel */
+  /** Padding lebih rapat . untuk floating panel */
   compact?: boolean;
   /** Dipanggil sekali setelah fetch jika ada minimal satu room (untuk auto-select di desktop) */
   onFirstRoom?: (roomId: string) => void;
@@ -46,12 +46,12 @@ function formatTime(time?: string) {
 }
 
 /**
- * Daftar percakapan — dipakai halaman /chat dan floating chat panel (desktop).
+ * Daftar percakapan . dipakai halaman /chat dan floating chat panel (desktop).
  * Fetch, pencarian, dan sorting ada di sini agar tidak ada duplikasi logika.
  */
 export default function ChatRoomList({ onSelect, selectedRoomId, compact = false, onFirstRoom }: ChatRoomListProps) {
   const user = useAuthStore((s) => s.user);
-  // React Query key ['chat-rooms'] — di-invalidate ChatProvider saat pesan WS
+  // React Query key ['chat-rooms'] . di-invalidate ChatProvider saat pesan WS
   // masuk, sehingga daftar & unread badge ter-update realtime tanpa polling.
   const { data, isLoading: loading } = useChatRooms();
   const chats = data ?? [];
@@ -70,7 +70,7 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
 
   // Tentukan lawan bicara PER-room dengan membandingkan user.id, bukan menebak
   // dari active_role global. Untuk user dual-role (mitra yang juga jadi pelanggan)
-  // active_role keliru pada room di "sisi lain" — menampilkan nama/foto diri
+  // active_role keliru pada room di "sisi lain" . menampilkan nama/foto diri
   // sendiri. Fallback ke active_role hanya bila backend belum mengirim id peserta.
   const counterpartyOf = (c: ChatRoom): { name?: string; avatar?: string } => {
     if (user?.id && c.partner_id && c.customer_id) {
@@ -150,9 +150,8 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
                 <button
                   key={chat.room_id}
                   onClick={() => onSelect(chat.room_id)}
-                  className={`w-full flex items-center gap-3 ${itemPad} text-left transition-colors hover:bg-brand-gray-60 relative ${
-                    isSelected ? 'bg-brand-red-soft' : ''
-                  }`}
+                  className={`w-full flex items-center gap-3 ${itemPad} text-left transition-colors hover:bg-brand-gray-60 relative ${isSelected ? 'bg-brand-red-soft' : ''
+                    }`}
                 >
                   {isSelected && (
                     <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-brand-red rounded-r" />

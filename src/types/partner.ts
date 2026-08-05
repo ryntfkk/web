@@ -49,7 +49,7 @@ export function normalizeCategories(raw: unknown): PartnerCategory[] {
  * The backend now sends clean JSON (no base64, no sql.NullString), so this
  * is primarily a type-safety + defensive-defaults layer.
  *
- * Does NOT mutate the original object (immutability — uses spread).
+ * Does NOT mutate the original object (immutability . uses spread).
  */
 export function normalizePartner(raw: Record<string, unknown>): Partner {
   return {

@@ -7,9 +7,9 @@
 ## Aturan
 
 1. Ganti `bg-[#xxxx]` → `bg-brand-xxx`, `text-[#xxxx]` → `text-brand-xxx`, `border-[#xxxx]` → `border-brand-xxx`.
-2. Jika hex TIDAK ada di tabel di bawah, JANGAN tebak — catat di laporan akhir dengan path:line:hex supaya ditambahkan ke token.
+2. Jika hex TIDAK ada di tabel di bawah, JANGAN tebak . catat di laporan akhir dengan path:line:hex supaya ditambahkan ke token.
 3. Jangan sentuh `globals.css`, `manifest.ts`.
-4. Jangan ganti hex di inline `style={{ color: '#...' }}` jika itu nilai dinamis dari API/data — hanya ganti yang literal statis.
+4. Jangan ganti hex di inline `style={{ color: '#...' }}` jika itu nilai dinamis dari API/data . hanya ganti yang literal statis.
 5. `#fff`/`#ffffff` → `bg-white`/`text-white` (bukan token). `#000`/`#000000` → `bg-black`/`text-black`.
 6. Setelah edit, jalankan `npx tsc --noEmit -p web` dari root untuk verifikasi tidak ada error tipe baru.
 
@@ -57,7 +57,7 @@
 | `#4a5568` | `brand-slate` | |
 | `#f4f0ef` | `brand-surface-warm` | |
 
-## Round 2 — token tambahan (untuk hex berulang yang awalnya tak-terpetikan)
+## Round 2 . token tambahan (untuk hex berulang yang awalnya tak-terpetikan)
 
 | Hex | Token utility | Catatan |
 |-----|---------------|---------|
@@ -102,7 +102,7 @@
 | `#C05621` | `brand-orange` | mirip #DD6B20, pakai orange |
 | `#FFFAF0` | `brand-orange-soft` | orange bg soft |
 
-## Round 3 — token tambahan untuk hex mitra (sweep mitra)
+## Round 3 . token tambahan untuk hex mitra (sweep mitra)
 
 | Hex | Token utility | Catatan |
 |-----|---------------|---------|

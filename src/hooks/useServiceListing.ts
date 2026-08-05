@@ -20,7 +20,7 @@ interface UseServiceListingParams {
 }
 
 /**
- * Hook bersama untuk daftar layanan — dipakai /services (SSR + hydrate) dan
+ * Hook bersama untuk daftar layanan . dipakai /services (SSR + hydrate) dan
  * /search (CSR). Mengelola filter kota, rating (client-side), sort, paginasi
  * "muat lebih banyak", dan akumulasi hasil.
  *
@@ -61,7 +61,7 @@ export function useServiceListing({
     hasInitial ? { initialData: initialServices } : undefined,
   );
 
-  // Reset paginasi & akumulasi saat filter berubah — TAPI skip pada mount awal
+  // Reset paginasi & akumulasi saat filter berubah . TAPI skip pada mount awal
   // agar data SSR (initialServices) tidak terhapus.
   const isInitialMount = useRef(true);
   useEffect(() => {
@@ -74,7 +74,7 @@ export function useServiceListing({
   }, [query, city, sort, category]);
 
   // Akumulasi hasil: halaman 1 menggantikan, halaman berikutnya menambah (dedup by id).
-  // Pola yang sama dengan SearchContent lama — setState in effect untuk sinkronisasi
+  // Pola yang sama dengan SearchContent lama . setState in effect untuk sinkronisasi
   // hasil query ke state akumulasi. Lihat WEB-IMPLEMENTATION-PLAN §4.2/§4.4 untuk
   // rencana migrasi ke useInfiniteQuery (menghilangkan pola ini).
   /* eslint-disable react-hooks/set-state-in-effect */

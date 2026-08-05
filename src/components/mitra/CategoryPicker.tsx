@@ -14,7 +14,7 @@ interface Cat {
  *
  * `value` = category_id yang tersimpan (bisa kategori utama ATAU subkategori).
  * onChange dipanggil dengan category_id efektif: subkategori bila dipilih, jika
- * tidak maka kategori utama (Opsi B — subkategori opsional / campuran diizinkan).
+ * tidak maka kategori utama (Opsi B . subkategori opsional / campuran diizinkan).
  *
  * Saat edit, komponen meresolusi `value` awal: bila punya parent_id → itu sub
  * (main = parent, sub = value); bila tidak → itu kategori utama.
@@ -113,7 +113,7 @@ export default function CategoryPicker({
             Subkategori <span className="font-normal text-brand-gray-400">(opsional, lebih spesifik)</span>
           </label>
           <select value={subId} onChange={(e) => handleSub(e.target.value)} className={selectCls}>
-            <option value="">— Umum (tanpa subkategori) —</option>
+            <option value="">. Umum (tanpa subkategori) .</option>
             {subs.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}

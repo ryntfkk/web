@@ -21,7 +21,7 @@ export function usePartners(params: PartnersParams = {}) {
 
   // Only send lat/lon when explicitly provided by the caller
   // (e.g. from browser geolocation or user input).
-  // Do NOT hardcode a default city — omitting lat/lon lets the backend
+  // Do NOT hardcode a default city . omitting lat/lon lets the backend
   // return results without distance biasing.
   if (params.latitude !== undefined) {
     queryParams.append('lat', params.latitude.toString());
@@ -51,7 +51,7 @@ export function usePartners(params: PartnersParams = {}) {
       }
 
       // Normalize into strongly-typed Partner objects (immutable spread).
-      // Backend now sends clean JSON — normalization just validates types
+      // Backend now sends clean JSON . normalization just validates types
       // and fills safe defaults for any missing fields.
       return res.data.map((raw) => normalizePartner(raw));
     },
