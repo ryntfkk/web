@@ -112,95 +112,123 @@ export default async function JadiMitraPage() {
   ];
 
   return (
-    <div className="page-h bg-brand-gray-60 pb-16">
+    <div className="page-h bg-brand-gray-50 pb-28 sm:pb-16 relative">
       <JsonLd data={faqJsonLd(faq)} />
       <TrackLandingView />
 
       {/* ════════════════════════════════════════════════════════════════
-          HERO . Compact, impactful, stat pills
+          HERO . Premium, Glassmorphism
           ════════════════════════════════════════════════════════════════ */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-brand-red via-brand-red to-brand-red-dark text-white">
-        {/* Subtle decorative circles */}
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5" />
-        <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5" />
+      <header className="relative overflow-hidden bg-brand-gray-900 text-white">
+        {/* Dynamic Glowing Background Effects */}
+        <div className="pointer-events-none absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-brand-red/30 blur-[100px]" />
+        <div className="pointer-events-none absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-brand-red-dark/40 blur-[80px]" />
+        
+        {/* Grid pattern overlay for tech/premium feel */}
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-        <div className="relative mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
-          <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] sm:text-[12px] font-semibold backdrop-blur-sm">
-            <Sparkles className="h-3.5 w-3.5" /> Pendaftaran mitra sedang dibuka
-          </p>
-          <h1 className="text-[22px] sm:text-3xl md:text-4xl font-extrabold leading-[1.2]">
-            Pasang jasa Anda di Posko .{' '}
-            <span className="text-white/90">ditemukan di Google</span>
-          </h1>
-          <p className="mt-3 text-[13px] sm:text-[15px] leading-relaxed text-white/85 max-w-xl">
-            Berhenti repost tiap hari. Tiap layanan Anda punya halaman permanen
-            yang terbaca mesin pencari.
-          </p>
+        <div className="relative mx-auto w-full max-w-3xl px-4 pt-12 pb-16 sm:pt-20 sm:pb-24">
+          <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+            <p className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[11px] sm:text-[12px] font-semibold tracking-wide backdrop-blur-md shadow-xl">
+              <Sparkles className="h-3.5 w-3.5 text-brand-red-light" /> Pendaftaran mitra sedang dibuka
+            </p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.15] tracking-tight">
+              Pasang jasa Anda di Posko.<br className="hidden sm:block" />
+              <span className="bg-gradient-to-r from-brand-red-light to-white bg-clip-text text-transparent">Ditemukan di Google</span>
+            </h1>
+            <p className="mt-4 text-[14px] sm:text-[16px] leading-relaxed text-white/80 max-w-xl">
+              Berhenti repost tiap hari. Tiap layanan Anda punya halaman permanen yang langsung terbaca oleh mesin pencari.
+            </p>
 
-          {/* ── Stat pills ── */}
-          <div className="mt-5 flex flex-wrap gap-2">
-            {HERO_STATS.map((s) => (
-              <div
-                key={s.label}
-                className="flex items-center gap-2 rounded-lg bg-white/10 px-3.5 py-2.5 backdrop-blur-sm"
+            {/* ── CTA buttons ── */}
+            <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <CtaDaftar
+                position="hero"
+                className="w-full !bg-brand-red !text-white hover:!bg-brand-red-dark shadow-[0_0_20px_rgba(220,38,38,0.4)] sm:w-auto py-3.5 text-base"
+              />
+              <Link
+                href="#biaya"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-white/20 bg-white/5 px-6 py-3.5 text-[14px] font-bold text-white backdrop-blur-sm transition-all hover:bg-white/10 sm:w-auto"
               >
-                <span className="text-[18px] sm:text-[20px] font-extrabold leading-none">
-                  {s.angka}
-                </span>
-                <span className="text-[11px] sm:text-[12px] font-medium text-white/80 leading-tight">
-                  {s.label}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* ── CTA buttons ── */}
-          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
-            <CtaDaftar
-              position="hero"
-              className="!bg-white !text-brand-red hover:!bg-white/90 shadow-sm"
-            />
-            <Link
-              href="#biaya"
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-white/40 px-5 py-2.5 text-[13px] sm:text-sm font-bold text-white transition-colors hover:bg-white/10"
-            >
-              Lihat rincian biaya
-            </Link>
+                Lihat rincian biaya
+              </Link>
+            </div>
+            
+            {/* ── Stat pills ── */}
+            <div className="mt-10 grid grid-cols-3 gap-3 w-full sm:flex sm:flex-wrap sm:gap-4">
+              {HERO_STATS.map((s) => (
+                <div
+                  key={s.label}
+                  className="flex flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 p-3 text-center backdrop-blur-md sm:flex-row sm:gap-3 sm:px-4 sm:py-3 sm:text-left"
+                >
+                  <span className="text-xl sm:text-2xl font-black leading-none text-white">
+                    {s.angka}
+                  </span>
+                  <span className="mt-1 sm:mt-0 text-[10px] sm:text-[12px] font-medium leading-tight text-white/70">
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </header>
 
       {/* ════════════════════════════════════════════════════════════════
-          PERBANDINGAN . Compact visual grid
+          PERBANDINGAN . Versus Cards (Mobile Optimized)
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
-          <p className="mb-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wide text-brand-red">
-            Bedanya di mana
-          </p>
-          <h2 className="text-lg sm:text-xl font-bold text-brand-gray-900">
-            Yang berubah setelah punya halaman sendiri
-          </h2>
+        <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
+          <div className="text-center sm:text-left">
+            <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-red">
+              Bedanya di Mana
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-brand-gray-900 tracking-tight">
+              Kelebihan Halaman Sendiri
+            </h2>
+          </div>
 
-          <div className="mt-5 space-y-2.5">
+          <div className="mt-8 space-y-4 sm:space-y-6">
             {COMPARE_ROWS.map((row, i) => (
               <AnimateOnScroll key={row.aspek} delay={i * 60}>
-                <div className="overflow-hidden rounded-xl border border-brand-gray-100 bg-white">
-                  <p className="bg-brand-gray-50 px-3.5 py-2 text-[12px] sm:text-[13px] font-bold text-brand-gray-900">
-                    {row.aspek}
-                  </p>
-                  <div className="grid grid-cols-2 divide-x divide-brand-gray-100">
-                    <div className="flex gap-2 px-3 py-2.5">
-                      <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-gray-400" aria-hidden />
-                      <p className="text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-600">
-                        {row.lama}
-                      </p>
+                <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-brand-gray-100">
+                  {/* Judul Aspek */}
+                  <div className="bg-brand-gray-50 px-4 py-3 sm:w-1/3 sm:flex sm:items-center sm:bg-transparent sm:border-r sm:border-brand-gray-100">
+                    <p className="text-[13px] sm:text-[14px] font-extrabold text-brand-gray-900">
+                      {row.aspek}
+                    </p>
+                  </div>
+                  
+                  {/* Grid Perbandingan */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-brand-gray-100 flex-1">
+                    <div className="flex items-start gap-3 p-4 sm:p-5 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-2 opacity-5">
+                        <X className="h-20 w-20 text-brand-gray-900" />
+                      </div>
+                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-gray-200">
+                        <X className="h-3 w-3 text-brand-gray-600" aria-hidden />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gray-500 mb-1">Cara Lama</p>
+                        <p className="text-[13px] leading-relaxed text-brand-gray-700 relative z-10">
+                          {row.lama}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex gap-2 bg-brand-success-soft/50 px-3 py-2.5">
-                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-success" aria-hidden />
-                      <p className="text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-900 font-medium">
-                        {row.posko}
-                      </p>
+                    
+                    <div className="flex items-start gap-3 p-4 sm:p-5 bg-brand-success-soft/20 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-2 opacity-5">
+                        <Check className="h-20 w-20 text-brand-success" />
+                      </div>
+                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-success text-white shadow-sm shadow-brand-success/30">
+                        <Check className="h-3 w-3" aria-hidden />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-success-dark mb-1">Di Posko</p>
+                        <p className="text-[13px] font-semibold leading-relaxed text-brand-gray-900 relative z-10">
+                          {row.posko}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -211,74 +239,74 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          SEO . Compact numbered cards
+          SEO . Elegant Stacked Cards
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section className="bg-white sm:mx-auto sm:max-w-3xl sm:rounded-2xl">
-          <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
-            <p className="mb-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wide text-brand-red">
-              Ditemukan di Google
-            </p>
-            <h2 className="text-lg sm:text-xl font-bold text-brand-gray-900">
-              Kenapa jasa Anda bisa muncul di pencarian
-            </h2>
-            <p className="mt-2 text-[12px] sm:text-[13px] leading-relaxed text-brand-gray-700">
-              Halaman di Posko terbuka, permanen, dan didaftarkan otomatis ke sitemap yang dibaca Google.
-            </p>
+        <section className="bg-white py-12 sm:py-16 border-y border-brand-gray-100">
+          <div className="mx-auto w-full max-w-3xl px-4">
+            <div className="text-center sm:text-left">
+              <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-red">
+                Ditemukan di Google
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-brand-gray-900 tracking-tight">
+                Kenapa jasa Anda bisa muncul?
+              </h2>
+              <p className="mt-3 text-[14px] leading-relaxed text-brand-gray-600 max-w-lg mx-auto sm:mx-0">
+                Halaman di Posko terbuka, permanen, dan didaftarkan otomatis ke sitemap yang dibaca mesin pencari.
+              </p>
+            </div>
 
-            <div className="mt-5 space-y-3">
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {SEO_POINTS.map((p, i) => (
                 <AnimateOnScroll key={p.judul} delay={i * 80}>
-                  <div className="rounded-xl border border-brand-gray-100 bg-brand-gray-50 p-3.5 sm:p-4">
-                    <div className="flex items-start gap-3">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-red text-[12px] font-bold text-white">
-                        {i + 1}
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="text-[13px] sm:text-[14px] font-bold text-brand-gray-900">{p.judul}</h3>
-                        <p className="mt-1 overflow-x-auto whitespace-nowrap rounded bg-white px-2 py-1 font-mono text-[10px] sm:text-[11px] text-brand-gray-600 ring-1 ring-brand-gray-100">
-                          {p.contoh}
-                        </p>
-                        <p className="mt-1.5 text-[12px] sm:text-[13px] leading-relaxed text-brand-gray-700">
-                          {p.isi}
-                        </p>
-                      </div>
+                  <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-brand-gray-200 bg-brand-gray-50 p-6 transition-all hover:shadow-lg hover:border-brand-red/30 group">
+                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-red text-white shadow-sm group-hover:scale-110 transition-transform">
+                      <Search className="h-5 w-5" />
                     </div>
+                    <h3 className="mb-2 text-[15px] font-extrabold text-brand-gray-900 leading-snug">{p.judul}</h3>
+                    <div className="mb-3 w-fit rounded-md border border-brand-gray-200 bg-white px-2.5 py-1.5 font-mono text-[11px] font-medium text-brand-gray-600 shadow-sm">
+                      {p.contoh}
+                    </div>
+                    <p className="text-[13px] leading-relaxed text-brand-gray-600 flex-1">
+                      {p.isi}
+                    </p>
                   </div>
                 </AnimateOnScroll>
               ))}
             </div>
 
-            {/* Batas klaim */}
-            <p className="mt-4 flex gap-2 rounded-xl border border-brand-gray-100 bg-brand-gray-50 p-3 text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-600">
-              <Search className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-gray-400" aria-hidden />
-              <span>
-                Terindeks bukan jaminan peringkat satu. Yang Posko pastikan: halaman Anda ada, permanen, dan terbaca mesin pencari.
-              </span>
+            <p className="mt-8 mx-auto sm:mx-0 max-w-2xl text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-500 bg-brand-gray-50 rounded-xl p-4 border border-brand-gray-100">
+              <span className="font-semibold text-brand-gray-700">Catatan:</span> Terindeks bukan jaminan peringkat satu. Yang Posko pastikan adalah halaman Anda eksis, permanen, dan siap dibaca mesin pencari.
             </p>
           </div>
         </section>
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          SETUP LAYANAN . Icon Grid Cards
+          SETUP LAYANAN . Prominent Icon Grid
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
-          <p className="mb-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wide text-brand-red">
-            Sekali atur
-          </p>
-          <h2 className="text-lg sm:text-xl font-bold text-brand-gray-900">
-            Berhenti jelaskan harga di tiap chat
-          </h2>
+        <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
+          <div className="text-center">
+            <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-red">
+              Sekali Atur
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-brand-gray-900 tracking-tight">
+              Berhenti Jelaskan Harga Berulang Kali
+            </h2>
+          </div>
 
-          <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
             {SETUP_POINTS.map((p, i) => (
               <AnimateOnScroll key={p.judul} delay={i * 50}>
-                <div className="group rounded-xl border border-brand-gray-100 bg-white p-3.5 sm:p-4 transition-shadow hover:shadow-md hover:border-brand-red/20">
-                  <BadgeCheck className="h-5 w-5 text-brand-red mb-2 transition-transform group-hover:scale-110" aria-hidden />
-                  <h3 className="text-[12px] sm:text-[13px] font-bold text-brand-gray-900 leading-snug">{p.judul}</h3>
-                  <p className="mt-1 text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-600">{p.isi}</p>
+                <div className="group flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-brand-gray-100 transition-all hover:shadow-md hover:ring-brand-red/30">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-red/10 text-brand-red transition-transform group-hover:rotate-12 group-hover:scale-110">
+                    <BadgeCheck className="h-6 w-6" aria-hidden />
+                  </div>
+                  <div>
+                    <h3 className="mb-1.5 text-[15px] font-bold text-brand-gray-900">{p.judul}</h3>
+                    <p className="text-[13px] leading-relaxed text-brand-gray-600">{p.isi}</p>
+                  </div>
                 </div>
               </AnimateOnScroll>
             ))}
@@ -287,39 +315,52 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          ALUR TRANSAKSI . Horizontal stepper
+          ALUR TRANSAKSI . Vertical Timeline (Mobile Optimized)
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section className="bg-white sm:mx-auto sm:max-w-3xl sm:rounded-2xl">
-          <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
-            <p className="mb-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wide text-brand-red">
-              Saat pesanan masuk
-            </p>
-            <h2 className="text-lg sm:text-xl font-bold text-brand-gray-900">
-              Anda kerjakan, urusan uangnya sudah beres
-            </h2>
-            <p className="mt-2 text-[12px] sm:text-[13px] leading-relaxed text-brand-gray-700">
-              Pelanggan membayar ke Posko sebelum Anda berangkat.
-            </p>
+        <section className="bg-brand-gray-900 py-12 sm:py-16 text-white sm:rounded-3xl sm:mx-4 md:mx-auto max-w-4xl relative overflow-hidden">
+          {/* Subtle bg glow */}
+          <div className="pointer-events-none absolute top-0 right-0 h-64 w-64 rounded-full bg-brand-red/20 blur-[80px]" />
+          
+          <div className="mx-auto w-full max-w-3xl px-6 relative z-10">
+            <div className="text-center mb-10">
+              <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-red-light">
+                Saat Pesanan Masuk
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                Anda Kerjakan, Uangnya Beres
+              </h2>
+              <p className="mt-3 text-[14px] leading-relaxed text-white/70">
+                Pelanggan membayar ke sistem sebelum Anda berangkat.
+              </p>
+            </div>
 
-            {/* Horizontal scroll stepper on mobile */}
-            <div className="mt-5 -mx-4 px-4 overflow-x-auto sm:mx-0 sm:px-0 sm:overflow-visible">
-              <div className="flex gap-2.5 sm:grid sm:grid-cols-5 sm:gap-3 min-w-max sm:min-w-0">
+            {/* Timeline Vertikal Khusus HP / Grid di Desktop */}
+            <div className="relative">
+              {/* Garis vertikal penghubung (hanya mobile) */}
+              <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-white/10 sm:hidden"></div>
+
+              <div className="space-y-6 sm:space-y-0 sm:grid sm:grid-cols-5 sm:gap-4 relative">
                 {FLOW_STEPS.map((s, i) => {
                   const Icon = FLOW_ICONS[i] ?? Zap;
                   return (
                     <AnimateOnScroll key={s.judul} delay={i * 80}>
-                      <div className="relative flex w-[130px] sm:w-auto flex-col items-center text-center rounded-xl border border-brand-gray-100 bg-brand-gray-50 p-3 sm:p-4">
-                        {/* Step number */}
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-red text-white text-[13px] font-bold mb-2">
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <h3 className="text-[12px] sm:text-[13px] font-bold text-brand-gray-900 leading-tight">{s.judul}</h3>
-                        <p className="mt-1 text-[10px] sm:text-[11px] leading-snug text-brand-gray-600">{s.isi}</p>
-                        {/* Connector arrow (not on last) */}
+                      <div className="relative flex items-start gap-4 sm:flex-col sm:items-center sm:text-center group">
+                        {/* Garis horizontal penghubung (hanya desktop) */}
                         {i < FLOW_STEPS.length - 1 && (
-                          <ChevronRight className="absolute -right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-gray-300 hidden sm:block" />
+                          <div className="hidden sm:block absolute top-6 left-[60%] w-[80%] h-0.5 bg-white/10"></div>
                         )}
+                        
+                        {/* Nomor/Ikon Bulat */}
+                        <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-gray-800 text-brand-red-light ring-4 ring-brand-gray-900 transition-transform group-hover:scale-110 group-hover:bg-brand-red group-hover:text-white">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        
+                        {/* Teks */}
+                        <div className="pt-2 sm:pt-0">
+                          <h3 className="text-[14px] font-bold leading-tight mb-1">{s.judul}</h3>
+                          <p className="text-[12px] leading-relaxed text-white/60">{s.isi}</p>
+                        </div>
                       </div>
                     </AnimateOnScroll>
                   );
@@ -327,11 +368,11 @@ export default async function JadiMitraPage() {
               </div>
             </div>
 
-            {/* Perlindungan sengketa */}
-            <div className="mt-5 flex gap-2.5 rounded-xl border border-brand-info-light bg-brand-info-soft p-3.5">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-info-dark" aria-hidden />
-              <p className="text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-900">
-                Ada selisih paham? Pesanan bisa dibawa ke jalur sengketa. Dana ditahan sampai tim Posko memutuskan - perlindungan untuk kedua pihak.
+            {/* Info Keamanan */}
+            <div className="mt-12 flex gap-3 rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-5 backdrop-blur-sm mx-auto max-w-2xl">
+              <ShieldCheck className="h-6 w-6 shrink-0 text-brand-success-light" aria-hidden />
+              <p className="text-[12px] sm:text-[13px] leading-relaxed text-white/80">
+                <strong className="text-white">Ada selisih paham?</strong> Pesanan bisa dibawa ke jalur sengketa. Dana ditahan sampai tim Posko memutuskan - sebuah perlindungan fair untuk kedua belah pihak.
               </p>
             </div>
           </div>
@@ -339,74 +380,97 @@ export default async function JadiMitraPage() {
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          BIAYA . Prominent numbers
+          BIAYA . Setruk/Tiket Modern
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section id="biaya" className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
-          <p className="mb-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wide text-brand-red">
-            Transparan
-          </p>
-          <h2 className="text-lg sm:text-xl font-bold text-brand-gray-900">
-            Tidak ada ruginya bergabung
-          </h2>
-          <p className="mt-2 text-[12px] sm:text-[13px] text-brand-gray-700">
-            Kami baru menerima bagian ketika Anda menerima bagian.
-          </p>
-
-          <div className="mt-5 overflow-hidden rounded-xl border border-brand-gray-100 bg-white">
-            <dl>
-              {barisBiaya.map((b) => (
-                <div
-                  key={b.label}
-                  className="flex items-center justify-between gap-3 border-b border-brand-gray-100 px-4 py-3 last:border-b-0"
-                >
-                  <dt className="text-[12px] sm:text-[13px] text-brand-gray-700">{b.label}</dt>
-                  <dd
-                    className={`shrink-0 font-bold ${b.gratisFlag
-                        ? 'text-[15px] sm:text-[16px] text-brand-success'
-                        : 'text-[13px] sm:text-[14px] text-brand-gray-900'
-                      }`}
-                  >
-                    {b.nilai}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <p className="bg-brand-success-soft px-4 py-3 text-[12px] sm:text-[13px] font-semibold leading-relaxed text-brand-success-dark">
-              Tidak ada pesanan = tidak ada biaya. Komisi {komisi} hanya dari pesanan yang selesai.
+        <section id="biaya" className="mx-auto w-full max-w-xl px-4 py-12 sm:py-16">
+          <div className="text-center mb-8">
+            <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-red">
+              Transparan
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-brand-gray-900 tracking-tight">
+              Tidak Ada Ruginya Bergabung
+            </h2>
+            <p className="mt-3 text-[14px] text-brand-gray-600">
+              Kami baru menerima komisi jika Anda sudah mendapatkan penghasilan.
             </p>
           </div>
 
+          <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl shadow-brand-gray-200/50 ring-1 ring-brand-gray-200">
+            {/* Header Setruk */}
+            <div className="bg-brand-gray-900 px-6 py-4 text-white text-center">
+              <p className="text-[11px] font-mono tracking-widest text-white/60 mb-1">STRUKTUR BIAYA</p>
+              <p className="text-[16px] font-bold">Posko Jasa Partner</p>
+            </div>
+            
+            {/* Edge zigzag effect via pseudo elements (CSS trick simplified to borders) */}
+            <div className="border-b-[3px] border-dashed border-brand-gray-200"></div>
+
+            <div className="p-6">
+              <dl className="space-y-4">
+                {barisBiaya.map((b) => (
+                  <div
+                    key={b.label}
+                    className="flex items-center justify-between gap-4"
+                  >
+                    <dt className="text-[13px] font-medium text-brand-gray-600">{b.label}</dt>
+                    <dd className="shrink-0">
+                      {b.gratisFlag ? (
+                        <span className="inline-flex items-center rounded bg-brand-success px-2.5 py-1 text-[13px] font-bold text-white shadow-sm">
+                          GRATIS ({b.nilai})
+                        </span>
+                      ) : (
+                        <span className="text-[14px] font-bold text-brand-gray-900">{b.nilai}</span>
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              
+              <div className="mt-8 rounded-xl bg-brand-success-soft/30 p-4 border border-brand-success/20">
+                <p className="text-center text-[12px] sm:text-[13px] font-semibold leading-relaxed text-brand-success-dark">
+                  Tidak ada pesanan = tidak ada biaya.<br/>Komisi {komisi} hanya dipotong dari pesanan yang sukses.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Syarat masuk */}
-          <p className="mt-3 flex gap-2 rounded-xl border border-brand-warning-light bg-brand-warning-light/40 p-3 text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-900">
-            <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-brand-amber-dark" aria-hidden />
-            <span>
-              Harga layanan minimal {hargaMin}. Bila di bawah itu, gabungkan jadi satu paket.
-            </span>
-          </p>
+          <div className="mt-6 flex gap-3 rounded-2xl border border-brand-warning-light/50 bg-brand-warning-light/20 p-4 max-w-xl mx-auto">
+            <Wallet className="mt-0.5 h-5 w-5 shrink-0 text-brand-amber-dark" aria-hidden />
+            <p className="text-[12px] sm:text-[13px] leading-relaxed text-brand-gray-800 font-medium">
+              Syarat minimal harga layanan adalah <span className="font-bold">{hargaMin}</span>. Bila biasanya di bawah itu, Anda bisa menggabungkannya menjadi satu paket layanan.
+            </p>
+          </div>
         </section>
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          KEUNGGULAN PENDAFTAR AWAL . Gradient highlight cards
+          KEUNGGULAN PENDAFTAR AWAL . Premium Gradient Cards
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section className="bg-white sm:mx-auto sm:max-w-3xl sm:rounded-2xl">
-          <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
-            <p className="mb-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wide text-brand-red">
-              Mitra pendaftar awal
-            </p>
-            <h2 className="text-lg sm:text-xl font-bold text-brand-gray-900">
-              Keuntungan yang hanya berlaku sekarang
-            </h2>
+        <section className="bg-brand-gray-900 py-12 sm:py-16 text-white sm:rounded-3xl sm:mx-4 md:mx-auto max-w-4xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-red-dark/40 via-transparent to-transparent opacity-60"></div>
+          
+          <div className="mx-auto w-full max-w-3xl px-6 relative z-10">
+            <div className="text-center sm:text-left mb-8">
+              <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-amber-400">
+                Fase Pendaftar Awal (Early Bird)
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                Keuntungan yang Hanya Berlaku Sekarang
+              </h2>
+            </div>
 
-            <div className="mt-5 grid gap-2.5 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3">
               {EARLY_ADVANTAGES.map((a, i) => (
                 <AnimateOnScroll key={a.judul} delay={i * 80}>
-                  <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-brand-red/[0.04] to-brand-red/[0.08] p-4 transition-all hover:from-brand-red/[0.06] hover:to-brand-red/[0.12]">
-                    <Sparkles className="h-5 w-5 text-brand-red mb-2 transition-transform group-hover:rotate-12" aria-hidden />
-                    <h3 className="text-[13px] sm:text-[14px] font-bold text-brand-gray-900">{a.judul}</h3>
-                    <p className="mt-1 text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-700">{a.isi}</p>
+                  <div className="group h-full flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-5 border border-white/10 backdrop-blur-sm transition-all hover:from-brand-red/20 hover:to-white/5 hover:border-brand-red/30">
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-400/20 text-amber-400">
+                      <Sparkles className="h-5 w-5 transition-transform group-hover:rotate-12 group-hover:scale-110" aria-hidden />
+                    </div>
+                    <h3 className="mb-2 text-[15px] font-bold text-white">{a.judul}</h3>
+                    <p className="text-[12px] leading-relaxed text-white/70 flex-1">{a.isi}</p>
                   </div>
                 </AnimateOnScroll>
               ))}
@@ -419,82 +483,102 @@ export default async function JadiMitraPage() {
           PERSIAPAN DAFTAR
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
-          <p className="mb-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wide text-brand-red">
-            Cara mendaftar
-          </p>
-          <h2 className="text-lg sm:text-xl font-bold text-brand-gray-900">
-            Siapkan 5 hal ini, sisanya kami pandu
-          </h2>
+        <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
+          <div className="text-center sm:text-left">
+            <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-red">
+              Langkah Terakhir
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-brand-gray-900 tracking-tight">
+              Siapkan 5 Hal Ini, Sisanya Kami Pandu
+            </h2>
+          </div>
 
-          <ul className="mt-5 space-y-2">
-            {PREP_ITEMS.map((item, i) => (
-              <AnimateOnScroll key={item} delay={i * 50}>
-                <li className="flex items-start gap-2.5 rounded-xl border border-brand-gray-100 bg-white px-3.5 py-2.5 text-[12px] sm:text-[13px] leading-relaxed text-brand-gray-900 transition-colors hover:border-brand-red/20">
-                  <CalendarCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-red" aria-hidden />
-                  {item}
-                </li>
-              </AnimateOnScroll>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] sm:text-[12px] leading-relaxed text-brand-gray-600">
-            Setelah dikirim, berkas diperiksa tim Posko. Sambil menunggu, Anda sudah bisa
-            menyiapkan etalase layanan dan jadwal kerja.
+          <div className="mt-8 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-brand-gray-100">
+            <ul className="divide-y divide-brand-gray-100">
+              {PREP_ITEMS.map((item, i) => (
+                <AnimateOnScroll key={item} delay={i * 40}>
+                  <li className="flex items-center gap-4 px-4 py-4 group transition-colors hover:bg-brand-gray-50/50">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-red/10 text-brand-red">
+                      <Check className="h-4 w-4" aria-hidden />
+                    </div>
+                    <span className="text-[13px] sm:text-[14px] font-medium text-brand-gray-800">
+                      {item}
+                    </span>
+                  </li>
+                </AnimateOnScroll>
+              ))}
+            </ul>
+          </div>
+          <p className="mt-4 text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-500 max-w-xl">
+            Setelah dikirim, berkas diperiksa tim Posko. Sambil menunggu, Anda sudah bisa mulai mengisi etalase layanan dan mengatur jadwal jam kerja.
           </p>
         </section>
       </AnimateOnScroll>
 
       {/* ── FAQ ── */}
       <AnimateOnScroll>
-        <div className="mx-auto w-full max-w-3xl px-4 pb-2">
-          <FaqSection items={faq} title="Pertanyaan calon mitra" />
+        <div className="mx-auto w-full max-w-3xl px-4 pb-12">
+          <FaqSection items={faq} title="Pertanyaan Calon Mitra" />
         </div>
       </AnimateOnScroll>
 
       {/* ════════════════════════════════════════════════════════════════
-          PENUTUP . Bold CTA
+          PENUTUP . Bold CTA Card
           ════════════════════════════════════════════════════════════════ */}
       <AnimateOnScroll>
-        <section className="mx-auto mt-6 w-full max-w-3xl px-4">
-          <div className="relative overflow-hidden rounded-2xl bg-brand-gray-900 px-5 py-8 text-center sm:px-8 sm:py-10">
+        <section className="mx-auto w-full max-w-3xl px-4 pb-12">
+          <div className="relative overflow-hidden rounded-3xl bg-brand-red p-8 text-center sm:p-12 shadow-2xl shadow-brand-red/30">
             {/* Decorative */}
-            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-red/10" />
-            <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-brand-red/10" />
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-black/10 blur-2xl" />
 
-            <div className="relative">
-              <h2 className="text-xl sm:text-2xl font-bold text-white">
-                Mulai dari satu layanan saja
+            <div className="relative z-10">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Mulai dari Satu Layanan Saja
               </h2>
-              <p className="mx-auto mt-2.5 max-w-lg text-[13px] sm:text-sm leading-relaxed text-white/75">
-                Pasang satu jasa yang paling sering Anda kerjakan, lihat hasilnya, lalu tambah yang lain.
+              <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-white/90">
+                Pasang satu jasa yang paling sering Anda kerjakan, lihat bagaimana hasilnya, lalu tambah yang lain secara bertahap.
               </p>
-              <CtaDaftar
-                position="penutup"
-                className="mt-5 !bg-brand-red !text-white hover:!bg-brand-red-dark"
-              />
-              <p className="mt-3.5 text-[11px] sm:text-[12px] text-white/50">
+              
+              <div className="mt-8 flex justify-center">
+                <CtaDaftar
+                  position="penutup"
+                  className="!bg-white !text-brand-red hover:!bg-brand-gray-50 hover:scale-105 transition-transform font-bold px-8 py-3.5 text-[15px] shadow-lg shadow-black/10"
+                />
+              </div>
+              
+              <p className="mt-5 text-[11px] text-white/70">
                 Dengan mendaftar, Anda menyetujui{' '}
-                <Link href="/terms" className="underline hover:text-white">
-                  Syarat &amp; Ketentuan
+                <Link href="/terms" className="underline hover:text-white transition-colors">
+                  Syarat & Ketentuan
                 </Link>{' '}
-                dan{' '}
-                <Link href="/privacy" className="underline hover:text-white">
+                serta{' '}
+                <Link href="/privacy" className="underline hover:text-white transition-colors">
                   Kebijakan Privasi
                 </Link>
-                .
               </p>
             </div>
           </div>
 
-          <p className="mt-5 text-center text-[12px] sm:text-[13px] text-brand-gray-700">
+          <p className="mt-6 text-center text-[13px] font-medium text-brand-gray-700">
             Sudah jadi mitra?{' '}
-            <Link href="/mitra/dashboard" className="font-semibold text-brand-red hover:underline">
+            <Link href="/mitra/dashboard" className="text-brand-red hover:text-brand-red-dark hover:underline underline-offset-2 transition-colors">
               Masuk ke dasbor mitra
-              <ArrowRight className="ml-1 inline h-3.5 w-3.5" />
+              <ArrowRight className="ml-1 inline h-4 w-4 align-text-bottom" />
             </Link>
           </p>
         </section>
       </AnimateOnScroll>
+
+      {/* ════════════════════════════════════════════════════════════════
+          STICKY BOTTOM CTA (Mobile Only)
+          ════════════════════════════════════════════════════════════════ */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-brand-gray-200 bg-white/80 p-4 backdrop-blur-lg sm:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <CtaDaftar
+          position="sticky-mobile"
+          className="w-full !bg-brand-red !text-white hover:!bg-brand-red-dark py-3.5 text-[15px] font-bold shadow-md shadow-brand-red/20"
+        />
+      </div>
     </div>
   );
 }
