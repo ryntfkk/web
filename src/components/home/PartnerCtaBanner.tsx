@@ -20,9 +20,8 @@ import { track } from '@/lib/analytics';
  */
 
 const POIN = [
-  { Icon: Wallet, teks: 'Gratis, tanpa langganan' },
+  { Icon: Wallet, teks: 'Daftar Gratis' },
   { Icon: Search, teks: 'Muncul di pencarian Google' },
-  { Icon: Store, teks: 'Kelola harga & jadwal sendiri' },
 ];
 
 export default function PartnerCtaBanner() {
@@ -36,7 +35,7 @@ export default function PartnerCtaBanner() {
         {/* Decorative Background Elements */}
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-red/20 blur-[60px] transition-transform duration-700 group-hover:scale-110" />
         <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-brand-red-dark/30 blur-[50px] transition-transform duration-700 group-hover:scale-110" />
-        
+
         {/* Grid pattern overlay */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:16px_16px]"></div>
 
@@ -45,12 +44,12 @@ export default function PartnerCtaBanner() {
             <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] sm:text-[11px] font-semibold uppercase tracking-widest text-brand-red-light backdrop-blur-sm shadow-sm">
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Peluang Terbuka
             </div>
-            
+
             <h2 className="mt-0.5 sm:mt-1.5 text-[17px] sm:text-[26px] font-extrabold leading-[1.25] tracking-tight">
               Punya keahlian? <br className="hidden sm:block" />
               <span className="text-white/90">Pasang jasa Anda di Posko.</span>
             </h2>
-            
+
             <ul className="mt-3.5 flex flex-wrap gap-1.5 sm:mt-6 sm:gap-3">
               {POIN.map(({ Icon, teks }) => (
                 <li key={teks} className="flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-2 py-1.5 sm:rounded-xl sm:px-3.5 sm:py-2.5 text-[10px] sm:text-[12px] font-medium text-white/90 backdrop-blur-sm transition-colors group-hover:border-white/10 group-hover:bg-white/10">
