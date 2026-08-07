@@ -76,17 +76,29 @@ export default async function Home() {
       <div className="flex flex-col page-h">
         {/* Location Picker - Compact Banner di paling atas (Opsi 1) */}
         <div className="bg-white">
-          <div className="container mx-auto max-w-[1200px] px-2 sm:px-4 lg:px-4 pt-2 pb-2 sm:pt-3 sm:pb-3 lg:pt-6 lg:pb-0">
+          <div className="container mx-auto max-w-[1200px] px-2 sm:px-4 lg:px-4 pt-2 pb-0 sm:pt-3 sm:pb-0 lg:pt-6 lg:pb-0">
             <LocationPicker />
           </div>
         </div>
 
-        {/* Hero Section - Auto-sliding Carousel */}
-        <HeroCarousel />
-
         {/* Main Content Area - Better mobile padding */}
-        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 py-4 sm:py-6 flex-1">
-          <CategorySection />
+        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 pt-0 pb-4 sm:pt-0 sm:pb-6 lg:py-6 flex-1">
+          
+          {/* Top Layout: Hero (Left, 70%) & Categories (Right, 30%) on Desktop */}
+          <div className="flex flex-col lg:flex-row lg:gap-6 lg:mb-8">
+            
+            {/* Hero Carousel Wrapper */}
+            <div className="w-full lg:w-[70%] xl:w-[72%] -mx-3 sm:-mx-4 md:-mx-6 lg:mx-0 sm:w-auto">
+              <HeroCarousel />
+            </div>
+
+            {/* Category Section Wrapper */}
+            <div className="w-full lg:w-[30%] xl:w-[28%] mt-4 sm:mt-6 lg:mt-0">
+              <CategorySection />
+            </div>
+
+          </div>
+
           <RecentlyViewedSection />
           <ProductsSection />
           <PartnerCtaBanner />

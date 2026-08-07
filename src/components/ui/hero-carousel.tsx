@@ -50,8 +50,8 @@ export default function HeroCarousel() {
   };
 
   return (
-    <div className="w-full bg-white flex justify-center">
-      <section className="relative w-full max-w-[1200px] h-[160px] sm:h-[240px] md:h-[320px] lg:h-[400px] overflow-hidden bg-brand-gray-100 lg:mt-6 lg:rounded-xl">
+    <div className="w-full bg-white flex justify-center h-full">
+      <section className="relative w-full max-w-[1200px] h-[160px] sm:h-[240px] md:h-[320px] lg:h-[280px] xl:h-[300px] overflow-hidden bg-brand-gray-100 lg:rounded-xl">
       {/* Slides Container */}
       <div className="relative w-full h-full">
         {HERO_SLIDES.map((slide, index) => (

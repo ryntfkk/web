@@ -17,19 +17,19 @@ export default function CategorySection() {
   const { data: categories, isLoading, isError } = useCategories();
   const [activeMain, setActiveMain] = useState<Category | null>(null);
 
-  // Ambil hingga 15 kategori + 1 tombol "Lainnya" = 16 item (muat dalam 2 baris x 8 kolom)
-  const displayCategories = categories?.slice(0, 15) || [];
+  // Ambil hingga 11 kategori + 1 tombol "Lainnya" = 12 item (muat dalam 3 baris x 4 kolom di desktop)
+  const displayCategories = categories?.slice(0, 11) || [];
 
   return (
-    <section className="mb-6 md:mb-8">
+    <section className="h-full">
       {isLoading ? (
-        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-flow-row md:grid-cols-8 gap-3 sm:gap-4 pb-4 md:pb-0 overflow-x-auto scrollbar-hide">
-          {Array.from({ length: 16 }).map((_, i) => (
+        <div className="grid grid-rows-2 grid-flow-col lg:grid-rows-none lg:grid-flow-row lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-x-2 lg:gap-y-3 pb-4 lg:pb-0 overflow-x-auto scrollbar-hide">
+          {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center gap-2"
+              className="flex-shrink-0 w-[72px] sm:w-[88px] lg:w-auto flex flex-col items-center gap-2"
             >
-              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] bg-gray-200 rounded-[14px] sm:rounded-2xl animate-pulse" />
+              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] bg-gray-200 rounded-[14px] lg:rounded-xl animate-pulse" />
               <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
             </div>
           ))}
@@ -37,16 +37,16 @@ export default function CategorySection() {
       ) : isError ? (
         <div className="text-sm text-red-500">Gagal memuat kategori.</div>
       ) : (
-        <div className="grid grid-rows-2 grid-flow-col md:grid-rows-none md:grid-flow-row md:grid-cols-8 gap-x-3 gap-y-4 sm:gap-x-4 sm:gap-y-5 pb-4 md:pb-0 overflow-x-auto snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="grid grid-rows-2 grid-flow-col lg:grid-rows-none lg:grid-flow-row lg:grid-cols-4 gap-x-3 gap-y-4 sm:gap-x-4 sm:gap-y-5 lg:gap-x-2 lg:gap-y-3 pb-4 lg:pb-0 overflow-x-auto snap-x lg:snap-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayCategories.map((cat: Category) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setActiveMain(cat)}
               aria-haspopup="dialog"
-              className="group flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
+              className="group flex-shrink-0 w-[72px] sm:w-[88px] lg:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
-              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] mb-2 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
+              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] mb-2 lg:mb-1.5 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-[14px] sm:rounded-2xl lg:rounded-xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
                 <Image
                   src={cat.icon_url || '/icons/default.svg'}
                   alt={cat.name}
@@ -55,7 +55,7 @@ export default function CategorySection() {
                   sizes="(max-width: 640px) 52px, 64px"
                 />
               </div>
-              <span className="text-[10px] sm:text-[11px] md:text-[13px] font-medium text-brand-gray-900 text-center leading-[1.1] line-clamp-2 px-1">
+              <span className="text-[10px] sm:text-[11px] lg:text-[11px] font-medium text-brand-gray-900 text-center leading-[1.1] line-clamp-2 px-1">
                 {cat.name}
               </span>
             </button>
@@ -64,12 +64,12 @@ export default function CategorySection() {
           {/* Tombol Lihat Semua Kategori */}
           <Link
             href="/categories"
-            className="group flex-shrink-0 w-[72px] sm:w-[88px] md:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
+            className="group flex-shrink-0 w-[72px] sm:w-[88px] lg:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
           >
-            <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] mb-2 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-[14px] sm:rounded-2xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
-              <span className="text-brand-red font-bold text-[20px] sm:text-[24px]">+</span>
+            <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] mb-2 lg:mb-1.5 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-[14px] sm:rounded-2xl lg:rounded-xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
+              <span className="text-brand-red font-bold text-[20px] sm:text-[24px] lg:text-[20px]">+</span>
             </div>
-            <span className="text-[10px] sm:text-[11px] md:text-[13px] font-medium text-brand-red text-center leading-[1.1] px-1">
+            <span className="text-[10px] sm:text-[11px] lg:text-[11px] font-medium text-brand-red text-center leading-[1.1] px-1">
               Lainnya
             </span>
           </Link>
