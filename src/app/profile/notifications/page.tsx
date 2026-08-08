@@ -12,11 +12,15 @@ import {
   useUpsertPreference,
 } from '@/hooks/useNotificationPreferences';
 
+// Kunci di sini WAJIB sama dengan notifications.ValidCategories di backend .
+// kategori asing kini ditolak UpsertPreference, dan kategori yang hilang dari
+// daftar ini berarti pengguna tak punya cara mematikan emailnya.
 const CATEGORIES: { key: string; label: string; desc: string }[] = [
   { key: 'order_update', label: 'Update Pesanan', desc: 'Status pesanan, konfirmasi, penyelesaian' },
+  { key: 'finance', label: 'Keuangan', desc: 'Penarikan dana disetujui atau ditolak' },
+  { key: 'warning', label: 'Peringatan', desc: 'Peringatan keamanan, akun, dan sengketa' },
   { key: 'promo', label: 'Promo & Penawaran', desc: 'Diskon dan penawaran khusus' },
   { key: 'system', label: 'Sistem', desc: 'Pengumuman dan pembaruan aplikasi' },
-  { key: 'warning', label: 'Peringatan', desc: 'Peringatan keamanan dan akun' },
 ];
 
 export default function NotificationSettingsPage() {
@@ -30,12 +34,19 @@ export default function NotificationSettingsPage() {
     return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   }
 
-  // Default: push ON, email OFF (sesuai default DB) bila belum ada baris preferensi.
+  // Default bila BELUM ada baris preferensi: push ON, email ON.
+  //
+  // Email sengaja ON walau kolom DB-nya default FALSE. Baris preferensi baru
+  // lahir saat sakelarnya disentuh, jadi backend memperlakukan "tidak ada baris"
+  // sebagai boleh kirim (opt-OUT) . kalau tidak, nol email akan terkirim
+  // selamanya. Tampilan di sini HARUS sepakat dengan backend
+  // (internal/notify.emailAllowed); menampilkan OFF sementara email tetap
+  // dikirim persis kebohongan yang perbaikan ini tutup.
   const getPref = (cat: string) => {
     const p = prefs?.find((x) => x.category === cat);
     return {
       push: p ? p.push_enabled : true,
-      email: p ? p.email_enabled : false,
+      email: p ? p.email_enabled : true,
     };
   };
 
