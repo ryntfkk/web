@@ -16,6 +16,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/ui/toast';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import EmailVerificationNotice from '@/components/mitra/EmailVerificationNotice';
 
 
 interface DashboardData {
@@ -184,6 +185,9 @@ export default function MitraDashboardPage() {
       </div>
 
       <MitraPageContainer variant="dashboard" className="py-0 -mt-6 relative z-20 space-y-4">
+        {/* Diam sendiri bila email sudah terverifikasi . lihat komponennya. */}
+        <EmailVerificationNotice />
+
         {/* Stats */}
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 animate-pulse">
