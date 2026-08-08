@@ -8,6 +8,7 @@ import { fetchAPI } from '@/lib/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import RegionSelect from '@/components/ui/RegionSelect';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
+import EmailVerificationModal from '@/components/ui/EmailVerificationModal';
 import { Stepper } from '@/components/ui/stepper';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
@@ -229,6 +230,12 @@ function MitraRegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showEmailVerify, setShowEmailVerify] = useState(false);
+  // Modal email bisa dibuka dari DUA tempat: banner di atas form, dan gerbang di
+  // handleSubmit. Hanya yang kedua boleh melanjutkan pengiriman setelah sukses .
+  // kalau tidak, menekan "Verifikasi Sekarang" di banner akan mengirim form yang
+  // baru terisi separuh.
+  const [submitAfterEmailVerify, setSubmitAfterEmailVerify] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const { data: legalDocs } = useActiveLegalDocuments();
@@ -238,6 +245,11 @@ function MitraRegisterForm() {
   // Server menolak onboarding tanpa nomor terverifikasi. Tampilkan syaratnya di
   // depan, bukan sebagai error setelah lima langkah form dan dua unggahan KTP.
   const needsPhone = !!user && !user.profile_complete;
+  // Sejak WhatsApp dipakai khusus OTP, email adalah satu-satunya kanal untuk
+  // mengabari mitra soal hasil verifikasi & pencairan dana . jadi server
+  // mewajibkannya (EMAIL_NOT_VERIFIED). Ditampilkan di depan, sama seperti
+  // syarat nomor HP, bukan sebagai kejutan di akhir form.
+  const needsEmail = !!user && !user.email_verified;
   // Shell mitra hanya memasang sidebar untuk akun bermode mitra (pengajuan
   // ulang); pendaftar baru membuka halaman ini sebagai pelanggan.
   const isPartnerMode = user?.active_role === 'partner';
@@ -526,6 +538,19 @@ function MitraRegisterForm() {
   };
 
   const handleSubmit = async () => {
+    // Email terverifikasi adalah syarat server (EMAIL_NOT_VERIFIED). Dicegat di
+    // sini, SEBELUM unggahan ke S3, supaya pengguna tidak kehilangan isian dan
+    // tidak membakar kuota unggah untuk permintaan yang pasti ditolak.
+    //
+    // Dibaca dari getState(), bukan variabel `user` hasil render: setelah modal
+    // verifikasi sukses, handleSubmit dipanggil ulang dan closure lama masih
+    // memegang nilai lama . itu akan memunculkan modal yang sama berulang.
+    if (!useAuthStore.getState().user?.email_verified) {
+      setSubmitAfterEmailVerify(true);
+      setShowEmailVerify(true);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -644,6 +669,15 @@ function MitraRegisterForm() {
         });
 
       if (!res.success) {
+        // Jaring pengaman: kalau state klien basi (mis. email diubah di tab
+        // lain), server tetap yang memutuskan. Buka modal alih-alih menampilkan
+        // pesan buntu.
+        const detail = typeof res.error === 'string' ? res.error : res.error?.details;
+        if (typeof detail === 'string' && detail.includes('EMAIL_NOT_VERIFIED')) {
+          setSubmitAfterEmailVerify(true);
+          setShowEmailVerify(true);
+          return;
+        }
         throw new Error(res.message || (typeof res.error === 'string' ? res.error : 'Gagal mengirim form'));
       }
 
@@ -700,10 +734,46 @@ function MitraRegisterForm() {
           </div>
         )}
 
+        {needsEmail && (
+          <div className="mb-4 rounded-md border border-brand-warning-border bg-brand-warning-soft p-4">
+            <p className="text-sm font-semibold text-brand-gray-900">Verifikasi email dulu</p>
+            <p className="mt-0.5 text-xs text-brand-gray-700">
+              Hasil verifikasi mitra dan status pencairan dana kami kirim lewat email, jadi
+              alamatnya harus terverifikasi sebelum mendaftar.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitAfterEmailVerify(false);
+                setShowEmailVerify(true);
+              }}
+              className="mt-2 text-xs font-bold text-brand-red hover:underline"
+            >
+              Verifikasi Sekarang
+            </button>
+          </div>
+        )}
+
         <PhoneVerificationModal
           isOpen={showPhoneModal}
           onClose={() => setShowPhoneModal(false)}
           onSuccess={() => setShowPhoneModal(false)}
+        />
+
+        {/* Melanjutkan pengiriman HANYA bila modal dibuka oleh gerbang di
+            handleSubmit . tanpa panggilan ulang itu, pengguna harus menekan
+            Kirim dua kali tanpa alasan yang terlihat. Dibuka dari banner:
+            berhenti setelah verifikasi, form belum tentu lengkap. */}
+        <EmailVerificationModal
+          isOpen={showEmailVerify}
+          onClose={() => setShowEmailVerify(false)}
+          onSuccess={() => {
+            setShowEmailVerify(false);
+            if (submitAfterEmailVerify) {
+              setSubmitAfterEmailVerify(false);
+              void handleSubmit();
+            }
+          }}
         />
 
         {/* Label langkah punya `whitespace-nowrap`; di 320px enam langkah tidak

@@ -13,6 +13,7 @@ import { useUpload } from '@/hooks/useUpload';
 import { getInitial } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store/authStore';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
+import EmailVerificationModal from '@/components/ui/EmailVerificationModal';
 import ProfileCompletionBanner from '@/components/profile/ProfileCompletionBanner';
 
 export default function AccountPage() {
@@ -25,6 +26,7 @@ export default function AccountPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const { showToast } = useToast();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -169,13 +171,37 @@ export default function AccountPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="Opsional"
-                  className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="Opsional"
+                    className="flex-1 min-w-0 p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowEmailModal(true)}
+                    className="text-xs border-brand-red text-brand-red hover:bg-brand-error-soft shrink-0"
+                  >
+                    {user.email_verified ? 'Ubah' : 'Verifikasi'}
+                  </Button>
+                </div>
+                {/* Menyimpan email lewat form ini MENURUNKAN email_verified
+                    (perlindungan auto-link Google). Satu-satunya cara menaikkannya
+                    lagi adalah tombol di atas . tanpa penanda ini, pengguna tidak
+                    punya cara tahu statusnya. */}
+                <p className="text-xs mt-1">
+                  {user.email_verified ? (
+                    <span className="text-brand-success">Email terverifikasi.</span>
+                  ) : (
+                    <span className="text-brand-gray-450">
+                      Belum terverifikasi. Verifikasi diperlukan untuk mendaftar sebagai mitra dan
+                      menerima kabar pencairan dana.
+                    </span>
+                  )}
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Nomor HP</label>
@@ -240,11 +266,30 @@ export default function AccountPage() {
                   <span className="text-brand-gray-800 font-medium block text-sm">Email</span>
                   <span className="text-sm text-brand-gray-400">{user.email || 'Belum diisi'}</span>
                 </div>
+                {/* Sejajar dengan baris Nomor HP di atas. Tanpa ini, satu-satunya
+                    jalan memverifikasi email ada di balik tombol "Ubah Profil". */}
+                {!user.email_verified && (
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailModal(true)}
+                    className="text-xs font-semibold text-brand-red hover:underline"
+                  >
+                    Verifikasi
+                  </button>
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      <EmailVerificationModal
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        onSuccess={() => setShowEmailModal(false)}
+        subtitle="Agar kami bisa mengabari kamu"
+        reason="Verifikasi email agar kamu menerima kabar penting: hasil pendaftaran mitra, status pencairan dana, dan pemulihan akun."
+      />
 
       <PhoneVerificationModal
         isOpen={showPhoneModal}
