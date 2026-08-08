@@ -88,7 +88,7 @@ export default async function Home() {
           <div className="flex flex-col lg:flex-row lg:gap-6 lg:mb-8">
             
             {/* Hero Carousel Wrapper */}
-            <div className="w-full lg:w-[70%] xl:w-[72%] -mx-3 sm:-mx-4 md:-mx-6 lg:mx-0 sm:w-auto">
+            <div className="w-auto lg:w-[70%] xl:w-[72%] -mx-3 sm:-mx-4 md:-mx-6 lg:mx-0">
               <HeroCarousel />
             </div>
 
