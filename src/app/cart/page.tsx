@@ -18,6 +18,10 @@ import { useAuthStore } from '@/lib/store/authStore';
 interface PartnerGroup {
   partner_username: string;
   partner_id: string;
+  /** Identitas penerima pembayaran, diambil dari item pertama grup (F-15). */
+  partner_name?: string;
+  partner_legal_name?: string;
+  partner_type?: 'individual' | 'vendor';
   items: CartItem[];
   subtotal: number;
 }
@@ -40,6 +44,9 @@ export default function CartPage() {
         map.set(key, {
           partner_username: item.partner_username,
           partner_id: item.partner_id,
+          partner_name: item.partner_name,
+          partner_legal_name: item.partner_legal_name,
+          partner_type: item.partner_type,
           items: [],
           subtotal: 0,
         });
@@ -140,8 +147,20 @@ export default function CartPage() {
                   href={`/${group.partner_username}`}
                   className="flex items-center justify-between px-4 py-3 bg-brand-gray-55 border-b border-brand-gray-100 hover:bg-brand-gray-60"
                 >
-                  <span className="text-sm font-semibold text-brand-gray-900">@{group.partner_username}</span>
-                  <ChevronRight className="w-4 h-4 text-brand-gray-450" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-brand-gray-900 truncate">
+                      {group.partner_name ? group.partner_name : `@${group.partner_username}`}
+                    </span>
+                    {/* F-15: badan hukum penerima pembayaran. Kosong untuk
+                        perorangan dan untuk item keranjang lama yang disimpan
+                        sebelum kolom ini ada. */}
+                    {group.partner_type === 'vendor' && group.partner_legal_name && (
+                      <span className="block text-[11px] text-brand-gray-450 truncate">
+                        Pembayaran diterima oleh {group.partner_legal_name}
+                      </span>
+                    )}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-brand-gray-450 shrink-0" />
                 </Link>
 
                 {/* Items . kartu horizontal yang sama dengan halaman booking */}

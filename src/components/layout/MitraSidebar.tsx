@@ -19,7 +19,7 @@ import {
 
 import { useUnreadChatCount } from '@/hooks/useChatRooms';
 import { canAccess } from '@/lib/mitra-access';
-import type { PartnerVerificationStatus } from '@/hooks/usePartnerVerificationStatus';
+import type { PartnerApplicationStatus } from '@/hooks/usePartnerVerificationStatus';
 
 /**
  * Sidebar mode mitra untuk desktop (P1-13 / §5.2).
@@ -47,7 +47,7 @@ const FOOTER_ITEMS = [
 ];
 
 interface Props {
-  verification: PartnerVerificationStatus | undefined;
+  verification: PartnerApplicationStatus | undefined;
 }
 
 export default function MitraSidebar({ verification }: Props) {

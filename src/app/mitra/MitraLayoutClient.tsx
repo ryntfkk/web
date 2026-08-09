@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import MitraBottomNav from '@/components/layout/MitraBottomNav';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { usePartnerVerificationStatus } from '@/hooks/usePartnerVerificationStatus';
-import { accessLevelFor, canAccess, MITRA_BLOCKED_REDIRECT } from '@/lib/mitra-access';
+import { accessLevelFor, canAccess, canEnterMitraShell, MITRA_BLOCKED_REDIRECT } from '@/lib/mitra-access';
 import PreparationNotice from '@/components/mitra/PreparationNotice';
 import MitraSidebar from '@/components/layout/MitraSidebar';
 import { cn } from '@/lib/utils';
@@ -17,12 +17,21 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
-  // Status verifikasi menentukan halaman mana yang boleh dibuka (P1-10).
-  // Hanya diambil untuk akun yang memang sedang bermode mitra.
-  const isPartnerMode = user?.active_role === 'partner';
+  // Status verifikasi menentukan halaman mana yang boleh dibuka (P1-10) DAN
+  // apakah akun ini boleh masuk shell mitra sama sekali (F-01).
+  //
+  // Diambil untuk SETIAP akun terautentikasi yang menyentuh /mitra/*, bukan
+  // hanya yang `active_role === 'partner'`. Pelamar berstatus pending tidak
+  // pernah menerima role itu (backend sengaja menahannya), jadi memakainya
+  // sebagai syarat pengambilan status membuat pelamar tak pernah bisa
+  // dikenali . dan halaman `prepare` yang secara eksplisit diizinkan matrix
+  // akses menjadi tidak terjangkau siapa pun.
   const { data: verification, isLoading: verificationLoading } = usePartnerVerificationStatus(
-    mounted && isAuthenticated && isPartnerMode,
+    mounted && isAuthenticated,
   );
+  const isPartnerMode = canEnterMitraShell(user?.active_role, verification);
+  // Pelamar (belum/ tidak lagi approved) . dipakai untuk menyesuaikan navigasi.
+  const isApplicant = isPartnerMode && user?.active_role !== 'partner';
   const accessLevel = accessLevelFor(pathname);
   const allowed = canAccess(pathname, verification);
 
@@ -37,12 +46,14 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
     if (mounted && !isLoading && isAuthenticated) {
       const isException = pathname === '/mitra/register' || pathname === '/mitra/verification-status';
 
-      if (user?.active_role !== 'partner' && !isException) {
+      // Redirect hanya setelah status pengajuan diketahui . menendang lebih
+      // dulu berarti setiap pelamar terlempar pulang sebelum sempat dikenali.
+      if (!verificationLoading && !isPartnerMode && !isException) {
         router.replace('/');
       }
 
-      // Mitra yang di-suspend hanya boleh mengakses halaman status verifikasi.
-      if (user?.active_role === 'partner' && user?.is_suspended && pathname !== '/mitra/verification-status') {
+      // Akun yang di-suspend hanya boleh mengakses halaman status verifikasi.
+      if (isPartnerMode && user?.is_suspended && pathname !== '/mitra/verification-status') {
         router.replace('/mitra/verification-status');
       }
 
@@ -61,12 +72,17 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
   }
 
   const isException = pathname === '/mitra/register' || pathname === '/mitra/verification-status';
-  if (!isAuthenticated || (user?.active_role !== 'partner' && !isException)) {
+  // Selama status pengajuan belum diketahui, tahan render . jangan menyimpulkan
+  // "bukan mitra" dari ketiadaan role, karena pelamar memang tidak punya role.
+  if (isAuthenticated && !isException && verificationLoading) {
+    return <PageSkeleton />;
+  }
+  if (!isAuthenticated || (!isPartnerMode && !isException)) {
     return null;
   }
 
   // Blok render konten mitra untuk akun ter-suspend (kecuali halaman status verifikasi).
-  if (user?.active_role === 'partner' && user?.is_suspended && pathname !== '/mitra/verification-status') {
+  if (isPartnerMode && user?.is_suspended && pathname !== '/mitra/verification-status') {
     return null;
   }
 

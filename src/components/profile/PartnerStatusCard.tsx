@@ -158,8 +158,14 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
                     </div>
                   </div>
                 )}
+                {/* WAJIB `?mode=reverify`. Tanpanya halaman register memanggil
+                    POST /partners/onboarding, yang MENOLAK akun yang sudah punya
+                    baris partner . jadi tombol "Perbaiki & Kirim Ulang" selalu
+                    berakhir error untuk satu-satunya orang yang menekannya.
+                    Jalur pengajuan ulang adalah PUT /partners/me/resubmission
+                    (lihat mitra/register/page.tsx: isReverify). */}
                 <button
-                  onClick={() => router.push('/mitra/register')}
+                  onClick={() => router.push('/mitra/register?mode=reverify')}
                   className="w-full bg-white text-brand-error border-2 border-brand-error font-bold py-3 px-4 rounded-xl hover:bg-brand-error-soft transition-colors flex items-center justify-center gap-2"
                 >
                   Perbaiki & Kirim Ulang

@@ -86,6 +86,8 @@ export default function ServicesListClient({
           onMinRatingChange={listing.setMinRating}
           sort={listing.sort}
           onSortChange={listing.setSort}
+          partnerType={listing.partnerType}
+          onPartnerTypeChange={listing.setPartnerType}
           isSearch={false}
         />
       </div>

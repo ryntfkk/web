@@ -814,6 +814,15 @@ export default function BookingClient() {
             {previewLoading ? 'Menghitung...' : formatPrice(previewQuote ? previewQuote.agreed_price : totalPayment)}
           </span>
         </div>
+        {/* Penerima pembayaran disebut tepat di sebelah angkanya (F-15) . di
+            sinilah pelanggan memutuskan, jadi di sinilah ia harus tahu badan
+            hukum mana yang menerima uangnya. */}
+        {partner?.partner_type === 'vendor' && partner?.legal_name && (
+          <p className="pt-1 text-[11px] text-brand-gray-450">
+            Diterima oleh <strong className="font-medium text-brand-gray-700">{partner.legal_name}</strong>
+            {partner.name && partner.name !== partner.legal_name ? ` (${partner.name})` : ''}
+          </p>
+        )}
       </div>
 
       {withAction && (
@@ -882,23 +891,25 @@ export default function BookingClient() {
                 submit. Sebelumnya user Google baru tahu setelah mengisi alamat,
                 jadwal, foto, dan promo . titik yang paling mahal untuk gagal. */}
             {isAuthenticated && user && !user.profile_complete && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-                <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-brand-gray-900">
-                    Verifikasi nomor HP dulu, ya
-                  </p>
-                  <p className="text-xs text-brand-gray-700 mt-0.5">
-                    Mitra perlu nomor WhatsApp kamu untuk konfirmasi pesanan.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowPhoneModal(true)}
-                    className="mt-2 text-xs font-bold text-brand-red hover:underline"
-                  >
-                    Verifikasi Sekarang
-                  </button>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-brand-warning-border bg-brand-warning-soft p-3">
+                <div className="flex items-start gap-3">
+                  <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                  <div>
+                    <p className="text-[13px] font-bold text-brand-gray-900">
+                      Verifikasi nomor HP dulu, ya
+                    </p>
+                    <p className="mt-0.5 text-[11px] leading-snug text-brand-gray-700">
+                      Mitra perlu nomor WhatsApp kamu untuk konfirmasi pesanan.
+                    </p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPhoneModal(true)}
+                  className="shrink-0 rounded-lg bg-brand-red px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-red-700 active:scale-95"
+                >
+                  Verifikasi
+                </button>
               </div>
             )}
 
@@ -915,7 +926,20 @@ export default function BookingClient() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-brand-gray-900 truncate">{partner?.name}</p>
-                <p className="text-xs text-brand-gray-450">Pilih satu atau lebih layanan di bawah ini</p>
+                {/* Untuk mitra badan usaha, nama merek BUKAN pihak yang menerima
+                    uang. Halaman detail layanan sudah menyebutkannya; halaman
+                    pemesanan . tempat keputusan membayar benar-benar diambil .
+                    dulu belum. Pelanggan berhak tahu ia berkontrak dengan siapa
+                    sebelum menekan Pesan, bukan sesudahnya di struk. */}
+                {partner?.partner_type === 'vendor' &&
+                partner?.legal_name &&
+                partner.legal_name !== partner.name ? (
+                  <p className="text-xs text-brand-gray-450 truncate">
+                    Pembayaran diterima oleh <strong className="font-medium">{partner.legal_name}</strong>
+                  </p>
+                ) : (
+                  <p className="text-xs text-brand-gray-450">Pilih satu atau lebih layanan di bawah ini</p>
+                )}
               </div>
             </div>
 

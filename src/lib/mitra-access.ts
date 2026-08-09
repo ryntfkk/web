@@ -1,4 +1,4 @@
-import type { PartnerVerificationStatus } from '@/hooks/usePartnerVerificationStatus';
+import type { PartnerApplicationStatus } from '@/hooks/usePartnerVerificationStatus';
 
 /**
  * Matrix akses mode mitra (P1-10) . SATU definisi untuk seluruh aplikasi.
@@ -61,14 +61,42 @@ export function accessLevelFor(pathname: string | null): MitraAccessLevel {
 /** Halaman yang boleh dibuka pada status verifikasi tertentu. */
 export function canAccess(
   pathname: string | null,
-  status: PartnerVerificationStatus | undefined,
+  status: PartnerApplicationStatus | undefined,
 ): boolean {
   const level = accessLevelFor(pathname);
   if (level === 'always') return true;
   // Status belum diketahui → jangan tebak. Layout menahan render sampai tahu.
   if (!status) return false;
+  // Bukan pelamar sama sekali . tidak ada satu pun halaman mitra untuknya.
+  if (status === 'NONE') return false;
   if (status === 'APPROVED') return true;
   return level === 'prepare';
+}
+
+/**
+ * Apakah akun ini boleh membuka shell mitra sama sekali (F-01)?
+ *
+ * Dua jalan masuk, dan keduanya perlu:
+ *
+ *  1. `active_role === 'partner'` . mitra yang sudah disetujui dan menekan
+ *     "Mode Mitra". Ini satu-satunya jalan yang dulu ada.
+ *  2. **Pelamar**: akun yang punya pengajuan berstatus PENDING/REJECTED.
+ *     Backend TIDAK memberinya role `partner` (dan itu benar . role itu
+ *     membuka endpoint order/chat/wallet), sehingga sebelum ini ia tidak
+ *     pernah bisa mencapai halaman `prepare` yang secara eksplisit
+ *     diizinkan matrix akses di atas. Yang dijanjikan "daftar → siapkan
+ *     layanan sambil menunggu" tidak pernah bisa dilakukan siapa pun.
+ *
+ * Kapabilitasnya tetap dibatasi `canAccess`: pelamar hanya `always` +
+ * `prepare`, tidak pernah `live`. Endpoint live tetap dijaga backend .
+ * ini hanya membuka pintu yang memang sudah boleh dilewati.
+ */
+export function canEnterMitraShell(
+  activeRole: string | undefined,
+  status: PartnerApplicationStatus | undefined,
+): boolean {
+  if (activeRole === 'partner') return true;
+  return status === 'PENDING' || status === 'REJECTED';
 }
 
 /**

@@ -150,6 +150,11 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         service_id: service.id,
         partner_id: service.partner_id,
         partner_username: service.partner_username,
+        // Penerima pembayaran ikut disimpan agar keranjang & checkout bisa
+        // menyebutkannya tanpa memanggil profil mitra lagi (F-15).
+        partner_name: service.partner_name,
+        partner_legal_name: service.partner_legal_name,
+        partner_type: service.partner_type,
         service_name: service.name,
         price: vars.find((x) => x.id === selectedVariationId)?.price ?? service.price,
         photo_url: service.photo_url || PLACEHOLDER_SERVICE,
@@ -194,6 +199,11 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         service_id: service.id,
         partner_id: service.partner_id,
         partner_username: service.partner_username,
+        // Penerima pembayaran ikut disimpan agar keranjang & checkout bisa
+        // menyebutkannya tanpa memanggil profil mitra lagi (F-15).
+        partner_name: service.partner_name,
+        partner_legal_name: service.partner_legal_name,
+        partner_type: service.partner_type,
         service_name: service.name,
         price: v?.price ?? service.price,
         photo_url: service.photo_url || PLACEHOLDER_SERVICE,

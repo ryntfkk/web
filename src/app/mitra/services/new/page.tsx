@@ -29,6 +29,15 @@ export default function NewMitraServicePage() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState('');
   const [error, setError] = useState('');
+  /**
+   * Id layanan yang SUDAH terbuat pada percobaan sebelumnya (F-23). Selama ini
+   * terisi, submit berikutnya melanjutkan unggahan foto alih-alih membuat
+   * layanan baru. `uploadedCount` adalah ref, bukan state: nilainya dibaca di
+   * dalam loop yang sedang berjalan, dan render ulang di tengah loop akan
+   * membacanya basi.
+   */
+  const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);
+  const uploadedCount = useRef(0);
 
   useEffect(() => {
     // Bersihkan object URL saat unmount.
@@ -50,6 +59,13 @@ export default function NewMitraServicePage() {
   };
 
   const handleRemovePhoto = (idx: number) => {
+    // Foto yang sudah TERPASANG di server tidak bisa dicabut dari sini . yang
+    // menghapusnya adalah halaman edit layanan. Membiarkannya hilang dari daftar
+    // ini hanya membuat mitra mengira fotonya batal terunggah, padahal masih ada.
+    if (idx < uploadedCount.current) {
+      setError('Foto ini sudah terunggah. Hapus lewat halaman edit layanan setelah selesai.');
+      return;
+    }
     setPhotos((prev) => {
       URL.revokeObjectURL(prev[idx].preview);
       return prev.filter((_, i) => i !== idx);
@@ -82,36 +98,51 @@ export default function NewMitraServicePage() {
     setError('');
 
     try {
-      setProgress('Menyimpan layanan...');
-      const res = await fetchAPI<{ id: string }>('/partners/me/services', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
+      // F-23: layanan dibuat SEKALI. Kalau langkah unggah foto gagal (sinyal
+      // putus, S3 menolak), layanannya SUDAH ADA . menekan "Simpan" lagi dulu
+      // membuat layanan KEDUA yang identik, dan mitra harus menghapusnya sendiri
+      // tanpa pernah diberi tahu itu terjadi. Menyimpan id-nya membuat percobaan
+      // berikutnya melanjutkan dari langkah foto, bukan mengulang dari awal.
+      let serviceId = createdServiceId;
+      if (!serviceId) {
+        setProgress('Menyimpan layanan...');
+        const res = await fetchAPI<{ id: string }>('/partners/me/services', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
 
-      if (!res.success || !res.data) {
-        setError(getErrorMessage(res));
-        setLoading(false);
-        setProgress('');
-        return;
+        if (!res.success || !res.data) {
+          setError(getErrorMessage(res));
+          setLoading(false);
+          setProgress('');
+          return;
+        }
+        serviceId = res.data.id;
+        setCreatedServiceId(serviceId);
+        track('partner_service_created', { service_id: serviceId, unit: payload.unit });
       }
 
-      const serviceId = res.data.id;
-      track('partner_service_created', { service_id: serviceId, unit: payload.unit });
-      if (photos.length > 0 && serviceId) {
-        for (let i = 0; i < photos.length; i++) {
-          setProgress(`Mengunggah foto ${i + 1}/${photos.length}...`);
-          const url = await uploadPhoto(photos[i].file);
-          const attach = await fetchAPI(`/partners/me/services/${serviceId}/photos`, {
-            method: 'POST',
-            body: JSON.stringify({ photo_url: url }),
-          });
-          if (!attach.success) throw new Error(getErrorMessage(attach));
-        }
+      // Foto yang SUDAH terpasang tidak diunggah ulang . percobaan kedua hanya
+      // meneruskan sisanya, bukan menggandakan yang sudah berhasil.
+      for (let i = uploadedCount.current; i < photos.length; i++) {
+        setProgress(`Mengunggah foto ${i + 1}/${photos.length}...`);
+        const url = await uploadPhoto(photos[i].file);
+        const attach = await fetchAPI(`/partners/me/services/${serviceId}/photos`, {
+          method: 'POST',
+          body: JSON.stringify({ photo_url: url }),
+        });
+        if (!attach.success) throw new Error(getErrorMessage(attach));
+        uploadedCount.current = i + 1;
       }
 
       router.push('/mitra/services');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal menambahkan layanan');
+      setError(
+        (err instanceof Error ? err.message : 'Gagal menambahkan layanan') +
+          (createdServiceId
+            ? ' . layanannya sudah tersimpan, tekan Simpan lagi untuk melanjutkan unggahan foto.'
+            : ''),
+      );
       setLoading(false);
       setProgress('');
     }

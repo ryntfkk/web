@@ -38,6 +38,11 @@ export function useServiceListing({
   const { latitude, longitude, hasLocation } = useUserLocation();
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState('terpopuler');
+  // M2: '' = semua, 'individual' = perorangan, 'vendor' = badan usaha.
+  // Difilter di SERVER (bukan client) supaya paginasi tetap benar . menyaring
+  // 24 item yang sudah terlanjur diambil akan menghasilkan halaman setengah
+  // kosong dan "muat lebih banyak" yang melewatkan hasil.
+  const [partnerType, setPartnerType] = useState('');
   const [page, setPage] = useState(1);
   const [allServices, setAllServices] = useState<PublicService[]>(initialServices ?? []);
 
@@ -55,6 +60,7 @@ export function useServiceListing({
       limit,
       offset: (page - 1) * limit,
       sort,
+      partnerType: partnerType || undefined,
       latitude: hasLocation ? latitude ?? undefined : undefined,
       longitude: hasLocation ? longitude ?? undefined : undefined,
     },
@@ -71,7 +77,7 @@ export function useServiceListing({
     }
     setPage(1);
     setAllServices([]);
-  }, [query, city, sort, category]);
+  }, [query, city, sort, category, partnerType]);
 
   // Akumulasi hasil: halaman 1 menggantikan, halaman berikutnya menambah (dedup by id).
   // Pola yang sama dengan SearchContent lama . setState in effect untuk sinkronisasi
@@ -112,6 +118,8 @@ export function useServiceListing({
     setMinRating,
     sort,
     setSort,
+    partnerType,
+    setPartnerType,
     // Query state
     isLoading,
     isError,

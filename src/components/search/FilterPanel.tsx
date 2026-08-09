@@ -11,7 +11,23 @@ interface FilterPanelProps {
   onCityChange: (c: string) => void;
   minRating: number;
   onMinRatingChange: (r: number) => void;
+  /** '' = semua, 'individual', 'vendor' (M2). */
+  partnerType: string;
+  onPartnerTypeChange: (t: string) => void;
 }
+
+/**
+ * M2: pelanggan bisa memilih berurusan dengan perorangan atau badan usaha.
+ *
+ * Labelnya sengaja bukan "Individual/Vendor" . itu istilah internal. Yang
+ * dilihat pelanggan adalah bentuk pihak yang akan datang ke rumahnya dan
+ * menerima pembayarannya.
+ */
+const PARTNER_TYPE_OPTIONS = [
+  { label: 'Semua mitra', value: '', hint: '' },
+  { label: 'Perorangan', value: 'individual', hint: 'Dikerjakan langsung oleh pemilik jasa' },
+  { label: 'Badan usaha', value: 'vendor', hint: 'PT/CV dengan tim & penanggung jawab' },
+];
 
 const RATING_OPTIONS = [
   { label: 'Semua rating', value: 0 },
@@ -26,9 +42,11 @@ export default function FilterPanel({
   onCityChange,
   minRating,
   onMinRatingChange,
+  partnerType,
+  onPartnerTypeChange,
 }: FilterPanelProps) {
   const { data: cities } = useCities();
-  const hasActiveFilter = Boolean(city) || minRating > 0;
+  const hasActiveFilter = Boolean(city) || minRating > 0 || Boolean(partnerType);
 
   return (
     <>
@@ -104,6 +122,38 @@ export default function FilterPanel({
           })}
         </div>
 
+        {/* Jenis Mitra (M2) */}
+        <div className="flex flex-col gap-2">
+          <h4 className="text-[16px] font-semibold text-brand-gray-900 mb-1">Jenis Mitra</h4>
+          {PARTNER_TYPE_OPTIONS.map((opt) => {
+            const active = partnerType === opt.value;
+            return (
+              <label key={opt.value || 'all'} className="flex items-start gap-2 cursor-pointer group">
+                <div
+                  className={`w-[16px] h-[16px] mt-0.5 shrink-0 rounded-full flex items-center justify-center transition-colors ${
+                    active ? 'bg-brand-red' : 'border border-brand-gray-400 group-hover:border-brand-red'
+                  }`}
+                >
+                  {active && <div className="w-[6px] h-[6px] bg-white rounded-full" />}
+                </div>
+                <span className="min-w-0">
+                  <span className="block text-[14px] text-brand-gray-900">{opt.label}</span>
+                  {opt.hint && (
+                    <span className="block text-[12px] leading-snug text-brand-gray-450">{opt.hint}</span>
+                  )}
+                </span>
+                <input
+                  type="radio"
+                  name="partner-type"
+                  className="sr-only"
+                  checked={active}
+                  onChange={() => onPartnerTypeChange(opt.value)}
+                />
+              </label>
+            );
+          })}
+        </div>
+
         {/* Reset */}
         <Button
           variant="secondary"
@@ -112,6 +162,7 @@ export default function FilterPanel({
           onClick={() => {
             onCityChange('');
             onMinRatingChange(0);
+            onPartnerTypeChange('');
           }}
         >
           Reset Filter

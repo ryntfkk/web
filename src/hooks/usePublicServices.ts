@@ -48,6 +48,12 @@ interface PublicServicesParams {
   latitude?: number;
   longitude?: number;
   sort?: string;
+  /**
+   * Filter jenis mitra (M2): 'individual' | 'vendor'. Kosong = keduanya.
+   * Backend menyaring lewat `sqlc.narg('partner_type')`; nilai di luar dua itu
+   * dibalas 0 baris tanpa error, jadi UI tidak perlu memvalidasinya lagi.
+   */
+  partnerType?: string;
 }
 
 interface UsePublicServicesOptions {
@@ -75,6 +81,7 @@ export function usePublicServices(
   if (params.category) queryParams.append('category', params.category);
   if (params.latitude !== undefined) queryParams.append('lat', params.latitude.toString());
   if (params.longitude !== undefined) queryParams.append('lon', params.longitude.toString());
+  if (params.partnerType) queryParams.append('partner_type', params.partnerType);
 
   const base = isSearch ? '/services/search' : '/services';
   const queryString = queryParams.toString();

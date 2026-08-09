@@ -243,7 +243,9 @@ export default function MitraOrderDetailClient() {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeAttestation, setCompleteAttestation] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [cancelReason, setCancelReason] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
 
 
@@ -290,6 +292,8 @@ export default function MitraOrderDetailClient() {
 
     if (action === 'reject') {
       res = await fetchAPI(`/orders/${orderId}/reject`, { method: 'PUT', body: JSON.stringify({ reason: rejectReason }) });
+    } else if (action === 'cancel') {
+      res = await fetchAPI(`/orders/${orderId}/cancel`, { method: 'PUT', body: JSON.stringify({ reason: cancelReason }) });
     } else if (action === 'dispute') {
       res = await fetchAPI(`/orders/${orderId}/dispute`, { method: 'PUT', body: JSON.stringify({ reason: disputeReason }) });
     } else {
@@ -301,6 +305,7 @@ export default function MitraOrderDetailClient() {
       showToast('Berhasil!');
       if (action === 'accept' || action === 'confirm') setShowAcceptModal(false);
       if (action === 'reject') setShowRejectModal(false);
+      if (action === 'cancel') setShowCancelModal(false);
       if (action === 'dispute') setShowDisputeModal(false);
       await fetchOrder();
     } else {
@@ -393,7 +398,7 @@ export default function MitraOrderDetailClient() {
     { label: 'Sengketa dibuka', at: order.disputed_at },
   ].filter((t): t is { label: string; at: string } => Boolean(t.at));
 
-  const hasActions = ['WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'WAITING_ADDITIONAL_PAY']
+  const hasActions = ['WAITING_PAYMENT', 'WAITING_CONFIRMATION', 'PAID', 'IN_PROGRESS', 'WAITING_CUSTOMER_CONFIRM', 'DISPUTED', 'WAITING_ADDITIONAL_PAY']
     .includes(status as string);
 
   /* Aksi dipakai dua kali: bottom bar (mobile) & sidebar (desktop).
@@ -401,6 +406,24 @@ export default function MitraOrderDetailClient() {
      tidak pernah berebut ruang. Chat tidak diulang . sudah ada di kartu Pemesan. */
   const actions = (
     <>
+      {/* Pra-bayar: backend MENGIZINKAN mitra membatalkan (order/service.go .
+          WAITING_PAYMENT ada di cabang yang sama dengan WAITING_CONFIRMATION),
+          tapi UI tidak pernah menyediakan tombolnya. Akibatnya slot mitra
+          terkunci sampai timeout 1 jam, dan . lebih buruk . mitra yang ingin
+          menolak pekerjaan justru diuntungkan dengan MENDIAMKANNYA: strike
+          hanya jatuh pada pembatalan, tidak pada timeout. Aturan yang
+          menghukum kejujuran memproduksi mitra yang menghilang. */}
+      {status === 'WAITING_PAYMENT' && (
+        <Button
+          variant="outline"
+          className="w-full border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg"
+          onClick={() => setShowCancelModal(true)}
+          disabled={actionLoading}
+        >
+          Batalkan Pesanan
+        </Button>
+      )}
+
       {status === 'WAITING_CONFIRMATION' && (
         <div className="flex gap-2">
           <Button variant="outline" className="flex-1 border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg" onClick={() => setShowRejectModal(true)} disabled={actionLoading}>
@@ -1007,6 +1030,46 @@ export default function MitraOrderDetailClient() {
               aria-pressed={rejectReason === reason}
               className={`w-full text-left px-4 py-3 border rounded-md text-sm transition-colors ${rejectReason === reason ? 'border-brand-red bg-brand-error-soft text-brand-red font-medium' : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-gray-200'}`}
               onClick={() => setRejectReason(reason)}
+            >
+              {reason}
+            </button>
+          ))}
+        </div>
+      </MitraModal>
+
+      {/* Cancel Modal (pra-bayar) . konsekuensinya disebutkan di muka.
+          Mitra berhak tahu bahwa membatalkan itu berbiaya SEBELUM menekan
+          tombolnya; kalau baru tahu sesudahnya, yang ia pelajari adalah
+          "jangan pakai tombol ini", bukan "jangan batalkan seenaknya". */}
+      <MitraModal
+        open={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        title="Batalkan Pesanan Ini?"
+        description="Pesanan belum dibayar, jadi tidak ada dana yang berpindah. Slot jadwalmu langsung terbuka kembali."
+        size="lg"
+        footer={
+          <Button
+            className="w-full rounded-md bg-brand-error hover:bg-brand-error-dark"
+            disabled={!cancelReason || actionLoading}
+            onClick={() => handleAction('cancel', { reason: cancelReason })}
+          >
+            {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Batalkan Pesanan'}
+          </Button>
+        }
+      >
+        <div className="mt-4 rounded-lg border border-brand-warning-light bg-brand-warning-soft p-3 text-xs leading-relaxed text-brand-warning-dark">
+          Pembatalan sepihak menambah <strong>1 strike</strong> pada akunmu. Tiga strike dalam 30
+          hari membuat akun ditangguhkan 7 hari. Pada tahap ini pelanggan belum membayar, jadi
+          tidak ada ulasan bintang 1 otomatis . berbeda dengan membatalkan setelah pembayaran masuk.
+        </div>
+        <div className="mt-3 space-y-2">
+          {['Jadwal bentrok', 'Di luar area layanan', 'Sedang tidak bisa mengerjakan', 'Lainnya'].map(reason => (
+            <button
+              key={reason}
+              type="button"
+              aria-pressed={cancelReason === reason}
+              className={`w-full text-left px-4 py-3 border rounded-md text-sm transition-colors ${cancelReason === reason ? 'border-brand-red bg-brand-error-soft text-brand-red font-medium' : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-gray-200'}`}
+              onClick={() => setCancelReason(reason)}
             >
               {reason}
             </button>

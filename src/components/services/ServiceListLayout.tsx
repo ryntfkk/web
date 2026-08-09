@@ -26,6 +26,9 @@ interface ServiceListLayoutProps {
   onMinRatingChange: (r: number) => void;
   sort: string;
   onSortChange: (s: string) => void;
+  /** Filter jenis mitra (M2). '' = semua. */
+  partnerType: string;
+  onPartnerTypeChange: (t: string) => void;
   /** Konteks tampilan. */
   isSearch: boolean;
   /** Query pencarian (untuk teks empty state). */
@@ -51,6 +54,8 @@ export default function ServiceListLayout({
   onMinRatingChange,
   sort,
   onSortChange,
+  partnerType,
+  onPartnerTypeChange,
   isSearch,
   query,
   isInitialLoading,
@@ -75,6 +80,8 @@ export default function ServiceListLayout({
         onCityChange={onCityChange}
         minRating={minRating}
         onMinRatingChange={onMinRatingChange}
+        partnerType={partnerType}
+        onPartnerTypeChange={onPartnerTypeChange}
       />
 
       {/* Main Results Area */}

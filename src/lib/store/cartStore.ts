@@ -7,6 +7,14 @@ export interface CartItem {
   service_id: string;
   partner_id: string;
   partner_username: string;
+  /**
+   * Nama tampil & badan hukum mitra (F-15). Opsional karena keranjang
+   * dipersist di localStorage: item yang dimasukkan sebelum kolom ini ada tetap
+   * harus bisa dirender, hanya tanpa baris penerima pembayaran.
+   */
+  partner_name?: string;
+  partner_legal_name?: string;
+  partner_type?: 'individual' | 'vendor';
   service_name: string;
   price: number;
   photo_url: string;

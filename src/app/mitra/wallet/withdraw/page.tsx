@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Landmark, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Landmark, AlertCircle, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
@@ -254,17 +254,22 @@ export default function WithdrawPage() {
             penjaga OTP saat mengganti rekening. Munculkan sebelum user mengisi
             nominal, bukan sebagai error di ujung. */}
         {user && !user.profile_complete && (
-          <div className="mb-6 bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4">
-            <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
-            <p className="text-xs text-brand-gray-700 mt-0.5">
-              Nomor WhatsApp terverifikasi diperlukan untuk menarik dana dan mengubah rekening.
-            </p>
+          <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-brand-warning-border bg-brand-warning-soft p-3">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-brand-warning" />
+              <div>
+                <p className="text-[13px] font-bold text-brand-gray-900">Verifikasi nomor HP dulu</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-brand-gray-700">
+                  Dibutuhkan untuk menarik dana dan mengubah rekening.
+                </p>
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => setShowPhoneModal(true)}
-              className="mt-2 text-xs font-bold text-brand-red hover:underline"
+              className="shrink-0 rounded-lg bg-brand-red px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-brand-red-dark active:scale-95"
             >
-              Verifikasi Sekarang
+              Verifikasi
             </button>
           </div>
         )}

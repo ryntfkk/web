@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Building2, Camera, CheckCircle2, FileText, MapPin, Upload, User } from 'lucide-react';
+import { Building2, Camera, CheckCircle2, FileText, MapPin, Upload, User, ShieldAlert, AlertCircle, MailWarning } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import RegionSelect from '@/components/ui/RegionSelect';
@@ -225,6 +226,7 @@ function FilePicker({
 function MitraRegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const isReverify = searchParams?.get('mode') === 'reverify';
   const [stepIndex, setStepIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -682,6 +684,12 @@ function MitraRegisterForm() {
         throw new Error(res.message || (typeof res.error === 'string' ? res.error : 'Gagal mengirim form'));
       }
 
+      // F-01: status pengajuan adalah kunci masuk shell mitra . tanpa
+      // membuangnya dari cache, pelamar yang baru saja mengirim formulir masih
+      // terbaca 'NONE' (hasil 404 sebelum ia punya baris partner) selama
+      // staleTime 60 detik, dan halaman mana pun di /mitra/* akan melemparnya
+      // pulang persis setelah pendaftaran berhasil.
+      await queryClient.invalidateQueries({ queryKey: ['partner', 'me', 'verification-status'] });
       router.push('/mitra/verification-status');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal mengirim form');
@@ -709,48 +717,59 @@ function MitraRegisterForm() {
           tiap langkah tertutup permanen dan tidak bisa digulir keluar. */}
       <MitraPageContainer variant="form" className="pb-32">
         {needsPhone && (
-          <div className="mb-4 rounded-md border border-brand-warning-border bg-brand-warning-soft p-4">
-            <p className="text-sm font-semibold text-brand-gray-900">Verifikasi nomor HP dulu</p>
-            <p className="mt-0.5 text-xs text-brand-gray-700">
-              Pendaftaran mitra butuh nomor WhatsApp terverifikasi - pelanggan dan tim kami
-              menghubungi kamu lewat nomor itu.
-            </p>
+          <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-brand-warning-border bg-brand-warning-soft p-3">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-brand-warning" />
+              <div>
+                <p className="text-[13px] font-bold text-brand-gray-900">Verifikasi nomor HP dulu</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-brand-gray-700">
+                  Dibutuhkan agar pelanggan dan tim kami dapat menghubungi kamu.
+                </p>
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => setShowPhoneModal(true)}
-              className="mt-2 text-xs font-bold text-brand-red hover:underline"
+              className="shrink-0 rounded-lg bg-brand-red px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-brand-red-dark active:scale-95"
             >
-              Verifikasi Sekarang
+              Verifikasi
             </button>
           </div>
         )}
 
         {isReverify && rejectionReason && (
-          <div className="mb-4 rounded-md border border-brand-error-border bg-brand-error-soft p-4">
-            <p className="text-sm font-semibold text-brand-gray-900">Alasan penolakan sebelumnya</p>
-            <p className="mt-1 whitespace-pre-line text-xs text-brand-gray-700">{rejectionReason}</p>
-            <p className="mt-2 text-xs text-brand-gray-450">
-              Perbaiki bagian tersebut, lalu kirim ulang. Data yang tidak bermasalah sudah kami isikan.
-            </p>
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-brand-error-border bg-brand-error-soft p-3">
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-brand-red" />
+            <div>
+              <p className="text-[13px] font-bold text-brand-gray-900">Alasan penolakan sebelumnya</p>
+              <p className="mt-1 whitespace-pre-line text-[11px] leading-snug text-brand-gray-700">{rejectionReason}</p>
+              <p className="mt-1 text-[11px] italic text-brand-gray-500">
+                Silakan perbaiki bagian tersebut.
+              </p>
+            </div>
           </div>
         )}
 
         {needsEmail && (
-          <div className="mb-4 rounded-md border border-brand-warning-border bg-brand-warning-soft p-4">
-            <p className="text-sm font-semibold text-brand-gray-900">Verifikasi email dulu</p>
-            <p className="mt-0.5 text-xs text-brand-gray-700">
-              Hasil verifikasi mitra dan status pencairan dana kami kirim lewat email, jadi
-              alamatnya harus terverifikasi sebelum mendaftar.
-            </p>
+          <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-brand-warning-border bg-brand-warning-soft p-3">
+            <div className="flex items-start gap-3">
+              <MailWarning className="mt-0.5 h-5 w-5 shrink-0 text-brand-warning" />
+              <div>
+                <p className="text-[13px] font-bold text-brand-gray-900">Verifikasi email dulu</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-brand-gray-700">
+                  Untuk menerima status pencairan dana.
+                </p>
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => {
                 setSubmitAfterEmailVerify(false);
                 setShowEmailVerify(true);
               }}
-              className="mt-2 text-xs font-bold text-brand-red hover:underline"
+              className="shrink-0 rounded-lg bg-brand-red px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-brand-red-dark active:scale-95"
             >
-              Verifikasi Sekarang
+              Verifikasi
             </button>
           </div>
         )}
