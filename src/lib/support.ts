@@ -32,8 +32,36 @@ export const SUPPORT_STATUS_LABEL: Record<ReportStatus, string> = {
   DISMISSED: 'Ditutup',
 };
 
+/**
+ * Jenis tiket di kotak masuk. Tabel `reports` menampung tiga hal sekaligus .
+ * permintaan CS umum, tiket dari halaman pesanan, dan laporan moderasi . dan
+ * `GET /reports` mengembalikan ketiganya. Tanpa label ini semuanya tampil
+ * sebagai "Percakapan CS" yang sama.
+ */
+export const SUPPORT_TARGET_LABEL: Record<string, string> = {
+  SUPPORT: 'Bantuan CS',
+  PARTNER: 'Laporan Mitra',
+  SERVICE: 'Laporan Layanan',
+  REVIEW: 'Laporan Ulasan',
+  CHAT_MESSAGE: 'Laporan Chat',
+  USER: 'Laporan Pengguna',
+};
+
 export function isThreadClosed(status: ReportStatus): boolean {
   return status === 'ACTIONED' || status === 'DISMISSED';
+}
+
+/**
+ * Ke mana thread CS dibuka . SATU sumber untuk seluruh aplikasi.
+ *
+ * Kotak masuknya sama (tabel `reports` yang sama, endpoint yang sama); yang
+ * berbeda hanya kerangkanya. Mengirim mitra ke `/bantuan` mengeluarkannya dari
+ * mode mitra: TopNavbar pelanggan muncul di desktop dan tombol kembalinya
+ * hilang. Setiap tempat yang membuat thread WAJIB lewat sini . dulu ada lima
+ * `router.push('/bantuan/...')` yang di-hardcode dan semuanya salah untuk mitra.
+ */
+export function supportBasePath(activeRole?: string | null): string {
+  return activeRole === 'partner' ? '/mitra/bantuan/chat' : '/bantuan';
 }
 
 // Buat thread CS baru (menggantikan tombol WhatsApp). Untuk laporan moderasi

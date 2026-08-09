@@ -500,7 +500,7 @@ export default function MitraOrderDetailClient() {
           onClick={async () => {
             const res = await fetchAPI<{ id: string }>(`/disputes/order/${order.id}`);
             if (res.success && res.data?.id) router.push(`/disputes/${res.data.id}`);
-            else router.push('/bantuan');
+            else router.push('/mitra/bantuan/chat');
           }}
         >
           <Scale className="w-4 h-4" /> Buka Ruang Sengketa

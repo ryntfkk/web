@@ -110,7 +110,10 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
   const isExcludedFlow = excludeBottomNavPatterns.includes(pathname || '') ||
     /^\/mitra\/orders\/[^/]+/.test(pathname || '') ||
     /^\/mitra\/services\/[^/]+\/edit/.test(pathname || '') ||
-    /^\/mitra\/chat\/[^/]+/.test(pathname || '');
+    /^\/mitra\/chat\/[^/]+/.test(pathname || '') ||
+    // Ruang percakapan CS . layar penuh dengan kolom ketik di dasar layar,
+    // persis seperti room chat mitra-pelanggan.
+    /^\/mitra\/bantuan\/chat\/[^/]+/.test(pathname || '');
 
   // Halaman persiapan untuk mitra yang belum disetujui: katakan konsekuensinya
   // di tempat ia bekerja, bukan biarkan ia menebak kenapa tak ada pesanan masuk.

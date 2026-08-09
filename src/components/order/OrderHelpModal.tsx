@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { HeadphonesIcon, Loader2 } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
-import { createSupportThread } from '@/lib/support';
+import { createSupportThread, supportBasePath } from '@/lib/support';
 
 /**
  * Modal konfirmasi "Hubungi Admin" untuk halaman detail pesanan.
@@ -39,7 +39,8 @@ export default function OrderHelpModal({
     if (id) {
       setMessage('');
       onClose();
-      router.push(`/bantuan/${id}`);
+      // `isMitra` sudah dioper pemanggil . pakai itu, jangan baca store lagi.
+      router.push(`${supportBasePath(isMitra ? 'partner' : undefined)}/${id}`);
     } else {
       setError('Gagal memulai percakapan. Coba lagi.');
     }

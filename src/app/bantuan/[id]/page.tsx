@@ -1,9 +1,9 @@
-import SupportChatClient from './SupportChatClient';
+import SupportChat from '@/components/support/SupportChat';
 
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default async function SupportThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <SupportChatClient reportId={id} />;
+  return <SupportChat reportId={id} backHref="/bantuan" />;
 }

@@ -11,7 +11,7 @@ import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { ROLE_PARTNER } from '@/lib/constants';
-import { createSupportThread } from '@/lib/support';
+import { createSupportThread, supportBasePath } from '@/lib/support';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -347,7 +347,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
               category: 'fraud',
               description: 'Halo CS Posko Jasa, ada pihak yang meminta pembayaran di luar platform.',
             });
-            if (id) router.push(`/bantuan/${id}`);
+            if (id) router.push(`${supportBasePath(user?.active_role)}/${id}`);
           }}
           className="text-[10px] font-semibold text-brand-red hover:underline shrink-0 whitespace-nowrap"
         >

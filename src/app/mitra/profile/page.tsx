@@ -177,7 +177,10 @@ export default function MitraProfilePage() {
 
         <MenuCard title="Bantuan & Legal">
           <MenuListItem icon={Phone} label="Bantuan Mitra" subtitle="FAQ mitra, chat CS & sengketa" href="/mitra/bantuan" />
-          <MenuListItem icon={FileText} label="Syarat & Ketentuan Mitra" href="/terms" />
+          {/* Bukan "Syarat & Ketentuan Mitra": tujuannya /terms (ketentuan
+              pelanggan). Dokumen mitra ada di /legal/partner-terms dan masih
+              draf . labelnya dulu menjanjikan dokumen yang tidak pernah dibuka. */}
+          <MenuListItem icon={FileText} label="Syarat & Ketentuan" href="/terms" />
           <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
         </MenuCard>
 

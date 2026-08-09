@@ -19,7 +19,9 @@ export default function robots(): MetadataRoute.Robots {
         '/payment/',
         '/notifications',
         '/disputes/',
-        '/bantuan/',
+        // Tanpa slash: '/bantuan/' TIDAK mencakup '/bantuan' itu sendiri, dan
+        // halaman kotak masuk (wajib login, jadi kosong bagi crawler) lolos.
+        '/bantuan',
         '/api/',
         '/_next/static/',
       ],

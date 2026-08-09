@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/modal';
 import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { supportBasePath } from '@/lib/support';
 
 type TargetType = 'partner' | 'service' | 'review' | 'chat_message' | 'user';
 
@@ -48,6 +49,10 @@ export default function ReportDialog({
 }: ReportDialogProps) {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  // Dialog ini dipakai dari dua sisi: profil mitra publik (pelanggan melapor)
+  // dan /mitra/reviews (mitra melapor). Thread-nya harus dibuka di kerangka
+  // yang sesuai, bukan selalu kerangka pelanggan.
+  const activeRole = useAuthStore((s) => s.user?.active_role);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState(reasonOptions[0]?.value ?? 'other');
   const [desc, setDesc] = useState('');
@@ -85,7 +90,7 @@ export default function ReportDialog({
         // pengguna bisa langsung berbalas dengan admin (bukan lagi WhatsApp).
         if (res.data?.id) {
           setOpen(false);
-          router.push(`/bantuan/${res.data.id}`);
+          router.push(`${supportBasePath(activeRole)}/${res.data.id}`);
           return;
         }
         setDone(true);

@@ -97,7 +97,13 @@ export default function Footer() {
   // kolom SEO "Kategori Populer/Kota Populer" milik sisi pelanggan, dan
   // `max-w-[1200px]`-nya terpusat pada VIEWPORT sementara konten bergeser 240px
   // oleh sidebar . jadi terlihat miring pula.
-  const hidden = pathname.startsWith('/chat') || pathname.startsWith('/mitra');
+  // `/bantuan/[id]` juga: ruang percakapan setinggi layar penuh, dan footer
+  // pemasaran 4 kolom yang menempel di bawahnya membuat layar chat bisa
+  // di-scroll ke "Jasa Populer". Daftar /bantuan tetap berfooter.
+  const hidden =
+    pathname.startsWith('/chat') ||
+    pathname.startsWith('/mitra') ||
+    pathname.startsWith('/bantuan/');
   // Hook dipanggil sebelum early-return agar rules-of-hooks terpenuhi.
   const { data: popularLinks } = useFooterPopularLinks(!hidden);
   const { profile } = usePlatformConfig();

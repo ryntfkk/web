@@ -28,19 +28,34 @@ export default function BottomNav() {
     const hideForPartner =
       p.startsWith('/mitra') ||       // dirender oleh halaman mitra sendiri
       p.startsWith('/chat/') ||       // room chat = layar penuh
+      p.startsWith('/bantuan/') ||    // ruang percakapan CS = layar penuh
       p.startsWith('/book') ||
       p.startsWith('/payment') ||
       p.startsWith('/orders/') ||
       p.startsWith('/services') ||
       p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
     if (hideForPartner) return null;
-    // Tanpa md:hidden . area mitra memakai MitraBottomNav di semua ukuran layar
-    // (header pelanggan tidak ada di mode mitra).
-    return <MitraBottomNav />;
+    // `md:hidden`, sama seperti nav pelanggan di bawah.
+    //
+    // Ini halaman BERSAMA (/bantuan, /help, /notifications, /orders, /profile),
+    // bukan area /mitra . dan di sini HeaderWrapper TETAP merender TopNavbar
+    // mulai `lg`. Tanpa md:hidden, mitra melihat navbar pelanggan di atas dan
+    // nav mitra menempel di dasar layar desktop sekaligus; lebih buruk lagi,
+    // `pb-16 md:pb-0` di <body> berhenti di `md`, sehingga nav yang tetap fixed
+    // itu menutupi konten paling bawah tanpa ruang penggantinya.
+    return (
+      <div className="md:hidden">
+        <MitraBottomNav />
+      </div>
+    );
   }
 
   const hideNav =
     p.startsWith('/chat/') ||
+    // Ruang percakapan CS: layar penuh dengan kolom ketik di dasar layar. Tanpa
+    // baris ini nav fixed z-50 duduk PERSIS di atas kolom ketiknya . bug paling
+    // kentara di sistem bantuan versi lama.
+    p.startsWith('/bantuan/') ||
     p.startsWith('/mitra') ||
     p.startsWith('/book') ||
     p.startsWith('/payment') ||
