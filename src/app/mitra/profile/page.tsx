@@ -5,9 +5,10 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   User, ShieldCheck, CreditCard, LogOut, FileText, CheckCircle,
   RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, SlidersHorizontal, Phone, Loader2, ExternalLink,
-  CalendarDays,
+  CalendarDays, Building2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUpload } from '@/hooks/useUpload';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -24,16 +25,33 @@ export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const { logout } = useAuth();
   const { showToast } = useToast();
+  const { uploadFile, isUploading } = useUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [showSwitchModal, setShowSwitchModal] = useState(false);
+  // Nama TAMPIL dari /partners/me (view partner_identity), bukan `user.name`.
+  // Untuk vendor keduanya BEDA: user.name adalah nama PIC (orang), sedangkan
+  // yang dilihat pelanggan adalah display_name badan usaha. Halaman ini dulu
+  // menampilkan nama PIC di bawah judul "Profil Bisnis".
+  const [partner, setPartner] = useState<{
+    name?: string;
+    partner_type?: string;
+    pic_name?: string;
+  } | null>(null);
 
   const fetchProfile = useCallback(async () => {
-    const res = await fetchAPI<{ verification_status?: string }>('/partners/me');
+    const res = await fetchAPI<{
+      verification_status?: string;
+      name?: string;
+      partner_type?: string;
+      pic_name?: string;
+    }>('/partners/me');
     if (res.success && res.data) {
       // F2: default fail-closed ke PENDING (bukan VERIFIED) . lihat plan §2.
       // Backend enum lowercase; .toUpperCase() di render.
       setVerificationStatus(res.data.verification_status || 'pending');
+      setPartner(res.data);
     }
   }, []);
 
@@ -46,12 +64,59 @@ export default function MitraProfilePage() {
 
   const handleLogout = () => logout();
 
+  /**
+   * Ganti foto profil . jalur yang SAMA dengan mode pelanggan (PATCH /users/me).
+   * Avatar hidup di `users`, bukan `partners`, jadi satu foto berlaku untuk
+   * kedua mode; DEVELOPER_NOTES §7a menegaskan tidak boleh ada jalur kedua.
+   *
+   * Sebelumnya mode mitra hanya MENAMPILKAN avatar tanpa cara menggantinya,
+   * sementara ProfileCompleteness menagih "Foto profil" sambil menautkan ke
+   * halaman ini . mitra dikirim ke buntu.
+   */
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Batas yang sama dengan /profile/account supaya penolakan tidak berbeda
+    // antar mode untuk file yang sama.
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Ukuran foto maksimal 5MB', 'error');
+      return;
+    }
+
+    const fileUrl = await uploadFile(file);
+    if (!fileUrl) {
+      showToast('Gagal mengupload foto', 'error');
+      return;
+    }
+
+    const res = await fetchAPI('/users/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ avatar_url: fileUrl }),
+    });
+
+    if (res.success) {
+      useAuthStore.getState().updateUser({ avatar_url: fileUrl });
+      showToast('Foto profil berhasil diperbarui');
+      track('partner_avatar_updated');
+    } else {
+      showToast(res.message || 'Gagal memperbarui foto profil', 'error');
+    }
+    // Reset agar memilih file yang SAMA lagi tetap memicu onChange
+    // (browser tidak mengirim event bila value-nya tak berubah).
+    e.target.value = '';
+  };
+
   if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
   const vs = (verificationStatus || '').toUpperCase();
   const isVerified = vs === 'APPROVED' || vs === 'VERIFIED';
   const isPending = vs === 'PENDING';
+  const isVendor = partner?.partner_type === 'vendor';
+  // Fallback ke user.name hanya selama /partners/me belum termuat. Untuk
+  // perorangan keduanya memang sama (view partner_identity ber-COALESCE ke
+  // users.name), jadi tidak ada kedipan nama yang terlihat.
+  const displayName = partner?.name || user?.name || '';
 
   return (
     <div className="pb-6">
@@ -62,11 +127,38 @@ export default function MitraProfilePage() {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
 
         <MitraPageContainer variant="profile" className="py-0 relative z-10 flex items-center gap-4 md:gap-6">
-          <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden shrink-0 border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
-            {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
+          <div className="relative shrink-0" id="foto-profil">
+            <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+              {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(displayName)}
+            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              aria-label="Ganti foto profil"
+              className="absolute -bottom-1 -right-1 p-1.5 md:p-2 bg-white text-brand-red rounded-full border-2 border-brand-red shadow-sm transition-colors hover:bg-brand-red-soft disabled:opacity-50"
+            >
+              {isUploading
+                ? <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
+                : <Camera className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+              accept="image/jpeg,image/png,image/jpg"
+              className="hidden"
+            />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl md:text-3xl font-extrabold truncate tracking-tight drop-shadow-sm">{user?.name}</h1>
+            <h1 className="text-xl md:text-3xl font-extrabold truncate tracking-tight drop-shadow-sm">{displayName}</h1>
+            {/* Vendor: nama PIC ditampilkan terpisah supaya tetap terlihat siapa
+                penanggung jawabnya tanpa mengaburkan nama yang dilihat pelanggan. */}
+            {isVendor && partner?.pic_name && (
+              <p className="text-white/80 text-[11px] md:text-xs font-medium mt-0.5 drop-shadow-sm truncate">
+                PIC: {partner.pic_name}
+              </p>
+            )}
             <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user?.phone || 'Nomor HP belum diisi'}</p>
             <div className="mt-2 md:mt-3 flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
@@ -128,6 +220,25 @@ export default function MitraProfilePage() {
 
         <div className="space-y-4">
         <MenuCard title="Akun & Mitra">
+          {/* Tanpa baris ini mode mitra tidak punya SATU PUN jalan ke halaman
+              nama/email/HP . mitra perorangan tidak bisa mengganti namanya
+              sendiri karena namanya hidup di `users`, bukan `partners`. */}
+          <MenuListItem
+            icon={User}
+            label="Informasi Akun"
+            subtitle={isVendor ? 'Nama PIC, nomor HP & email pribadi' : 'Nama, nomor HP & email'}
+            href="/profile/account"
+          />
+          {/* Vendor punya identitas kedua (nama tampil, PIC, kontak bisnis) yang
+              tidak ada padanannya di akun perorangan. */}
+          {isVendor && (
+            <MenuListItem
+              icon={Building2}
+              label="Identitas Usaha"
+              subtitle="Nama tampil, PIC & kontak bisnis"
+              href="/mitra/business"
+            />
+          )}
           <MenuListItem icon={ShieldCheck} label="Status Verifikasi Dokumen" subtitle="Cek status & unggah ulang dokumen" href="/mitra/verification-status" />
           <MenuListItem icon={FileText} label="Dokumen Pendukung" subtitle="SKCK, sertifikat, izin usaha" href="/mitra/documents" />
           <MenuListItem icon={User} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />

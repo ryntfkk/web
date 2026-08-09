@@ -30,6 +30,10 @@ const ACCESS_RULES: Array<{ prefix: string; level: MitraAccessLevel }> = [
   { prefix: '/mitra/documents', level: 'always' },
   { prefix: '/mitra/bank-account', level: 'always' },
   { prefix: '/mitra/basecamp', level: 'always' },
+  // Identitas badan usaha . sekelas akun & berkas, bukan operasional. Vendor
+  // yang masih pending justru yang paling perlu membetulkan nama tampil atau
+  // kontak bisnisnya sebelum admin meninjau.
+  { prefix: '/mitra/business', level: 'always' },
   { prefix: '/mitra/bantuan', level: 'always' },
 
   // ── prepare ──

@@ -63,6 +63,17 @@ describe('canAccess', () => {
     expect(canAccess('/mitra/wallet', 'PENDING')).toBe(false);
   });
 
+  // Identitas usaha adalah data akun, bukan operasional. Vendor pending yang
+  // salah ketik nama tampilnya harus bisa membetulkannya SEBELUM admin meninjau .
+  // aturan fail-closed `accessLevelFor` akan menguncinya jadi `live` bila rutenya
+  // lupa didaftarkan, dan halamannya tak pernah bisa dibuka pelamar.
+  it('vendor pending boleh membuka identitas usaha', () => {
+    expect(accessLevelFor('/mitra/business')).toBe('always');
+    expect(canAccess('/mitra/business', 'PENDING')).toBe(true);
+    expect(canAccess('/mitra/business', 'REJECTED')).toBe(true);
+    expect(canAccess('/mitra/business', undefined)).toBe(true);
+  });
+
   it('mitra rejected sama seperti pending . jalan keluarnya lewat halaman akun', () => {
     expect(canAccess('/mitra/verification-status', 'REJECTED')).toBe(true);
     expect(canAccess('/mitra/orders', 'REJECTED')).toBe(false);
