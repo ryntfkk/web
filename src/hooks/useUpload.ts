@@ -9,7 +9,7 @@ import { getErrorMessage } from '@/types/api';
  * `allowedFileTypes` backend (internal/upload/service.go) . nilai di luar daftar
  * ditolak 400 karena file_type ikut menyusun path S3.
  */
-export function useUpload(fileType: 'avatar' | 'review' = 'avatar') {
+export function useUpload(fileType: 'avatar' | 'review' | 'category-evidence' = 'avatar') {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

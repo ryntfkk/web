@@ -115,22 +115,44 @@ export default function FavoritesPage() {
                   key={f.favorite_id}
                   className="flex items-center gap-3 border border-brand-gray-100 rounded-lg p-3 bg-white"
                 >
-                  <Link href={`/services/${f.service_id}`} className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="relative w-14 h-14 rounded-md overflow-hidden flex-shrink-0">
-                      <Image
-                        src={f.photo_url || PLACEHOLDER_IMG}
-                        alt={f.service_name}
-                        fill
-                        sizes="56px"
-                        className="object-cover"
-                      />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-medium text-brand-gray-900 truncate">{f.service_name}</p>
-                      <p className="text-xs text-brand-gray-450 truncate">{f.category_name} · {f.partner_name}</p>
-                      <p className="text-sm font-semibold text-brand-red">{formatPrice(f.price)}</p>
+                  {/* Kategori yang dimatikan admin: kartunya tetap ada tapi
+                      tidak bisa diklik . tautan yang berujung 404 lebih buruk
+                      daripada kartu yang jujur mengatakan alasannya. */}
+                  {f.category_visible === false ? (
+                    <div className="flex items-center gap-3 flex-1 min-w-0 opacity-60">
+                      <span className="relative w-14 h-14 rounded-md overflow-hidden flex-shrink-0 grayscale">
+                        <Image
+                          src={f.photo_url || PLACEHOLDER_IMG}
+                          alt={f.service_name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-medium text-brand-gray-900 truncate">{f.service_name}</p>
+                        <p className="text-xs text-brand-gray-450 truncate">{f.partner_name}</p>
+                        <p className="text-xs font-semibold text-brand-gray-450">Sedang tidak tersedia</p>
+                      </div>
                     </div>
-                  </Link>
+                  ) : (
+                    <Link href={`/services/${f.service_id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className="relative w-14 h-14 rounded-md overflow-hidden flex-shrink-0">
+                        <Image
+                          src={f.photo_url || PLACEHOLDER_IMG}
+                          alt={f.service_name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-medium text-brand-gray-900 truncate">{f.service_name}</p>
+                        <p className="text-xs text-brand-gray-450 truncate">{f.category_name} · {f.partner_name}</p>
+                        <p className="text-sm font-semibold text-brand-red">{formatPrice(f.price)}</p>
+                      </div>
+                    </Link>
+                  )}
                   <button
                     onClick={() => handleRemoveService(f.service_id)}
                     className="text-brand-gray-450 hover:text-brand-red p-1"

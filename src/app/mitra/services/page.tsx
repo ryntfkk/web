@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/toast';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, Plus, Wrench } from 'lucide-react';
+import { AlertTriangle, Pencil, Trash2, Plus, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
@@ -24,6 +24,13 @@ interface Service {
   estimated_duration?: number;
   description?: string;
   is_active: boolean;
+  /**
+   * false = kategori layanan ini (atau induknya) dinonaktifkan admin. Layanan
+   * TIDAK tampil ke pelanggan meski `is_active` true . dan itu satu-satunya
+   * cara mitra bisa tahu, karena dari sisinya semua terlihat normal.
+   */
+  category_visible?: boolean;
+  category_name?: string;
 }
 
 export default function MitraServicesPage() {
@@ -172,6 +179,16 @@ export default function MitraServicesPage() {
                   <p className="font-bold text-brand-red">{formatPrice(s.price)}</p>
                 </div>
               </div>
+
+              {s.category_visible === false && (
+                <p className="mb-2 flex items-start gap-1.5 rounded-md border border-brand-warning-border bg-brand-warning-soft px-2 py-1.5 text-xs text-brand-warning-dark">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+                  <span>
+                    Kategori{s.category_name ? ` ${s.category_name}` : ''} sedang dinonaktifkan admin —
+                    layanan ini belum tampil untuk pelanggan.
+                  </span>
+                </p>
+              )}
 
               {s.description && (
                 <p className="text-sm text-brand-gray-700 mb-3 line-clamp-2">{s.description}</p>

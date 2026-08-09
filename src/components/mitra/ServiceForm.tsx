@@ -89,6 +89,12 @@ export const EMPTY_SERVICE_FORM: ServiceFormValues = {
 
 interface ServiceFormProps {
   initialValues?: ServiceFormValues;
+  /**
+   * Kategori UTAMA milik layanan yang sedang diedit (`category_main_id` dari
+   * server). Diteruskan ke CategoryPicker supaya ia tak perlu meresolusinya
+   * sendiri lewat endpoint publik . yang kini 404 untuk kategori nonaktif.
+   */
+  initialMainCategoryId?: string;
   initialVariations?: ServiceVariationDraft[];
   submitLabel: string;
   submitting?: boolean;
@@ -106,6 +112,7 @@ const INPUT_CLASS =
 
 export default function ServiceForm({
   initialValues,
+  initialMainCategoryId,
   initialVariations,
   submitLabel,
   submitting = false,
@@ -256,6 +263,7 @@ export default function ServiceForm({
 
       <CategoryPicker
         value={form.category_id}
+        mainCategoryId={initialMainCategoryId}
         onChange={(id) => setForm((f) => ({ ...f, category_id: id }))}
       />
 

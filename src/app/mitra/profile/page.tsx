@@ -18,6 +18,7 @@ import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import ProfileCompleteness from '@/components/mitra/ProfileCompleteness';
+import CategorySlots from '@/components/mitra/CategorySlots';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 
 export default function MitraProfilePage() {
@@ -136,6 +137,11 @@ export default function MitraProfilePage() {
         {/* Ditaruh paling atas: yang belum terisi punya akibat langsung .
             tanpa layanan aktif mitra tak muncul di pencarian sama sekali. */}
         <ProfileCompleteness />
+
+        {/* Slot kategori (000080). Ditaruh di /mitra/profile, bukan halaman
+            sendiri: halaman ini level `always`, jadi mitra yang masih pending
+            pun bisa mengurusnya . dan merekalah yang paling perlu. */}
+        <CategorySlots />
 
         <MenuCard title="Mode">
           <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan jasa sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />

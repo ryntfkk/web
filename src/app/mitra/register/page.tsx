@@ -20,6 +20,15 @@ import { useUpload } from '@/hooks/useUpload';
 import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
 import { useActiveLegalDocuments } from '@/hooks/useLegalConsent';
 import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
+import { useCategories } from '@/hooks/useCategories';
+import { usePartnerCategories } from '@/hooks/usePartnerCategories';
+import {
+  categoryQuotaFor,
+  expertiseStepValid,
+  stepsForPartner,
+  type ExpertiseRow,
+  type StepKeyName,
+} from '@/lib/category-slots';
 import { formatPrice } from '@/lib/format';
 import dynamic from 'next/dynamic';
 // Leaflet CSS kini di-import global di app/globals.css (lihat catatan di sana).
@@ -98,7 +107,7 @@ const STEP_TITLE_CLASS = 'text-base font-bold text-brand-gray-900 lg:text-lg';
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 /** Kunci tiap langkah. Urutannya ditentukan `stepsFor()`, bukan angka mentah. */
-type StepKey = 'type' | 'business' | 'identity' | 'profile' | 'location' | 'bank';
+type StepKey = StepKeyName;
 
 /** Label pendek untuk indikator progres . panjang akan memaksa scroll di 360px. */
 const STEP_LABELS: Record<StepKey, string> = {
@@ -106,6 +115,7 @@ const STEP_LABELS: Record<StepKey, string> = {
   business: 'Usaha',
   identity: 'Identitas',
   profile: 'Profil',
+  expertise: 'Keahlian',
   location: 'Lokasi',
   bank: 'Rekening',
 };
@@ -125,14 +135,14 @@ const STEP_LABELS: Record<StepKey, string> = {
  * hanya berisi satu field (dulu: NIK saja, lalu bio saja) membuat pendaftaran
  * terasa panjang tanpa menambah informasi apa pun . dokumen kini menempel pada
  * langkah data yang bersangkutan.
+ *
+ * `expertise` (kategori jasa + foto alat & bahan) TETAP berdiri sendiri, dan itu
+ * tidak bertentangan dengan aturan di atas: isinya bukan satu field melainkan
+ * pilihan kategori beserta sampai 5 foto per kategori (vendor: sampai 3
+ * kategori). Menempelkannya ke langkah Profil akan membuat satu layar berisi
+ * foto profil, nama, bio, kategori, dan 15 unggahan sekaligus.
  */
-function stepsFor(type: PartnerType, isReverify: boolean): StepKey[] {
-  const base: StepKey[] = isReverify ? [] : ['type'];
-  if (type === 'vendor') {
-    return [...base, 'business', 'identity', 'profile', 'location', 'bank'];
-  }
-  return [...base, 'identity', 'profile', 'location', 'bank'];
-}
+const stepsFor = stepsForPartner;
 
 const isImageUrl = (url: string) => /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(url);
 
@@ -244,6 +254,19 @@ function MitraRegisterForm() {
   const platformConfig = usePlatformConfig();
   const user = useAuthStore((s) => s.user);
   const { uploadFile: uploadAvatar, isUploading: avatarUploading } = useUpload('avatar');
+  // Bukti alat & bahan (000080). Tipe berkasnya menentukan prefix object key,
+  // dan backend MENCOCOKKAN prefix itu saat memvalidasi . bukti yang diunggah
+  // lewat jalur lain (mis. /partners/upload/presigned-url, yang tidak memakai
+  // prefix sama sekali) akan ditolak INVALID_EVIDENCE.
+  const { uploadFile: uploadEvidence } = useUpload('category-evidence');
+  // Hanya kategori UTAMA yang ditawarkan: slot bermakna di level itu, dan
+  // /categories memang hanya membalas kategori utama yang aktif.
+  const { data: mainCategories } = useCategories();
+  // Pengajuan ulang: mitra mungkin SUDAH punya kategori dari pengajuan
+  // sebelumnya. Backend memperlakukan daftar kosong sebagai "pertahankan yang
+  // lama", jadi jangan paksa ia memilih & mengunggah ulang hanya karena alamat
+  // basecamp-nya ditolak. Hanya diminta bila ia memang belum punya.
+  const { data: existingCategories } = usePartnerCategories(!!isReverify);
   // Server menolak onboarding tanpa nomor terverifikasi. Tampilkan syaratnya di
   // depan, bukan sebagai error setelah lima langkah form dan dua unggahan KTP.
   const needsPhone = !!user && !user.profile_complete;
@@ -257,6 +280,17 @@ function MitraRegisterForm() {
   const isPartnerMode = user?.active_role === 'partner';
 
   const [partnerType, setPartnerType] = useState<PartnerType>('individual');
+
+  /**
+   * Kategori jasa yang diklaim + bukti alatnya (000080).
+   *
+   * Bukti melekat PER KATEGORI, bukan satu set untuk seluruh pengajuan: foto
+   * kompresor AC tidak membuktikan apa pun tentang klaim "Wedding Organizer".
+   * Berkasnya disimpan sebagai File dan baru diunggah saat submit, sama seperti
+   * KTP . mengunggah tiap kali pengguna mundur-maju antar langkah membakar
+   * kuota untuk pengajuan yang mungkin tak pernah dikirim.
+   */
+  const [expertise, setExpertise] = useState<ExpertiseRow[]>([]);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -501,6 +535,19 @@ function MitraRegisterForm() {
   // langkah Profil untuk vendor hanyalah foto.
   const profileValid = !!avatarUrl && (isVendor || displayName.trim().length >= 3);
 
+  // Kuota slot kategori mengikuti TIPE mitra (setelan platform: 1 perorangan,
+  // 3 vendor). Batasnya ditegakkan server juga . ini hanya supaya pemohon tidak
+  // memilih lima kategori lalu ditolak setelah mengunggah 25 foto.
+  // Aturan slot tinggal di `lib/category-slots` . satu tempat, dan bisa diuji
+  // tanpa merender wizard enam langkah.
+  const categoryQuota = categoryQuotaFor(partnerType);
+  const keptCategories = isReverify ? (existingCategories?.categories ?? []) : [];
+  const expertiseValid = expertiseStepValid({
+    picked: expertise,
+    quota: categoryQuota,
+    keptCount: keptCategories.length,
+  });
+
   const canProceed = (() => {
     switch (currentStep) {
       case 'type':
@@ -511,6 +558,8 @@ function MitraRegisterForm() {
         return identityValid;
       case 'profile':
         return profileValid && !avatarUploading;
+      case 'expertise':
+        return expertiseValid;
       case 'location':
         return !!formData.province && !!formData.city && !!formData.district;
       case 'bank':
@@ -624,6 +673,21 @@ function MitraRegisterForm() {
         };
       }
 
+      // Bukti alat & bahan diunggah SETELAH dokumen wajib. Kegagalannya tidak
+      // dibuang diam-diam: kategori tanpa bukti akan ditolak server
+      // (EVIDENCE_REQUIRED), dan pemohon berhak tahu foto mana yang gagal
+      // sebelum seluruh pengajuannya ditolak.
+      const mainCategoriesPayload: { category_id: string; evidence_urls: string[] }[] = [];
+      for (const row of expertise) {
+        const urls: string[] = [];
+        for (const file of row.files) {
+          const url = await uploadEvidence(file);
+          if (!url) throw new Error('Gagal mengunggah foto alat & bahan. Coba lagi.');
+          urls.push(url);
+        }
+        mainCategoriesPayload.push({ category_id: row.category_id, evidence_urls: urls });
+      }
+
       // Persetujuan legal ikut DI DALAM perintah pengajuan (P0-06). Dulu dicatat
       // lewat panggilan kedua setelah pengajuan sukses: bila panggilan itu gagal,
       // mitra terlanjur ada tanpa bukti persetujuan dan tidak bisa mengulang.
@@ -647,6 +711,15 @@ function MitraRegisterForm() {
         bank_account_number: formData.bank_account_number,
         bank_account_name: formData.bank_account_name,
         legal_document_ids: legalDocumentIds,
+        // Kategori jasa + buktinya (000080). Ditulis server dalam transaksi yang
+        // SAMA dengan pembuatan mitra . mitra yang lahir tanpa kategorinya akan
+        // tertahan di gerbang verifikasi tanpa cara memperbaikinya sendiri.
+        //
+        // Sengaja DIHILANGKAN saat kosong, bukan dikirim sebagai []. Pada
+        // pengajuan ulang, "tidak dikirim" berarti pertahankan kategori lama .
+        // mengirim array kosong menyampaikan maksud yang sama tapi mengandalkan
+        // server menafsirkannya begitu.
+        ...(mainCategoriesPayload.length > 0 ? { main_categories: mainCategoriesPayload } : {}),
         // `partner_type` HANYA di pendaftaran baru. Endpoint resubmission tidak
         // menerimanya: tipe mitra = subjek hukum kontrak, dan menggantinya
         // sendiri lewat verifikasi ulang berarti mengganti pihak yang terikat.
@@ -1231,6 +1304,125 @@ function MitraRegisterForm() {
                 />
                 <p className="mt-1 text-right text-xs text-brand-gray-450">{formData.bio.length}/500</p>
               </div>
+            </div>
+          )}
+
+          {currentStep === 'expertise' && (
+            <div className="space-y-4 animate-in fade-in">
+              <h2 className={STEP_TITLE_CLASS}>Keahlian &amp; Bidang Jasa</h2>
+              <p className="text-sm text-brand-gray-700">
+                Kategori menentukan jasa apa yang boleh kamu jual. Foto alat &amp; bahan dipakai admin
+                untuk memastikan kamu memang bisa mengerjakannya. Mengganti atau menambah kategori
+                nanti perlu persetujuan admin.
+              </p>
+
+              {keptCategories.length > 0 && expertise.length === 0 && (
+                <div className="rounded-md border border-brand-gray-100 bg-brand-gray-60 p-3">
+                  <p className="text-sm font-semibold text-brand-gray-900">Kategori saat ini</p>
+                  <p className="mt-0.5 text-xs text-brand-gray-700">
+                    {keptCategories.map((c) => c.category_name).join(', ')}
+                  </p>
+                  <p className="mt-1 text-xs text-brand-gray-450">
+                    Dipertahankan apa adanya. Isi di bawah hanya bila kamu ingin menggantinya.
+                  </p>
+                </div>
+              )}
+
+              {expertise.map((row, idx) => (
+                <div key={idx} className="rounded-md border border-brand-gray-100 p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <label htmlFor={`expertise-cat-${idx}`} className={LABEL_CLASS}>
+                      Kategori {categoryQuota > 1 ? idx + 1 : ''}
+                    </label>
+                    {expertise.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setExpertise((prev) => prev.filter((_, i) => i !== idx))}
+                        className="text-xs font-bold text-brand-error"
+                      >
+                        Hapus
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    id={`expertise-cat-${idx}`}
+                    className={INPUT_CLASS}
+                    value={row.category_id}
+                    onChange={(e) =>
+                      setExpertise((prev) =>
+                        prev.map((r, i) => (i === idx ? { ...r, category_id: e.target.value } : r)),
+                      )
+                    }
+                  >
+                    <option value="">Pilih kategori</option>
+                    {(mainCategories ?? [])
+                      // Kategori yang sudah dipilih di baris lain tidak ditawarkan:
+                      // dua slot berisi kategori sama adalah satu slot terbuang,
+                      // dan server menolaknya dengan CATEGORY_DUPLICATE.
+                      .filter(
+                        (c) => c.id === row.category_id || !expertise.some((e) => e.category_id === c.id),
+                      )
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                  </select>
+
+                  <label htmlFor={`expertise-files-${idx}`} className={`${LABEL_CLASS} mt-3`}>
+                    Foto Alat &amp; Bahan
+                  </label>
+                  <p className={HINT_CLASS}>
+                    1–5 foto, JPG/PNG maksimal 5MB per foto. Contoh: mesin, perkakas, atau bahan yang kamu pakai.
+                  </p>
+                  <input
+                    id={`expertise-files-${idx}`}
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg"
+                    multiple
+                    className="mt-1 w-full text-xs"
+                    onChange={(e) => {
+                      const picked = Array.from(e.target.files ?? []).filter(
+                        (f) => f.size <= MAX_UPLOAD_BYTES,
+                      );
+                      setExpertise((prev) =>
+                        prev.map((r, i) =>
+                          i === idx ? { ...r, files: [...r.files, ...picked].slice(0, 5) } : r,
+                        ),
+                      );
+                    }}
+                  />
+                  {row.files.length > 0 && (
+                    <p className="mt-1 text-xs text-brand-gray-450">
+                      {row.files.length} foto dipilih
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpertise((prev) => prev.map((r, i) => (i === idx ? { ...r, files: [] } : r)))
+                        }
+                        className="ml-2 font-bold text-brand-red underline"
+                      >
+                        kosongkan
+                      </button>
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {expertise.length < categoryQuota && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setExpertise((prev) => [...prev, { category_id: '', files: [] }])}
+                >
+                  {expertise.length === 0 ? 'Pilih Kategori Jasa' : 'Tambah Kategori'}
+                </Button>
+              )}
+
+              <p className="text-xs text-brand-gray-450">
+                Jatahmu {categoryQuota} kategori{isVendor ? ' (badan usaha)' : ' (perorangan)'}.
+                {isVendor ? '' : ' Butuh lebih? Ajukan setelah akunmu disetujui.'}
+              </p>
             </div>
           )}
 

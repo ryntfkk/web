@@ -13,6 +13,13 @@ export interface FavoriteService {
   partner_name: string;
   partner_username: string;
   photo_url: string;
+  /**
+   * false = kategori layanan ini (atau induknya) dinonaktifkan admin, jadi
+   * layanannya tidak lagi bisa dipesan. Baris favoritnya sengaja TIDAK dibuang
+   * server: menghilangkan diam-diam barang yang pernah disimpan pengguna lebih
+   * membingungkan daripada menandainya "tidak tersedia".
+   */
+  category_visible: boolean;
   created_at: string;
 }
 

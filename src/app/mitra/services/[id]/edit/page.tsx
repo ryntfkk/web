@@ -26,6 +26,8 @@ const MAX_PHOTOS = 5;
 interface ServiceDetail {
   name?: string;
   category_id?: string;
+  /** Kategori UTAMA (slot) pemilik layanan ini . dipakai mengunci pemilih. */
+  category_main_id?: string;
   price?: number;
   unit?: string;
   estimated_duration?: number;
@@ -55,6 +57,7 @@ export default function EditMitraServicePage() {
   const serviceId = params?.id as string;
 
   const [initialValues, setInitialValues] = useState<ServiceFormValues | undefined>();
+  const [initialMainCategoryId, setInitialMainCategoryId] = useState<string | undefined>();
   const [initialVariations, setInitialVariations] = useState<ServiceVariationDraft[]>([]);
   const [existingPhotos, setExistingPhotos] = useState<ServicePhoto[]>([]);
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
@@ -75,6 +78,7 @@ export default function EditMitraServicePage() {
         return;
       }
       const service = svcRes.data;
+      setInitialMainCategoryId(service.category_main_id || undefined);
 
       setInitialValues({
         ...EMPTY_SERVICE_FORM,
@@ -200,6 +204,7 @@ export default function EditMitraServicePage() {
       <MitraPageContainer variant="form">
         <ServiceForm
           initialValues={initialValues}
+          initialMainCategoryId={initialMainCategoryId}
           initialVariations={initialVariations}
           submitLabel="Simpan Perubahan"
           submitting={loading}
