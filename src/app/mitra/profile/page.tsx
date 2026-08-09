@@ -8,7 +8,6 @@ import {
   CalendarDays, Building2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useUpload } from '@/hooks/useUpload';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -25,8 +24,6 @@ export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const { logout } = useAuth();
   const { showToast } = useToast();
-  const { uploadFile, isUploading } = useUpload();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [showSwitchModal, setShowSwitchModal] = useState(false);
@@ -64,48 +61,6 @@ export default function MitraProfilePage() {
 
   const handleLogout = () => logout();
 
-  /**
-   * Ganti foto profil . jalur yang SAMA dengan mode pelanggan (PATCH /users/me).
-   * Avatar hidup di `users`, bukan `partners`, jadi satu foto berlaku untuk
-   * kedua mode; DEVELOPER_NOTES §7a menegaskan tidak boleh ada jalur kedua.
-   *
-   * Sebelumnya mode mitra hanya MENAMPILKAN avatar tanpa cara menggantinya,
-   * sementara ProfileCompleteness menagih "Foto profil" sambil menautkan ke
-   * halaman ini . mitra dikirim ke buntu.
-   */
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    // Batas yang sama dengan /profile/account supaya penolakan tidak berbeda
-    // antar mode untuk file yang sama.
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Ukuran foto maksimal 5MB', 'error');
-      return;
-    }
-
-    const fileUrl = await uploadFile(file);
-    if (!fileUrl) {
-      showToast('Gagal mengupload foto', 'error');
-      return;
-    }
-
-    const res = await fetchAPI('/users/me', {
-      method: 'PATCH',
-      body: JSON.stringify({ avatar_url: fileUrl }),
-    });
-
-    if (res.success) {
-      useAuthStore.getState().updateUser({ avatar_url: fileUrl });
-      showToast('Foto profil berhasil diperbarui');
-      track('partner_avatar_updated');
-    } else {
-      showToast(res.message || 'Gagal memperbarui foto profil', 'error');
-    }
-    // Reset agar memilih file yang SAMA lagi tetap memicu onChange
-    // (browser tidak mengirim event bila value-nya tak berubah).
-    e.target.value = '';
-  };
-
   if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
@@ -131,24 +86,6 @@ export default function MitraProfilePage() {
             <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
               {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(displayName)}
             </div>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              aria-label="Ganti foto profil"
-              className="absolute -bottom-1 -right-1 p-1.5 md:p-2 bg-white text-brand-red rounded-full border-2 border-brand-red shadow-sm transition-colors hover:bg-brand-red-soft disabled:opacity-50"
-            >
-              {isUploading
-                ? <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
-                : <Camera className="w-3.5 h-3.5 md:w-4 md:h-4" />}
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleAvatarChange}
-              accept="image/jpeg,image/png,image/jpg"
-              className="hidden"
-            />
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl md:text-3xl font-extrabold truncate tracking-tight drop-shadow-sm">{displayName}</h1>

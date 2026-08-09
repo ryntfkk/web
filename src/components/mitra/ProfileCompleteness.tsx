@@ -73,14 +73,9 @@ export default function ProfileCompleteness() {
         {
           key: 'avatar',
           label: 'Foto profil',
-          // Kartu ini HANYA dirender di /mitra/profile, jadi tautannya menunjuk
-          // ke halaman yang sedang dibuka. Sebelum uploader-nya ada, mengklik
-          // butir ini tidak melakukan apa pun sama sekali . kalimat di bawah
-          // menyebut di mana tombolnya supaya tautan sepetak ini tidak lagi
-          // terasa rusak.
           consequence:
-            'Profil tanpa foto lebih jarang dipilih pelanggan. Tekan ikon kamera pada foto di bagian atas halaman ini.',
-          href: '/mitra/profile#foto-profil',
+            'Profil tanpa foto lebih jarang dipilih pelanggan. Lengkapi di pengaturan akun.',
+          href: '/profile/account',
           done: Boolean(me.avatar_url),
         },
         {
