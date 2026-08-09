@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { LayoutDashboard, Package, MessageSquare, Settings, ClipboardCheck, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, Package, MessageSquare, Settings, ClipboardCheck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useUnreadChatCount } from '@/hooks/useChatRooms';
 
@@ -15,14 +15,9 @@ const navItems = [
 // Navigasi mitra yang BELUM disetujui: hanya tujuan yang benar-benar bisa ia
 // pakai (P1-10). Menawarkan "Pesanan" lalu melemparnya kembali ke halaman
 // status adalah jebakan, bukan navigasi.
-// Jadwal ikut di sini karena mitra pending MEMANG boleh menyiapkannya . halaman
-// /mitra/schedule terbuka untuknya dan menampilkan PreparationNotice. Di desktop
-// tujuan itu selalu ada di sidebar; di ponsel ia sebelumnya tidak punya jalur
-// sama sekali, jadi satu-satunya cara ke sana adalah mengetik URL.
 const pendingNavItems = [
   { href: '/mitra/verification-status', label: 'Status', icon: ClipboardCheck },
   { href: '/mitra/services', label: 'Layanan', icon: Package },
-  { href: '/mitra/schedule', label: 'Jadwal', icon: CalendarDays },
   { href: '/mitra/profile', label: 'Profil', icon: Settings },
 ];
 
