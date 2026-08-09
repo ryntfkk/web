@@ -170,24 +170,24 @@ export default function NewMitraServicePage() {
                 Foto Layanan{' '}
                 <span className="font-normal text-brand-gray-450">(opsional, maks {MAX_PHOTOS})</span>
               </span>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6">
                 {photos.map((p, idx) => (
                   <div
                     key={p.preview}
-                    className="relative aspect-square overflow-hidden rounded-lg border border-brand-gray-100"
+                    className="group relative aspect-square overflow-hidden rounded-md border border-brand-gray-100 transition-transform duration-200 hover:scale-[1.02] hover:shadow-md"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.preview} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => handleRemovePhoto(idx)}
-                      className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+                      className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
                       aria-label={`Hapus foto ${idx + 1}`}
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X className="h-4 w-4" />
                     </button>
                     {idx === 0 && (
-                      <span className="absolute bottom-1 left-1 rounded-md bg-brand-red px-1.5 py-0.5 text-[9px] font-bold text-white">
+                      <span className="absolute bottom-1 left-1 rounded-md bg-brand-red px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
                         UTAMA
                       </span>
                     )}
@@ -197,13 +197,16 @@ export default function NewMitraServicePage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-brand-gray-100 text-brand-gray-450 transition-colors hover:border-brand-red hover:text-brand-red"
+                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-brand-gray-200 bg-brand-gray-50 text-brand-gray-450 transition-all duration-200 hover:border-brand-red hover:bg-brand-red/5 hover:text-brand-red"
                   >
                     <ImagePlus className="h-6 w-6" />
-                    <span className="text-[10px] font-semibold">Tambah</span>
+                    <span className="text-[11px] font-medium leading-none">Tambah</span>
                   </button>
                 )}
               </div>
+              <p className="mt-2 text-xs text-brand-gray-450">
+                Format: JPG, PNG. Maks. 5MB per foto.
+              </p>
               <input
                 ref={fileInputRef}
                 type="file"

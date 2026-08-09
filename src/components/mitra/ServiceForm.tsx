@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
+import { Info, Tag, ListChecks } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { VariationsEditor } from '@/components/ui/variations-editor';
@@ -108,7 +109,7 @@ interface ServiceFormProps {
 }
 
 const INPUT_CLASS =
-  'w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red';
+  'w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red';
 
 export default function ServiceForm({
   initialValues,
@@ -246,167 +247,191 @@ export default function ServiceForm({
   const shownError = validationError || externalError;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-brand-gray-100 bg-white p-6">
-      <div>
-        <label htmlFor="service-name" className="mb-2 block text-sm font-semibold text-brand-gray-900">
-          Nama Layanan
-        </label>
-        <input
-          id="service-name"
-          type="text"
-          placeholder="Contoh: Cuci AC 0.5 - 1 PK"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className={INPUT_CLASS}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 1. Informasi Dasar */}
+      <div className="space-y-4 rounded-xl border border-brand-gray-100 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)]">
+        <div className="mb-4 flex items-center gap-2 border-b border-brand-gray-50 pb-3">
+          <Info className="h-5 w-5 text-brand-red" />
+          <h2 className="text-base font-bold text-brand-gray-900">Informasi Dasar</h2>
+        </div>
+
+        {photoSection}
+
+        <div>
+          <label htmlFor="service-name" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+            Nama Layanan
+          </label>
+          <input
+            id="service-name"
+            type="text"
+            placeholder="Contoh: Cuci AC 0.5 - 1 PK"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className={INPUT_CLASS}
+          />
+        </div>
+
+        <CategoryPicker
+          value={form.category_id}
+          mainCategoryId={initialMainCategoryId}
+          onChange={(id) => setForm((f) => ({ ...f, category_id: id }))}
         />
       </div>
 
-      <CategoryPicker
-        value={form.category_id}
-        mainCategoryId={initialMainCategoryId}
-        onChange={(id) => setForm((f) => ({ ...f, category_id: id }))}
-      />
-
-      <div>
-        <label htmlFor="service-unit" className="mb-2 block text-sm font-semibold text-brand-gray-900">
-          Satuan Harga
-        </label>
-        <select
-          id="service-unit"
-          value={form.unit}
-          onChange={(e) => {
-            const unit = e.target.value;
-            // per_hour: estimasi otomatis dikunci ke 60 menit (1 jam).
-            setForm((f) => ({
-              ...f,
-              unit,
-              duration_minutes: unit === 'per_hour' ? '60' : f.duration_minutes,
-            }));
-          }}
-          className={`${INPUT_CLASS} bg-white`}
-        >
-          <option value="per_service">Per Jasa (borongan)</option>
-          <option value="per_hour">Per Jam</option>
-          <option value="per_unit">Per Unit</option>
-          <option value="per_kg">Per Kg</option>
-        </select>
-        <p className="mt-1 text-xs text-brand-gray-450">
-          Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.
-        </p>
-      </div>
-
-      {/* Variasi (opsional) . bila diisi, harga tunggal disembunyikan. */}
-      <VariationsEditor value={variations} onChange={setVariations} minPrice={MIN_PRICE} />
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="service-price" className="mb-2 block text-sm font-semibold text-brand-gray-900">
-            Harga
-          </label>
-          {variations.length === 0 ? (
-            <>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-brand-gray-900">
-                  Rp
-                </span>
-                <input
-                  id="service-price"
-                  type="text"
-                  inputMode="numeric"
-                  value={form.price}
-                  onChange={handlePriceChange}
-                  placeholder="0"
-                  className={`${INPUT_CLASS} pl-10 font-bold`}
-                />
-              </div>
-              <p className="mt-1 text-xs text-brand-gray-450">Minimal {formatPrice(MIN_PRICE)}</p>
-            </>
-          ) : (
-            <div className="w-full rounded-md border border-dashed border-brand-gray-100 bg-brand-gray-60 p-3 text-sm text-brand-gray-450">
-              Otomatis dari variasi termurah
-            </div>
-          )}
+      {/* 2. Harga & Durasi */}
+      <div className="space-y-4 rounded-xl border border-brand-gray-100 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)]">
+        <div className="mb-4 flex items-center gap-2 border-b border-brand-gray-50 pb-3">
+          <Tag className="h-5 w-5 text-brand-red" />
+          <h2 className="text-base font-bold text-brand-gray-900">Harga & Durasi</h2>
         </div>
+
         <div>
-          <label htmlFor="service-min-order" className="mb-2 block text-sm font-semibold text-brand-gray-900">
-            Minimal Order
+          <label htmlFor="service-unit" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+            Satuan Harga
+          </label>
+          <select
+            id="service-unit"
+            value={form.unit}
+            onChange={(e) => {
+              const unit = e.target.value;
+              // per_hour: estimasi otomatis dikunci ke 60 menit (1 jam).
+              setForm((f) => ({
+                ...f,
+                unit,
+                duration_minutes: unit === 'per_hour' ? '60' : f.duration_minutes,
+              }));
+            }}
+            className={`${INPUT_CLASS} bg-white`}
+          >
+            <option value="per_service">Per Jasa (borongan)</option>
+            <option value="per_hour">Per Jam</option>
+            <option value="per_unit">Per Unit</option>
+            <option value="per_kg">Per Kg</option>
+          </select>
+          <p className="mt-1 text-xs text-brand-gray-450">
+            Harga ditagih per {unitLabel(form.unit)}. Pelanggan memilih jumlah saat memesan.
+          </p>
+        </div>
+
+        {/* Variasi (opsional) . bila diisi, harga tunggal disembunyikan. */}
+        <VariationsEditor value={variations} onChange={setVariations} minPrice={MIN_PRICE} />
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="service-price" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+              Harga
+            </label>
+            {variations.length === 0 ? (
+              <>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-brand-gray-900">
+                    Rp
+                  </span>
+                  <input
+                    id="service-price"
+                    type="text"
+                    inputMode="numeric"
+                    value={form.price}
+                    onChange={handlePriceChange}
+                    placeholder="0"
+                    className={`${INPUT_CLASS} pl-10 font-bold`}
+                  />
+                </div>
+                <p className="mt-1 text-xs text-brand-gray-450">Minimal {formatPrice(MIN_PRICE)}</p>
+              </>
+            ) : (
+              <div className="w-full rounded-md border border-dashed border-brand-gray-100 bg-brand-gray-60 p-3 text-sm text-brand-gray-450">
+                Otomatis dari variasi termurah
+              </div>
+            )}
+          </div>
+          <div>
+            <label htmlFor="service-min-order" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+              Minimal Order
+            </label>
+            <input
+              id="service-min-order"
+              type="number"
+              min="1"
+              step="1"
+              value={form.min_order}
+              onChange={(e) => setForm({ ...form, min_order: e.target.value })}
+              className={INPUT_CLASS}
+            />
+            <p className="mt-1 text-xs text-brand-gray-450">
+              Jumlah minimal per pesanan ({unitLabel(form.unit)})
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="service-duration" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+            Estimasi Durasi (Menit)
           </label>
           <input
-            id="service-min-order"
+            id="service-duration"
             type="number"
-            min="1"
-            step="1"
-            value={form.min_order}
-            onChange={(e) => setForm({ ...form, min_order: e.target.value })}
-            className={INPUT_CLASS}
+            min="15"
+            step="15"
+            value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
+            disabled={form.unit === 'per_hour'}
+            onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })}
+            className={`${INPUT_CLASS} disabled:bg-brand-gray-60 disabled:text-brand-gray-450`}
           />
           <p className="mt-1 text-xs text-brand-gray-450">
-            Jumlah minimal per pesanan ({unitLabel(form.unit)})
+            {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
           </p>
         </div>
       </div>
 
-      <div>
-        <label htmlFor="service-duration" className="mb-2 block text-sm font-semibold text-brand-gray-900">
-          Estimasi Durasi (Menit)
-        </label>
-        <input
-          id="service-duration"
-          type="number"
-          min="15"
-          step="15"
-          value={form.unit === 'per_hour' ? 60 : form.duration_minutes}
-          disabled={form.unit === 'per_hour'}
-          onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })}
-          className={`${INPUT_CLASS} disabled:bg-brand-gray-60 disabled:text-brand-gray-450`}
+      {/* 3. Detail & Syarat */}
+      <div className="space-y-4 rounded-xl border border-brand-gray-100 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)]">
+        <div className="mb-4 flex items-center gap-2 border-b border-brand-gray-50 pb-3">
+          <ListChecks className="h-5 w-5 text-brand-red" />
+          <h2 className="text-base font-bold text-brand-gray-900">Detail & Syarat Khusus</h2>
+        </div>
+
+        <DynamicStringList
+          label="Termasuk (Include)"
+          items={form.included_items}
+          onChange={(items) => setForm({ ...form, included_items: items })}
+          placeholder="Contoh: Pengecekan AC"
+          required
         />
-        <p className="mt-1 text-xs text-brand-gray-450">
-          {form.unit === 'per_hour' ? 'Otomatis 1 jam / satuan' : 'Minimal 15 menit'}
-        </p>
-      </div>
 
-      {photoSection}
-
-      <DynamicStringList
-        label="Termasuk (Include)"
-        items={form.included_items}
-        onChange={(items) => setForm({ ...form, included_items: items })}
-        placeholder="Contoh: Pengecekan AC"
-        required
-      />
-
-      <DynamicStringList
-        label="Tidak Termasuk (Exclude)"
-        items={form.excluded_items}
-        onChange={(items) => setForm({ ...form, excluded_items: items })}
-        placeholder="Contoh: Penambahan Freon"
-        required
-      />
-
-      <RequirementsEditor
-        items={form.requirements}
-        catalog={reqCatalog}
-        onChange={(items) => setForm({ ...form, requirements: items })}
-      />
-
-      <DynamicFaqList
-        label="Pertanyaan Umum (FAQ) (opsional)"
-        items={form.faqs}
-        onChange={(items) => setForm({ ...form, faqs: items })}
-      />
-
-      <div>
-        <label htmlFor="service-description" className="mb-2 block text-sm font-semibold text-brand-gray-900">
-          Deskripsi <span className="font-normal text-brand-gray-450">(opsional)</span>
-        </label>
-        <textarea
-          id="service-description"
-          placeholder="Deskripsi detail tentang layanan ini..."
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          rows={3}
-          className={`${INPUT_CLASS} resize-none`}
+        <DynamicStringList
+          label="Tidak Termasuk (Exclude)"
+          items={form.excluded_items}
+          onChange={(items) => setForm({ ...form, excluded_items: items })}
+          placeholder="Contoh: Penambahan Freon"
+          required
         />
+
+        <RequirementsEditor
+          items={form.requirements}
+          catalog={reqCatalog}
+          onChange={(items) => setForm({ ...form, requirements: items })}
+        />
+
+        <DynamicFaqList
+          label="Pertanyaan Umum (FAQ) (opsional)"
+          items={form.faqs}
+          onChange={(items) => setForm({ ...form, faqs: items })}
+        />
+
+        <div>
+          <label htmlFor="service-description" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+            Deskripsi <span className="font-normal text-brand-gray-450">(opsional)</span>
+          </label>
+          <textarea
+            id="service-description"
+            placeholder="Deskripsi detail tentang layanan ini..."
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            rows={3}
+            className={`${INPUT_CLASS} resize-none`}
+          />
+        </div>
       </div>
 
       {shownError && (
@@ -418,15 +443,13 @@ export default function ServiceForm({
         </div>
       )}
 
-      <div className="border-t border-brand-gray-100 pt-4">
-        <Button
-          type="submit"
-          className="h-12 w-full rounded-md bg-brand-red text-base font-bold hover:bg-brand-red-dark"
-          disabled={submitting}
-        >
-          {submitting ? progressLabel || 'Menyimpan...' : submitLabel}
-        </Button>
-      </div>
+      <Button
+        type="submit"
+        className="mt-6 h-12 w-full rounded-xl bg-brand-red text-base font-bold shadow-md transition-all hover:bg-brand-red-dark hover:shadow-lg disabled:opacity-70 disabled:shadow-none"
+        disabled={submitting}
+      >
+        {submitting ? progressLabel || 'Menyimpan...' : submitLabel}
+      </Button>
     </form>
   );
 }

@@ -214,21 +214,21 @@ export default function EditMitraServicePage() {
             <div>
               <span className="mb-2 block text-sm font-semibold text-brand-gray-900">Foto Layanan</span>
               {existingPhotos.length > 0 && (
-                <div className="mb-3 flex flex-wrap gap-3">
-                  {existingPhotos.map((photo) => (
+                <div className="mb-3 grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6">
+                  {existingPhotos.map((photo, idx) => (
                     <div
                       key={photo.id}
-                      className="group relative h-20 w-20 overflow-hidden rounded-md border border-brand-gray-100"
+                      className="group relative aspect-square overflow-hidden rounded-md border border-brand-gray-100 transition-transform duration-200 hover:scale-[1.02] hover:shadow-md"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={photo.photo_url} alt="Foto layanan" className="h-full w-full object-cover" />
                       <button
                         type="button"
                         onClick={() => setDeletePhotoId(photo.id)}
-                        className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity focus:opacity-100 group-hover:opacity-100"
+                        className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
                         aria-label="Hapus foto layanan"
                       >
-                        <Trash2 className="h-5 w-5 text-white" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   ))}

@@ -49,7 +49,7 @@ export function PhotoUploader({
 
   return (
     <div className={className}>
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6">
         {value.map((file, index) => {
           // Fallback to empty string for safety; memory leak is mitigated by next step/React cleanup if managed better,
           // but true safest way is to use a dedicated Preview component. We will do a quick URL creation for now,
@@ -65,13 +65,13 @@ export function PhotoUploader({
             type="button"
             onClick={() => inputRef.current?.click()}
             className={cn(
-              "w-20 h-20 rounded-md border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-colors shrink-0",
-              error ? "border-brand-error bg-brand-error-soft text-brand-error" : "border-brand-gray-100 bg-brand-gray-60 hover:bg-brand-surface-warm text-brand-gray-450"
+              "flex aspect-square flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed transition-all duration-200",
+              error ? "border-brand-error bg-brand-error-soft text-brand-error" : "border-brand-gray-200 bg-brand-gray-50 text-brand-gray-450 hover:border-brand-red hover:bg-brand-red/5 hover:text-brand-red"
             )}
           >
-            <Camera className="w-5 h-5" />
-            <span className="text-[10px] font-medium leading-none">Tambah</span>
-            <span className="text-[10px] opacity-70 leading-none">{value.length}/{maxPhotos}</span>
+            <Camera className="h-6 w-6" />
+            <span className="text-[11px] font-medium leading-none">Tambah</span>
+            <span className="text-[10px] font-medium leading-none opacity-70">{value.length}/{maxPhotos}</span>
           </button>
         )}
       </div>
@@ -104,15 +104,15 @@ function PhotoPreview({ file, onRemove }: { file: File, onRemove: () => void }) 
   }, [file]);
 
   return (
-    <div className="relative w-20 h-20 rounded-md border border-brand-gray-100 overflow-hidden group shrink-0">
-      {url && <img src={url} alt={`Preview`} className="w-full h-full object-cover" />}
+    <div className="group relative aspect-square overflow-hidden rounded-md border border-brand-gray-100 transition-transform duration-200 hover:scale-[1.02] hover:shadow-md">
+      {url && <img src={url} alt={`Preview`} className="h-full w-full object-cover" />}
       <button
         type="button"
         onClick={onRemove}
         aria-label="Hapus foto"
-        className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
       >
-        <X className="w-3 h-3" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );
