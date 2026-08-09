@@ -412,6 +412,8 @@ export default function BookingClient() {
           body: JSON.stringify({
             filename: photo.name,
             content_type: photo.type,
+            // file_size WAJIB: ikut ditandatangani ke presigned URL, ditolak bila 0.
+            file_size: photo.size,
           }),
         });
 

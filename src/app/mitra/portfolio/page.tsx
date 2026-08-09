@@ -180,7 +180,8 @@ export default function MitraPortfolioPage() {
       // 1. Get Presigned URL
       const { success, data } = await fetchAPI<{ upload_url: string, file_url: string }>('/partners/upload/presigned-url', {
         method: 'POST',
-        body: JSON.stringify({ filename: file.name, content_type: file.type }),
+        // file_size WAJIB: ikut ditandatangani ke presigned URL, ditolak bila 0.
+        body: JSON.stringify({ filename: file.name, content_type: file.type, file_size: file.size }),
       });
 
       if (!success || !data) throw new Error('Gagal mendapatkan URL upload');

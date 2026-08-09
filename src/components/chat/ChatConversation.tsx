@@ -254,7 +254,8 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
       // 1. Minta presigned URL
       const presignedRes = await fetchAPI<any>('/uploads/presigned-url', {
         method: 'POST',
-        body: JSON.stringify({ filename: file.name, content_type: file.type }),
+        // file_size WAJIB: ikut ditandatangani ke presigned URL, ditolak bila 0.
+        body: JSON.stringify({ filename: file.name, content_type: file.type, file_size: file.size }),
       });
       const presigned = presignedRes.success
         ? ((presignedRes.data as any)?.data ?? presignedRes.data)

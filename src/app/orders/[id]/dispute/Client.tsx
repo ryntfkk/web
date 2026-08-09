@@ -78,7 +78,9 @@ export default function DisputeClient() {
       for (const photo of photos) {
         const presignedRes = await fetchAPI<any>('/uploads/presigned-url', {
           method: 'POST',
-          body: JSON.stringify({ filename: photo.name, content_type: photo.type }),
+          // file_size WAJIB: backend menandatanganinya ke presigned URL
+          // (Content-Length ikut di X-Amz-SignedHeaders), dan menolak bila 0.
+          body: JSON.stringify({ filename: photo.name, content_type: photo.type, file_size: photo.size }),
         });
         const presigned = presignedRes.success ? presignedRes.data : null;
         if (!presigned?.upload_url) throw new Error('Gagal mendapatkan upload URL');

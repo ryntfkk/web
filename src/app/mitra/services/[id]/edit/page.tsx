@@ -146,7 +146,11 @@ export default function EditMitraServicePage() {
       try {
         const presigned = await fetchAPI<{ upload_url: string; file_url: string }>(
           '/partners/upload/presigned-url',
-          { method: 'POST', body: JSON.stringify({ filename: file.name, content_type: file.type }) },
+          // file_size WAJIB: ikut ditandatangani ke presigned URL, ditolak bila 0.
+          {
+            method: 'POST',
+            body: JSON.stringify({ filename: file.name, content_type: file.type, file_size: file.size }),
+          },
         );
         if (presigned.success && presigned.data) {
           const upload = await fetch(presigned.data.upload_url, {

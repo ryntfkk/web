@@ -61,7 +61,8 @@ export default function NewMitraServicePage() {
       '/partners/upload/presigned-url',
       {
         method: 'POST',
-        body: JSON.stringify({ filename: file.name, content_type: file.type }),
+        // file_size WAJIB: ikut ditandatangani ke presigned URL, ditolak bila 0.
+        body: JSON.stringify({ filename: file.name, content_type: file.type, file_size: file.size }),
         credentials: 'include',
       },
     );
