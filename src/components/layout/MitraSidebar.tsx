@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -20,6 +21,7 @@ import {
 import { useUnreadChatCount } from '@/hooks/useChatRooms';
 import { canAccess } from '@/lib/mitra-access';
 import type { PartnerApplicationStatus } from '@/hooks/usePartnerVerificationStatus';
+import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 
 /**
  * Sidebar mode mitra untuk desktop (P1-13 / §5.2).
@@ -51,6 +53,7 @@ interface Props {
 }
 
 export default function MitraSidebar({ verification }: Props) {
+  const [showSwitchModal, setShowSwitchModal] = useState(false);
   const pathname = usePathname();
   const unreadCount = useUnreadChatCount();
   const approved = verification === 'APPROVED';
@@ -117,14 +120,19 @@ export default function MitraSidebar({ verification }: Props) {
 
       <div className="space-y-1 border-t border-brand-gray-100 p-3">
         {FOOTER_ITEMS.filter((item) => canAccess(item.href, verification)).map(renderItem)}
-        <Link
-          href="/"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-brand-gray-700 transition-colors hover:bg-brand-gray-60 hover:text-brand-gray-900"
+        <button
+          onClick={() => setShowSwitchModal(true)}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-brand-gray-700 transition-colors hover:bg-brand-gray-60 hover:text-brand-gray-900"
         >
           <RefreshCw className="h-4 w-4 shrink-0" />
           <span className="truncate">Beralih ke Pelanggan</span>
-        </Link>
+        </button>
       </div>
+
+      <SwitchRoleModal
+        isOpen={showSwitchModal}
+        onClose={() => setShowSwitchModal(false)}
+      />
     </aside>
   );
 }

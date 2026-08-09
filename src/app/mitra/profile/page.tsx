@@ -12,7 +12,6 @@ import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
-import { useUpload } from '@/hooks/useUpload';
 import { useAuthStore } from '@/lib/store/authStore';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -24,8 +23,6 @@ import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const { logout } = useAuth();
-  const { uploadFile, isUploading } = useUpload();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
@@ -47,34 +44,6 @@ export default function MitraProfilePage() {
   }, [isAuthenticated, fetchProfile]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Ukuran foto maksimal 5MB', 'error');
-      return;
-    }
-    const fileUrl = await uploadFile(file);
-    if (fileUrl) {
-      // /users/me, BUKAN /partners/me: avatar milik akun, dan
-      // partner.UpdateProfileRequest tidak punya field avatar_url sama sekali .
-      // backend membalas sukses lalu membuangnya, sehingga foto hanya berubah di
-      // layar sampai halaman dimuat ulang (P0-03). Sama dengan /profile/account.
-      const res = await fetchAPI('/users/me', {
-        method: 'PATCH',
-        body: JSON.stringify({ avatar_url: fileUrl }),
-      });
-      if (res.success) {
-        useAuthStore.getState().updateUser({ avatar_url: fileUrl });
-        showToast('Foto profil berhasil diperbarui');
-      } else {
-        showToast(res.message || 'Gagal memperbarui foto profil', 'error');
-      }
-    } else {
-      showToast('Gagal mengupload foto', 'error');
-    }
-  };
-
   const handleLogout = () => logout();
 
   if (authLoading) return <PageSkeleton />;
@@ -95,15 +64,6 @@ export default function MitraProfilePage() {
         <MitraPageContainer variant="profile" className="py-0 relative z-10 flex items-center gap-4 md:gap-6">
           <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden shrink-0 border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
             {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="absolute bottom-0 w-full h-1/3 bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors"
-              aria-label="Ubah foto profil"
-            >
-              {isUploading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Camera className="w-4 h-4 text-white" />}
-            </button>
-            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/jpeg,image/png,image/jpg" className="hidden" />
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl md:text-3xl font-extrabold truncate tracking-tight drop-shadow-sm">{user?.name}</h1>
