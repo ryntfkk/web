@@ -135,15 +135,22 @@ const nextConfig: NextConfig = {
               // lh3.googleusercontent.com = foto profil akun Google. Tanpa ini
               // avatar pengguna yang mendaftar lewat Google akan kosong begitu
               // CSP di-enforce.
-              "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-1.amazonaws.com https://*.googleusercontent.com; " +
+              // maps.gstatic.com = ubin & aset Google Maps (terbukti dari
+              // laporan CSP nyata, bukan tebakan).
+              "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-1.amazonaws.com https://*.googleusercontent.com https://maps.gstatic.com https://*.googleapis.com; " +
               // accounts.google.com = skrip Google Identity Services (tombol
               // "Masuk dengan Google").
-              "script-src 'self' 'unsafe-inline' " + (isDev ? "'unsafe-eval' " : "") + "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com; " +
-              "connect-src 'self' https://api.poskojasa.com wss://api.poskojasa.com https://accounts.google.com; " +
+              "script-src 'self' 'unsafe-inline' " + (isDev ? "'unsafe-eval' " : "") + "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com https://maps.googleapis.com; " +
+              // maps.googleapis.com juga dipanggil lewat XHR/RPC oleh Maps JS.
+              "connect-src 'self' https://api.poskojasa.com wss://api.poskojasa.com https://accounts.google.com https://maps.googleapis.com; " +
               // GIS merender tombol & dialog persetujuannya di dalam iframe.
               "frame-src https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com; " +
-              "style-src 'self' 'unsafe-inline' https://accounts.google.com; " +
-              "font-src 'self' data:; " +
+              // fonts.googleapis.com = lembar gaya Google Fonts / Material Symbols.
+              "style-src 'self' 'unsafe-inline' https://accounts.google.com https://fonts.googleapis.com; " +
+              // fonts.gstatic.com = berkas .woff2-nya. Ini pelanggaran TERBANYAK
+              // yang dilaporkan (61 dari 84): meng-enforce CSP tanpa baris ini
+              // akan mematikan seluruh font situs.
+              "font-src 'self' data: https://fonts.gstatic.com; " +
               "base-uri 'self'; form-action 'self'; frame-ancestors 'self'; " +
               // A11-T4: sebelum ini CSP berjalan Report-Only TANPA `report-uri`
               // . tidak ada satu pun laporan yang pernah sampai ke mana pun,
