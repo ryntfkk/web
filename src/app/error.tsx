@@ -19,7 +19,7 @@ export default function GlobalError({
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand-gray-60 px-4">
       <div className="bg-white p-8 rounded-xl shadow-sm border border-brand-gray-100 max-w-md w-full text-center">
-        <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6">
+        <div className="mx-auto w-16 h-16 bg-brand-error-soft rounded-full flex items-center justify-center mb-6">
           <AlertCircle className="w-8 h-8 text-brand-red" />
         </div>
         <h2 className="text-xl font-bold text-brand-gray-900 mb-2">Terjadi Kesalahan</h2>
@@ -42,10 +42,10 @@ export default function GlobalError({
           </Button>
         </div>
         {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 text-left bg-gray-50 p-4 rounded-lg overflow-auto max-h-48 border border-gray-200">
-            <p className="text-xs font-mono text-red-600 break-all">{error.message}</p>
+          <div className="mt-8 text-left bg-brand-gray-50 p-4 rounded-lg overflow-auto max-h-48 border border-brand-gray-200">
+            <p className="text-xs font-mono text-brand-error break-all">{error.message}</p>
             {error.stack && (
-              <pre className="text-[10px] font-mono text-gray-500 mt-2 whitespace-pre-wrap">
+              <pre className="text-[10px] font-mono text-brand-gray-450 mt-2 whitespace-pre-wrap">
                 {error.stack}
               </pre>
             )}

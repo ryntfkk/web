@@ -14,7 +14,7 @@ import dynamic from 'next/dynamic';
 // Leaflet mengakses `window` saat import → harus dynamic + ssr:false.
 const MapPicker = dynamic(() => import('@/components/MapPicker'), {
   ssr: false,
-  loading: () => <div className="h-64 bg-gray-100 flex items-center justify-center rounded-lg animate-pulse"><MapPin className="w-8 h-8 text-gray-300" /></div>,
+  loading: () => <div className="h-64 bg-brand-gray-100 flex items-center justify-center rounded-lg animate-pulse"><MapPin className="w-8 h-8 text-brand-gray-100" /></div>,
 });
 
 

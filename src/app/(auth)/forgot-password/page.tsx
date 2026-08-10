@@ -86,13 +86,13 @@ export default function ForgotPasswordPage() {
         <div className="py-6 px-1 sm:px-2">
           
           {error && (
-            <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-100">
+            <div className="mb-6 p-3 bg-brand-error-soft text-brand-error rounded-md text-sm border border-brand-error-border">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-6 p-3 bg-green-50 text-green-700 rounded-md text-sm border border-green-100">
+            <div className="mb-6 p-3 bg-brand-success-soft text-brand-success-dark rounded-md text-sm border border-brand-success-border">
               {success}
             </div>
           )}

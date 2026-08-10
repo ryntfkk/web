@@ -71,8 +71,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = typeof params.q === 'string' ? params.q.trim() : undefined;
 
   // Tanpa kata kunci → ini "semua layanan", bukan pencarian. Rute kanoniknya
-  // /services (SSR + SEO metadata). Redirect permanen agar bookmark lama tetap
-  // hidup dan bobot SEO menyatu ke /services.
+  // /services (SSR + SEO metadata).
+  //
+  // ⚠️ Pengalihan yang SEBENARNYA berlaku di produksi ada di `next.config.ts`
+  // (`source: '/search'` + `missing: q`), BUKAN baris di bawah ini.
+  //
+  // A13-T1: `permanentRedirect()` dari dalam page terbukti TIDAK tereksekusi
+  // pada deployment Amplify ini . diuji langsung: /search membalas 200 tanpa
+  // Location. Baris ini dipertahankan karena tetap bekerja di `next dev` dan
+  // pada host lain, jadi perilakunya konsisten di mana pun; tapi jangan
+  // mengandalkannya. Kalau aturan di next.config dihapus, halaman ini akan
+  // diam-diam menyajikan konten duplikat lagi.
   if (!query) {
     permanentRedirect('/services');
   }

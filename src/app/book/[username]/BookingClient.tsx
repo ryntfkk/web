@@ -893,7 +893,7 @@ export default function BookingClient() {
             {isAuthenticated && user && !user.profile_complete && (
               <div className="flex items-center justify-between gap-3 rounded-xl border border-brand-warning-border bg-brand-warning-soft p-3">
                 <div className="flex items-start gap-3">
-                  <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                  <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-brand-warning-dark" />
                   <div>
                     <p className="text-[13px] font-bold text-brand-gray-900">
                       Verifikasi nomor HP dulu, ya
@@ -906,7 +906,7 @@ export default function BookingClient() {
                 <button
                   type="button"
                   onClick={() => setShowPhoneModal(true)}
-                  className="shrink-0 rounded-lg bg-brand-red px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-red-700 active:scale-95"
+                  className="shrink-0 rounded-lg bg-brand-red px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-brand-red-dark active:scale-95"
                 >
                   Verifikasi
                 </button>
@@ -1130,7 +1130,7 @@ export default function BookingClient() {
                     ) : !date ? (
                       <div className="text-sm text-brand-gray-450 py-2">Pilih tanggal terlebih dahulu</div>
                     ) : availableSlots.length === 0 ? (
-                      <div className="text-sm text-red-600 py-2">
+                      <div className="text-sm text-brand-error py-2">
                         {slotsReason === 'day_off' && 'Mitra libur pada hari ini. Silakan pilih tanggal lain.'}
                         {slotsReason === 'no_schedule' && 'Mitra belum mengatur jadwal untuk hari ini. Silakan pilih tanggal lain.'}
                         {slotsReason === 'not_enough_time' && 'Total durasi layanan yang dipilih melebihi jam operasional mitra. Kurangi jumlah layanan atau pesan terpisah.'}

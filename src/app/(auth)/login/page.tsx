@@ -93,7 +93,7 @@ function LoginContent() {
           <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
 
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-100">
+              <div className="p-3 bg-brand-error-soft text-brand-error rounded-md text-sm border border-brand-error-border">
                 {error}
               </div>
             )}

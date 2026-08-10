@@ -454,7 +454,7 @@ export default async function JadiMitraPage() {
           
           <div className="mx-auto w-full max-w-3xl px-6 relative z-10">
             <div className="text-center sm:text-left mb-8">
-              <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-amber-400">
+              <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-warning">
                 Fase Pendaftar Awal (Early Bird)
               </p>
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
@@ -466,7 +466,7 @@ export default async function JadiMitraPage() {
               {EARLY_ADVANTAGES.map((a, i) => (
                 <AnimateOnScroll key={a.judul} delay={i * 80}>
                   <div className="group h-full flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-5 border border-white/10 backdrop-blur-sm transition-all hover:from-brand-red/20 hover:to-white/5 hover:border-brand-red/30">
-                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-400/20 text-amber-400">
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-warning/20 text-brand-warning">
                       <Sparkles className="h-5 w-5 transition-transform group-hover:rotate-12 group-hover:scale-110" aria-hidden />
                     </div>
                     <h3 className="mb-2 text-[15px] font-bold text-white">{a.judul}</h3>

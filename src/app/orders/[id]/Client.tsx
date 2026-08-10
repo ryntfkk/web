@@ -398,7 +398,7 @@ export default function OrderDetailClient() {
         <>
           <Button
             variant="outline"
-            className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
+            className="flex-1 border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg"
             onClick={() => router.push(`/orders/${order.id}/dispute`)}
           >
             Lapor Masalah
@@ -416,7 +416,7 @@ export default function OrderDetailClient() {
       {status === 'IN_PROGRESS' && (
         <Button
           variant="outline"
-          className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
+          className="flex-1 border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg"
           onClick={() => router.push(`/orders/${order.id}/dispute`)}
         >
           <AlertTriangle className="w-4 h-4 mr-1.5" /> Lapor Masalah
@@ -427,7 +427,7 @@ export default function OrderDetailClient() {
       {(status === 'WAITING_CONFIRMATION' || status === 'WAITING_PAYMENT') && (
         <Button
           variant="outline"
-          className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
+          className="flex-1 border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg"
           onClick={() => setShowCancelDialog(true)}
           disabled={actionLoading}
         >
@@ -440,7 +440,7 @@ export default function OrderDetailClient() {
       {status === 'PAID' && (
         <Button
           variant="outline"
-          className="flex-1 border-brand-error text-brand-error hover:bg-red-50 rounded-lg"
+          className="flex-1 border-brand-error text-brand-error hover:bg-brand-error-soft rounded-lg"
           onClick={() => router.push(`/orders/${order.id}/dispute`)}
         >
           <AlertTriangle className="w-4 h-4 mr-1.5" /> Ajukan Sengketa

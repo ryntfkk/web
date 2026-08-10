@@ -98,7 +98,7 @@ function RegisterContent() {
       <div className="mt-8 sm:mt-10 mx-auto w-full max-w-md px-4 sm:px-0">
         <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
           {error && (
-            <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-100">
+            <div className="mb-6 p-3 bg-brand-error-soft text-brand-error rounded-md text-sm border border-brand-error-border">
               {error}
             </div>
           )}

@@ -43,9 +43,9 @@ export default function CategoriesClient() {
             ))}
           </div>
         ) : isError ? (
-          <div className="text-center text-red-500 py-10">Gagal memuat kategori.</div>
+          <div className="text-center text-brand-error py-10">Gagal memuat kategori.</div>
         ) : categories?.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">Belum ada kategori tersedia.</div>
+          <div className="text-center text-brand-gray-450 py-10">Belum ada kategori tersedia.</div>
         ) : (
           <div className="space-y-8">
             {categories?.map((main) => (

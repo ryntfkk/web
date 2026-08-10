@@ -68,6 +68,25 @@ const nextConfig: NextConfig = {
         destination: '/terms',
         permanent: true,
       },
+      // /search tanpa kata kunci = "semua layanan", yang rute kanoniknya
+      // /services. Tanpa aturan ini konten yang sama tersaji di dua URL dan
+      // bobot SEO-nya pecah.
+      //
+      // A13-T1: sebelumnya ditulis sebagai permanentRedirect() di dalam
+      // src/app/search/page.tsx . dan TIDAK PERNAH tereksekusi. Diuji langsung
+      // ke produksi: /search membalas 200 tanpa Location, sementara kontrol
+      // /services?id=… membalas 308 dari aturan di berkas ini. Aturannya sudah
+      // tercatat (lihat catatan /legal/privacy di atas), pemindahannya saja
+      // yang terlewat waktu halaman ini ditulis belakangan.
+      //
+      // `missing` . bukan `has`: hanya berlaku saat parameter q TIDAK ADA.
+      // Pencarian sungguhan (/search?q=…) harus tetap dilayani halamannya.
+      {
+        source: '/search',
+        missing: [{ type: 'query', key: 'q' }],
+        destination: '/services',
+        permanent: true,
+      },
       // Konsolidasi www → non-www (308 permanen). www.poskojasa.com melayani
       // konten yang sama; tanpa redirect ini Google melihat dua host (duplikat).
       // Canonical sudah non-www, tapi redirect memberi sinyal terkuat & merapikan

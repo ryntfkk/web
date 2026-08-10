@@ -304,7 +304,7 @@ export default function ProfilePage() {
                       <span className="text-xs text-brand-gray-400">{user.phone || 'Belum diisi'}</span>
                     </div>
                     {!user.phone_verified && (
-                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-brand-warning-dark bg-brand-warning-soft border border-brand-warning-border px-2 py-0.5 rounded-full">
                         Belum terverifikasi
                       </span>
                     )}
