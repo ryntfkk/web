@@ -2,7 +2,19 @@
 // Dilarang mendefinisikan ulang formatRupiah/formatDate/formatPrice di komponen;
 // impor dari sini (lihat WEB-IMPLEMENTATION-PLAN.md §3.4).
 
-/** "Rp150.000" . tanpa desimal. */
+/**
+ * "Rp 150.000" . tanpa desimal.
+ *
+ * Pemisah setelah "Rp" adalah NBSP (U+00A0) yang disisipkan `Intl`, bukan spasi
+ * biasa dan bukan tanpa spasi. Komentar lama di sini menulis "Rp150.000" dan
+ * itu KELIRU . perbedaannya penting saat seseorang menulis test yang
+ * membandingkan string.
+ *
+ * ⚠️ Sinkron dengan `admin-web/src/lib/format.ts` → `formatIDR`. Keduanya wajib
+ * menghasilkan string yang SAMA untuk nilai yang sama: operator panel
+ * mencocokkan angka dengan keluhan pengguna, dan selisih format terbaca seperti
+ * selisih data. Dikunci `format-parity.test.ts` di KEDUA repo.
+ */
 export function formatRupiah(n: number): string {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
