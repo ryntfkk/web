@@ -144,7 +144,19 @@ const nextConfig: NextConfig = {
               "frame-src https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com; " +
               "style-src 'self' 'unsafe-inline' https://accounts.google.com; " +
               "font-src 'self' data:; " +
-              "base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
+              "base-uri 'self'; form-action 'self'; frame-ancestors 'self'; " +
+              // A11-T4: sebelum ini CSP berjalan Report-Only TANPA `report-uri`
+              // . tidak ada satu pun laporan yang pernah sampai ke mana pun,
+              // jadi "CSP sudah dipasang" tidak pernah bisa diuji.
+              //
+              // Penerimanya endpoint kita sendiri (POST /csp-report), bukan
+              // pihak ketiga: laporan CSP memuat URL halaman yang sedang dibuka
+              // pengguna.
+              //
+              // `report-uri` (bukan `report-to`) dipakai karena ia yang
+              // didukung merata; Reporting API belum. Peramban modern
+              // menandainya usang tapi tetap menghormatinya.
+              "report-uri https://api.poskojasa.com/api/v1/csp-report",
           },
         ],
       },
