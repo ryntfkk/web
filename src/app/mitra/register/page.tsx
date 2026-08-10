@@ -476,14 +476,25 @@ function MitraRegisterForm() {
     setAvatarUrl(url);
   };
 
-  const uploadFileToS3 = async (file: File) => {
+  /**
+   * `purpose` menentukan PREFIKS penyimpanan di server, bukan sekadar label.
+   *
+   * Endpoint ini melayani berkas publik (portofolio, foto layanan) DAN berkas
+   * identitas (KTP, swafoto, akta/NPWP/NIB). Tanpa penanda, semuanya jatuh ke
+   * prefiks `uploads/` yang dapat dibaca siapa pun . itulah temuan A11-T2,
+   * dan berkas lama yang sudah terlanjur di sana sudah dipindahkan.
+   *
+   * Nilai KYC yang dikenal server: 'ktp', 'selfie', 'documents'.
+   * Mengirim nilai lain (atau tidak mengirim sama sekali) = berkas PUBLIK.
+   */
+  const uploadFileToS3 = async (file: File, purpose: 'ktp' | 'selfie' | 'documents') => {
     // 1. Get presigned URL
     const { success, data } = await fetchAPI<{ upload_url: string; file_url: string }>(
       '/partners/upload/presigned-url',
       {
         method: 'POST',
         // file_size WAJIB: ikut ditandatangani ke presigned URL, ditolak bila 0.
-        body: JSON.stringify({ filename: file.name, content_type: file.type, file_size: file.size }),
+        body: JSON.stringify({ purpose, filename: file.name, content_type: file.type, file_size: file.size }),
         credentials: 'include',
       },
     );
@@ -641,19 +652,19 @@ function MitraRegisterForm() {
       }
 
       const ktpUrl = formData.ktp_photo
-        ? await uploadFileToS3(formData.ktp_photo)
+        ? await uploadFileToS3(formData.ktp_photo, 'ktp')
         : existingPhotos.ktp_photo_url;
       const selfieUrl = formData.selfie_ktp
-        ? await uploadFileToS3(formData.selfie_ktp)
+        ? await uploadFileToS3(formData.selfie_ktp, 'selfie')
         : existingPhotos.selfie_ktp_url;
 
       if (!ktpUrl || !selfieUrl) throw new Error('Mohon lengkapi foto KTP dan Selfie');
 
       let vendorFields = {};
       if (isVendor) {
-        const aktaUrl = vendor.akta ? await uploadFileToS3(vendor.akta) : existingDocs.akta_url;
-        const npwpDocUrl = vendor.npwp_doc ? await uploadFileToS3(vendor.npwp_doc) : existingDocs.npwp_doc_url;
-        const nibDocUrl = vendor.nib_doc ? await uploadFileToS3(vendor.nib_doc) : existingDocs.nib_doc_url;
+        const aktaUrl = vendor.akta ? await uploadFileToS3(vendor.akta, 'documents') : existingDocs.akta_url;
+        const npwpDocUrl = vendor.npwp_doc ? await uploadFileToS3(vendor.npwp_doc, 'documents') : existingDocs.npwp_doc_url;
+        const nibDocUrl = vendor.nib_doc ? await uploadFileToS3(vendor.nib_doc, 'documents') : existingDocs.nib_doc_url;
         if (!aktaUrl || !npwpDocUrl || !nibDocUrl) {
           throw new Error('Mohon lengkapi akta pendirian, NPWP badan usaha, dan NIB');
         }
