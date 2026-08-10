@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign } from 'lucide-react';
+import { notificationSpec } from '@/lib/notification-types';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
@@ -61,30 +62,49 @@ export default function NotificationsPage() {
     }
     
     const ref = n.reference_id || n.metadata?.order_id;
-    const t = (n.type || '').toLowerCase();
 
-    if (t === 'withdrawal') {
-      router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet');
-      return;
-    }
-    if (ref) {
-      if (t.includes('payment')) {
-        router.push(`/payment/${ref}`);
-      } else {
-        router.push(`/orders/${ref}`);
-      }
+    // A09-T2: tujuan dibaca dari pemetaan eksplisit, bukan substring `type`.
+    // Versi lama memeriksa `t === 'withdrawal'` padahal tipe sebenarnya
+    // `withdrawal_rejected` . perbandingannya tidak pernah cocok, dan
+    // notifikasi penarikan yang ditolak tidak membawa pengguna ke mana pun.
+    const { target } = notificationSpec(n.type);
+
+    switch (target.kind) {
+      case 'wallet':
+        router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet');
+        return;
+      case 'support':
+        router.push(user?.active_role === 'partner' ? '/mitra/bantuan/chat' : ref ? `/bantuan/${ref}` : '/bantuan');
+        return;
+      case 'payment':
+        if (ref) router.push(`/payment/${ref}`);
+        return;
+      case 'order':
+        if (ref) router.push(`/orders/${ref}`);
+        return;
+      case 'none':
+        return;
     }
   };
 
   const getIcon = (type: string) => {
-    const t = (type || '').toLowerCase();
-    if (t.includes('payment')) return <CreditCard className="w-5 h-5 text-brand-orange" />;
-    if (t.includes('dispute')) return <AlertTriangle className="w-5 h-5 text-brand-red" />;
-    if (t.includes('withdraw')) return <DollarSign className="w-5 h-5 text-brand-gray-700" />;
-    if (t.includes('review')) return <CheckCircle className="w-5 h-5 text-brand-success" />;
-    if (t.includes('order')) return <FileText className="w-5 h-5 text-brand-info" />;
-    if (t === 'system') return <CheckCircle className="w-5 h-5 text-brand-success" />;
-    return <Bell className="w-5 h-5 text-brand-gray-400" />;
+    // A09-T2: satu sumber kebenaran . lihat lib/notification-types.
+    switch (notificationSpec(type).icon) {
+      case 'payment':
+        return <CreditCard className="w-5 h-5 text-brand-orange" />;
+      case 'dispute':
+        return <AlertTriangle className="w-5 h-5 text-brand-red" />;
+      case 'withdrawal':
+        return <DollarSign className="w-5 h-5 text-brand-gray-700" />;
+      case 'review':
+        return <CheckCircle className="w-5 h-5 text-brand-success" />;
+      case 'order':
+        return <FileText className="w-5 h-5 text-brand-info" />;
+      case 'support':
+        return <AlertTriangle className="w-5 h-5 text-brand-info" />;
+      default:
+        return <Bell className="w-5 h-5 text-brand-gray-400" />;
+    }
   };
 
   const formatTime = (time: string) => {
@@ -102,8 +122,11 @@ export default function NotificationsPage() {
 
   const filteredNotifications = notifications.filter(n => {
     if (activeFilter === 'all') return true;
-    if (activeFilter === 'transaction') return n.type.toLowerCase().includes('order') || n.type.toLowerCase().includes('payment');
-    if (activeFilter === 'system') return n.type.toLowerCase() === 'system' || n.type.toLowerCase().includes('review');
+    // A09-T2: dulu `includes('order') || includes('payment')` . sehingga
+    // `withdrawal_rejected`, notifikasi yang menyangkut UANG, tidak pernah
+    // muncul di tab transaksi.
+    if (activeFilter === 'transaction') return notificationSpec(n.type).category === 'transaction';
+    if (activeFilter === 'system') return notificationSpec(n.type).category === 'system';
     return true;
   });
 
