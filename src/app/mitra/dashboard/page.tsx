@@ -24,8 +24,17 @@ import Image from 'next/image';
 interface DashboardData {
   status: 'ACTIVE' | 'INACTIVE';
   stats: {
+    // Nama lama (masih dikirim backend demi kompat): SEBENARNYA salah label .
+    // today_orders = pesanan aktif, today_income = pendapatan sepanjang masa.
+    // Jangan pakai sebagai "hari ini". UI baru memakai field jujur di bawah.
     today_orders: number;
     today_income: number;
+    // Field jujur (backend baru; opsional agar tak pecah sebelum backend deploy).
+    active_orders?: number;
+    total_income?: number;
+    week_income?: number;
+    month_income?: number;
+    balance?: number;
     rating: number;
     total_reviews: number;
   };
@@ -196,34 +205,46 @@ export default function MitraDashboardPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 animate-pulse">
             <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
             <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20 col-span-2" />
+            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
+            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            {/* Saldo dompet . tautan ke /mitra/wallet tempat penarikan (audit E11). */}
+            <Link href="/mitra/wallet" className="bg-white rounded-md border border-brand-gray-100 p-4 flex flex-col justify-center hover:bg-brand-gray-60 transition-colors">
+              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><Wallet className="w-3.5 h-3.5" /> Saldo Dompet</p>
+              <p className="text-lg font-bold text-brand-gray-900">{formatPrice(data?.stats.balance ?? 0)}</p>
+            </Link>
+            {/* Pendapatan bulan berjalan dari ledger EARNING; minggu ini sebagai
+                sub-baris. Dulu kartu ini berlabel "Hari Ini" padahal menampilkan
+                total SEPANJANG MASA (audit E11). */}
             <div className="bg-white rounded-md border border-brand-gray-100 p-4 flex flex-col justify-center">
-              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><Package className="w-3.5 h-3.5" /> Pesanan Hari Ini</p>
-              <p className="text-xl font-bold text-brand-gray-900">{data?.stats.today_orders || 0}</p>
+              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><TrendingUp className="w-3.5 h-3.5" /> Pendapatan Bulan Ini</p>
+              <p className="text-lg font-bold text-brand-success">{formatPrice(data?.stats.month_income ?? 0)}</p>
+              <p className="text-[11px] text-brand-gray-450 mt-0.5">Minggu ini: {formatPrice(data?.stats.week_income ?? 0)}</p>
             </div>
+            {/* "Pesanan Aktif" . jujur; dulu berlabel "Hari Ini" padahal ini
+                jumlah pesanan yang sedang berjalan, bukan yang masuk hari ini. */}
             <div className="bg-white rounded-md border border-brand-gray-100 p-4 flex flex-col justify-center">
-              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><TrendingUp className="w-3.5 h-3.5" /> Pendapatan Hari Ini</p>
-              <p className="text-lg font-bold text-brand-success">{formatPrice(data?.stats.today_income || 0)}</p>
+              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><Package className="w-3.5 h-3.5" /> Pesanan Aktif</p>
+              <p className="text-xl font-bold text-brand-gray-900">{data?.stats.active_orders ?? data?.stats.today_orders ?? 0}</p>
             </div>
             {/* Kartu rating jadi tautan ke halaman ulasan . di sanalah mitra
                 membalas ulasan pelanggan (batas balas 7 hari). */}
             <Link
               href="/mitra/reviews"
-              className="bg-white rounded-md border border-brand-gray-100 p-4 col-span-2 flex items-center justify-between hover:bg-brand-gray-60 transition-colors"
+              className="bg-white rounded-md border border-brand-gray-100 p-4 flex items-center justify-between hover:bg-brand-gray-60 transition-colors"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-md bg-brand-orange-soft flex items-center justify-center">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 shrink-0 rounded-md bg-brand-orange-soft flex items-center justify-center">
                   <Star className="w-4 h-4 text-brand-warning fill-brand-warning" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-bold text-brand-gray-900">Rating {data?.stats.rating?.toFixed(1) || '0.0'}</p>
-                  <p className="text-xs text-brand-gray-700">{data?.stats.total_reviews || 0} Ulasan · Balas ulasan</p>
+                  <p className="text-xs text-brand-gray-700 truncate">{data?.stats.total_reviews || 0} Ulasan</p>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-brand-gray-400" />
+              <ChevronRight className="w-4 h-4 shrink-0 text-brand-gray-400" />
             </Link>
           </div>
         )}
