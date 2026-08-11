@@ -16,7 +16,7 @@ import { usePartnerWorkingHours } from '@/hooks/useServiceDetail';
 import { Button } from '@/components/ui/button';
 import { ProfileSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
-import { WifiOff, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { WifiOff, RefreshCw, ShieldCheck, AlertTriangle, Zap, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { track } from '@/lib/analytics';
 
@@ -155,6 +155,27 @@ export default function PartnerProfileClient({ username }: { username: string })
                 )}
               </div>
             </div>
+
+            {/* Responsivitas (E9) . badge dari data chat. Seluruh blok muncul
+                HANYA bila backend mengirim response_stats (sampel cukup); mitra
+                baru tidak ditampilkan "0%". */}
+            {profile.response_stats && (
+              <div className="bg-white rounded-md shadow-sm p-4 sm:p-5">
+                <h2 className="text-base sm:text-lg font-semibold text-brand-gray-900 mb-3">Responsivitas</h2>
+                <div className="flex flex-wrap gap-2">
+                  {profile.response_stats.response_time_label && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-success-soft px-3 py-1.5 text-xs font-semibold text-brand-success-dark">
+                      <Zap className="w-3.5 h-3.5" />
+                      {profile.response_stats.response_time_label}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-info-soft px-3 py-1.5 text-xs font-semibold text-brand-info-dark">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    {profile.response_stats.response_rate}% chat dibalas
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Jam operasional mitra */}
             <div className="bg-white rounded-md shadow-sm p-4 sm:p-5">

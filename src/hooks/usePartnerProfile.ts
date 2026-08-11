@@ -29,6 +29,15 @@ export interface PartnerProfileData {
   legal_name: string;
   partner_type: 'individual' | 'vendor';
   entity_form?: string;
+  /**
+   * Badge responsivitas chat (E9). ADA hanya bila sampel chat mitra cukup .
+   * backend menyembunyikannya (bukan mengirim "0%") untuk mitra baru. Label
+   * waktu sudah siap-tampil dari backend; kosong bila mitra belum pernah balas.
+   */
+  response_stats?: {
+    response_rate: number; // 0-100
+    response_time_label?: string;
+  };
 }
 
 export interface PartnerServicePhoto {
