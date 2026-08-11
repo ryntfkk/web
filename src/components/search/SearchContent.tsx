@@ -40,6 +40,10 @@ export default function SearchContent({ query }: SearchContentProps) {
         onSortDirChange={listing.setSortDir}
         partnerType={listing.partnerType}
         onPartnerTypeChange={listing.setPartnerType}
+        minPrice={listing.minPrice}
+        onMinPriceChange={listing.setMinPrice}
+        maxPrice={listing.maxPrice}
+        onMaxPriceChange={listing.setMaxPrice}
         onSortChange={listing.setSort}
         isSearch={true}
         query={query}

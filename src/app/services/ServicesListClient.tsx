@@ -90,6 +90,10 @@ export default function ServicesListClient({
           onSortChange={listing.setSort}
           partnerType={listing.partnerType}
           onPartnerTypeChange={listing.setPartnerType}
+          minPrice={listing.minPrice}
+          onMinPriceChange={listing.setMinPrice}
+          maxPrice={listing.maxPrice}
+          onMaxPriceChange={listing.setMaxPrice}
           isSearch={false}
         />
       </div>

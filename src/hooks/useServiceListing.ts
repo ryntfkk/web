@@ -24,16 +24,15 @@ interface UseServiceListingParams {
  * /search (CSR). Mengelola filter kota, rating (client-side), sort, paginasi
  * "muat lebih banyak", dan akumulasi hasil.
  *
- * Catatan: endpoint publik hanya menerima `q, limit, offset, city,
- * partner_type, lat, lon` . TIDAK ada `sort`, `min_rating`, maupun `min_price`
- * (diperiksa langsung di `backend/internal/search/handler.go`). Karena itu
- * pengurutan dan filter rating dikerjakan di KLIEN, atas hasil yang sudah
- * dimuat. Lihat catatan panjang di `comparator` di bawah untuk batasannya.
+ * Catatan: endpoint publik menerima `q, limit, offset, city, partner_type,
+ * min_price, max_price, lat, lon`. `sort` dan `min_rating` masih TIDAK dikenal
+ * backend, jadi pengurutan & filter rating dikerjakan di KLIEN atas hasil yang
+ * sudah dimuat (lihat catatan panjang di `comparator` di bawah untuk batasannya).
  *
- * Filter HARGA sengaja TIDAK ditambahkan: menyaring di klien akan membuang
- * sebagian dari 24 item yang sudah diambil sehingga halaman jadi setengah
- * kosong dan "muat lebih banyak" melewatkan hasil . alasan yang sama sudah
- * ditulis untuk `partnerType` di bawah. Filter harga butuh dukungan backend.
+ * Filter HARGA (E5) kini disaring di SERVER (`min_price`/`max_price`), sama
+ * seperti `partnerType`: menyaring di klien akan membuang sebagian dari 24 item
+ * yang sudah diambil sehingga halaman jadi setengah kosong dan "muat lebih
+ * banyak" melewatkan hasil.
  */
 export function useServiceListing({
   query,
@@ -53,6 +52,10 @@ export function useServiceListing({
   // 24 item yang sudah terlanjur diambil akan menghasilkan halaman setengah
   // kosong dan "muat lebih banyak" yang melewatkan hasil.
   const [partnerType, setPartnerType] = useState('');
+  // Filter harga (E5) . disaring SERVER, lihat catatan di kepala berkas. 0 = tak
+  // dibatasi. Disimpan sebagai number; UI mengoper string input via setter.
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(0);
   const [page, setPage] = useState(1);
   const [allServices, setAllServices] = useState<PublicService[]>(initialServices ?? []);
 
@@ -73,6 +76,8 @@ export function useServiceListing({
       // hanya mengubah queryKey React Query → refetch sia-sia dengan URL yang
       // persis sama. Pengurutan dikerjakan di klien (lihat `comparator`).
       partnerType: partnerType || undefined,
+      minPrice: minPrice || undefined,
+      maxPrice: maxPrice || undefined,
       latitude: hasLocation ? latitude ?? undefined : undefined,
       longitude: hasLocation ? longitude ?? undefined : undefined,
     },
@@ -91,8 +96,9 @@ export function useServiceListing({
     setAllServices([]);
     // `sort`/`sortDir` sengaja TIDAK di sini: pengurutan dikerjakan di klien
     // atas hasil yang sudah dimuat, jadi mengubahnya tidak perlu memuat ulang
-    // dari halaman 1 (dan membuang hasil yang sudah ada).
-  }, [query, city, category, partnerType]);
+    // dari halaman 1 (dan membuang hasil yang sudah ada). `minPrice`/`maxPrice`
+    // JUSTRU di sini: keduanya disaring server, jadi ganti harga = query baru.
+  }, [query, city, category, partnerType, minPrice, maxPrice]);
 
   // Akumulasi hasil: halaman 1 menggantikan, halaman berikutnya menambah (dedup by id).
   // Pola yang sama dengan SearchContent lama . setState in effect untuk sinkronisasi
@@ -175,6 +181,10 @@ export function useServiceListing({
     setSortDir,
     partnerType,
     setPartnerType,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
     // Query state
     isLoading,
     isError,

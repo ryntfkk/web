@@ -54,6 +54,10 @@ interface PublicServicesParams {
    * dibalas 0 baris tanpa error, jadi UI tidak perlu memvalidasinya lagi.
    */
   partnerType?: string;
+  /** Filter harga (rupiah). <=0 / undefined = tanpa batas. Disaring SERVER
+   *  (E5) agar paginasi "muat lebih banyak" tetap benar. */
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 interface UsePublicServicesOptions {
@@ -82,6 +86,8 @@ export function usePublicServices(
   if (params.latitude !== undefined) queryParams.append('lat', params.latitude.toString());
   if (params.longitude !== undefined) queryParams.append('lon', params.longitude.toString());
   if (params.partnerType) queryParams.append('partner_type', params.partnerType);
+  if (params.minPrice && params.minPrice > 0) queryParams.append('min_price', params.minPrice.toString());
+  if (params.maxPrice && params.maxPrice > 0) queryParams.append('max_price', params.maxPrice.toString());
 
   const base = isSearch ? '/services/search' : '/services';
   const queryString = queryParams.toString();

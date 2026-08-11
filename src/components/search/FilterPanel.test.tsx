@@ -13,6 +13,10 @@ function setup(overrides: Partial<React.ComponentProps<typeof FilterPanel>> = {}
     onMinRatingChange: vi.fn(),
     partnerType: '',
     onPartnerTypeChange: vi.fn(),
+    minPrice: 0,
+    onMinPriceChange: vi.fn(),
+    maxPrice: 0,
+    onMaxPriceChange: vi.fn(),
     ...overrides,
   };
   render(<FilterPanel {...props} />);

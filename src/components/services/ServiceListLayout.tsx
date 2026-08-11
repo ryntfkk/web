@@ -32,6 +32,11 @@ interface ServiceListLayoutProps {
   /** Filter jenis mitra (M2). '' = semua. */
   partnerType: string;
   onPartnerTypeChange: (t: string) => void;
+  /** Filter harga (E5); 0 = tanpa batas. */
+  minPrice: number;
+  onMinPriceChange: (v: number) => void;
+  maxPrice: number;
+  onMaxPriceChange: (v: number) => void;
   /** Konteks tampilan. */
   isSearch: boolean;
   /** Query pencarian (untuk teks empty state). */
@@ -61,6 +66,10 @@ export default function ServiceListLayout({
   onSortDirChange,
   partnerType,
   onPartnerTypeChange,
+  minPrice,
+  onMinPriceChange,
+  maxPrice,
+  onMaxPriceChange,
   isSearch,
   query,
   isInitialLoading,
@@ -68,8 +77,14 @@ export default function ServiceListLayout({
   const router = useRouter();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   // Dihitung dari state filter yang SAMA dengan yang dipakai FilterPanel .
-  // satu sumber, jadi badge tidak bisa menyimpang dari isi panelnya.
-  const activeFilterCount = [Boolean(city), minRating > 0, Boolean(partnerType)].filter(Boolean).length;
+  // satu sumber, jadi badge tidak bisa menyimpang dari isi panelnya. Harga
+  // dihitung sebagai SATU filter aktif bila salah satu batas terisi.
+  const activeFilterCount = [
+    Boolean(city),
+    minRating > 0,
+    Boolean(partnerType),
+    minPrice > 0 || maxPrice > 0,
+  ].filter(Boolean).length;
 
   const emptyTitle = isSearch && query
     ? `Tidak ada hasil untuk "${query}"`
@@ -90,6 +105,10 @@ export default function ServiceListLayout({
         onMinRatingChange={onMinRatingChange}
         partnerType={partnerType}
         onPartnerTypeChange={onPartnerTypeChange}
+        minPrice={minPrice}
+        onMinPriceChange={onMinPriceChange}
+        maxPrice={maxPrice}
+        onMaxPriceChange={onMaxPriceChange}
       />
 
       {/* Main Results Area */}
