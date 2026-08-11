@@ -53,7 +53,7 @@ export default function WalletPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, timeFilter]);
 
-  const fetchData = async () => {
+  async function fetchData() {
     setLoading(true);
     let query = '';
     if (timeFilter === 'THIS_MONTH') {
@@ -100,7 +100,7 @@ export default function WalletPage() {
     }
   };
 
-  const getTransactionIcon = (type: string) => {
+  function getTransactionIcon(type: string) {
     if (type === 'CREDIT') return <ArrowDownLeft className="w-5 h-5 text-brand-success" />;
     if (type === 'DEBIT') return <ArrowUpRight className="w-5 h-5 text-brand-error" />;
     return <History className="w-5 h-5 text-brand-gray-450" />;

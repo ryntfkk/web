@@ -60,7 +60,7 @@ export default function ReviewClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, orderId]);
 
-  const fetchOrder = async () => {
+  async function fetchOrder() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
@@ -81,7 +81,7 @@ export default function ReviewClient() {
 
   // Foto diunggah saat dipilih (bukan saat submit) agar tombol kirim tidak
   // menahan beberapa upload sekaligus; yang disimpan di state = URL final.
-  const handlePickPhotos = async (files: FileList | null) => {
+  async function handlePickPhotos(files: FileList | null) {
     if (!files?.length) return;
     setError('');
     const sisa = MAX_PHOTOS - photos.length;
@@ -100,7 +100,7 @@ export default function ReviewClient() {
     }
   };
 
-  const handleSubmit = async () => {
+  async function handleSubmit() {
     if (rating === 0) { setError('Pilih rating bintang terlebih dahulu.'); return; }
     if (comment.trim().length < 10) { setError('Ulasan wajib diisi minimal 10 karakter.'); return; }
     setSubmitting(true);

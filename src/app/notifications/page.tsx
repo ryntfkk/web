@@ -54,7 +54,7 @@ export default function NotificationsPage() {
    * tanpa parameter apa pun dan tidak punya tombol muat-lagi. Notifikasi lama
    * jadi tak terjangkau begitu melewati batas bawaan (audit E8).
    */
-  const fetchNotifications = async (targetPage: number) => {
+  async function fetchNotifications(targetPage: number) {
     const append = targetPage > 1;
     if (append) setLoadingMore(true);
     else setLoading(true);
@@ -74,13 +74,13 @@ export default function NotificationsPage() {
     setLoadingMore(false);
   };
 
-  const handleMarkAllRead = async () => {
+  async function handleMarkAllRead() {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     await fetchAPI('/notifications/read-all', { method: 'PUT' });
     refreshUnreadBadge();
   };
 
-  const handleNotificationClick = async (n: Notification) => {
+  async function handleNotificationClick(n: Notification) {
     if (!n.is_read) {
       setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, is_read: true } : item));
       await fetchAPI(`/notifications/${n.id}/read`, { method: 'PUT' });
@@ -113,7 +113,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const getIcon = (type: string) => {
+  function getIcon(type: string) {
     // A09-T2: satu sumber kebenaran . lihat lib/notification-types.
     switch (notificationSpec(type).icon) {
       case 'payment':
@@ -133,7 +133,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const formatTime = (time: string) => {
+  function formatTime(time: string) {
     const date = new Date(time);
     const now = new Date();
     

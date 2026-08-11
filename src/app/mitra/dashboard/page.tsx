@@ -75,7 +75,7 @@ export default function MitraDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  const fetchData = async (silent = false) => {
+  async function fetchData(silent = false) {
     if (!silent) setLoading(true);
     const res = await fetchAPI<any>('/partners/me/dashboard');
     if (res.success && res.data) {
@@ -99,7 +99,7 @@ export default function MitraDashboardPage() {
     track('partner_dashboard_viewed');
   }, [isAuthenticated]);
 
-  const toggleStatus = async () => {
+  async function toggleStatus() {
     if (!data) return;
     setTogglingStatus(true);
     const newStatus = data.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';

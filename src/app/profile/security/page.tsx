@@ -31,7 +31,7 @@ export default function SecurityPage() {
   // terkunci di luar satu-satunya fitur yang bisa memberinya password.
   const isSettingPassword = user?.has_password === false;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if ((!isSettingPassword && !currentPassword) || !newPassword || !confirmPassword) {
       setError('Semua kolom wajib diisi');
@@ -72,9 +72,10 @@ export default function SecurityPage() {
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
-        titleAs="p" title="Keamanan Akun" />
+        titleAs="p" title="Keamanan Akun" maxWidthClass="max-w-2xl" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      {/* max-w-2xl: seragam dgn sub-halaman /profile lain (B2). */}
+      <div className="max-w-2xl mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Keamanan Akun</h1>
         <div className="bg-white rounded-xl border border-brand-gray-100 p-6 mb-6 text-center">
           <div className="w-16 h-16 bg-brand-success-soft rounded-full flex items-center justify-center mx-auto mb-4">
@@ -181,7 +182,7 @@ function LoginHistoryList() {
     fetchHistory();
   }, []);
 
-  const fetchHistory = async () => {
+  async function fetchHistory() {
     setLoading(true);
     const res = await fetchAPI<any>('/users/me/login-history');
     if (res.success && Array.isArray(res.data)) {

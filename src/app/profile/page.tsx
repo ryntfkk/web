@@ -66,7 +66,7 @@ export default function ProfilePage() {
     }
   }, [isAuthenticated]);
 
-  const checkPartnerStatus = async () => {
+  async function checkPartnerStatus() {
     setStatusLoading(true);
     const res = await fetchAPI<PartnerProfile>('/partners/me', {
       method: 'GET',
@@ -78,7 +78,7 @@ export default function ProfilePage() {
     setStatusLoading(false);
   };
 
-  const fetchOrders = async () => {
+  async function fetchOrders() {
     setOrdersLoading(true);
     try {
       const res = await fetchAPI<Order[]>('/orders', {

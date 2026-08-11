@@ -66,9 +66,10 @@ export default function NotificationSettingsPage() {
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
-        titleAs="p" title="Pengaturan Notifikasi" icon={<Bell className="w-5 h-5 text-brand-red" />} />
+        titleAs="p" title="Pengaturan Notifikasi" icon={<Bell className="w-5 h-5 text-brand-red" />} maxWidthClass="max-w-2xl" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      {/* max-w-2xl: seragam dgn sub-halaman /profile lain (B2). */}
+      <div className="max-w-2xl mx-auto px-4 py-6">
       <h1 className="hidden lg:flex text-2xl font-bold text-brand-gray-900 items-center gap-2 mb-4">
         <Bell className="w-6 h-6 text-brand-red" /> Pengaturan Notifikasi
       </h1>

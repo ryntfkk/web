@@ -157,7 +157,7 @@ export default function BookingClient() {
   // ── Model baris (service_id + variation_id) ─────────────────────────────
   const KEY_SEP = '::';
   const lineKey = (serviceId: string, variationId?: string) => `${serviceId}${KEY_SEP}${variationId ?? ''}`;
-  const parseKey = (key: string) => {
+  function parseKey(key: string) {
     const i = key.indexOf(KEY_SEP);
     const variationId = key.slice(i + KEY_SEP.length);
     return { serviceId: key.slice(0, i), variationId: variationId || undefined };
@@ -176,14 +176,14 @@ export default function BookingClient() {
   const qtyOfKey = (key: string) => Math.max(minOrderOfKey(key), quantities[key] ?? minOrderOfKey(key));
   const setQtyKey = (key: string, qty: number) =>
     setQuantities((prev) => ({ ...prev, [key]: Math.max(minOrderOfKey(key), Math.min(100, qty)) }));
-  const variationOfKey = (key: string) => {
+  function variationOfKey(key: string) {
     const { serviceId, variationId } = parseKey(key);
     return serviceById(serviceId)?.variations?.find((v) => v.id === variationId);
   };
   // Harga satuan baris = harga variasi bila ada, jika tidak harga dasar layanan.
   const unitPriceOfKey = (key: string) =>
     variationOfKey(key)?.price ?? serviceById(parseKey(key).serviceId)?.price ?? 0;
-  const durationOfKey = (key: string) => {
+  function durationOfKey(key: string) {
     const s = serviceById(parseKey(key).serviceId);
     return s ? serviceDuration(s) || 0 : 0;
   };
@@ -280,7 +280,7 @@ export default function BookingClient() {
 
   useEffect(() => {
     if (date && partner?.id) {
-      const fetchSlots = async () => {
+      async function fetchSlots() {
         setSlotsLoading(true);
         try {
           const res = await fetchAPI<any>(`/orders/${partner.id}/schedule?date=${date}&duration=${totalDuration || 60}`);
@@ -306,7 +306,7 @@ export default function BookingClient() {
     }
   }, [date, partner?.id, totalDuration]);
 
-  const fetchData = async () => {
+  async function fetchData() {
     setLoading(true);
     try {
       const [pRes, sRes, aRes] = await Promise.all([
@@ -346,7 +346,7 @@ export default function BookingClient() {
   // Muat ulang HANYA daftar alamat (mis. setelah pelanggan mengedit koordinat
   // di tab lain), mempertahankan alamat terpilih. Tidak ikut memuat mitra/
   // layanan agar ringan.
-  const refreshAddresses = async () => {
+  async function refreshAddresses() {
     try {
       const aRes = await fetchAPI<any>('/users/me/addresses');
       if (aRes.success && aRes.data) {
@@ -358,7 +358,7 @@ export default function BookingClient() {
     }
   };
 
-  const handleNext = () => {
+  function handleNext() {
     if (hasInvalidLine()) {
       setErrorMsg('Pilih variasi untuk setiap layanan yang dipilih.');
       return;
@@ -368,7 +368,7 @@ export default function BookingClient() {
   };
   const handlePrev = () => setStep(1);
 
-  const submitOrder = async () => {
+  async function submitOrder() {
     setErrorMsg('');
 
     // Jaring terakhir. Syarat ini juga sudah ditampilkan di langkah 1 supaya user
@@ -531,7 +531,7 @@ export default function BookingClient() {
     }
   };
 
-  const fetchPreview = async (currentPromo?: string) => {
+  async function fetchPreview(currentPromo?: string) {
     if (!partner?.id || !addressId || !date || !time) return;
 
     const items = activeKeys().map((k) => {
@@ -591,7 +591,7 @@ export default function BookingClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, addressId, date, time, selectedLines, quantities]);
 
-  const validatePromo = async () => {
+  async function validatePromo() {
     if (!promoCode) return;
     // fetchPreview mensyaratkan alamat + jadwal (butuh koordinat & waktu untuk
     // menghitung transport/diskon). Tanpa ini ia return diam-diam sehingga tombol
@@ -616,7 +616,7 @@ export default function BookingClient() {
   // Saat pelanggan kembali ke tab order setelah mengedit alamat, refresh alamat
   // (peta) + preview (biaya transport) secara otomatis.
   useEffect(() => {
-    const onReturn = () => {
+    function onReturn() {
       if (typeof document !== 'undefined' && document.visibilityState === 'visible' && addressEditedRef.current) {
         addressEditedRef.current = false;
         refreshOnReturnRef.current();

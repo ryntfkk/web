@@ -250,7 +250,7 @@ export default function OrderDetailClient() {
     void fetchOrder();
   }, [isAuthorized, orderId, fetchOrder]);
 
-  const handleChat = async () => {
+  async function handleChat() {
     if (!order?.partner?.user_id) return;
     setIsChatLoading(true);
     try {
@@ -274,7 +274,7 @@ export default function OrderDetailClient() {
     }
   };
 
-  const handleAction = async (action: string, body?: object) => {
+  async function handleAction(action: string, body?: object) {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setActionLoading(true);
@@ -295,7 +295,7 @@ export default function OrderDetailClient() {
     }
   };
 
-  const handleCancel = async () => {
+  async function handleCancel() {
     if (!cancelReason) {
       showToast('Harap pilih alasan pembatalan', 'error');
       return;
@@ -304,7 +304,7 @@ export default function OrderDetailClient() {
     await handleAction('cancel', { reason: cancelReason });
   };
 
-  const copyOrderNumber = async () => {
+  async function copyOrderNumber() {
     if (!order) return;
     try {
       await navigator.clipboard.writeText(order.order_number);

@@ -37,7 +37,7 @@ export default function AddressesPage() {
     fetchAddresses();
   }, [isAuthenticated]);
 
-  const fetchAddresses = async () => {
+  async function fetchAddresses() {
     setLoading(true);
     try {
       const res = await fetchAPI<any>('/users/me/addresses');
@@ -49,7 +49,7 @@ export default function AddressesPage() {
     }
   };
 
-  const handleDelete = async () => {
+  async function handleDelete() {
     if (!deleteId) return;
     const res = await fetchAPI(`/users/me/addresses/${deleteId}`, { method: 'DELETE' });
     if (res.success) {
@@ -61,7 +61,7 @@ export default function AddressesPage() {
     setDeleteId(null);
   };
 
-  const handleSetPrimary = async (id: string) => {
+  async function handleSetPrimary(id: string) {
     const res = await fetchAPI(`/users/me/addresses/${id}/primary`, { method: 'PUT' });
     if (res.success) {
       setAddresses(prev => prev.map(a => ({ ...a, is_default: a.id === id })));
@@ -80,9 +80,11 @@ export default function AddressesPage() {
 
       {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
-        titleAs="p" title="Buku Alamat" />
+        titleAs="p" title="Buku Alamat" maxWidthClass="max-w-2xl" />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      {/* max-w-2xl: seragam dgn sub-halaman /profile lain, dan sejajar dgn
+          bar aksi di bawah (B2). */}
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900">Buku Alamat</h1>
         {loading ? (
           [1, 2].map(i => (
@@ -156,7 +158,7 @@ export default function AddressesPage() {
 
       {/* Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-20">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           <Button
             className="w-full bg-brand-red hover:bg-brand-red-dark rounded"
             onClick={() => router.push('/profile/addresses/new')}

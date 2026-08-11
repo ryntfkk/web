@@ -92,7 +92,7 @@ export default function OrdersPage() {
     }
   }, [isAuthenticated]);
 
-  const fetchOrders = async () => {
+  async function fetchOrders() {
     setLoading(true);
     try {
       const res = await fetchAPI<unknown>('/orders', {
@@ -110,7 +110,7 @@ export default function OrdersPage() {
     }
   };
 
-  const handleReorder = async (orderId: string) => {
+  async function handleReorder(orderId: string) {
     setReorderingId(orderId);
     try {
       const res = await fetchAPI<ReorderResponse>(`/orders/${orderId}/reorder`, {

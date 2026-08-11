@@ -27,7 +27,7 @@ export default function MitraVerificationStatusPage() {
     fetchStatus();
   }, [isAuthenticated, user?.active_role]);
 
-  const fetchStatus = async () => {
+  async function fetchStatus() {
     setLoading(true);
     const res = await fetchAPI<any>('/partners/me');
     if (res.success && res.data) {

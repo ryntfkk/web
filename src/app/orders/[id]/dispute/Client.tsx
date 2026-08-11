@@ -48,7 +48,7 @@ export default function DisputeClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, orderId]);
 
-  const fetchOrder = async () => {
+  async function fetchOrder() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
@@ -64,7 +64,7 @@ export default function DisputeClient() {
     setLoading(false);
   };
 
-  const handleSubmit = async () => {
+  async function handleSubmit() {
     if (reason.trim().length < 20) {
       setError('Deskripsi masalah minimal 20 karakter.');
       return;

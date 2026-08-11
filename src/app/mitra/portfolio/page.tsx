@@ -58,7 +58,7 @@ export default function MitraPortfolioPage() {
     }
   }, [isAuthorized]);
 
-  const fetchPortfolios = async () => {
+  async function fetchPortfolios() {
     setLoading(true);
     const res = await fetchAPI<Portfolio[]>('/partners/me/portfolios');
     if (res.success && res.data) {
@@ -67,7 +67,7 @@ export default function MitraPortfolioPage() {
     setLoading(false);
   };
 
-  const handleDelete = async () => {
+  async function handleDelete() {
     if (!deleteId) return;
     const res = await fetchAPI(`/partners/me/portfolios/${deleteId}`, { method: 'DELETE' });
     if (res.success) {
@@ -78,12 +78,12 @@ export default function MitraPortfolioPage() {
     setDeleteId(null);
   };
 
-  const startEditCaption = (id: string, current?: string) => {
+  function startEditCaption(id: string, current?: string) {
     setEditingId(id);
     setCaptionDraft(current || '');
   };
 
-  const saveCaption = async () => {
+  async function saveCaption() {
     if (!editingId || savingCaption) return;
     setSavingCaption(true);
     try {
@@ -112,7 +112,7 @@ export default function MitraPortfolioPage() {
    * server menolak, daftar diambil ulang . layar tidak boleh menampilkan urutan
    * yang tidak tersimpan.
    */
-  const moveItem = async (index: number, direction: -1 | 1) => {
+  async function moveItem(index: number, direction: -1 | 1) {
     const target = index + direction;
     if (target < 0 || target >= portfolios.length || savingOrder) return;
 
@@ -134,7 +134,7 @@ export default function MitraPortfolioPage() {
     }
   };
 
-  const linkToService = async (id: string, serviceId: string) => {
+  async function linkToService(id: string, serviceId: string) {
     setLinkingId(id);
     const res = await fetchAPI<Portfolio>(`/partners/me/portfolios/${id}/service`, {
       method: 'PATCH',
@@ -155,7 +155,7 @@ export default function MitraPortfolioPage() {
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 

@@ -107,9 +107,11 @@ export default function AccountPage() {
 
       {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
-        titleAs="p" title="Informasi Akun" backHref="/profile" />
+        titleAs="p" title="Informasi Akun" backHref="/profile" maxWidthClass="max-w-2xl" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      {/* max-w-2xl: seragam dgn /profile/wallet & /profile/bank-account . dulu
+          max-w-lg, jadi lebar melompat saat pindah antar sub-halaman profil (B2). */}
+      <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900">Informasi Akun</h1>
           {!isEditing && (

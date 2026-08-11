@@ -55,7 +55,7 @@ export default function AdditionalFeeClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, orderId]);
 
-  const fetchOrder = async () => {
+  async function fetchOrder() {
     setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
@@ -65,7 +65,7 @@ export default function AdditionalFeeClient() {
   };
 
 
-  const handleApprove = async () => {
+  async function handleApprove() {
     const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
     if (!fee) return;
     setActionLoading(true);
@@ -89,7 +89,7 @@ export default function AdditionalFeeClient() {
 
   // Jalur Midtrans: untuk pelanggan yang saldo dompetnya tidak cukup.
   // Backend menagih fee PENDING tertua; sukses → redirect ke halaman Snap.
-  const handlePayWithSnap = async () => {
+  async function handlePayWithSnap() {
     setActionLoading(true);
     const result = await payAdditionalFeeWithSnap(orderId);
     if (result.status === 'error') {
@@ -99,7 +99,7 @@ export default function AdditionalFeeClient() {
     // status 'redirecting' → browser berpindah halaman; biarkan loading.
   };
 
-  const handleReject = async () => {
+  async function handleReject() {
     const fee = order?.additional_fees?.find(f => f.status === 'PENDING');
     if (!fee) return;
     setShowRejectDialog(false);
@@ -120,7 +120,7 @@ export default function AdditionalFeeClient() {
     setActionLoading(false);
   };
 
-  const fetchOrderData = async () => {
+  async function fetchOrderData() {
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
       const data = res.data;

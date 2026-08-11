@@ -136,9 +136,10 @@ export default function EditAddressPage() {
     <div className="page-h bg-brand-gray-60 pb-20">
       {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
-        titleAs="p" title="Edit Alamat" />
+        titleAs="p" title="Edit Alamat" maxWidthClass="max-w-2xl" />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      {/* max-w-2xl: seragam /profile & sejajar bar aksi (B2). */}
+      <div className="max-w-2xl mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Edit Alamat</h1>
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-brand-gray-100 p-6 space-y-4">
           <div>
@@ -226,7 +227,7 @@ export default function EditAddressPage() {
 
       {/* Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 px-4 py-3 z-20">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           <Button
             className="w-full bg-brand-red hover:bg-brand-red-dark rounded"
             onClick={handleSubmit}
