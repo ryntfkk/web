@@ -26,6 +26,9 @@ interface ServiceListLayoutProps {
   onMinRatingChange: (r: number) => void;
   sort: string;
   onSortChange: (s: string) => void;
+  /** Arah urut harga (asc/desc) . lihat catatan di useServiceListing. */
+  sortDir: 'asc' | 'desc';
+  onSortDirChange: (d: 'asc' | 'desc') => void;
   /** Filter jenis mitra (M2). '' = semua. */
   partnerType: string;
   onPartnerTypeChange: (t: string) => void;
@@ -54,6 +57,8 @@ export default function ServiceListLayout({
   onMinRatingChange,
   sort,
   onSortChange,
+  sortDir,
+  onSortDirChange,
   partnerType,
   onPartnerTypeChange,
   isSearch,
@@ -62,6 +67,9 @@ export default function ServiceListLayout({
 }: ServiceListLayoutProps) {
   const router = useRouter();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  // Dihitung dari state filter yang SAMA dengan yang dipakai FilterPanel .
+  // satu sumber, jadi badge tidak bisa menyimpang dari isi panelnya.
+  const activeFilterCount = [Boolean(city), minRating > 0, Boolean(partnerType)].filter(Boolean).length;
 
   const emptyTitle = isSearch && query
     ? `Tidak ada hasil untuk "${query}"`
@@ -90,7 +98,22 @@ export default function ServiceListLayout({
           onOpenFilter={() => setIsMobileFilterOpen(true)}
           sort={sort}
           onSortChange={onSortChange}
+          sortDir={sortDir}
+          onSortDirChange={onSortDirChange}
+          activeFilterCount={activeFilterCount}
         />
+
+        {/* Jumlah hasil . sebelumnya tidak ada di mana pun, jadi pengguna tidak
+            bisa tahu apakah filternya menyisakan 3 hasil atau 300 (audit E5).
+            Kalimatnya sengaja "Menampilkan N" dan bukan "N hasil": yang dihitung
+            adalah yang sudah dimuat, dan tombol "Muat Lebih Banyak" di bawah
+            yang memberi tahu masih ada lagi. */}
+        {!isInitialLoading && !isError && services.length > 0 && (
+          <p className="mt-3 text-xs text-brand-gray-450" aria-live="polite">
+            Menampilkan {services.length} layanan
+            {hasNextPage ? ' . masih ada lagi di bawah' : ''}
+          </p>
+        )}
 
         {/* Service Grid */}
         {isInitialLoading ? (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AlertTriangle, Layers, Loader2, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertTriangle, Layers, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
 import {
   useCancelCategoryRequest,
@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { useUpload } from '@/hooks/useUpload';
 import MitraModal from '@/components/mitra/MitraModal';
+import PhotoPickerBox from '@/components/mitra/PhotoPickerBox';
 
 /**
  * Slot kategori jasa mitra (backend 000080).
@@ -29,6 +30,8 @@ import MitraModal from '@/components/mitra/MitraModal';
  */
 
 const MAX_EVIDENCE = 5;
+/** Sama dengan batas di wizard pendaftaran . satu aturan, dua pintu masuk. */
+const MAX_EVIDENCE_BYTES = 5 * 1024 * 1024;
 
 export default function CategorySlots() {
   const { data, isLoading } = usePartnerCategories();
@@ -214,6 +217,7 @@ function CategoryRequestForm({
   const [reason, setReason] = useState('');
   const [evidence, setEvidence] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [evidenceError, setEvidenceError] = useState('');
 
   // Kategori yang sudah dipegang tidak ditawarkan . backend menolaknya, dan
   // menampilkannya hanya membuat mitra menabrak error yang bisa dicegah.
@@ -224,23 +228,50 @@ function CategoryRequestForm({
   // akan diam-diam menaikkan kuota mitra (backend menolaknya juga).
   const needsReplacement = quotaFull && !replaces;
 
+  /**
+   * Menerima foto, lalu MENGATAKAN apa saja yang tidak jadi terpakai.
+   *
+   * Sebelumnya kelebihan foto dibuang diam-diam lewat `slice`, dan kegagalan
+   * unggah lolos sepenuhnya: `uploadFile` mengembalikan `null` alih-alih
+   * melempar (lihat `hooks/useUpload.ts`), jadi `catch` di sini tidak pernah
+   * berjalan. Mitra memilih 3 foto, spinner berhenti, tak ada yang muncul, tak
+   * ada pesan . dan ia mengira aplikasinya rusak.
+   */
   const handleFiles = async (files: FileList | null) => {
-    if (!files?.length) return;
+    const all = Array.from(files ?? []);
+    if (all.length === 0) return;
+
+    const oversized = all.filter((f) => f.size > MAX_EVIDENCE_BYTES);
+    const fitting = all.filter((f) => f.size <= MAX_EVIDENCE_BYTES);
+    const picked = fitting.slice(0, MAX_EVIDENCE - evidence.length);
+    const overflow = fitting.length - picked.length;
+
+    const notes: string[] = [];
+    if (oversized.length > 0) notes.push(`${oversized.length} foto melebihi 5MB`);
+    if (overflow > 0) notes.push(`${overflow} foto tidak muat (maksimal ${MAX_EVIDENCE})`);
+
+    if (picked.length === 0) {
+      setEvidenceError(notes.length > 0 ? `${notes.join(' dan ')} — tidak ada yang diunggah.` : '');
+      return;
+    }
+
     setUploading(true);
+    let failed = 0;
     try {
-      const room = MAX_EVIDENCE - evidence.length;
-      const picked = Array.from(files).slice(0, room);
       const urls: string[] = [];
       for (const f of picked) {
         const url = await uploadFile(f);
         if (url) urls.push(url);
+        else failed++;
       }
-      setEvidence((prev) => [...prev, ...urls]);
+      if (urls.length > 0) setEvidence((prev) => [...prev, ...urls]);
+      if (failed > 0) notes.push(`${failed} foto gagal diunggah`);
     } catch {
-      showToast('Gagal mengunggah foto', 'error');
+      notes.push('unggahan terputus');
     } finally {
       setUploading(false);
     }
+    setEvidenceError(notes.length > 0 ? `${notes.join(' dan ')} — tidak ditambahkan.` : '');
   };
 
   const submit = async () => {
@@ -336,32 +367,27 @@ function CategoryRequestForm({
           className="mt-1 h-20 w-full resize-none rounded-md border border-brand-gray-100 p-3 text-sm"
         />
 
-        <label htmlFor="req-evidence" className="mt-3 block text-sm font-semibold text-brand-gray-900">
-          Foto alat &amp; bahan <span className="font-normal text-brand-gray-450">(1–{MAX_EVIDENCE} foto)</span>
+        <label htmlFor="req-evidence" className="mb-1 mt-3 block text-sm font-semibold text-brand-gray-900">
+          Foto alat &amp; bahan{' '}
+          <span className="font-normal text-brand-gray-450">(wajib 1–{MAX_EVIDENCE} foto, maks 5MB per foto)</span>
         </label>
-        <input
+        <PhotoPickerBox
           id="req-evidence"
-          type="file"
+          items={evidence.map((url) => ({ key: url, src: url }))}
+          max={MAX_EVIDENCE}
           accept="image/jpeg,image/png,image/webp"
-          multiple
-          onChange={(e) => handleFiles(e.target.files)}
-          disabled={uploading || evidence.length >= MAX_EVIDENCE}
-          className="mt-1 w-full text-xs"
+          busy={uploading}
+          error={evidenceError}
+          onPick={handleFiles}
+          // Foto yang dibuang di sini sudah terlanjur ada di S3 dan menjadi
+          // yatim . itu disengaja: memaksa mitra mengirim foto yang jelas salah
+          // hanya karena berkasnya sudah naik jauh lebih mahal daripada satu
+          // objek nganggur yang akan ikut tersapu retensi.
+          onRemove={(i) => {
+            setEvidence((prev) => prev.filter((_, k) => k !== i));
+            setEvidenceError('');
+          }}
         />
-        {uploading && (
-          <p className="mt-1 flex items-center gap-1 text-xs text-brand-gray-450">
-            <Loader2 className="h-3 w-3 animate-spin" aria-hidden /> Mengunggah…
-          </p>
-        )}
-        {evidence.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {evidence.map((url) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={url} src={url} alt="Bukti alat" className="h-16 w-16 rounded-md object-cover" />
-            ))}
-          </div>
-        )}
-
       </div>
     </MitraModal>
   );

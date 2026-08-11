@@ -28,7 +28,7 @@ export function VerifiedLockNotice({
       <Lock className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-gray-450" />
       <div>
         <p className="font-semibold text-brand-gray-800">{title}</p>
-        <p className="mt-0.5 text-xs text-brand-gray-600">{message}</p>
+        <p className="mt-0.5 text-xs text-brand-gray-700">{message}</p>
       </div>
     </div>
   );

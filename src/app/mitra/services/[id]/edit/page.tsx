@@ -20,6 +20,7 @@ import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
+import Image from 'next/image';
 
 const MAX_PHOTOS = 5;
 
@@ -220,8 +221,7 @@ export default function EditMitraServicePage() {
                       key={photo.id}
                       className="group relative aspect-square overflow-hidden rounded-md border border-brand-gray-100 transition-transform duration-200 hover:scale-[1.02] hover:shadow-md"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={photo.photo_url} alt="Foto layanan" className="h-full w-full object-cover" />
+                      <Image src={photo.photo_url} alt="Foto layanan" fill sizes="(max-width: 640px) 33vw, 200px" className="object-cover" />
                       <button
                         type="button"
                         onClick={() => setDeletePhotoId(photo.id)}

@@ -95,13 +95,13 @@ export default function EmailVerificationForm({
 
   return (
     <div>
-      <div className="mb-4 text-xs text-brand-gray-700 bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-start gap-2">
-        <MailCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+      <div className="mb-4 text-xs text-brand-gray-700 bg-brand-warning-soft border border-brand-warning-border p-3 rounded-lg flex items-start gap-2">
+        <MailCheck className="w-4 h-4 text-brand-warning shrink-0 mt-0.5" />
         <span>{reason}</span>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-xs border border-red-100 font-medium">
+        <div className="mb-4 p-3 bg-brand-error-soft text-brand-error rounded-md text-xs border border-brand-error-border font-medium">
           {error}
         </div>
       )}

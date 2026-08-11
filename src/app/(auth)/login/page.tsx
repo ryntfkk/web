@@ -111,7 +111,7 @@ function LoginContent() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3.5 text-base sm:text-sm bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all"
+                  className="appearance-none block w-full px-4 py-3.5 text-base sm:text-sm bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all"
                   placeholder="08123456789 atau email Anda"
                 />
               </div>
@@ -130,7 +130,7 @@ function LoginContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3.5 text-base sm:text-sm bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all pr-12"
+                  className="appearance-none block w-full px-4 py-3.5 text-base sm:text-sm bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all pr-12"
                 />
                 <button
                   type="button"

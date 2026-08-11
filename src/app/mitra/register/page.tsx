@@ -15,6 +15,7 @@ import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import MitraModal from '@/components/mitra/MitraModal';
+import PhotoPickerBox from '@/components/mitra/PhotoPickerBox';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useUpload } from '@/hooks/useUpload';
 import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
@@ -31,6 +32,7 @@ import {
 } from '@/lib/category-slots';
 import { formatPrice } from '@/lib/format';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 // Leaflet CSS kini di-import global di app/globals.css (lihat catatan di sana).
 
 type PartnerType = 'individual' | 'vendor';
@@ -105,6 +107,8 @@ const HINT_CLASS = 'mb-2 text-xs text-brand-gray-450';
 /** Judul langkah: 16px di ponsel, baru membesar di desktop (guideline §7.3). */
 const STEP_TITLE_CLASS = 'text-base font-bold text-brand-gray-900 lg:text-lg';
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+/** Batas foto bukti per kategori . sama dengan yang ditegakkan backend (000080). */
+const MAX_EVIDENCE_PHOTOS = 5;
 
 /** Kunci tiap langkah. Urutannya ditentukan `stepsFor()`, bukan angka mentah. */
 type StepKey = StepKeyName;
@@ -207,6 +211,10 @@ function FilePicker({
         {shownPreview ? (
           // Pratinjau wajib: tanpa ini mitra baru tahu ia salah unggah setelah
           // admin menolak berkasnya berhari-hari kemudian.
+          //
+          // Tetap `<img>`, BUKAN next/image: `shownPreview` bisa berupa URL objek
+          // (`URL.createObjectURL`) dari berkas yang baru dipilih, dan optimizer
+          // Next tidak bisa memproses skema `blob:`.
           // eslint-disable-next-line @next/next/no-img-element
           <img src={shownPreview} alt={`Pratinjau ${label}`} className="h-36 w-full object-contain bg-brand-gray-60" />
         ) : hasFile ? (
@@ -230,6 +238,50 @@ function FilePicker({
       <input id={id} type="file" className="hidden" accept={accept} onChange={onChange} />
       {error && <p className="mt-1 text-xs text-brand-error">{error}</p>}
     </div>
+  );
+}
+
+/**
+ * Adaptor `PhotoPickerBox` untuk berkas yang BELUM diunggah.
+ *
+ * Pendaftaran menahan `File[]` dan baru mengunggahnya saat submit (sama seperti
+ * KTP) . mengunggah tiap kali pemohon mundur-maju antar langkah membakar kuota
+ * untuk pengajuan yang mungkin tak pernah dikirim. Karena itu pratinjaunya
+ * lahir dari `URL.createObjectURL`, dan siklus hidup URL objek itulah satu-
+ * satunya alasan pembungkus ini ada.
+ *
+ * Di lingkup MODUL, bukan di dalam form . alasannya sama dengan `FilePicker`:
+ * komponen yang dibuat ulang tiap render mengosongkan berkas yang sudah dipilih.
+ */
+function PhotoPicker({
+  id,
+  files,
+  max,
+  error,
+  onPick,
+  onRemove,
+}: {
+  id: string;
+  files: File[];
+  max: number;
+  error?: string;
+  onPick: (picked: FileList | null) => void;
+  onRemove: (index: number) => void;
+}) {
+  // Dibangun saat render, bukan lewat setState di dalam efek (lint repo).
+  const items = useMemo(
+    () => files.map((f) => { const src = URL.createObjectURL(f); return { key: src, src }; }),
+    [files],
+  );
+  useEffect(
+    () => () => {
+      items.forEach((it) => URL.revokeObjectURL(it.src));
+    },
+    [items],
+  );
+
+  return (
+    <PhotoPickerBox id={id} items={items} max={max} error={error} onPick={onPick} onRemove={onRemove} />
   );
 }
 
@@ -291,6 +343,41 @@ function MitraRegisterForm() {
    * kuota untuk pengajuan yang mungkin tak pernah dikirim.
    */
   const [expertise, setExpertise] = useState<ExpertiseRow[]>([]);
+  /**
+   * Alasan penolakan berkas per baris kategori. Berkas yang kebesaran atau
+   * melebihi kuota dulu dibuang DIAM-DIAM . pemohon memilih 8 foto, melihat 5,
+   * dan mengira aplikasinya rusak.
+   */
+  const [evidenceErrors, setEvidenceErrors] = useState<Record<number, string>>({});
+
+  /**
+   * Menambahkan foto bukti ke satu baris kategori, sambil menjelaskan apa saja
+   * yang ditolak. Penyaringan ukuran tetap ada karena backend menolak >5MB.
+   */
+  const handleEvidencePick = (idx: number, list: FileList | null) => {
+    const all = Array.from(list ?? []);
+    if (all.length === 0) return;
+
+    const oversized = all.filter((f) => f.size > MAX_UPLOAD_BYTES);
+    const fitting = all.filter((f) => f.size <= MAX_UPLOAD_BYTES);
+    const room = Math.max(0, MAX_EVIDENCE_PHOTOS - (expertise[idx]?.files.length ?? 0));
+    const accepted = fitting.slice(0, room);
+    const overflow = fitting.length - accepted.length;
+
+    if (accepted.length > 0) {
+      setExpertise((prev) =>
+        prev.map((r, i) => (i === idx ? { ...r, files: [...r.files, ...accepted] } : r)),
+      );
+    }
+
+    const reasons: string[] = [];
+    if (oversized.length > 0) reasons.push(`${oversized.length} foto melebihi 5MB`);
+    if (overflow > 0) reasons.push(`${overflow} foto tidak muat (maksimal ${MAX_EVIDENCE_PHOTOS})`);
+    setEvidenceErrors((prev) => ({
+      ...prev,
+      [idx]: reasons.length > 0 ? `${reasons.join(' dan ')} . tidak ditambahkan.` : '',
+    }));
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -827,7 +914,7 @@ function MitraRegisterForm() {
             <div>
               <p className="text-[13px] font-bold text-brand-gray-900">Alasan penolakan sebelumnya</p>
               <p className="mt-1 whitespace-pre-line text-[11px] leading-snug text-brand-gray-700">{rejectionReason}</p>
-              <p className="mt-1 text-[11px] italic text-brand-gray-500">
+              <p className="mt-1 text-[11px] italic text-brand-gray-450">
                 Silakan perbaiki bagian tersebut.
               </p>
             </div>
@@ -1225,10 +1312,11 @@ function MitraRegisterForm() {
               <div className="flex items-center gap-4 rounded-md bg-brand-gray-60 p-3">
                 <div className="relative shrink-0">
                   {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={avatarUrl}
                       alt="Foto profil"
+                      width={80}
+                      height={80}
                       className="h-20 w-20 rounded-full border border-brand-gray-100 object-cover"
                     />
                   ) : (
@@ -1348,7 +1436,13 @@ function MitraRegisterForm() {
                     {expertise.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => setExpertise((prev) => prev.filter((_, i) => i !== idx))}
+                        onClick={() => {
+                          setExpertise((prev) => prev.filter((_, i) => i !== idx));
+                          // Pesan galat dikunci ke INDEKS baris; setelah baris
+                          // dibuang indeksnya bergeser, jadi pesan lama akan
+                          // menempel di kategori yang salah.
+                          setEvidenceErrors({});
+                        }}
                         className="text-xs font-bold text-brand-error"
                       >
                         Hapus
@@ -1381,42 +1475,25 @@ function MitraRegisterForm() {
                   </select>
 
                   <label htmlFor={`expertise-files-${idx}`} className={`${LABEL_CLASS} mt-3`}>
-                    Foto Alat &amp; Bahan
+                    Foto Alat &amp; Bahan <span className="text-brand-red">*</span>
                   </label>
                   <p className={HINT_CLASS}>
-                    1–5 foto, JPG/PNG maksimal 5MB per foto. Contoh: mesin, perkakas, atau bahan yang kamu pakai.
+                    Wajib 1–5 foto, JPG/PNG maksimal 5MB per foto. Contoh: mesin, perkakas, atau bahan yang kamu pakai.
                   </p>
-                  <input
+                  <PhotoPicker
                     id={`expertise-files-${idx}`}
-                    type="file"
-                    accept="image/jpeg,image/png,image/jpg"
-                    multiple
-                    className="mt-1 w-full text-xs"
-                    onChange={(e) => {
-                      const picked = Array.from(e.target.files ?? []).filter(
-                        (f) => f.size <= MAX_UPLOAD_BYTES,
-                      );
+                    files={row.files}
+                    max={MAX_EVIDENCE_PHOTOS}
+                    error={evidenceErrors[idx]}
+                    onPick={(list) => handleEvidencePick(idx, list)}
+                    onRemove={(fileIdx) =>
                       setExpertise((prev) =>
                         prev.map((r, i) =>
-                          i === idx ? { ...r, files: [...r.files, ...picked].slice(0, 5) } : r,
+                          i === idx ? { ...r, files: r.files.filter((_, k) => k !== fileIdx) } : r,
                         ),
-                      );
-                    }}
+                      )
+                    }
                   />
-                  {row.files.length > 0 && (
-                    <p className="mt-1 text-xs text-brand-gray-450">
-                      {row.files.length} foto dipilih
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpertise((prev) => prev.map((r, i) => (i === idx ? { ...r, files: [] } : r)))
-                        }
-                        className="ml-2 font-bold text-brand-red underline"
-                      >
-                        kosongkan
-                      </button>
-                    </p>
-                  )}
                 </div>
               ))}
 

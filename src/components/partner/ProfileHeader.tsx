@@ -174,17 +174,25 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
             <div className="flex items-center gap-4 text-sm mb-4">
               <div className="flex flex-col">
-                <div className="flex items-center gap-1 text-brand-warning font-medium">
-                  <Star className="w-4 h-4 fill-current" />
-                  <span>{Number(profile.avg_rating).toFixed(1)}</span>
-                </div>
-                <span className="text-brand-gray-400 text-xs">{profile.total_reviews} Ulasan</span>
+                {/* "0.0" berbintang emas terbaca "dinilai sangat buruk", bukan
+                    "belum dinilai" (audit E6). */}
+                {Number(profile.avg_rating) > 0 ? (
+                  <>
+                    <div className="flex items-center gap-1 text-brand-warning font-medium">
+                      <Star className="w-4 h-4 fill-current" />
+                      <span>{Number(profile.avg_rating).toFixed(1)}</span>
+                    </div>
+                    <span className="text-brand-gray-400 text-xs">{profile.total_reviews} Ulasan</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-medium text-brand-gray-900">Baru</span>
+                    <span className="text-brand-gray-400 text-xs">Belum ada ulasan</span>
+                  </>
+                )}
               </div>
-              <div className="w-px h-8 bg-brand-gray-100" />
-              <div className="flex flex-col">
-                <span className="font-medium text-brand-gray-900">{profile.total_orders}</span>
-                <span className="text-brand-gray-400 text-xs">Pesanan</span>
-              </div>
+              {/* Kolom "Pesanan" DIHAPUS: angkanya sudah jadi badge di baris nama
+                  ("{n} Pesanan Selesai"), jadi blok ini cuma mengulanginya (E9). */}
               <div className="w-px h-8 bg-brand-gray-100" />
               <div className="flex flex-col">
                 <span className="font-medium text-brand-gray-900">{profile.is_online ? 'Online' : 'Offline'}</span>

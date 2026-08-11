@@ -62,7 +62,7 @@ export default function AllServicesSection() {
 
       {isError && services.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="text-sm text-red-500">Gagal memuat layanan.</p>
+          <p className="text-sm text-brand-error">Gagal memuat layanan.</p>
           <Button
             variant="outline"
             size="sm"
@@ -81,12 +81,12 @@ export default function AllServicesSection() {
             ))}
             {(isLoading || isFetchingNextPage) &&
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={`sk-${i}`} className="h-[280px] bg-gray-100 animate-pulse rounded-lg" />
+                <div key={`sk-${i}`} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
               ))}
           </div>
 
           {!isLoading && services.length === 0 && (
-            <div className="text-center text-gray-500 py-8">Belum ada layanan tersedia.</div>
+            <div className="text-center text-brand-gray-450 py-8">Belum ada layanan tersedia.</div>
           )}
 
           {/* Sentinel gulir . memicu halaman berikutnya */}

@@ -19,6 +19,7 @@ import { useToast } from '@/components/ui/toast';
 import ProfileCompleteness from '@/components/mitra/ProfileCompleteness';
 import CategorySlots from '@/components/mitra/CategorySlots';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import Image from 'next/image';
 
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
@@ -84,7 +85,9 @@ export default function MitraProfilePage() {
         <MitraPageContainer variant="profile" className="py-0 relative z-10 flex items-center gap-4 md:gap-6">
           <div className="relative shrink-0" id="foto-profil">
             <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
-              {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(displayName)}
+              {user?.avatar_url
+                ? <Image src={user.avatar_url} alt="Foto profil" fill sizes="(max-width: 768px) 64px, 96px" className="object-cover" />
+                : getInitial(displayName)}
             </div>
           </div>
           <div className="flex-1 min-w-0">

@@ -15,7 +15,8 @@ import ScheduleView from '@/components/service/ScheduleView';
 import { usePartnerWorkingHours } from '@/hooks/useServiceDetail';
 import { Button } from '@/components/ui/button';
 import { ProfileSkeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, WifiOff, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { WifiOff, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { track } from '@/lib/analytics';
 
@@ -93,22 +94,20 @@ export default function PartnerProfileClient({ username }: { username: string })
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 sm:pb-12">
-      {/* Header kontekstual (tombol kembali) . hanya mobile. Di desktop TopNavbar
-          sudah jadi satu-satunya header.
-          top-0, bukan top-16: HeaderWrapper menyembunyikan TopNavbar di mobile
-          untuk rute profil mitra, jadi tidak ada apa pun di atas header ini.
-          Sebelumnya top-16 menggeser header ini ke bawah TopNavbar . menambal
-          tampilan dua header, bukan menghapusnya. */}
-      <div className="bg-white px-4 py-3 sticky top-0 z-10 border-b border-brand-gray-100 flex items-center gap-3 lg:hidden">
-        <button
-          onClick={() => router.back()}
-          aria-label="Kembali"
-          className="p-1.5 -ml-1 hover:bg-brand-gray-60 rounded-md transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-        </button>
-        <span className="font-semibold text-brand-gray-900 truncate">{profile.name}</span>
-      </div>
+      {/* Header kontekstual . `MobilePageHeader` bersama, bukan tulis tangan.
+          `backHref` (bukan `router.back()`) DISENGAJA: ini halaman PUBLIK yang
+          ter-index Google, jadi sebagian besar pembukanya tiba tanpa riwayat
+          sama sekali . dan pada mereka tombol back berbasis history tidak
+          melakukan apa-apa (audit A5).
+
+          titleAs="p": H1 halaman adalah nama mitra di dalam ProfileHeader. */}
+      <MobilePageHeader
+        title={profile.name}
+        titleAs="p"
+        backHref="/"
+        maxWidthClass="max-w-4xl"
+        gutterClass="px-4 sm:px-6"
+      />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-8">
         <ProfileHeader profile={profile} />
@@ -118,27 +117,37 @@ export default function PartnerProfileClient({ username }: { username: string })
           <div className="space-y-4 sm:space-y-6">
             {/* Tabs: Layanan / Portofolio */}
             <div id="services-tabs" className="bg-white rounded-md shadow-sm mb-4 sm:mb-6">
-              <div className="flex border-b border-brand-gray-100">
-                <button
-                  onClick={() => setActiveTab('services')}
-                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${activeTab === 'services'
-                      ? 'border-brand-red text-brand-red'
-                      : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
-                    }`}
-                >
-                  Layanan
-                </button>
-                <button
-                  onClick={() => setActiveTab('portfolio')}
-                  className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px ${activeTab === 'portfolio'
-                      ? 'border-brand-red text-brand-red'
-                      : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
-                    }`}
-                >
-                  Portofolio
-                </button>
+              {/* Semantik tab yang sebenarnya (audit D8): tanpa `role`/
+                  `aria-selected`, pembaca layar hanya mengumumkan "tombol
+                  Layanan", "tombol Portofolio" . tidak ada petunjuk bahwa
+                  keduanya sekumpulan dan salah satunya sedang aktif. */}
+              <div className="flex border-b border-brand-gray-100" role="tablist" aria-label="Konten mitra">
+                {([
+                  { key: 'services' as const, label: 'Layanan' },
+                  { key: 'portfolio' as const, label: 'Portofolio' },
+                ]).map((tab) => (
+                  <button
+                    key={tab.key}
+                    role="tab"
+                    id={`tab-${tab.key}`}
+                    aria-selected={activeTab === tab.key}
+                    aria-controls={`panel-${tab.key}`}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue ${activeTab === tab.key
+                        ? 'border-brand-red text-brand-red'
+                        : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
+                      }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
-              <div className="p-4 sm:p-6">
+              <div
+                className="p-4 sm:p-6"
+                role="tabpanel"
+                id={`panel-${activeTab}`}
+                aria-labelledby={`tab-${activeTab}`}
+              >
                 {activeTab === 'services' ? (
                   <ServicesList services={services || []} profile={profile} isLoading={isServicesLoading} />
                 ) : (

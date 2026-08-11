@@ -91,8 +91,15 @@ export default function BookingClient() {
       .split(',').map((s) => s.trim());
     const vars = (searchParams.get('variation_ids') ?? searchParams.get('variation_id') ?? '')
       .split(',').map((s) => s.trim());
-    const out: { serviceId: string; variationId?: string }[] = [];
-    ids.forEach((sid, i) => { if (sid) out.push({ serviceId: sid, variationId: vars[i] || undefined }); });
+    // Kuantitas dari keranjang, sejajar per indeks. Tanpa ini apa pun yang
+    // dipilih pelanggan di keranjang di-reset ke `min_order` di sini (audit E4).
+    const qtys = (searchParams.get('quantities') ?? '').split(',').map((s) => parseInt(s.trim(), 10));
+    const out: { serviceId: string; variationId?: string; quantity?: number }[] = [];
+    ids.forEach((sid, i) => {
+      if (!sid) return;
+      const q = Number.isFinite(qtys[i]) && qtys[i] > 0 ? qtys[i] : undefined;
+      out.push({ serviceId: sid, variationId: vars[i] || undefined, quantity: q });
+    });
     return out;
   }, [searchParams]);
   const removeCartItem = useCartStore((s) => s.removeItem);
@@ -235,20 +242,29 @@ export default function BookingClient() {
       // daftar variasi terkini . id basi (mitra sudah mengedit layanan) dibiarkan
       // agar pelanggan memilih ulang di langkah 1 (cegah INVALID_VARIATION).
       const nextKeys: Record<string, boolean> = {};
+      const nextQty: Record<string, number> = {};
       let needsPick = false;
       for (const pl of matched) {
         const s = services.find((x) => x.id === pl.serviceId)!;
         const vars = s.variations ?? [];
+        let key: string | null = null;
         if (vars.length === 0) {
-          nextKeys[lineKey(s.id, undefined)] = true;
+          key = lineKey(s.id, undefined);
         } else if (pl.variationId && vars.some((v) => v.id === pl.variationId)) {
-          nextKeys[lineKey(s.id, pl.variationId)] = true;
+          key = lineKey(s.id, pl.variationId);
         } else {
           needsPick = true;
+        }
+        if (key) {
+          nextKeys[key] = true;
+          if (pl.quantity) nextQty[key] = pl.quantity;
         }
       }
       if (Object.keys(nextKeys).length > 0) {
         setSelectedLines((prev) => ({ ...prev, ...nextKeys }));
+      }
+      if (Object.keys(nextQty).length > 0) {
+        setQuantities((prev) => ({ ...prev, ...nextQty }));
       }
       // Lompat ke langkah 2 hanya bila tak ada variasi yang perlu dipilih ulang.
       setStep(needsPick ? 1 : 2);
@@ -1088,7 +1104,7 @@ export default function BookingClient() {
                   ) : (
                     <div className="space-y-2">
                       {addresses.map(a => (
-                        <label key={a.id} className={`block p-3 rounded-lg border cursor-pointer transition-colors ${addressId === a.id ? 'border-brand-red bg-brand-error-soft' : 'border-brand-gray-100 bg-white hover:border-brand-red/40'}`}>
+                        <label key={a.id} className={`block p-3 rounded-lg border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue ${addressId === a.id ? 'border-brand-red bg-brand-error-soft' : 'border-brand-gray-100 bg-white hover:border-brand-red/40'}`}>
                           <div className="flex gap-2.5 items-start">
                             <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${addressId === a.id ? 'border-brand-red' : 'border-brand-gray-450'}`}>
                               {addressId === a.id && <div className="w-2 h-2 bg-brand-red rounded-full" />}
@@ -1101,7 +1117,7 @@ export default function BookingClient() {
                               <p className="text-xs text-brand-gray-700 leading-snug">{a.address}</p>
                             </div>
                           </div>
-                          <input type="radio" name="address" className="hidden" checked={addressId === a.id} onChange={() => { setAddressId(a.id); setShowAddressList(false); }} />
+                          <input type="radio" name="address" className="sr-only" checked={addressId === a.id} onChange={() => { setAddressId(a.id); setShowAddressList(false); }} />
                         </label>
                       ))}
                       <button onClick={() => router.push('/profile/addresses/new')} className="w-full p-2.5 border-2 border-dashed border-brand-gray-100 rounded-lg text-sm font-medium text-brand-red hover:bg-brand-error-soft hover:border-brand-red/50 transition-colors">

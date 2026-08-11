@@ -78,7 +78,9 @@ export default function AddressesPage() {
     // pb-20 untuk memberi ruang fixed action bar "Tambah Alamat" di semua breakpoint.
     <div className="page-h bg-brand-gray-60 pb-20">
 
-      <MobilePageHeader title="Buku Alamat" />
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
+      <MobilePageHeader
+        titleAs="p" title="Buku Alamat" />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900">Buku Alamat</h1>

@@ -206,10 +206,10 @@ export default async function JadiMitraPage() {
                         <X className="h-20 w-20 text-brand-gray-900" />
                       </div>
                       <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-gray-200">
-                        <X className="h-3 w-3 text-brand-gray-600" aria-hidden />
+                        <X className="h-3 w-3 text-brand-gray-700" aria-hidden />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gray-500 mb-1">Cara Lama</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gray-450 mb-1">Cara Lama</p>
                         <p className="text-[13px] leading-relaxed text-brand-gray-700 relative z-10">
                           {row.lama}
                         </p>
@@ -251,7 +251,7 @@ export default async function JadiMitraPage() {
               <h2 className="text-2xl sm:text-3xl font-bold text-brand-gray-900 tracking-tight">
                 Kenapa jasa Anda bisa muncul?
               </h2>
-              <p className="mt-3 text-[14px] leading-relaxed text-brand-gray-600 max-w-lg mx-auto sm:mx-0">
+              <p className="mt-3 text-[14px] leading-relaxed text-brand-gray-700 max-w-lg mx-auto sm:mx-0">
                 Halaman di Posko terbuka, permanen, dan didaftarkan otomatis ke sitemap yang dibaca mesin pencari.
               </p>
             </div>
@@ -264,10 +264,10 @@ export default async function JadiMitraPage() {
                       <Search className="h-5 w-5" />
                     </div>
                     <h3 className="mb-2 text-[15px] font-extrabold text-brand-gray-900 leading-snug">{p.judul}</h3>
-                    <div className="mb-3 w-fit rounded-md border border-brand-gray-200 bg-white px-2.5 py-1.5 font-mono text-[11px] font-medium text-brand-gray-600 shadow-sm">
+                    <div className="mb-3 w-fit rounded-md border border-brand-gray-200 bg-white px-2.5 py-1.5 font-mono text-[11px] font-medium text-brand-gray-700 shadow-sm">
                       {p.contoh}
                     </div>
-                    <p className="text-[13px] leading-relaxed text-brand-gray-600 flex-1">
+                    <p className="text-[13px] leading-relaxed text-brand-gray-700 flex-1">
                       {p.isi}
                     </p>
                   </div>
@@ -275,7 +275,7 @@ export default async function JadiMitraPage() {
               ))}
             </div>
 
-            <p className="mt-8 mx-auto sm:mx-0 max-w-2xl text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-500 bg-brand-gray-50 rounded-xl p-4 border border-brand-gray-100">
+            <p className="mt-8 mx-auto sm:mx-0 max-w-2xl text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-450 bg-brand-gray-50 rounded-xl p-4 border border-brand-gray-100">
               <span className="font-semibold text-brand-gray-700">Catatan:</span> Terindeks bukan jaminan peringkat satu. Yang Posko pastikan adalah halaman Anda eksis, permanen, dan siap dibaca mesin pencari.
             </p>
           </div>
@@ -305,7 +305,7 @@ export default async function JadiMitraPage() {
                   </div>
                   <div>
                     <h3 className="mb-1.5 text-[15px] font-bold text-brand-gray-900">{p.judul}</h3>
-                    <p className="text-[13px] leading-relaxed text-brand-gray-600">{p.isi}</p>
+                    <p className="text-[13px] leading-relaxed text-brand-gray-700">{p.isi}</p>
                   </div>
                 </div>
               </AnimateOnScroll>
@@ -391,7 +391,7 @@ export default async function JadiMitraPage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-brand-gray-900 tracking-tight">
               Tidak Ada Ruginya Bergabung
             </h2>
-            <p className="mt-3 text-[14px] text-brand-gray-600">
+            <p className="mt-3 text-[14px] text-brand-gray-700">
               Kami baru menerima komisi jika Anda sudah mendapatkan penghasilan.
             </p>
           </div>
@@ -413,7 +413,7 @@ export default async function JadiMitraPage() {
                     key={b.label}
                     className="flex items-center justify-between gap-4"
                   >
-                    <dt className="text-[13px] font-medium text-brand-gray-600">{b.label}</dt>
+                    <dt className="text-[13px] font-medium text-brand-gray-700">{b.label}</dt>
                     <dd className="shrink-0">
                       {b.gratisFlag ? (
                         <span className="inline-flex items-center rounded bg-brand-success px-2.5 py-1 text-[13px] font-bold text-white shadow-sm">
@@ -509,7 +509,7 @@ export default async function JadiMitraPage() {
               ))}
             </ul>
           </div>
-          <p className="mt-4 text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-500 max-w-xl">
+          <p className="mt-4 text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-450 max-w-xl">
             Setelah dikirim, berkas diperiksa tim Posko. Sambil menunggu, Anda sudah bisa mulai mengisi etalase layanan dan mengatur jadwal jam kerja.
           </p>
         </section>

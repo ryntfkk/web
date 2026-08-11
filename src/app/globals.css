@@ -77,7 +77,11 @@
   --color-brand-blue-50: #f4f7fe;
   --color-brand-gray-900: #1c1b1b;
   --color-brand-gray-700: #5b403e;
-  --color-brand-gray-400: #8f6f6d;
+  /* #8f6f6d lolos TIPIS di atas putih (4,50:1) tapi GAGAL di atas latar
+     halaman #f7f5f4 (4,14:1) . dan separuh aplikasi berlatar itu.
+     #7d5f5d = 5,73:1 / 5,27:1, sekaligus tetap lebih gelap dari gray-450
+     sehingga kedua tingkat muted masih bisa dibedakan (audit D1). */
+  --color-brand-gray-400: #7d5f5d;
   --color-brand-gray-100: #e5e2e1;
   --color-brand-gray-50: #fcf9f8;
 
@@ -97,7 +101,14 @@
      tapi belum punya token. Jangan tambah hex baru di luar daftar ini .
      warna baru WAJIB lewat token di sini dulu. */
   --color-brand-gray-300: #c9bcba; /* timeline dots, border muted */
-  --color-brand-gray-450: #9e8e8c; /* muted text (pengganti hardcode #9e8e8c) */
+  /* Teks muted. Nilainya DINAIKKAN KONTRASNYA 2026-08-11 (audit D1):
+     #9e8e8c hanya 3,13:1 di atas putih dan 2,88:1 di atas latar halaman
+     (#f7f5f4) . di bawah ambang WCAG AA 4,5:1, padahal token ini dipakai
+     321 kali di 76 berkas untuk teks 10-12px (tanggal, subtotal, alamat).
+     #876967 = 4,95:1 / 4,55:1. Hue-nya sengaja tidak berubah, jadi nuansa
+     "hangat & meredup"-nya tetap; hanya luminansinya yang turun.
+     ⚠️ Jangan menaikkannya kembali tanpa menghitung ulang rasionya. */
+  --color-brand-gray-450: #876967; /* muted text . AA di putih & latar halaman */
   --color-brand-gray-60: #f7f5f4; /* page background (pengganti hardcode #f7f5f4) */
   --color-brand-amber-dark: #b7791f;
   --color-brand-orange-dark: #b75415;

@@ -96,7 +96,7 @@ export default function LocationPicker() {
           <span className="truncate text-[11px] sm:text-[13px] font-medium text-brand-gray-700 group-hover:text-brand-red transition-colors">
             {hasLocation ? (
               <>
-                <span className="text-brand-gray-500 mr-1 hidden sm:inline">Dikirim ke:</span>
+                <span className="text-brand-gray-450 mr-1 hidden sm:inline">Dikirim ke:</span>
                 <span className="font-bold text-brand-gray-900 group-hover:text-brand-red">{label === 'Lokasi saat ini' ? 'Lokasi GPS saat ini' : label}</span>
               </>
             ) : (

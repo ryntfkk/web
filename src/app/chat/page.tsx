@@ -13,10 +13,15 @@ export default function ChatListPage() {
   const router = useRouter();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
-  // Desktop/tablet (md+): tampilkan di panel kanan; Mobile: navigasi ke halaman room.
-  // matchMedia mengikuti breakpoint Tailwind `md` (768px) . satu sumber kebenaran.
+  // Desktop (lg+): tampilkan di panel kanan; di bawahnya navigasi ke halaman room.
+  //
+  // Ambangnya `lg` (1024px), BUKAN `md`. Pada 768px dua panel berarti daftar
+  // 384px + percakapan 384px . gelembung pesan, nama, dan waktu berdesakan di
+  // kolom selebar ponsel kecil (audit B6). `lg` juga menyamakannya dengan
+  // ambang yang sudah dipakai ProfileHeader & ServiceDetailClient untuk
+  // memutuskan "panel atau halaman penuh".
   const isDesktopViewport = () =>
-    typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
 
   const handleSelectChat = (roomId: string) => {
     if (isDesktopViewport()) {
@@ -36,7 +41,7 @@ export default function ChatListPage() {
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List ===== */}
-        <div className="w-full md:w-96 flex flex-col border-r border-brand-gray-100 bg-white shrink-0 min-h-0 pt-[env(safe-area-inset-top,0px)]">
+        <div className="w-full lg:w-96 flex flex-col border-r border-brand-gray-100 bg-white shrink-0 min-h-0 pt-[env(safe-area-inset-top,0px)]">
           <div className="px-4 pt-4 shrink-0">
             <h1 className="text-lg font-bold text-brand-gray-900 mb-1">Chat</h1>
           </div>
@@ -54,8 +59,8 @@ export default function ChatListPage() {
           </div>
         </div>
 
-        {/* ===== RIGHT PANEL: Conversation (md+) ===== */}
-        <div className="hidden md:flex flex-1 flex-col min-w-0">
+        {/* ===== RIGHT PANEL: Conversation (lg+) ===== */}
+        <div className="hidden lg:flex flex-1 flex-col min-w-0">
           {selectedRoomId ? (
             <ChatConversation
               key={selectedRoomId}

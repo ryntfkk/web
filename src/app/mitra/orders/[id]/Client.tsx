@@ -23,6 +23,7 @@ import MitraModal from '@/components/mitra/MitraModal';
 import { getErrorMessage } from '@/types/api';
 import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
 // Peta hanya di klien (butuh window/Google Maps) → hindari SSR.
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -685,7 +686,7 @@ export default function MitraOrderDetailClient() {
                 <div className="flex items-start gap-3">
                   <div className="w-12 h-12 rounded-full bg-brand-gray-100 flex items-center justify-center text-lg font-bold text-brand-gray-700 shrink-0 overflow-hidden">
                     {order.customer_info.avatar_url
-                      ? <img src={order.customer_info.avatar_url} alt={order.customer_info.name} className="w-full h-full object-cover" />
+                      ? <Image src={order.customer_info.avatar_url} alt={order.customer_info.name} width={48} height={48} className="w-full h-full object-cover" />
                       : getInitial(order.customer_info.name)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -795,7 +796,7 @@ export default function MitraOrderDetailClient() {
                   <div className="flex gap-2 flex-wrap">
                     {order.photos.map((photo, i) => (
                       <a key={i} href={photo} target="_blank" rel="noopener noreferrer">
-                        <img src={photo} alt={`Foto pesanan ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-brand-gray-100 hover:opacity-90 transition-opacity" />
+                        <Image src={photo} alt={`Foto pesanan ${i + 1}`} width={80} height={80} className="w-20 h-20 object-cover rounded-lg border border-brand-gray-100 hover:opacity-90 transition-opacity" />
                       </a>
                     ))}
                   </div>
@@ -810,7 +811,7 @@ export default function MitraOrderDetailClient() {
                   <div key={item.id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
                     <div className="w-14 h-14 rounded-lg bg-brand-gray-60 border border-brand-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
                       {item.photo_url
-                        ? <img src={item.photo_url} alt={item.service_name} className="w-full h-full object-cover" />
+                        ? <Image src={item.photo_url} alt={item.service_name} width={56} height={56} className="w-full h-full object-cover" />
                         : <ClipboardList className="w-5 h-5 text-brand-gray-300" />}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -922,7 +923,7 @@ export default function MitraOrderDetailClient() {
                 {order.review.image_urls && order.review.image_urls.length > 0 && (
                   <div className="flex gap-2 flex-wrap mt-3">
                     {order.review.image_urls.map((img, i) => (
-                      <img key={i} src={img} alt={`Foto ulasan ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-brand-gray-100" />
+                      <Image key={i} src={img} alt={`Foto ulasan ${i + 1}`} width={64} height={64} className="w-16 h-16 object-cover rounded-lg border border-brand-gray-100" />
                     ))}
                   </div>
                 )}

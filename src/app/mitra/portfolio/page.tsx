@@ -10,6 +10,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
+import Image from 'next/image';
 
 interface Portfolio {
   id: string;
@@ -246,7 +247,7 @@ export default function MitraPortfolioPage() {
               {portfolios.map((item, index) => (
                 <div key={item.id} className="overflow-hidden rounded-lg border border-brand-gray-100 bg-white">
                   <div className="group relative aspect-square">
-                    <img src={item.photo_url} alt={item.caption || 'Foto portofolio'} className="h-full w-full object-cover" />
+                    <Image src={item.photo_url} alt={item.caption || 'Foto portofolio'} fill sizes="(max-width: 640px) 50vw, 240px" className="object-cover" />
 
                     {/* Foto pertama itulah yang dilihat calon pelanggan lebih
                         dulu . katakan begitu, jangan biarkan mitra menebak

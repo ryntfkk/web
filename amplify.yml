@@ -8,6 +8,18 @@ frontend:
         # @emnapi/*) hanya di-resolve di Linux, sehingga `npm ci` yang ketat gagal
         # "Missing from lock file". `npm install` me-resolve dep yang benar di Linux.
         - npm install
+        # Gerbang deploy (audit F1). Sampai 2026-08-11 build ini HANYA
+        # `npm install && npm run build`: 174 test . termasuk penjaga konvensi
+        # tata letak, ambang navigasi, token warna, dan aksesibilitas . tidak
+        # pernah dijalankan sebelum apa pun naik ke produksi. Itulah sebabnya
+        # aturan yang sudah tertulis tetap dilanggar diam-diam.
+        #
+        # `npm run lint` SENGAJA belum di sini: masih ada 119 error (69
+        # `no-explicit-any`, 44 `no-unused-vars`, 8 `no-img-element`, sisanya
+        # kecil). Memasangnya sekarang membuat SETIAP build merah, dan gerbang
+        # yang selalu merah cuma mengajari orang melewatinya. Bersihkan dulu,
+        # baru tambahkan barisnya.
+        - npm test
     build:
       commands:
         - npm run build

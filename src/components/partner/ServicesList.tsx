@@ -17,7 +17,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-[260px] bg-gray-100 animate-pulse rounded-xs" />
+          <div key={i} className="h-[260px] bg-brand-gray-100 animate-pulse rounded-xs" />
         ))}
       </div>
     );
@@ -30,7 +30,7 @@ export default function ServicesList({ services, profile, isLoading }: ServicesL
 
   if (validServices.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-brand-gray-450">
         Belum ada layanan yang ditawarkan.
       </div>
     );

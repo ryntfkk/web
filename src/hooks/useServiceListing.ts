@@ -24,9 +24,16 @@ interface UseServiceListingParams {
  * /search (CSR). Mengelola filter kota, rating (client-side), sort, paginasi
  * "muat lebih banyak", dan akumulasi hasil.
  *
- * Catatan: backend belum mendukung param sort/min_rating/min_price (lihat
- * WEB-IMPLEMENTATION-PLAN §7). Sort dikirim ke backend via usePublicServices
- * (no-op server-side saat ini); rating filter diterapkan di sisi klien.
+ * Catatan: endpoint publik hanya menerima `q, limit, offset, city,
+ * partner_type, lat, lon` . TIDAK ada `sort`, `min_rating`, maupun `min_price`
+ * (diperiksa langsung di `backend/internal/search/handler.go`). Karena itu
+ * pengurutan dan filter rating dikerjakan di KLIEN, atas hasil yang sudah
+ * dimuat. Lihat catatan panjang di `comparator` di bawah untuk batasannya.
+ *
+ * Filter HARGA sengaja TIDAK ditambahkan: menyaring di klien akan membuang
+ * sebagian dari 24 item yang sudah diambil sehingga halaman jadi setengah
+ * kosong dan "muat lebih banyak" melewatkan hasil . alasan yang sama sudah
+ * ditulis untuk `partnerType` di bawah. Filter harga butuh dukungan backend.
  */
 export function useServiceListing({
   query,
@@ -38,6 +45,9 @@ export function useServiceListing({
   const { latitude, longitude, hasLocation } = useUserLocation();
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState('terpopuler');
+  // Arah urut . hanya bermakna untuk 'harga'. Menekan "Harga" berulang
+  // membalik arahnya; chevron di SortBar sekarang benar-benar menunjukkannya.
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   // M2: '' = semua, 'individual' = perorangan, 'vendor' = badan usaha.
   // Difilter di SERVER (bukan client) supaya paginasi tetap benar . menyaring
   // 24 item yang sudah terlanjur diambil akan menghasilkan halaman setengah
@@ -59,7 +69,9 @@ export function useServiceListing({
       category,
       limit,
       offset: (page - 1) * limit,
-      sort,
+      // `sort` TIDAK dikirim: endpoint tidak mengenalnya, dan menyertakannya
+      // hanya mengubah queryKey React Query → refetch sia-sia dengan URL yang
+      // persis sama. Pengurutan dikerjakan di klien (lihat `comparator`).
       partnerType: partnerType || undefined,
       latitude: hasLocation ? latitude ?? undefined : undefined,
       longitude: hasLocation ? longitude ?? undefined : undefined,
@@ -77,7 +89,10 @@ export function useServiceListing({
     }
     setPage(1);
     setAllServices([]);
-  }, [query, city, sort, category, partnerType]);
+    // `sort`/`sortDir` sengaja TIDAK di sini: pengurutan dikerjakan di klien
+    // atas hasil yang sudah dimuat, jadi mengubahnya tidak perlu memuat ulang
+    // dari halaman 1 (dan membuang hasil yang sudah ada).
+  }, [query, city, category, partnerType]);
 
   // Akumulasi hasil: halaman 1 menggantikan, halaman berikutnya menambah (dedup by id).
   // Pola yang sama dengan SearchContent lama . setState in effect untuk sinkronisasi
@@ -99,11 +114,49 @@ export function useServiceListing({
 
   const hasNextPage = services ? services.length >= limit : false;
 
+  /**
+   * Pengurutan . DIKERJAKAN DI KLIEN, dan itu memang perlu disebutkan.
+   *
+   * Sampai 2026-08-11 SortBar adalah kontrol MATI: `sort` diterima
+   * `usePublicServices` sebagai parameter tetapi tidak pernah ditambahkan ke
+   * query string (tidak ada `queryParams.append('sort', …)`), dan tidak ada
+   * pengurutan di klien juga. Keempat tombolnya berganti sorotan lalu tidak
+   * mengubah apa pun. Endpoint `/services/search` memang hanya menerima
+   * `q, limit, offset, city, partner_type, lat, lon`.
+   *
+   * ⚠️ BATASNYA: yang diurutkan adalah hasil yang SUDAH DIMUAT, bukan seluruh
+   * katalog. Dengan "Muat Lebih Banyak", "termurah" berarti termurah di antara
+   * yang tampil. Perbaikan sesungguhnya adalah ORDER BY di backend; sampai itu
+   * ada, kontrol yang mengurutkan sebagian tetap jauh lebih jujur daripada
+   * kontrol yang tidak mengurutkan apa pun.
+   *
+   * `terbaru` sengaja tanpa pembanding: backend sudah `ORDER BY created_at DESC`
+   * dan `PublicService` tidak membawa `created_at`, jadi urutan API ITULAH
+   * "terbaru" . mengurut ulang justru akan merusaknya.
+   */
+  const comparator = useMemo(() => {
+    switch (sort) {
+      case 'harga':
+        return (a: PublicService, b: PublicService) =>
+          sortDir === 'asc' ? a.price - b.price : b.price - a.price;
+      case 'terlaris':
+        return (a: PublicService, b: PublicService) => (b.total_orders ?? 0) - (a.total_orders ?? 0);
+      case 'terpopuler':
+        return (a: PublicService, b: PublicService) =>
+          (b.partner_avg_rating ?? 0) - (a.partner_avg_rating ?? 0) ||
+          (b.partner_total_reviews ?? 0) - (a.partner_total_reviews ?? 0);
+      default:
+        return null;
+    }
+  }, [sort, sortDir]);
+
   // Filter rating diterapkan di sisi klien (backend belum support min_rating).
-  const visibleServices = useMemo(
-    () => allServices.filter((s) => (s.partner_avg_rating ?? 0) >= minRating),
-    [allServices, minRating],
-  );
+  const visibleServices = useMemo(() => {
+    const filtered = allServices.filter((s) => (s.partner_avg_rating ?? 0) >= minRating);
+    // `slice()` dulu . `sort` memutasi array di tempat, dan `allServices` adalah
+    // state React yang tidak boleh disentuh langsung.
+    return comparator ? filtered.slice().sort(comparator) : filtered;
+  }, [allServices, minRating, comparator]);
 
   const loadMore = () => {
     if (isLoading || !hasNextPage) return;
@@ -118,6 +171,8 @@ export function useServiceListing({
     setMinRating,
     sort,
     setSort,
+    sortDir,
+    setSortDir,
     partnerType,
     setPartnerType,
     // Query state

@@ -4,7 +4,12 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 
+import { usePathname } from 'next/navigation';
+
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { usePartnerVerificationStatus } from '@/hooks/usePartnerVerificationStatus';
+import { accessLevelFor } from '@/lib/mitra-access';
+import PreparationNotice from './PreparationNotice';
 import { containerWidthClass, MITRA_GUTTER, type MitraContainerVariant } from './MitraPageContainer';
 
 export interface MitraBreadcrumb {
@@ -45,8 +50,23 @@ export default function MitraPageHeader({
   breadcrumbs,
 }: MitraPageHeaderProps) {
   const width = containerWidthClass(variant);
+  const pathname = usePathname();
+
+  // Spanduk "menunggu verifikasi" dirender DI SINI, bukan di shell
+  // (`MitraLayoutClient`). Shell merender sebelum `{children}`, sementara
+  // header halaman ada DI DALAM children . hasilnya spanduk duduk di atas
+  // header, seolah bukan bagian dari halaman mana pun.
+  //
+  // Karena setiap halaman `prepare` membuka dengan komponen ini, menaruhnya di
+  // sini tetap satu titik: halaman baru mendapatkannya tanpa harus ingat, dan
+  // posisinya di bawah header dijamin oleh struktur, bukan oleh kesepakatan.
+  // `variant` yang sama juga membuat lebarnya otomatis sejajar header & konten.
+  const { data: verification } = usePartnerVerificationStatus();
+  const showPreparationNotice =
+    accessLevelFor(pathname) === 'prepare' && !!verification && verification !== 'APPROVED' && verification !== 'NONE';
 
   return (
+    <>
     <div className="sticky top-0 z-10">
       <MobilePageHeader
         alwaysShow
@@ -82,5 +102,9 @@ export default function MitraPageHeader({
         </nav>
       )}
     </div>
+    {showPreparationNotice && (
+      <PreparationNotice status={verification as 'PENDING' | 'REJECTED'} variant={variant} />
+    )}
+    </>
   );
 }

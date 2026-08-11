@@ -32,19 +32,19 @@ export default function BottomNav() {
       p.startsWith('/book') ||
       p.startsWith('/payment') ||
       p.startsWith('/orders/') ||
-      p.startsWith('/services') ||
+      p.startsWith('/services/') ||
       p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
     if (hideForPartner) return null;
-    // `md:hidden`, sama seperti nav pelanggan di bawah.
+    // `lg:hidden`, sama seperti nav pelanggan di bawah . dan ambang itulah yang
+    // benar, bukan `md`.
     //
     // Ini halaman BERSAMA (/bantuan, /help, /notifications, /orders, /profile),
-    // bukan area /mitra . dan di sini HeaderWrapper TETAP merender TopNavbar
-    // mulai `lg`. Tanpa md:hidden, mitra melihat navbar pelanggan di atas dan
-    // nav mitra menempel di dasar layar desktop sekaligus; lebih buruk lagi,
-    // `pb-16 md:pb-0` di <body> berhenti di `md`, sehingga nav yang tetap fixed
-    // itu menutupi konten paling bawah tanpa ruang penggantinya.
+    // bukan area /mitra . dan di sini HeaderWrapper merender TopNavbar mulai
+    // `lg`. Menyembunyikan nav mitra di `lg` persis mencegah mitra melihat
+    // navbar pelanggan di atas dan nav mitra di dasar layar sekaligus, sementara
+    // di bawah `lg` (768-1023px) nav ini justru satu-satunya navigasi yang ada.
     return (
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <MitraBottomNav />
       </div>
     );
@@ -60,7 +60,10 @@ export default function BottomNav() {
     p.startsWith('/book') ||
     p.startsWith('/payment') ||
     p.startsWith('/orders/') ||
-    p.startsWith('/services') ||
+    // `/services/` dengan garis miring: yang punya bilah aksi fixed adalah
+    // DETAIL layanan. Tanpa garis miring, halaman DAFTAR `/services` ikut
+    // kehilangan bottom nav padahal ia halaman jelajah tanpa bilah aksi.
+    p.startsWith('/services/') ||
     p.startsWith('/cart') ||
     p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
   if (hideNav) return null;
@@ -93,8 +96,12 @@ export default function BottomNav() {
   ];
 
   return (
-    /* Bottom Navigation - hidden on desktop (md:hidden) */
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 pb-safe z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
+    /* Bottom Navigation . tampil sampai `lg`, tempat TopNavbar mengambil alih.
+       Ambangnya HARUS `lg` (bukan `md`) dan sama dengan `hidden lg:block` di
+       HeaderWrapper serta `pb-16 lg:pb-0` di <body>: ketiganya satu keputusan.
+       Saat ambang ini `md`, rentang 768-1023px kehilangan SELURUH navigasi
+       global . BottomNav sudah pergi, TopNavbar belum datang. */
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 pb-safe z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href;

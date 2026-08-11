@@ -5,14 +5,15 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store, CheckCircle2, Check, Clock, AlertCircle } from 'lucide-react';
+import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store, Clock, AlertCircle, XCircle } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { OrderCardSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { formatRupiah as formatPrice, formatDateOnly as formatDate } from '@/lib/format';
-import { StatusBadge } from '@/components/ui/status-badge';
+import { StatusBadge, type OrderStatus } from '@/components/ui/status-badge';
+import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useToast } from '@/components/ui/toast';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
@@ -65,6 +66,11 @@ interface Order {
   items: OrderItem[];
   notes?: string;
   agreed_price?: number;
+  /** Batas bayar . dipakai hitung mundur pada kartu WAITING_PAYMENT. */
+  payment_expired_at?: string;
+  /** Alasan & pelaku pembatalan; sudah dirender halaman detail, dulu tidak di daftar. */
+  cancellation_reason?: string;
+  cancelled_by?: string;
 }
 
 export default function OrdersPage() {
@@ -186,7 +192,9 @@ export default function OrdersPage() {
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
 
       {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <MobilePageHeader title="Riwayat Pesanan" backHref="/profile" maxWidthClass="max-w-6xl" />
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
+      <MobilePageHeader
+        titleAs="p" title="Riwayat Pesanan" backHref="/profile" maxWidthClass="max-w-6xl" />
 
       <div className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Riwayat Pesanan</h1>
@@ -320,39 +328,55 @@ export default function OrdersPage() {
                           <span className="text-xs font-bold text-brand-gray-900">{order.order_number}</span>
                         </div>
 
-                        {/* Visual Progress Stepper */}
-                        {(() => {
-                          const s = order.status;
-                          if (s === 'CANCELLED') return <div className="text-xs font-bold text-brand-error flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> Dibatalkan</div>;
-                          if (s === 'COMPLETED') return <div className="text-xs font-bold text-brand-success flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Selesai</div>;
+                        {/*
+                          Status SPESIFIK, bukan stepper 3 langkah.
 
-                          // Active Stepper Logic
-                          const step1Active = true; // Always active if not cancelled
-                          const step2Active = ['PAID', 'IN_PROGRESS', 'WAITING_ADDITIONAL_PAY', 'WAITING_CUSTOMER_CONFIRM'].includes(s);
-                          const step3Active = false; // Because it's not COMPLETED if we reach here
+                          Stepper lama menyamarkan justru yang paling penting:
+                          "Menunggu Pembayaran" (butuh tindakan pelanggan
+                          SEKARANG), "Menunggu Konfirmasimu" (dana cair otomatis
+                          kalau didiamkan), dan "Sedang Dikerjakan" semuanya
+                          tampil identik sebagai "Diproses". Ia juga cacat:
+                          `step3Active` di-hardcode `false` sehingga langkah
+                          "Selesai" tak pernah menyala, dan garis penghubung
+                          langkah 2→3 selalu abu (audit C5).
 
-                          return (
-                            <div className="flex items-center w-full max-w-sm mt-1">
-                              {/* Step 1: Menunggu */}
-                              <div className="flex flex-col items-center flex-1 relative">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center z-10 text-[10px] font-bold ${step1Active ? 'bg-brand-red text-white' : 'bg-brand-gray-100 text-brand-gray-400'}`}>1</div>
-                                <span className={`text-[10px] mt-1 font-medium ${step1Active ? 'text-brand-red' : 'text-brand-gray-400'}`}>Menunggu</span>
-                                <div className={`absolute top-2.5 left-1/2 w-full h-[2px] -z-0 ${step2Active ? 'bg-brand-red' : 'bg-brand-gray-100'}`}></div>
-                              </div>
-                              {/* Step 2: Diproses */}
-                              <div className="flex flex-col items-center flex-1 relative">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center z-10 text-[10px] font-bold ${step2Active ? 'bg-brand-red text-white' : 'bg-brand-gray-100 text-brand-gray-400'}`}>2</div>
-                                <span className={`text-[10px] mt-1 font-medium ${step2Active ? 'text-brand-red' : 'text-brand-gray-400'}`}>Diproses</span>
-                                <div className="absolute top-2.5 left-1/2 w-full h-[2px] -z-0 bg-brand-gray-100"></div>
-                              </div>
-                              {/* Step 3: Selesai */}
-                              <div className="flex flex-col items-center flex-1">
-                                <div className="w-5 h-5 rounded-full flex items-center justify-center z-10 text-[10px] font-bold bg-brand-gray-100 text-brand-gray-400">3</div>
-                                <span className="text-[10px] mt-1 font-medium text-brand-gray-400">Selesai</span>
-                              </div>
-                            </div>
-                          );
-                        })()}
+                          `StatusBadge` sudah punya kesembilan status lengkap
+                          dengan warna & ikonnya, sudah dipakai halaman detail
+                          dan tab pesanan di /profile . dan di berkas ini
+                          sebenarnya sudah di-import, hanya tidak pernah dipakai.
+                        */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <StatusBadge status={order.status as OrderStatus} size="sm" />
+                          {order.status === 'WAITING_PAYMENT' && order.payment_expired_at && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-orange-dark">
+                              <Clock className="w-3 h-3" />
+                              Bayar sebelum{' '}
+                              <CountdownTimer
+                                targetDate={order.payment_expired_at}
+                                format="mm:ss"
+                                criticalThresholdSeconds={300}
+                                className="!text-[11px] font-bold"
+                              />
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Alasan pembatalan . sudah dirender halaman detail dari
+                            objek yang sama, tapi di daftar kartu CANCELLED cuma
+                            bertuliskan "Dibatalkan" tanpa sebab (audit E7). */}
+                        {order.status === 'CANCELLED' && order.cancellation_reason && (
+                          <p className="flex items-start gap-1.5 text-[11px] text-brand-error leading-snug">
+                            <XCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                            <span>
+                              {order.cancellation_reason}
+                              {order.cancelled_by && (
+                                <span className="text-brand-gray-450">
+                                  {' '}· dibatalkan oleh {order.cancelled_by.toUpperCase() === 'PARTNER' ? 'mitra' : 'kamu'}
+                                </span>
+                              )}
+                            </span>
+                          </p>
+                        )}
                       </div>
 
                       {/* Layanan . baris produk ala Shopee (thumbnail besar) */}

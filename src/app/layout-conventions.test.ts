@@ -24,6 +24,18 @@ import { describe, expect, it } from 'vitest';
 
 const APP_DIR = path.resolve(__dirname);
 const MITRA_DIR = path.join(APP_DIR, 'mitra');
+/**
+ * A13-T3 memperluas penjaga ini dari `/mitra` ke seluruh `src/app` . tapi
+ * berhenti di situ. `src/components` tidak pernah dipindai siapa pun, dan
+ * itulah sebabnya **40** utilitas palet mentah bertahan di sana sementara
+ * `src/app` nol: di dalam jangkauan penjaga mereka membuat test merah dan
+ * sudah lama dibersihkan (audit F2).
+ *
+ * Yang bersembunyi di sana bukan berkas pinggiran . `auth/PhoneVerificationForm`,
+ * `auth/GoogleSignInButton`, `home/CategorySection`: layar pertama yang dilihat
+ * pengguna baru.
+ */
+const COMPONENTS_DIR = path.resolve(__dirname, '../components');
 
 /** Shell aplikasi penuh: sengaja tanpa kontainer & mengelola tingginya sendiri. */
 const FULL_BLEED = ['chat/page.tsx', 'chat/[room_id]/MitraChatClient.tsx'];
@@ -42,9 +54,13 @@ function collectFiles(dir: string): string[] {
   return out;
 }
 
-/** Path relatif bergaya posix supaya pesan gagalnya sama di Windows & CI. */
+/**
+ * Path relatif terhadap `src` bergaya posix supaya pesan gagalnya sama di
+ * Windows & CI . dan supaya berkas di `app/` maupun `components/` terbaca
+ * jelas asalnya sejak penjaga ini mencakup keduanya.
+ */
 function rel(file: string): string {
-  return path.relative(APP_DIR, file).split(path.sep).join('/');
+  return path.relative(path.resolve(APP_DIR, '..'), file).split(path.sep).join('/');
 }
 
 /** Path relatif terhadap `/mitra` . dipakai daftar pengecualian khusus mitra. */
@@ -63,8 +79,19 @@ function code(file: string): string {
     .replace(/^\s*\/\/.*$/gm, '');
 }
 
-/** Seluruh halaman aplikasi . rute pelanggan DAN mode mitra. */
-const ALL_FILES = collectFiles(APP_DIR);
+/** Hanya HALAMAN . rute pelanggan DAN mode mitra. */
+const APP_FILES = collectFiles(APP_DIR);
+
+/**
+ * Halaman + komponen bersama.
+ *
+ * Dipakai aturan yang benar-benar UNIVERSAL (palet mentah, kelas menyatu).
+ * Langit-langit z-index SENGAJA tidak ikut ke sini: overlay bersama
+ * (`ui/modal`, `ui/toast`, gerbang re-consent legal) memang hidup di 100, dan
+ * itulah desainnya . toast harus menang atas modal. Aturan "jangan melampaui
+ * 60" berlaku untuk HALAMAN, bukan untuk komponen yang memang overlay.
+ */
+const ALL_FILES = [...APP_FILES, ...collectFiles(COMPONENTS_DIR)];
 
 /** Hanya mode mitra: sebagian aturan di bawah memang khusus shell mitra. */
 const MITRA_FILES = ALL_FILES.filter(f => !path.relative(MITRA_DIR, f).startsWith('..'));
@@ -111,8 +138,11 @@ describe('konvensi tata letak . seluruh aplikasi', () => {
   it('menemukan halaman untuk diperiksa', () => {
     // Tanpa ini, regex yang tidak pernah cocok karena daftarnya KOSONG akan
     // tampak sebagai "semua aturan lolos".
-    expect(ALL_FILES.length).toBeGreaterThan(60);
+    expect(APP_FILES.length).toBeGreaterThan(60);
     expect(MITRA_FILES.length).toBeGreaterThan(15);
+    // Komponen bersama HARUS benar-benar ikut terpindai . titik buta inilah
+    // yang membiarkan 40 warna mentah hidup di sana (F2).
+    expect(ALL_FILES.length).toBeGreaterThan(APP_FILES.length + 40);
   });
 
   it('polanya benar-benar cocok . penjaga yang lumpuh selalu hijau', () => {
@@ -135,6 +165,24 @@ describe('konvensi tata letak . seluruh aplikasi', () => {
     expect(offenders(src => PALET_MENTAH.test(src))).toEqual([]);
   });
 
+  it('tidak ada kelas Tailwind yang menyatu dengan interpolasi . spasi sebelum ${', () => {
+    // `` `... transition-colors${aktif ? 'border-x' : ''}` `` menghasilkan
+    // "transition-colorsborder-x": DUA kelas lenyap sekaligus, diam-diam.
+    // Tidak ada yang gagal, tidak ada peringatan . tampilannya saja yang salah.
+    //
+    // Ini bukan kasus teoretis: pola persis itu sempat masuk saat menambahkan
+    // ring fokus ke label metode pembayaran (D2), dan mematikan ring BESERTA
+    // border "terpilih"-nya.
+    //
+    // Interpolasi di AWAL className tidak terjaring (tidak ada kelas sebelum
+    // `${`), begitu pula yang sudah didahului spasi.
+    const KELAS_MENYATU = /className=\{`[^`]*[a-zA-Z0-9\]-]\$\{/;
+    expect(KELAS_MENYATU.test('className={`p-4 rounded-lg${x ? "a" : "b"}`}')).toBe(true);
+    expect(KELAS_MENYATU.test('className={`p-4 rounded-lg ${x ? "a" : "b"}`}')).toBe(false);
+    expect(KELAS_MENYATU.test('className={`${base} p-4`}')).toBe(false);
+    expect(offenders(src => KELAS_MENYATU.test(src))).toEqual([]);
+  });
+
   it('tidak ada halaman yang melampaui langit-langit tangga z-index (60)', () => {
     // Tangga nyatanya: halaman & overlay-nya paling tinggi 60; di ATAS itu milik
     // komponen bersama (`ui/modal` & `ui/toast` di 100, gerbang re-consent legal
@@ -143,9 +191,12 @@ describe('konvensi tata letak . seluruh aplikasi', () => {
     // Karena itu aturannya "jangan melampaui 60", bukan "jangan pakai z-[..]".
     // `z-60` tidak ada di tema, dan `MitraModal` kanonik sendiri menulis
     // `z-[60]` . melarang bentuk arbitrernya akan menghukum pola yang benar.
+    //
+    // Cakupannya HALAMAN saja (`APP_FILES`), bukan komponen bersama: overlay
+    // di `components/ui` memang tinggal di 100 secara sengaja.
     const tooHigh = (src: string) =>
       Array.from(src.matchAll(/z-\[([0-9]+)\]/g)).some(m => Number(m[1]) > 60);
-    expect(offenders(tooHigh)).toEqual([]);
+    expect(offenders(tooHigh, [], APP_FILES)).toEqual([]);
   });
 });
 

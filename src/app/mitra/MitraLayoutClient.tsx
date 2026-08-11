@@ -7,7 +7,6 @@ import MitraBottomNav from '@/components/layout/MitraBottomNav';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { usePartnerVerificationStatus } from '@/hooks/usePartnerVerificationStatus';
 import { accessLevelFor, canAccess, canEnterMitraShell, MITRA_BLOCKED_REDIRECT } from '@/lib/mitra-access';
-import PreparationNotice from '@/components/mitra/PreparationNotice';
 import MitraSidebar from '@/components/layout/MitraSidebar';
 import { cn } from '@/lib/utils';
 
@@ -115,10 +114,10 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
     // persis seperti room chat mitra-pelanggan.
     /^\/mitra\/bantuan\/chat\/[^/]+/.test(pathname || '');
 
-  // Halaman persiapan untuk mitra yang belum disetujui: katakan konsekuensinya
-  // di tempat ia bekerja, bukan biarkan ia menebak kenapa tak ada pesanan masuk.
-  const showPreparationNotice =
-    isPartnerMode && accessLevel === 'prepare' && !!verification && verification !== 'APPROVED';
+  // Spanduk "menunggu verifikasi" TIDAK dirender di sini. Shell merender
+  // sebelum `{children}`, dan header halaman ada di dalam children . spanduknya
+  // dulu duduk di ATAS header. Sekarang `MitraPageHeader` yang merendernya,
+  // tepat di bawah bilah headernya sendiri (lihat komentar di komponen itu).
 
   // Shell desktop (P1-13 / §5.2): sidebar menggantikan bottom nav mulai `lg`.
   // Bottom nav yang fixed di layar lebar membuat mode mitra tampak seperti
@@ -149,19 +148,15 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
         className={cn(
           'min-h-[100dvh] bg-brand-gray-60',
           showSidebar && 'lg:pl-60',
-          // Bottom nav tampil sampai `lg`, tapi `pb-16` di <body> root berhenti
-          // di `md` (kelas pelanggan). Tanpa baris ini, 768-1023px kehilangan
-          // ruangnya sementara nav-nya masih menutupi konten.
-          !isExcludedFlow && 'pb-16 lg:pb-0',
+          // Ruang bottom-nav TIDAK ditambahkan di sini lagi. Baris ini dulu
+          // `!isExcludedFlow && 'pb-16 lg:pb-0'`, murni untuk menambal `<body>`
+          // yang berhenti di `md` sementara nav tampil sampai `lg`. Sejak
+          // <body> memakai `pb-16 lg:pb-0` (ambang yang sama dengan nav),
+          // tambalan itu jadi padding GANDA: 128px di bawah setiap halaman
+          // mitra. Kalau ambang di layout.tsx diubah lagi, perbaiki di sana .
+          // jangan menambal ulang di sini.
         )}
       >
-        {showPreparationNotice && (
-          <PreparationNotice
-            status={verification as 'PENDING' | 'REJECTED'}
-            // Halaman `prepare` ada tiga: services & portfolio (list), schedule (form).
-            variant={pathname?.startsWith('/mitra/schedule') ? 'form' : 'list'}
-          />
-        )}
         {children}
       </div>
 

@@ -126,7 +126,7 @@ export default function GoogleSignInButton({
 
   if (!clientId) {
     return (
-      <div className="w-full text-center p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800">
+      <div className="w-full text-center p-3 bg-brand-warning-soft border border-brand-warning-border rounded-md text-xs text-brand-warning-dark">
         Google Sign-In memerlukan <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> di file <code>.env.web</code>
       </div>
     );

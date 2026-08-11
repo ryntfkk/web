@@ -49,9 +49,19 @@ export default function FavoritesPage() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
-      <MobilePageHeader title="Favorit Saya" icon={<Heart className="w-5 h-5 text-brand-red" />} />
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
+      <MobilePageHeader
+        titleAs="p"
+        title="Favorit Saya"
+        icon={<Heart className="w-5 h-5 text-brand-red" />}
+        maxWidthClass="max-w-3xl"
+      />
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      {/* max-w-3xl, bukan max-w-lg: ini halaman DAFTAR dengan grid 2 kolom .
+          terkurung 512px, tiap kartu cuma ~245px di layar 1440px sementara sisa
+          layar kosong (audit B2). Halaman FORMULIR di /profile/* sengaja tetap
+          sempit: panjang baris pendek justru benar untuk isian. */}
+      <div className="max-w-3xl mx-auto px-4 py-6">
         <h1 className="hidden lg:flex text-2xl font-bold text-brand-gray-900 items-center gap-2 mb-6">
           <Heart className="w-6 h-6 text-brand-red" /> Favorit Saya
         </h1>
@@ -109,7 +119,7 @@ export default function FavoritesPage() {
         {!loading && (tab === 'all' || tab === 'services') && sCount > 0 && (
           <section className="mb-8">
             <h2 className="text-sm font-semibold text-brand-gray-700 mb-3">Layanan</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {services!.map((f) => (
                 <div
                   key={f.favorite_id}
@@ -169,7 +179,7 @@ export default function FavoritesPage() {
         {!loading && (tab === 'all' || tab === 'partners') && pCount > 0 && (
           <section>
             <h2 className="text-sm font-semibold text-brand-gray-700 mb-3">Mitra</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {partners!.map((f) => (
                 <div
                   key={f.favorite_id}

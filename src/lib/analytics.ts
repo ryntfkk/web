@@ -36,6 +36,12 @@ export type AnalyticsEvent =
   | 'partner_landing_viewed'
   | 'partner_landing_cta_clicked'
   | 'home_partner_banner_clicked'
+  // ── Dompet pelanggan ──
+  // Refund pembatalan/no-show mengkredit dompet PELANGGAN, dan penarikannya
+  // memakai jalur `/wallet/*` yang sama dengan mitra. Event-nya sengaja
+  // dipisah: menyatukannya dengan `partner_withdrawal_submitted` membuat
+  // "berapa mitra yang mencairkan penghasilan" tidak bisa dijawab lagi.
+  | 'customer_withdrawal_submitted'
   // ── Sisi publik ──
   | 'public_partner_profile_viewed'
   | 'public_partner_service_clicked'

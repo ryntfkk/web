@@ -32,11 +32,11 @@ export default function ProductsSection() {
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-[280px] bg-gray-100 animate-pulse rounded-lg" />
+            <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
           ))}
         </div>
       ) : isError ? (
-        <div className="text-sm text-red-500">Gagal memuat layanan.</div>
+        <div className="text-sm text-brand-error">Gagal memuat layanan.</div>
       ) : services && services.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
           {services.map((service) => (
@@ -44,7 +44,7 @@ export default function ProductsSection() {
           ))}
         </div>
       ) : (
-        <div className="text-center text-gray-500 py-8">Belum ada layanan tersedia.</div>
+        <div className="text-center text-brand-gray-450 py-8">Belum ada layanan tersedia.</div>
       )}
     </section>
   );

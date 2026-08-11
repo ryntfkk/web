@@ -153,11 +153,69 @@ export default function PaymentClient() {
             )}
           </div>
 
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg border border-brand-gray-100 p-4 text-center space-y-2">
-            <p className="text-sm text-brand-gray-700">Total Pembayaran</p>
-            <p className="text-3xl font-bold text-brand-red">{formatRupiah(amountToPay)}</p>
-            <p className="text-xs text-brand-gray-450">Pesanan #{order?.order_number}</p>
+          {/* Ringkasan + RINCIAN.
+              Sebelumnya halaman ini hanya menampilkan satu angka total. Di titik
+              pengambilan keputusan membayar, pelanggan tidak bisa melihat layanan
+              apa yang dibayar, berapa ongkos transport, atau potongan promonya .
+              padahal semua field itu SUDAH ADA di respons `/orders/{id}` yang
+              halaman ini fetch, dan sudah dirender halaman detail (audit E3). */}
+          <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-3">
+            <div className="text-center space-y-1">
+              <p className="text-sm text-brand-gray-700">Total Pembayaran</p>
+              <p className="text-3xl font-bold text-brand-red">{formatRupiah(amountToPay)}</p>
+              <p className="text-xs text-brand-gray-450">Pesanan #{order?.order_number}</p>
+            </div>
+
+            {order?.items?.length > 0 && (
+              <ul className="border-t border-brand-gray-100 pt-3 space-y-1.5">
+                {order.items.map((item: { id: string; service_name: string; quantity: number; price: number }) => (
+                  <li key={item.id} className="flex justify-between gap-3 text-sm">
+                    <span className="text-brand-gray-700 min-w-0">
+                      <span className="block truncate">{item.service_name}</span>
+                      {item.quantity > 1 && (
+                        <span className="text-xs text-brand-gray-450">
+                          {item.quantity} × {formatRupiah(item.price)}
+                        </span>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-brand-gray-900">
+                      {formatRupiah(item.price * (item.quantity || 1))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <dl className="border-t border-brand-gray-100 pt-3 space-y-1.5 text-sm">
+              {typeof order?.total_service_price === 'number' && order.total_service_price > 0 && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-brand-gray-700">Subtotal layanan</dt>
+                  <dd className="text-brand-gray-900">{formatRupiah(order.total_service_price)}</dd>
+                </div>
+              )}
+              {order?.transport_fee > 0 && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-brand-gray-700">Biaya transport</dt>
+                  <dd className="text-brand-gray-900">{formatRupiah(order.transport_fee)}</dd>
+                </div>
+              )}
+              {order?.admin_fee > 0 && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-brand-gray-700">Biaya admin</dt>
+                  <dd className="text-brand-gray-900">{formatRupiah(order.admin_fee)}</dd>
+                </div>
+              )}
+              {order?.promo_discount > 0 && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-brand-gray-700">Potongan promo</dt>
+                  <dd className="font-medium text-brand-success">-{formatRupiah(order.promo_discount)}</dd>
+                </div>
+              )}
+              <div className="flex justify-between gap-3 border-t border-brand-gray-100 pt-1.5 font-bold">
+                <dt className="text-brand-gray-900">Total</dt>
+                <dd className="text-brand-red">{formatRupiah(amountToPay)}</dd>
+              </div>
+            </dl>
           </div>
 
           {/* Payment Methods */}
@@ -165,7 +223,7 @@ export default function PaymentClient() {
             <h2 className="text-sm font-semibold text-brand-gray-900">Pilih Metode Pembayaran</h2>
 
             {/* Wallet */}
-            <label className={`block p-4 rounded-lg border cursor-pointer transition-colors ${selectedMethod === 'wallet' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'} ${isWalletDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <label className={`block p-4 rounded-lg border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue ${selectedMethod === 'wallet' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'} ${isWalletDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Wallet className={`w-5 h-5 ${selectedMethod === 'wallet' ? 'text-brand-red' : 'text-brand-gray-700'}`} />
@@ -174,7 +232,7 @@ export default function PaymentClient() {
                     <p className="text-xs text-brand-gray-450">Saldo: {formatRupiah(walletBalance)}</p>
                   </div>
                 </div>
-                <input type="radio" name="payment_method" className="hidden" disabled={isWalletDisabled} checked={selectedMethod === 'wallet'} onChange={() => setSelectedMethod('wallet')} />
+                <input type="radio" name="payment_method" className="sr-only" disabled={isWalletDisabled} checked={selectedMethod === 'wallet'} onChange={() => setSelectedMethod('wallet')} />
                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'wallet' ? 'border-brand-red bg-brand-red' : 'border-brand-gray-100'}`}>
                   {selectedMethod === 'wallet' && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
@@ -183,7 +241,7 @@ export default function PaymentClient() {
             </label>
 
             {/* E-Wallet & QRIS */}
-            <label className={`block p-4 rounded-lg border cursor-pointer transition-colors ${selectedMethod === 'qris' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'}`}>
+            <label className={`block p-4 rounded-lg border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue ${selectedMethod === 'qris' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'}`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <QrCode className={`w-5 h-5 ${selectedMethod === 'qris' ? 'text-brand-red' : 'text-brand-gray-700'}`} />
@@ -192,7 +250,7 @@ export default function PaymentClient() {
                     <p className="text-xs text-brand-gray-450">GoPay, OVO, Dana, ShopeePay</p>
                   </div>
                 </div>
-                <input type="radio" name="payment_method" className="hidden" checked={selectedMethod === 'qris'} onChange={() => setSelectedMethod('qris')} />
+                <input type="radio" name="payment_method" className="sr-only" checked={selectedMethod === 'qris'} onChange={() => setSelectedMethod('qris')} />
                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'qris' ? 'border-brand-red bg-brand-red' : 'border-brand-gray-100'}`}>
                   {selectedMethod === 'qris' && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
@@ -200,7 +258,7 @@ export default function PaymentClient() {
             </label>
 
             {/* Virtual Account */}
-            <label className={`block p-4 rounded-lg border cursor-pointer transition-colors ${selectedMethod === 'bank_transfer' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'}`}>
+            <label className={`block p-4 rounded-lg border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue ${selectedMethod === 'bank_transfer' ? 'border-brand-red bg-brand-red-light' : 'border-brand-gray-100 bg-white'}`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <CreditCard className={`w-5 h-5 ${selectedMethod === 'bank_transfer' ? 'text-brand-red' : 'text-brand-gray-700'}`} />
@@ -209,7 +267,7 @@ export default function PaymentClient() {
                     <p className="text-xs text-brand-gray-450">BCA, Mandiri, BNI, BRI</p>
                   </div>
                 </div>
-                <input type="radio" name="payment_method" className="hidden" checked={selectedMethod === 'bank_transfer'} onChange={() => setSelectedMethod('bank_transfer')} />
+                <input type="radio" name="payment_method" className="sr-only" checked={selectedMethod === 'bank_transfer'} onChange={() => setSelectedMethod('bank_transfer')} />
                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedMethod === 'bank_transfer' ? 'border-brand-red bg-brand-red' : 'border-brand-gray-100'}`}>
                   {selectedMethod === 'bank_transfer' && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>

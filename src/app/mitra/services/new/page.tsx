@@ -176,6 +176,7 @@ export default function NewMitraServicePage() {
                     key={p.preview}
                     className="group relative aspect-square overflow-hidden rounded-md border border-brand-gray-100 transition-transform duration-200 hover:scale-[1.02] hover:shadow-md"
                   >
+                    {/* Pratinjau `blob:` sebelum unggah . di luar jangkauan optimizer next/image. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.preview} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
                     <button

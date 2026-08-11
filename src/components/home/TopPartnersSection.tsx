@@ -56,12 +56,12 @@ export default function TopPartnersSection() {
       {isLoading ? (
         <div className={SCROLLER_CLASS} style={{ WebkitOverflowScrolling: 'touch' }}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className={`${ITEM_CLASS} h-[280px] bg-gray-100 animate-pulse rounded-lg`} />
+            <div key={i} className={`${ITEM_CLASS} h-[280px] bg-brand-gray-100 animate-pulse rounded-lg`} />
           ))}
         </div>
       ) : isError ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="text-sm text-red-500">Gagal memuat mitra terpopuler.</p>
+          <p className="text-sm text-brand-error">Gagal memuat mitra terpopuler.</p>
           <Button
             variant="outline"
             size="sm"

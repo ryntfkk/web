@@ -15,7 +15,7 @@ export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridPr
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="aspect-square bg-gray-100 animate-pulse rounded" />
+          <div key={i} className="aspect-square bg-brand-gray-100 animate-pulse rounded" />
         ))}
       </div>
     );
@@ -28,7 +28,7 @@ export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridPr
 
   if (validPortfolios.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-brand-gray-450">
         Belum ada foto portofolio.
       </div>
     );
@@ -50,7 +50,7 @@ export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridPr
         {validPortfolios.map((item, index) => (
           <div 
             key={item.id} 
-            className="relative group rounded overflow-hidden aspect-square bg-gray-100 cursor-pointer"
+            className="relative group rounded overflow-hidden aspect-square bg-brand-gray-100 cursor-pointer"
             onClick={() => setSelectedIndex(index)}
           >
             <Image

@@ -3,7 +3,7 @@ import { useToast } from '@/components/ui/toast';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, X, AlertTriangle, Clock } from 'lucide-react';
+import { X, AlertTriangle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
@@ -13,6 +13,7 @@ import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton, Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 
 // Bentuk field mengikuti AdditionalFeeDTO backend: type = 'service' | 'material',
@@ -135,7 +136,8 @@ export default function AdditionalFeeClient() {
   if (loading) {
     return (
       <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+        {/* max-w-lg, sama dengan konten di bawah (audit B3). */}
+        <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
           <Skeleton className="h-8 w-40" />
           <div className="rounded-lg border border-brand-gray-100 bg-white p-6 space-y-4">
             <Skeleton className="h-5 w-2/3" />
@@ -171,21 +173,17 @@ export default function AdditionalFeeClient() {
 
       {/* Header */}
       {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
-              <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-            </button>
-            <h1 className="text-base font-bold text-brand-gray-900">
-              Tagihan Tambahan {pendingFees.length > 1 ? `(1/${pendingFees.length})` : ''}
-            </h1>
-          </div>
-          {fee.expired_at && (
+      {/* Header bersama; hitung mundur masuk lewat slot `right` (audit A5). */}
+      <MobilePageHeader
+        title={`Tagihan Tambahan ${pendingFees.length > 1 ? `(1/${pendingFees.length})` : ''}`}
+        titleAs="p"
+        backHref={`/orders/${orderId}`}
+        right={
+          fee.expired_at ? (
             <CountdownTimer targetDate={fee.expired_at} format="hh:mm:ss" criticalThresholdSeconds={3600} warningThresholdSeconds={10800} />
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {/* Judul desktop . countdown ikut dipindah agar tidak hilang saat header mobile disembunyikan. */}

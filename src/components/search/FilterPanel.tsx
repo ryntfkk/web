@@ -96,7 +96,7 @@ export default function FilterPanel({
           {RATING_OPTIONS.map((opt) => {
             const active = minRating === opt.value;
             return (
-              <label key={opt.value} className="flex items-center gap-2 cursor-pointer group">
+              <label key={opt.value} className="flex items-center gap-2 cursor-pointer group rounded-md focus-within:ring-2 focus-within:ring-brand-blue">
                 <div
                   className={`w-[16px] h-[16px] rounded-full flex items-center justify-center transition-colors ${
                     active ? 'bg-brand-red' : 'border border-brand-gray-400 group-hover:border-brand-red'
@@ -128,7 +128,7 @@ export default function FilterPanel({
           {PARTNER_TYPE_OPTIONS.map((opt) => {
             const active = partnerType === opt.value;
             return (
-              <label key={opt.value || 'all'} className="flex items-start gap-2 cursor-pointer group">
+              <label key={opt.value || 'all'} className="flex items-start gap-2 cursor-pointer group rounded-md focus-within:ring-2 focus-within:ring-brand-blue">
                 <div
                   className={`w-[16px] h-[16px] mt-0.5 shrink-0 rounded-full flex items-center justify-center transition-colors ${
                     active ? 'bg-brand-red' : 'border border-brand-gray-400 group-hover:border-brand-red'

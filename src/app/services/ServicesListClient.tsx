@@ -45,7 +45,7 @@ export default function ServicesListClient({
           )}
         </nav>
 
-        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Semua Layanan</h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-brand-gray-900 mb-6">Semua Layanan</h1>
 
         {/* Filter kategori (URL-driven via <Link>) */}
         <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
@@ -85,6 +85,8 @@ export default function ServicesListClient({
           minRating={listing.minRating}
           onMinRatingChange={listing.setMinRating}
           sort={listing.sort}
+          sortDir={listing.sortDir}
+          onSortDirChange={listing.setSortDir}
           onSortChange={listing.setSort}
           partnerType={listing.partnerType}
           onPartnerTypeChange={listing.setPartnerType}

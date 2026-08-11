@@ -19,9 +19,9 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
     return () => document.body.classList.remove('chat-room');
   }, []);
 
-  // Desktop/tablet (md+): tampilkan split-panel; Mobile: navigasi ke halaman room.
+  // Desktop (lg+): split-panel; di bawahnya halaman room penuh (audit B6).
   const isDesktopViewport = () =>
-    typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
 
   const handleSelectChat = (newRoomId: string) => {
     if (isDesktopViewport()) {
@@ -54,7 +54,7 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
       <div className="flex flex-1 min-h-0">
 
         {/* ===== LEFT PANEL: Chat List (desktop only) ===== */}
-        <div className="hidden md:flex w-96 flex-col border-r border-brand-gray-100 bg-white shrink-0 min-h-0">
+        <div className="hidden lg:flex w-96 flex-col border-r border-brand-gray-100 bg-white shrink-0 min-h-0">
           <div className="px-4 pt-4 shrink-0">
             <h1 className="text-lg font-bold text-brand-gray-900 mb-1">Chat</h1>
           </div>
@@ -68,7 +68,7 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
 
         {/* ===== RIGHT PANEL / MOBILE: Conversation ===== */}
         {/* Mobile: full-screen conversation with back button */}
-        <div className="flex-1 flex flex-col min-w-0 md:hidden">
+        <div className="flex-1 flex flex-col min-w-0 lg:hidden">
           <ChatConversation
             key={selectedRoomId}
             roomId={selectedRoomId}
@@ -76,7 +76,7 @@ export default function MitraChatClient({ roomId }: { roomId: string }) {
           />
         </div>
         {/* Desktop: embedded conversation panel */}
-        <div className="hidden md:flex flex-1 flex-col min-w-0">
+        <div className="hidden lg:flex flex-1 flex-col min-w-0">
           <ChatConversation
             key={selectedRoomId}
             roomId={selectedRoomId}

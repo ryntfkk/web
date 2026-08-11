@@ -18,6 +18,7 @@ Dokumen ini berisi standar desain UI/UX, aturan komponen, dan guideline untuk pe
 7. [Typography](#7-typography)
 8. [Spacing Tokens](#8-spacing-tokens)
 9. [Component Guidelines](#9-component-guidelines)
+10. [Aksesibilitas (wajib)](#10-aksesibilitas-wajib)
 
 ---
 
@@ -59,7 +60,11 @@ Semua konfigurasi desain utama berada di `src/app/globals.css`:
 
 **Desktop (≥1024px / lg):** Header selalu tampil di semua halaman.
 
-**Mobile (<1024px):** Header hanya tampil di halaman **eksplorasi**:
+**Mobile (<1024px):** Header hanya tampil di halaman **eksplorasi**.
+Daftar otoritatifnya ada di `MOBILE_HIDE_PATHS` + `RESERVED_ROOT_SEGMENTS`
+(`src/components/layout/HeaderWrapper.tsx`) . tabel di bawah hanya ringkasan
+dan **bukan** sumber kebenaran. Rute baru di root WAJIB didaftarkan di sana;
+kalau terlewat, ia dikira profil mitra dan header-nya hilang di mobile.
 
 | Tampilkan Header | Sembunyikan Header |
 |------------------|-------------------|
@@ -72,6 +77,8 @@ Semua konfigurasi desain utama berada di `src/app/globals.css`:
 | `/book/[username]` | `/register` |
 | `/promos` | `/forgot-password` |
 | `/about`, `/help`, `/privacy`, `/terms` | `/mitra/*` |
+| `/services/[id]` | `/jasa/*`, `/kategori/*`, `/legal/*` |
+| | `/bantuan`, `/hapus-akun`, `/disputes/*` |
 
 #### Implementasi
 Gunakan komponen `HeaderWrapper` di `src/components/layout/HeaderWrapper.tsx`:
@@ -91,17 +98,25 @@ import HeaderWrapper from "@/components/layout/HeaderWrapper";
 > **Jangan** import `TopNavbar` langsung ke page. Selalu gunakan `HeaderWrapper` agar logic conditional visibility berfungsi.
 
 ### 2.2 Bottom Navigation (BottomNav)
-- **Mobile only**: Bottom nav tampil di bagian bawah layar
-- **Desktop**: Bottom nav disembunyikan (hidden)
-- Posisi: `fixed bottom-0`, z-index tinggi
+- Tampil **di bawah `lg`** (`lg:hidden`), tempat TopNavbar mengambil alih
+- Posisi: `fixed bottom-0`, `z-50`
+
+> [!CAUTION]
+> **Ambangnya WAJIB `lg`, bukan `md`.** Tiga berkas harus sepakat:
+> `BottomNav` (`lg:hidden`), `HeaderWrapper` (`hidden lg:block`), dan
+> `<body>` (`pb-16 lg:pb-0`). Saat BottomNav sempat memakai `md:hidden`
+> sementara TopNavbar tetap `lg`, rentang **768-1023px** (iPad portrait,
+> Surface, jendela desktop yang di-snap setengah) kehilangan SELURUH navigasi
+> global . yang bawah sudah pergi, yang atas belum datang.
+> Dijaga otomatis oleh `src/components/layout/nav-breakpoint.test.ts`.
 
 ### 2.3 Mobile-First Layout Pattern
+Ruang bottom-nav diberikan SEKALI di `<body>` (`src/app/layout.tsx`):
 ```tsx
-<div className="pb-16 md:pb-0">
-  {/* pb-16 = ruang untuk BottomNav di mobile */}
-  {/* md:pb-0 = tidak ada padding di desktop */}
-</div>
+<body className="… pb-16 lg:pb-0">
 ```
+Halaman **tidak** perlu menambahkannya lagi . shell mitra sempat melakukannya
+dan hasilnya padding ganda 128px di bawah setiap halaman mitra.
 
 ---
 
@@ -171,7 +186,10 @@ Di `globals.css` sudah ada style khusus untuk mobile:
   input, textarea, select {
     padding-top: 0.625rem !important;  /* 10px */
     padding-bottom: 0.625rem !important;
-    font-size: 0.875rem !important;  /* 14px */
+    /* 16px, BUKAN 14px. Font < 16px pada input memicu auto-zoom iOS Safari
+       saat field difokus . layar melompat dan pengguna kehilangan konteks.
+       Jangan "dirapikan" kembali ke 0.875rem. */
+    font-size: 1rem !important;
   }
   
   button {
@@ -267,11 +285,17 @@ Di `globals.css` sudah ada style khusus untuk mobile:
 | `brand-red` | `#b51822` | Primary CTA, highlights |
 | `brand-red-dark` | `#90121a` | Hover states |
 | `brand-red-light` | `#f0eded` | Light backgrounds |
-| `brand-gray-900` | `#1c1b1b` | Primary text |
-| `brand-gray-700` | `#5b403e` | Secondary text |
-| `brand-gray-400` | `#8f6f6d` | Placeholder text |
-| `brand-gray-100` | `#e5e2e1` | Borders, dividers |
-| `brand-gray-50` | `#fcf9f8` | Backgrounds |
+| `brand-gray-900` | `#1c1b1b` | Teks utama |
+| `brand-gray-700` | `#5b403e` | Teks sekunder |
+| `brand-gray-450` | `#876967` | Teks muted (4,95:1 putih / 4,55:1 latar halaman) |
+| `brand-gray-400` | `#7d5f5d` | Teks muted lebih gelap (5,73 / 5,27) |
+| `brand-gray-100` | `#e5e2e1` | Border, pemisah |
+| `brand-gray-60` | `#f7f5f4` | **Latar halaman** |
+| `brand-gray-50` | `#fcf9f8` | Latar kartu/navbar |
+| `brand-blue` | `#1e4fd6` | Link, tab aktif, **ring fokus** |
+
+> Daftar lengkapnya (termasuk seluruh varian `*-soft`, `*-dark`, `*-border`)
+> ada di `@theme` pada `src/app/globals.css` . itulah sumber kebenarannya.
 
 ### 6.2 Semantic Colors
 | Name | Hex | Usage |
@@ -282,22 +306,43 @@ Di `globals.css` sudah ada style khusus untuk mobile:
 | `brand-info` | `#3182CE` | Info states |
 
 ### 6.3 Tailwind Classes
+
+> [!CAUTION]
+> **DILARANG menulis hex di `className`.** Bagian ini dulu justru MENGANJURKAN
+> `text-[#b51822]`; seluruh `src` sudah dibersihkan dari hex dan aturannya kini
+> kebalikannya. Warna baru WAJIB lewat token `@theme` di `globals.css` dulu.
+> Palet Tailwind mentah (`bg-gray-100`, `text-red-500`, …) juga dilarang .
+> keduanya dijaga `src/app/layout-conventions.test.ts`.
+
 ```tsx
-// Text colors
-text-[#b51822]      // Primary red
-text-[#1c1b1b]      // Primary text
-text-[#5b403e]      // Secondary text
-text-[#8f6f6d]      // Muted text
+// Teks
+text-brand-gray-900   // Teks utama
+text-brand-gray-700   // Teks sekunder
+text-brand-gray-450   // Teks muted (sudah lolos WCAG AA)
+text-brand-red        // Aksen / CTA
 
-// Backgrounds
-bg-[#fcf9f8]       // Light background
-bg-[#b51822]       // Primary CTA
-bg-white            // Cards
+// Latar
+bg-brand-gray-60      // Latar halaman
+bg-white              // Kartu
+bg-brand-red          // CTA utama
 
-// Borders
-border-[#e5e2e1]   // Default border
-border-[#b51822]   // Active/focus border
+// Border
+border-brand-gray-100 // Border default
+border-brand-red      // Border aktif
 ```
+
+**Token yang tidak terdefinisi tidak menghasilkan warna apa pun** . Tailwind
+diam saja, dan elemennya mewarisi warna induk. `brand-gray-500`/`-600` sempat
+dipakai 14 kali tanpa pernah ada. Dijaga `src/app/design-tokens.test.ts`
+(membandingkan DEFINISI di `globals.css` dengan PEMAKAIAN di seluruh `src`).
+
+### 6.4 Kontras (WCAG AA)
+
+Teks normal wajib ≥ **4,5:1** terhadap latarnya . dan latar halaman di
+aplikasi ini `bg-brand-gray-60` (#f7f5f4), bukan putih, jadi itulah yang
+dihitung. `brand-gray-450` & `brand-gray-400` sempat gagal (3,13:1 dan 4,14:1)
+di 480 tempat sekaligus; nilainya sudah digelapkan. **Jangan mencerahkannya
+tanpa menghitung ulang rasionya.**
 
 ---
 
@@ -358,12 +403,20 @@ border-[#b51822]   // Active/focus border
 ## 9. Component Guidelines
 
 ### 9.1 Button Variants
+Sumber kebenarannya `src/components/ui/button.tsx` . tabel ini ringkasannya.
+
 | Variant | Style | Usage |
 |---------|-------|-------|
-| Primary | `bg-[#b51822] text-white hover:bg-[#90121a]` | Main CTA |
-| Secondary | `bg-[#f0eded] text-[#5b403e]` | Secondary actions |
-| Ghost | `bg-transparent hover:bg-[#f0eded]` | Tertiary actions |
-| Danger | `bg-[#E53E3E] text-white` | Destructive actions |
+| `primary` | `bg-brand-red text-white hover:bg-brand-red-dark` | CTA utama |
+| `secondary` | `bg-transparent text-brand-red border-brand-red` | Aksi sekunder (outline merah) |
+| `outline` | `bg-transparent text-brand-gray-700 border-brand-gray-100` | Aksi netral |
+| `ghost` | `bg-transparent text-brand-red hover:bg-brand-red-light` | Aksi tersier |
+| `danger` | `bg-brand-error text-white hover:bg-brand-error-dark` | Aksi destruktif |
+| `link` | `bg-transparent text-brand-red hover:underline` | Tautan dalam teks |
+
+State `isLoading` menimpa isi tombol dengan spinner **tanpa mengganti
+children** (children jadi `invisible`), supaya lebar tombol tidak berubah dan
+tombol IKON persegi tidak kebobolan teks.
 
 ### 9.2 Card Component
 ```tsx
@@ -385,6 +438,23 @@ border-[#b51822]   // Active/focus border
   <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
 </div>
 ```
+
+---
+
+## 10. Aksesibilitas (wajib)
+
+Aturan berikut lahir dari cacat nyata, bukan teori . masing-masing pernah
+membuat sebagian pengguna benar-benar buntu.
+
+| Aturan | Kenapa |
+|---|---|
+| Radio/checkbox tersembunyi pakai **`sr-only`**, JANGAN `hidden` | `hidden` = `display:none` = keluar dari urutan tab DAN pohon aksesibilitas. Ketiga metode pembayaran sempat begini, sehingga pembayaran mustahil diselesaikan tanpa tetikus. Dijaga `a11y-conventions.test.ts`. |
+| Kontrol bergaya WAJIB punya indikator fokus tampak | `focus-within:ring-2 focus-within:ring-brand-blue` pada `<label>` pembungkus . bekerja terlepas dari urutan DOM. |
+| Elemen yang bisa diklik = `<button>`/`<Link>`, bukan `<div onClick>` | `<div>` tidak bisa difokus & tidak merespons Enter/Space. |
+| Isi `<button>` hanya phrasing content | `<h3>`/`<p>` di dalam `<button>` = HTML tak valid; pakai `<span className="block">`. |
+| Satu halaman satu `<h1>` | `MobilePageHeader` merender `<h1>` secara default . halaman yang punya H1 sendiri WAJIB mengoper `titleAs="p"`. Dijaga `a11y-conventions.test.ts`. |
+| Status tidak pernah hanya warna | Selalu ikon + teks (lihat `StatusBadge`). |
+| Dialog wajib menahan fokus | `ui/modal` & `MitraModal` sudah: Escape, focus trap dua arah, kembalikan fokus ke pemicu, `aria-labelledby`. |
 
 ---
 
@@ -441,6 +511,10 @@ export default function Page() {
 
 ---
 
-*Document Version: 1.0*
-*Last Updated: 2026-07-12*
-*Maintained by: Frontend Development Team*
+*Document Version: 2.0*
+*Last Updated: 2026-08-11 . diselaraskan dengan kode setelah audit UI/UX
+(`AUDIT-UIUX-WEB-2026-08.md`). Bagian yang dulu bertentangan dengan kode .
+ambang bottom nav, ukuran font input mobile, varian tombol, dan anjuran memakai
+hex mentah . sudah diperbaiki.*
+*Aturan yang punya penjaga otomatis ditandai di tempatnya; ubah TEST-nya bila
+aturannya memang perlu berubah, jangan akali kelasnya.*

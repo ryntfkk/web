@@ -4,13 +4,14 @@ import { getInitial } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, Star, CheckCircle, ImagePlus, X } from 'lucide-react';
+import { Star, CheckCircle, ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { Skeleton, PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useUpload } from '@/hooks/useUpload';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 
 interface OrderInfo {
@@ -202,14 +203,12 @@ export default function ReviewClient() {
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       {/* Header */}
       {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
-            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-          </button>
-          <h1 className="text-base font-bold text-brand-gray-900">Beri Ulasan</h1>
-        </div>
-      </div>
+      {/* Lihat catatan di halaman sengketa . header bersama, titleAs="p". */}
+      <MobilePageHeader
+        title="Beri Ulasan"
+        titleAs="p"
+        backHref={`/orders/${orderId}`}
+      />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Beri Ulasan</h1>

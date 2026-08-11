@@ -67,7 +67,7 @@ export default function ScheduleView({
           {Array.from({ length: 7 }).map((_, i) => (
             <div
               key={i}
-              className="h-[28px] bg-gray-100 animate-pulse rounded-md"
+              className="h-[28px] bg-brand-gray-100 animate-pulse rounded-md"
             />
           ))}
         </div>
@@ -118,7 +118,7 @@ export default function ScheduleView({
               {wh.is_open ? formatRange(wh.open_time, wh.close_time) : '—'}
             </span>
             <span
-              className={`text-[12px] font-medium min-w-[44px] text-right ${wh.is_open ? 'text-green-600' : 'text-red-500'
+              className={`text-[12px] font-medium min-w-[44px] text-right ${wh.is_open ? 'text-brand-success' : 'text-brand-error'
                 }`}
             >
               {wh.is_open ? 'Buka' : 'Tutup'}

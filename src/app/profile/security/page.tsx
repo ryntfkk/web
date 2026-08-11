@@ -70,7 +70,9 @@ export default function SecurityPage() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
-      <MobilePageHeader title="Keamanan Akun" />
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
+      <MobilePageHeader
+        titleAs="p" title="Keamanan Akun" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Keamanan Akun</h1>

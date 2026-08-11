@@ -153,7 +153,7 @@ export default function ReportDialog({
               placeholder="Jelaskan masalahnya…"
             />
 
-            {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
+            {error && <p className="text-xs text-brand-error mb-2">{error}</p>}
 
             <div className="flex justify-end gap-2">
               <button

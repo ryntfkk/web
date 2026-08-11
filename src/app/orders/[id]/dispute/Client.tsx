@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { fetchAPI } from '@/lib/api';
@@ -10,6 +10,7 @@ import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton, Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 
 
 // Harus SAMA dengan validStatuses di backend disputes/service.go CreateDispute.
@@ -125,7 +126,9 @@ export default function DisputeClient() {
   if (loading) {
     return (
       <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+        {/* max-w-lg, sama dengan konten di bawah . skeleton yang lebih lebar
+            membuat halaman menyempit 160px saat data tiba (audit B3). */}
+        <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
           <Skeleton className="h-8 w-40" />
           <div className="rounded-lg border border-brand-gray-100 bg-white p-6 space-y-4">
             <Skeleton className="h-5 w-3/4" />
@@ -141,14 +144,14 @@ export default function DisputeClient() {
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
       {/* Header */}
       {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
-            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-          </button>
-          <h1 className="text-base font-bold text-brand-gray-900">Lapor Masalah</h1>
-        </div>
-      </div>
+      {/* `MobilePageHeader` bersama, bukan header tulis tangan . tinggi, gutter,
+          dan perilaku back-nya jadi sama dengan sisa alur pesanan (audit A5).
+          titleAs="p": H1 halaman ada di badan konten. */}
+      <MobilePageHeader
+        title="Lapor Masalah"
+        titleAs="p"
+        backHref={`/orders/${orderId}`}
+      />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900 mb-6">Lapor Masalah</h1>

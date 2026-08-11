@@ -34,6 +34,7 @@ import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useChatUiStore } from '@/lib/store/chatUiStore';
 import { useRecentlyViewedStore } from '@/lib/store/recentlyViewedStore';
+import ReportDialog from '@/components/ReportDialog';
 import ScheduleView from '@/components/service/ScheduleView';
 import MoreFromPartner from '@/components/service/MoreFromPartner';
 import SimilarServices from '@/components/service/SimilarServices';
@@ -69,6 +70,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
   // Halaman ini publik . auth hanya dicek saat user melakukan aksi
   // (tambah keranjang / pesan), bukan saat melihat halaman.
   const { isAuthenticated } = useAuthStore();
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const { addItem, removeItem, isInCart } = useCartStore();
 
   const { data: service, isLoading, isError, refetch } = useServiceDetail(serviceId);
@@ -158,6 +160,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         service_name: service.name,
         price: vars.find((x) => x.id === selectedVariationId)?.price ?? service.price,
         photo_url: service.photo_url || PLACEHOLDER_SERVICE,
+        // Dibawa ke keranjang supaya stepper di sana tahu batas bawahnya dan
+        // subtotalnya sama dengan yang akan ditagih (audit E4).
+        min_order: service.min_order ?? 1,
+        quantity: service.min_order ?? 1,
         variation_id: vars.find((x) => x.id === selectedVariationId)?.id,
         variation_name: vars.find((x) => x.id === selectedVariationId)?.name,
       });
@@ -207,6 +213,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
         service_name: service.name,
         price: v?.price ?? service.price,
         photo_url: service.photo_url || PLACEHOLDER_SERVICE,
+        // Dibawa ke keranjang supaya stepper di sana tahu batas bawahnya dan
+        // subtotalnya sama dengan yang akan ditagih (audit E4).
+        min_order: service.min_order ?? 1,
+        quantity: service.min_order ?? 1,
         variation_id: v?.id,
         variation_name: v?.name,
       });
@@ -364,6 +374,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
   // memilih, tampilkan harga termurah (= service.price dari backend).
   const serviceSummary = serviceReviews?.summary;
   const hasServiceReviews = (serviceSummary?.total_reviews ?? 0) > 0;
+
+  // Mitra yang membuka layanannya sendiri tidak boleh melaporkan diri sendiri
+  // (pola sama dengan `isOwnProfile` di ProfileHeader).
+  const isOwnService = !!currentUserId && currentUserId === service.partner_user_id;
 
   const variations = service.variations ?? [];
   const hasVariations = variations.length > 0;
@@ -727,10 +741,9 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     {(service.partner_avg_rating ?? 0).toFixed(1)} ({service.partner_total_reviews} ulasan)
                   </span>
                 </div>
-                <div className="flex py-2">
-                  <span className="w-40 flex-shrink-0 text-brand-gray-700">Jumlah Foto</span>
-                  <span className="text-brand-gray-900">{allPhotos.length}</span>
-                </div>
+                {/* Baris "Jumlah Foto" DIHAPUS (audit E12): metadata internal
+                    yang tidak memengaruhi keputusan membeli, dan jumlahnya toh
+                    sudah terlihat dari carousel + thumbnail di atas. */}
               </div>
             </div>
 
@@ -772,7 +785,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                       </h4>
                       <ul className="space-y-2.5">
                         {excludedItems.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2 text-[13px] text-brand-gray-600 leading-relaxed">
+                          <li key={i} className="flex items-start gap-2 text-[13px] text-brand-gray-700 leading-relaxed">
                             <div className="w-1.5 h-1.5 rounded-full bg-brand-gray-300 mt-1.5 flex-shrink-0" />
                             <span className="whitespace-pre-line">{item}</span>
                           </li>
@@ -838,6 +851,18 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* Laporkan layanan.
+                `/help` secara eksplisit menjanjikan tombol ini . "Buka halaman
+                mitra/layanan lalu tekan tombol Laporkan" . dan `ReportDialog`
+                sudah mendukung `targetType="service"` sejak lahir, tapi tidak
+                pernah dipasang di sini. Pelanggan yang mengikuti petunjuk
+                halaman bantuan mencari tombol yang tidak ada (audit E10). */}
+            {!isOwnService && (
+              <div className="mt-4 border-t border-brand-gray-100 pt-4 flex justify-end">
+                <ReportDialog targetType="service" targetId={service.id} />
               </div>
             )}
 

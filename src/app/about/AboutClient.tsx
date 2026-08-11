@@ -17,7 +17,7 @@ export default function AboutClient() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 md:py-14">
-      <h1 className="hidden lg:block text-3xl font-bold text-brand-gray-900 mb-4">Tentang Kami</h1>
+      <h1 className="text-2xl lg:text-3xl font-bold text-brand-gray-900 mb-4">Tentang Kami</h1>
 
       <div className="bg-white rounded-lg border border-brand-gray-100 p-6 md:p-8 space-y-6">
         <p className="text-sm text-brand-gray-700 leading-relaxed">

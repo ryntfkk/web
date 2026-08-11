@@ -5,17 +5,23 @@ import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, ShoppingCart, Bell, User, X, ChevronDown, Package, Wallet, Heart, TicketPercent, HelpCircle, LogOut } from 'lucide-react';
+import { Search, ShoppingCart, Bell, User, X, ChevronDown, Package, Wallet, Heart, TicketPercent, HelpCircle, LogOut, MessageSquare } from 'lucide-react';
 
 import { useAuthStore } from '@/lib/store/authStore';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnreadChatCount } from '@/hooks/useChatRooms';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 
 export default function TopNavbar() {
   const { isAuthenticated, isInitializing, user } = useAuthStore();
   // Logout HARUS lewat useAuth agar sesi server (cookie refresh) benar-benar dicabut.
   const { logout } = useAuth();
   const itemCount = useCartStore((s) => s.itemCount);
+  // Angka SUNGGUHAN. Titik merah lonceng dulu dirender tanpa syarat . menyala
+  // selamanya, termasuk di akun yang baru dibuat (audit A3).
+  const unreadNotifications = useUnreadNotifications();
+  const unreadChats = useUnreadChatCount();
   const userName = user?.name || "Pengguna";
   const userAvatar = user?.avatar_url;
 
@@ -154,14 +160,35 @@ export default function TopNavbar() {
                         )}
                       </button>
 
+                      {/* Chat . di desktop ini SATU-SATUNYA jalan ke /chat.
+                          BottomNav (yang memuat tab Chat) berhenti di `lg`, dan
+                          sebelum ini tidak ada penggantinya: pengguna desktop
+                          harus mengetik URL-nya sendiri (audit A2). */}
+                      <button
+                        className="text-brand-gray-700 hover:text-brand-red transition-colors relative"
+                        onClick={() => router.push('/chat')}
+                        aria-label={`Chat${unreadChats > 0 ? ` (${unreadChats} belum dibaca)` : ''}`}
+                      >
+                        <MessageSquare className="h-5 w-5" />
+                        {unreadChats > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                            {unreadChats > 99 ? '99+' : unreadChats}
+                          </span>
+                        )}
+                      </button>
+
                       {/* Bell Icon */}
                       <button
                         className="text-brand-gray-700 hover:text-brand-red transition-colors relative"
                         onClick={() => router.push('/notifications')}
-                        aria-label="Notifikasi"
+                        aria-label={`Notifikasi${unreadNotifications > 0 ? ` (${unreadNotifications} belum dibaca)` : ''}`}
                       >
                         <Bell className="h-5 w-5" />
-                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-brand-red rounded-full" />
+                        {unreadNotifications > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                            {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                          </span>
+                        )}
                       </button>
 
                       {/* User Avatar with Dropdown */}
@@ -207,6 +234,15 @@ export default function TopNavbar() {
                             <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
                               <Package className="w-4 h-4" />
                               Pesanan Saya
+                            </Link>
+                            <Link href="/chat" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                              <MessageSquare className="w-4 h-4" />
+                              Chat
+                              {unreadChats > 0 && (
+                                <span className="ml-auto min-w-[18px] h-[18px] rounded-full bg-brand-red px-1 text-[10px] font-bold leading-none text-white flex items-center justify-center">
+                                  {unreadChats > 99 ? '99+' : unreadChats}
+                                </span>
+                              )}
                             </Link>
                             <Link href="/profile/wallet" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
                               <Wallet className="w-4 h-4" />
@@ -260,11 +296,15 @@ export default function TopNavbar() {
                       {/* Bell Icon */}
                       <button
                         className="relative flex h-10 w-10 items-center justify-center text-brand-gray-700 hover:text-brand-red transition-colors"
-                        aria-label="Notifikasi"
+                        aria-label={`Notifikasi${unreadNotifications > 0 ? ` (${unreadNotifications} belum dibaca)` : ''}`}
                         onClick={() => router.push('/notifications')}
                       >
                         <Bell className="h-[22px] w-[22px]" />
-                        <span className="absolute top-1.5 right-2 w-2 h-2 bg-brand-red rounded-full" />
+                        {unreadNotifications > 0 && (
+                          <span className="absolute top-0 right-0 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                            {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                          </span>
+                        )}
                       </button>
                     </div>
                   </>

@@ -8,7 +8,9 @@ export default function NotFound() {
         <div className="mx-auto w-16 h-16 bg-brand-red-light rounded-full flex items-center justify-center mb-6">
           <Compass className="w-8 h-8 text-brand-red" />
         </div>
-        <h2 className="text-xl font-bold text-brand-gray-900 mb-2">Halaman Tidak Ditemukan</h2>
+        {/* h1, bukan h2: halaman ini sebelumnya tidak punya heading tingkat
+            satu sama sekali (audit D9). */}
+        <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Halaman Tidak Ditemukan</h1>
         <p className="text-sm text-brand-gray-700 mb-6">
           Maaf, halaman yang Anda cari tidak ada atau telah dipindahkan.
         </p>

@@ -42,7 +42,7 @@ export default async function HapusAkunPage() {
     <div className="page-h bg-brand-gray-60">
       <MobilePageHeader title="Hapus Akun" titleAs="p" backHref="/" maxWidthClass="max-w-2xl" />
       <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
-        <h1 className="hidden lg:block text-3xl font-bold text-brand-gray-900 mb-2">
+        <h1 className="text-2xl lg:text-3xl font-bold text-brand-gray-900 mb-2">
           Permintaan Hapus Akun
         </h1>
         <p className="text-sm text-brand-gray-700 mb-8">

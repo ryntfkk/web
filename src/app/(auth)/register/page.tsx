@@ -117,7 +117,7 @@ function RegisterContent() {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
                     placeholder="081234567890"
                   />
                 </div>
@@ -180,7 +180,7 @@ function RegisterContent() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-4 py-4 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all"
+                    className="appearance-none block w-full text-center text-2xl tracking-[0.5em] px-4 py-4 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all"
                     placeholder="••••••"
                   />
                 </div>
@@ -221,7 +221,7 @@ function RegisterContent() {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
                     placeholder="username123"
                   />
                 </div>
@@ -239,7 +239,7 @@ function RegisterContent() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
                     placeholder="Budi Santoso"
                   />
                 </div>
@@ -258,7 +258,7 @@ function RegisterContent() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-2xl shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all pr-12"
+                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all pr-12"
                     placeholder="Minimal 8 karakter"
                   />
                   <button

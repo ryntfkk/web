@@ -13,10 +13,12 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useToast } from '@/components/ui/toast';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import EmailVerificationNotice from '@/components/mitra/EmailVerificationNotice';
+import Image from 'next/image';
 
 
 interface DashboardData {
@@ -48,7 +50,10 @@ export default function MitraDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [togglingStatus, setTogglingStatus] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  // Satu sumber dengan lonceng TopNavbar . dulu dashboard ini menembak
+  // `/notifications/unread-count` sendiri di dalam fetchData, sementara sisi
+  // pelanggan tidak memakainya sama sekali (audit A3).
+  const unreadCount = useUnreadNotifications();
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -72,10 +77,7 @@ export default function MitraDashboardPage() {
 
   const fetchData = async (silent = false) => {
     if (!silent) setLoading(true);
-    const [res, unreadRes] = await Promise.all([
-      fetchAPI<any>('/partners/me/dashboard'),
-      fetchAPI<any>('/notifications/unread-count')
-    ]);
+    const res = await fetchAPI<any>('/partners/me/dashboard');
     if (res.success && res.data) {
       // Backend mengirim `status` ('ACTIVE'/'INACTIVE'). Fallback ke `is_online`
       // hanya bila `status` absen, agar indikator tidak terkunci di "Tutup Sementara".
@@ -83,9 +85,6 @@ export default function MitraDashboardPage() {
       // Go mengirim `null` untuk slice kosong; normalkan ke array agar
       // pengecekan `.length === 0` (empty state) tetap jalan.
       setData({ ...res.data, status, active_orders: res.data.active_orders ?? [] });
-    }
-    if (unreadRes.success && unreadRes.data) {
-      setUnreadCount(unreadRes.data.unread_count || 0);
     }
     setLoading(false);
   };
@@ -144,7 +143,9 @@ export default function MitraDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white text-brand-red flex items-center justify-center font-bold overflow-hidden shrink-0">
-                {user?.avatar_url ? <img src={user?.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : getInitial(user?.name || '')}
+                {user?.avatar_url
+                  ? <Image src={user.avatar_url} alt="Foto profil" width={40} height={40} className="w-full h-full object-cover" />
+                  : getInitial(user?.name || '')}
               </div>
               <div>
                 <p className="text-xs text-white/80">Halo Mitra,</p>
@@ -190,9 +191,12 @@ export default function MitraDashboardPage() {
 
         {/* Stats */}
         {loading ? (
+          /* Bentuknya harus SAMA dengan grid aslinya . dua kartu placeholder
+             untuk grid berisi tiga membuat isinya melompat saat data tiba. */
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 animate-pulse">
-            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 h-20" />
-            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 h-20" />
+            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
+            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
+            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20 col-span-2" />
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">

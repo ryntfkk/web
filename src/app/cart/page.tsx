@@ -12,7 +12,7 @@ import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Price } from '@/components/ui/price';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatRupiah } from '@/lib/format';
-import { useCartStore, CartItem } from '@/lib/store/cartStore';
+import { useCartStore, lineQty, lineTotal, cartTotal, minOrderOf, type CartItem } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 
 interface PartnerGroup {
@@ -28,7 +28,7 @@ interface PartnerGroup {
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeItem, clearCart } = useCartStore();
+  const { items, removeItem, clearCart, setQuantity } = useCartStore();
   const { isAuthenticated } = useAuthStore();
 
   // Hindari hydration mismatch: store dipersist di localStorage,
@@ -53,12 +53,14 @@ export default function CartPage() {
       }
       const group = map.get(key)!;
       group.items.push(item);
-      group.subtotal += item.price;
+      group.subtotal += lineTotal(item);
     }
     return Array.from(map.values());
   }, [items]);
 
-  const total = useMemo(() => items.reduce((sum, i) => sum + i.price, 0), [items]);
+  // Kuantitas IKUT dihitung . tanpa itu angka di keranjang lebih kecil
+  // daripada yang benar-benar ditagih saat checkout (audit E4).
+  const total = useMemo(() => cartTotal(items), [items]);
 
   const handleCheckout = (group: PartnerGroup) => {
     if (!isAuthenticated) {
@@ -69,7 +71,10 @@ export default function CartPage() {
     // Sejajarkan variation_ids dengan service_ids (slot kosong = tanpa variasi).
     const varIds = group.items.map((i) => i.variation_id ?? '').join(',');
     const varParam = group.items.some((i) => i.variation_id) ? `&variation_ids=${varIds}` : '';
-    router.push(`/book/${group.partner_username}?service_ids=${ids}${varParam}`);
+    // Kuantitas ikut dibawa, sejajar per indeks . kalau tidak, apa pun yang
+    // dipilih pelanggan di keranjang di-reset ke min_order di langkah booking.
+    const qtyParam = `&quantities=${group.items.map((i) => lineQty(i)).join(',')}`;
+    router.push(`/book/${group.partner_username}?service_ids=${ids}${varParam}${qtyParam}`);
   };
 
   if (!mounted) {
@@ -98,7 +103,9 @@ export default function CartPage() {
     // pb mobile: ruang untuk StickyActionBar (h-16+). lg+: standar.
     <div className="page-h bg-brand-gray-60 pb-24 lg:pb-10">
       {/* Header (mobile) */}
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
+        titleAs="p"
         title={items.length > 0 ? `Keranjang (${items.length})` : 'Keranjang'}
         maxWidthClass="max-w-3xl"
         right={
@@ -165,29 +172,70 @@ export default function CartPage() {
 
                 {/* Items . kartu horizontal yang sama dengan halaman booking */}
                 <div className="p-3 space-y-2">
-                  {group.items.map((item) => (
-                    <ServiceItemCard
-                      key={`${item.service_id}::${item.variation_id ?? ''}`}
-                      name={item.variation_name ? `${item.service_name} - ${item.variation_name}` : item.service_name}
-                      price={item.price}
-                      photoUrl={item.photo_url || undefined}
-                      action={
-                        <button
-                          onClick={() => removeItem(item.service_id, item.variation_id)}
-                          className="p-2 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded-lg shrink-0 transition-colors"
-                          aria-label={`Hapus ${item.service_name}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      }
-                    />
-                  ))}
+                  {group.items.map((item) => {
+                    const qty = lineQty(item);
+                    const min = minOrderOf(item);
+                    return (
+                      <div key={`${item.service_id}::${item.variation_id ?? ''}`} className="space-y-2">
+                        <ServiceItemCard
+                          name={item.variation_name ? `${item.service_name} - ${item.variation_name}` : item.service_name}
+                          price={item.price}
+                          photoUrl={item.photo_url || undefined}
+                          action={
+                            <button
+                              onClick={() => removeItem(item.service_id, item.variation_id)}
+                              className="p-2 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded-lg shrink-0 transition-colors"
+                              aria-label={`Hapus ${item.service_name}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          }
+                        />
+                        {/* Stepper kuantitas . sebelumnya keranjang tidak mengenal
+                            jumlah sama sekali, jadi pelanggan harus menunggu
+                            langkah 2 booking untuk mengubahnya (audit E4). */}
+                        <div className="flex items-center justify-between gap-3 px-1">
+                          <div className="text-xs text-brand-gray-450">
+                            {min > 1 ? `Min. ${min} unit` : 'Jumlah'}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              aria-label={`Kurangi jumlah ${item.service_name}`}
+                              onClick={() => setQuantity(item.service_id, item.variation_id, qty - 1)}
+                              disabled={qty <= min}
+                              className="w-8 h-8 rounded-md border border-brand-gray-100 text-brand-gray-900 disabled:opacity-40 disabled:cursor-not-allowed hover:border-brand-red transition-colors"
+                            >
+                              −
+                            </button>
+                            <span className="min-w-8 text-center text-sm font-semibold text-brand-gray-900" aria-live="polite">
+                              {qty}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label={`Tambah jumlah ${item.service_name}`}
+                              onClick={() => setQuantity(item.service_id, item.variation_id, qty + 1)}
+                              disabled={qty >= 100}
+                              className="w-8 h-8 rounded-md border border-brand-gray-100 text-brand-gray-900 disabled:opacity-40 disabled:cursor-not-allowed hover:border-brand-red transition-colors"
+                            >
+                              +
+                            </button>
+                            <span className="ml-1 text-sm font-semibold text-brand-gray-900 tabular-nums">
+                              {formatRupiah(lineTotal(item))}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Group footer */}
                 <div className="flex items-center justify-between px-4 py-3 border-t border-brand-gray-100 bg-brand-gray-55">
                   <div>
-                    <p className="text-xs text-brand-gray-450">Subtotal ({group.items.length} layanan)</p>
+                    <p className="text-xs text-brand-gray-450">
+                      Subtotal ({group.items.reduce((n, i) => n + lineQty(i), 0)} unit · {group.items.length} layanan)
+                    </p>
                     <Price price={group.subtotal} />
                   </div>
                   <Button

@@ -98,12 +98,23 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
 
           {/* Rating + City */}
           <div className="flex items-center gap-2 mb-2">
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <Star className="w-3 h-3 fill-brand-warning text-brand-warning" />
-              <span className="text-[12px] sm:text-[13px] font-medium text-brand-gray-900">
-                {service.partner_avg_rating?.toFixed(1) || '0.0'}
+            {/* Mitra tanpa ulasan tampil "Baru", BUKAN "0.0" berbintang emas.
+                Angka nol di sebelah bintang terbaca "dinilai sangat buruk",
+                bukan "belum dinilai" . dan itu merugikan mitra baru persis di
+                kartu hasil pencarian (audit E6). Pola yang benar sudah dipakai
+                halaman detail pesanan. */}
+            {(service.partner_avg_rating ?? 0) > 0 ? (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <Star className="w-3 h-3 fill-brand-warning text-brand-warning" />
+                <span className="text-[12px] sm:text-[13px] font-medium text-brand-gray-900">
+                  {service.partner_avg_rating!.toFixed(1)}
+                </span>
+              </div>
+            ) : (
+              <span className="text-[11px] sm:text-[12px] font-medium text-brand-gray-450 flex-shrink-0">
+                Mitra baru
               </span>
-            </div>
+            )}
             {service.partner_city && (
               <div className="flex items-center gap-0.5 text-brand-gray-700 min-w-0 ml-auto">
                 <MapPin className="w-3 h-3 flex-shrink-0" />

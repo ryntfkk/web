@@ -14,7 +14,9 @@ export default function SupportListPage() {
     // dan 100dvh penuh membuat setiap halaman melebihi viewport (scrollbar
     // palsu di halaman yang isinya cuma beberapa kartu).
     <div className="page-h bg-brand-gray-60 pb-10">
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
+        titleAs="p"
         title="Chat Customer Service"
         subtitle="Bantuan untuk akun pelanggan"
         icon={<LifeBuoy className="w-5 h-5 text-brand-red" />}

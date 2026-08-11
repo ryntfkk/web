@@ -22,9 +22,15 @@ export default function GlobalError({
         <div className="mx-auto w-16 h-16 bg-brand-error-soft rounded-full flex items-center justify-center mb-6">
           <AlertCircle className="w-8 h-8 text-brand-red" />
         </div>
-        <h2 className="text-xl font-bold text-brand-gray-900 mb-2">Terjadi Kesalahan</h2>
+        <h1 className="text-xl font-bold text-brand-gray-900 mb-2">Terjadi Kesalahan</h1>
+        {/* Kalimat lama berbunyi "Tim kami telah diberitahu" . padahal satu-
+            satunya pelaporan di berkas ini adalah `console.error`, dan tidak ada
+            layanan pelaporan error yang terpasang. Pengguna yang membacanya
+            menganggap tidak perlu melapor, lalu galatnya hilang bersama tabnya
+            (audit F3). Sampai pelaporan sungguhan dipasang, ajak melapor. */}
         <p className="text-sm text-brand-gray-700 mb-6">
-          Maaf, terjadi kesalahan tak terduga pada sistem kami. Tim kami telah diberitahu.
+          Maaf, terjadi kesalahan tak terduga. Coba muat ulang halamannya . bila
+          masih terjadi, beri tahu kami lewat menu Bantuan agar bisa kami perbaiki.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button

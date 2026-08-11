@@ -9,7 +9,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "default", type = "button", isLoading, children, disabled, ...props }, ref) => {
+    // `relative` dipakai state loading: spinner diposisikan absolut di tengah
+    // sementara isi aslinya tetap ada (invisible) supaya lebar tombol TIDAK
+    // berubah saat memuat.
     const baseStyles = `
+      relative
       inline-flex items-center justify-center
       font-bold text-[14px] leading-none
       rounded-md border border-transparent
@@ -69,29 +73,45 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? (
-          <span className="flex items-center gap-2">
-            <svg
-              className="animate-spin h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            <span>Loading...</span>
-          </span>
+          /*
+           * Spinner MENIMPA isi, bukan menggantikannya.
+           *
+           * Versi lama mengganti seluruh children dengan spinner + teks
+           * "Loading..." . dua masalah sekaligus: (1) pada tombol ikon persegi
+           * (`h-11 w-11 p-0`, mis. tombol Chat di halaman layanan) teksnya
+           * meluber keluar kotak, dan (2) "Loading..." adalah satu-satunya
+           * kata Inggris di UI yang sepenuhnya berbahasa Indonesia (audit D3/C8).
+           *
+           * Dengan isi asli dipertahankan tapi `invisible`, lebar tombol tidak
+           * berubah saat memuat . jadi tidak ada pula pergeseran tata letak.
+           */
+          <>
+            <span className="absolute inset-0 flex items-center justify-center">
+              <svg
+                className="animate-spin h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                role="img"
+                aria-label="Memuat"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </span>
+            <span className="invisible inline-flex items-center">{children}</span>
+          </>
         ) : (
           children
         )}

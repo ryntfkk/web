@@ -84,7 +84,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`h-full antialiased ${inter.variable}`}>
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground pb-16 md:pb-0">
+      {/* `pb-16 lg:pb-0` = ruang untuk BottomNav, dan ambangnya WAJIB sama dengan
+          ambang BottomNav (`lg:hidden`) serta TopNavbar (`hidden lg:block`).
+          Dulu `md:pb-0`, sementara navbar baru muncul di `lg` . di antara keduanya
+          (768-1023px: iPad portrait, layar terbagi) tidak ada nav sama sekali dan
+          `page-h` (100dvh-4rem) menyisakan 64px kosong di dasar layar. */}
+      <body className="min-h-full flex flex-col font-sans bg-background text-foreground pb-16 lg:pb-0">
         <QueryProvider>
           <AuthProvider>
             <ChatProvider>

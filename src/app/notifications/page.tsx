@@ -6,7 +6,9 @@ import { Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign } fr
 import { notificationSpec } from '@/lib/notification-types';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useRefreshUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ListItemSkeleton } from '@/components/ui/skeleton';
 
@@ -24,6 +26,8 @@ interface Notification {
   created_at: string;
 }
 
+const PER_PAGE = 20;
+
 export default function NotificationsPage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
@@ -31,34 +35,56 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  // Badge lonceng di TopNavbar membaca query terpisah . tanpa invalidasi ini ia
+  // tetap menampilkan angka lama sampai interval berikutnya, tepat setelah
+  // pengguna menekan "Tandai semua dibaca".
+  const refreshUnreadBadge = useRefreshUnreadNotifications();
 
   useEffect(() => {
-    fetchNotifications();
+    fetchNotifications(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  const fetchNotifications = async () => {
-    setLoading(true);
-    const res = await fetchAPI<any>('/notifications');
+  /**
+   * Paginasi . backend SUDAH mendukungnya (`page` & `per_page`, lengkap dengan
+   * metadata `pagination`), tapi halaman ini dulu memanggil `/notifications`
+   * tanpa parameter apa pun dan tidak punya tombol muat-lagi. Notifikasi lama
+   * jadi tak terjangkau begitu melewati batas bawaan (audit E8).
+   */
+  const fetchNotifications = async (targetPage: number) => {
+    const append = targetPage > 1;
+    if (append) setLoadingMore(true);
+    else setLoading(true);
+
+    const res = await fetchAPI<any>(`/notifications?page=${targetPage}&per_page=${PER_PAGE}`);
     if (res.success && res.data) {
-      const list = Array.isArray(res.data)
+      const list: Notification[] = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data?.data)
           ? res.data.data
           : [];
-      setNotifications(list);
+      setNotifications((prev) => (append ? [...prev, ...list] : list));
+      setTotal(res.pagination?.total ?? list.length);
+      setPage(targetPage);
     }
     setLoading(false);
+    setLoadingMore(false);
   };
 
   const handleMarkAllRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     await fetchAPI('/notifications/read-all', { method: 'PUT' });
+    refreshUnreadBadge();
   };
 
   const handleNotificationClick = async (n: Notification) => {
     if (!n.is_read) {
       setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, is_read: true } : item));
       await fetchAPI(`/notifications/${n.id}/read`, { method: 'PUT' });
+      refreshUnreadBadge();
     }
     
     const ref = n.reference_id || n.metadata?.order_id;
@@ -148,37 +174,49 @@ export default function NotificationsPage() {
     .filter((g) => g.items.length > 0);
 
   const renderCard = (n: Notification) => (
-    <div
+    // `button`, bukan `div onClick`: seluruh kotak masuk notifikasi dulu tak
+    // bisa dibuka dengan keyboard sama sekali (audit D4). `text-left` +
+    // `w-full` mempertahankan tampilan kartunya.
+    <button
+      type="button"
       key={n.id}
       onClick={() => handleNotificationClick(n)}
-      className={`bg-white rounded-lg border border-brand-gray-100 p-4 flex gap-4 cursor-pointer transition-colors ${!n.is_read ? 'bg-brand-error-soft border-brand-error-border' : 'hover:bg-brand-gray-60'}`}
+      className={`w-full text-left bg-white rounded-lg border border-brand-gray-100 p-4 flex gap-4 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue ${!n.is_read ? 'bg-brand-error-soft border-brand-error-border' : 'hover:bg-brand-gray-60'}`}
     >
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-white' : 'bg-brand-gray-60'}`}>
+      <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-white' : 'bg-brand-gray-60'}`}>
         {getIcon(n.type)}
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className={`text-sm mb-1 ${!n.is_read ? 'font-bold text-brand-gray-900' : 'font-semibold text-brand-gray-700'}`}>
+      </span>
+      {/* `span`, bukan h3/p: model isi <button> adalah phrasing content, dan
+          heading/paragraf di dalamnya menghasilkan HTML tak valid. Tampilannya
+          tidak berubah (`block` + kelas yang sama), dan nama aksesibel tombolnya
+          justru menjadi judul + isi + waktu sekaligus . persis yang berguna
+          dibacakan pembaca layar. */}
+      <span className="flex-1 min-w-0">
+        <span className={`block text-sm mb-1 ${!n.is_read ? 'font-bold text-brand-gray-900' : 'font-semibold text-brand-gray-700'}`}>
           {n.title}
-        </h3>
-        <p className={`text-sm mb-2 leading-snug ${!n.is_read ? 'text-brand-gray-800' : 'text-brand-gray-450'}`}>
+        </span>
+        <span className={`block text-sm mb-2 leading-snug ${!n.is_read ? 'text-brand-gray-800' : 'text-brand-gray-450'}`}>
           {n.body}
-        </p>
-        <p className="text-[10px] text-brand-gray-450 font-medium uppercase tracking-wide">
+        </span>
+        <span className="block text-[10px] text-brand-gray-450 font-medium uppercase tracking-wide">
           {formatTime(n.created_at)}
-        </p>
-      </div>
+        </span>
+      </span>
       {!n.is_read && (
-        <div className="shrink-0 pt-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-brand-red" />
-        </div>
+        <span className="shrink-0 pt-1.5">
+          <span className="block w-2.5 h-2.5 rounded-full bg-brand-red" />
+        </span>
       )}
-    </div>
+    </button>
   );
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
+        titleAs="p"
         title="Notifikasi"
+        maxWidthClass="max-w-3xl"
         right={unreadCount > 0 ? (
           <button onClick={handleMarkAllRead} className="text-sm font-semibold text-brand-red hover:underline">
             Tandai semua dibaca
@@ -186,7 +224,7 @@ export default function NotificationsPage() {
         ) : undefined}
       />
 
-      <div className="hidden lg:flex max-w-lg mx-auto px-4 pt-8 items-center justify-between gap-3">
+      <div className="hidden lg:flex max-w-3xl mx-auto px-4 pt-8 items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-brand-gray-900">Notifikasi</h1>
         {unreadCount > 0 && (
           <button onClick={handleMarkAllRead} className="text-sm font-semibold text-brand-red hover:underline">
@@ -195,9 +233,14 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-4">
+      {/* max-w-3xl: kotak masuk adalah DAFTAR, dan pada 512px ia jadi pita
+          tipis di tengah layar 1440px (audit B2). */}
+      <div className="max-w-3xl mx-auto px-4 py-4">
         {/* Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar">
+        {/* `scrollbar-hide`, bukan `hide-scrollbar`: yang didefinisikan di
+            globals.css adalah yang pertama . nama lama tidak pernah cocok
+            dengan apa pun, jadi scrollbar-nya tetap tampil (audit C3). */}
+        <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
           <button 
             onClick={() => setActiveFilter('all')}
             className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'all' ? 'bg-brand-red text-white' : 'bg-white border border-brand-gray-100 text-brand-gray-700 hover:bg-brand-gray-60'}`}
@@ -232,6 +275,14 @@ export default function NotificationsPage() {
                 </div>
               </div>
             ))}
+
+            {notifications.length < total && (
+              <div className="pt-2 text-center">
+                <Button variant="outline" onClick={() => fetchNotifications(page + 1)} disabled={loadingMore}>
+                  {loadingMore ? 'Memuat…' : `Muat lebih banyak (${notifications.length}/${total})`}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

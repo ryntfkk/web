@@ -133,12 +133,12 @@ export default function AdditionalFeeFormClient() {
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Tipe Biaya</label>
             <div className="grid grid-cols-2 gap-3">
-              <label className={`block p-3 rounded-lg border text-center cursor-pointer transition-colors text-sm font-semibold ${form.type === 'extra_service' ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 bg-white text-brand-gray-700'}`}>
-                <input type="radio" name="type" className="hidden" checked={form.type === 'extra_service'} onChange={() => setForm({ ...form, type: 'extra_service' })} />
+              <label className={`block p-3 rounded-lg border text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue text-sm font-semibold ${form.type === 'extra_service' ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 bg-white text-brand-gray-700'}`}>
+                <input type="radio" name="type" className="sr-only" checked={form.type === 'extra_service'} onChange={() => setForm({ ...form, type: 'extra_service' })} />
                 Jasa Ekstra
               </label>
-              <label className={`block p-3 rounded-lg border text-center cursor-pointer transition-colors text-sm font-semibold ${form.type === 'material' ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 bg-white text-brand-gray-700'}`}>
-                <input type="radio" name="type" className="hidden" checked={form.type === 'material'} onChange={() => setForm({ ...form, type: 'material' })} />
+              <label className={`block p-3 rounded-lg border text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue text-sm font-semibold ${form.type === 'material' ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 bg-white text-brand-gray-700'}`}>
+                <input type="radio" name="type" className="sr-only" checked={form.type === 'material'} onChange={() => setForm({ ...form, type: 'material' })} />
                 Material / Sparepart
               </label>
             </div>

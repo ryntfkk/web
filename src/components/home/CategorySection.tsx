@@ -29,13 +29,13 @@ export default function CategorySection() {
               key={i}
               className="flex-shrink-0 w-[72px] sm:w-[88px] lg:w-auto flex flex-col items-center gap-2"
             >
-              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] bg-gray-200 rounded-[14px] lg:rounded-xl animate-pulse" />
-              <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
+              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] bg-brand-gray-200 rounded-2xl lg:rounded-xl animate-pulse" />
+              <div className="w-12 h-3 bg-brand-gray-200 rounded animate-pulse" />
             </div>
           ))}
         </div>
       ) : isError ? (
-        <div className="text-sm text-red-500">Gagal memuat kategori.</div>
+        <div className="text-sm text-brand-error">Gagal memuat kategori.</div>
       ) : (
         <div className="grid grid-rows-2 grid-flow-col lg:grid-rows-none lg:grid-flow-row lg:grid-cols-4 gap-x-3 gap-y-4 sm:gap-x-4 sm:gap-y-5 lg:gap-x-2 lg:gap-y-3 pb-4 lg:pb-0 overflow-x-auto snap-x lg:snap-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayCategories.map((cat: Category) => (
@@ -46,7 +46,7 @@ export default function CategorySection() {
               aria-haspopup="dialog"
               className="group flex-shrink-0 w-[72px] sm:w-[88px] lg:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
             >
-              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] mb-2 lg:mb-1.5 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-[14px] sm:rounded-2xl lg:rounded-xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
+              <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] mb-2 lg:mb-1.5 flex items-center justify-center bg-brand-gray-50 border border-brand-gray-100 rounded-2xl lg:rounded-xl group-hover:border-brand-red group-hover:shadow-md transition-all relative overflow-hidden">
                 <Image
                   src={cat.icon_url || '/icons/default.svg'}
                   alt={cat.name}
@@ -66,7 +66,7 @@ export default function CategorySection() {
             href="/categories"
             className="group flex-shrink-0 w-[72px] sm:w-[88px] lg:w-auto flex flex-col items-center justify-start snap-start cursor-pointer"
           >
-            <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] mb-2 lg:mb-1.5 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-[14px] sm:rounded-2xl lg:rounded-xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
+            <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] mb-2 lg:mb-1.5 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-2xl lg:rounded-xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
               <span className="text-brand-red font-bold text-[20px] sm:text-[24px] lg:text-[20px]">+</span>
             </div>
             <span className="text-[10px] sm:text-[11px] lg:text-[11px] font-medium text-brand-red text-center leading-[1.1] px-1">
@@ -128,7 +128,7 @@ function SubcategoryDrawer({ main, onClose }: { main: Category; onClose: () => v
         {isLoading ? (
           <div className="flex flex-wrap gap-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-8 w-24 animate-pulse rounded-full bg-gray-200" />
+              <div key={i} className="h-8 w-24 animate-pulse rounded-full bg-brand-gray-200" />
             ))}
           </div>
         ) : !subs || subs.length === 0 ? (

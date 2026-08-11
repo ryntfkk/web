@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent, CreditCard, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
@@ -221,7 +221,10 @@ export default function ProfilePage() {
           <MenuListItem icon={Package} label="Pesanan" subtitle="Riwayat & status pesanan" badge={orders.length} href="/orders" />
           {/* Dompet wajib bisa diakses pelanggan: refund pembatalan/no-show
               masuk ke saldo, dan sebelumnya tidak ada satu pun jalan ke sini. */}
-          <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo & riwayat refund" href="/profile/wallet" />
+          <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo, tarik dana & riwayat refund" href="/profile/wallet" />
+          {/* Tujuan pencairan saldo. Tanpa baris ini satu-satunya jalan ke
+              halaman rekening adalah lewat tombol di dalam form penarikan. */}
+          <MenuListItem icon={CreditCard} label="Rekening Bank" subtitle="Tujuan pencairan saldo" href="/profile/bank-account" />
           <MenuListItem icon={TicketPercent} label="Promo" subtitle="Voucher & diskon aktif" href="/promos" />
           <MenuListItem icon={Heart} label="Favorit" subtitle="Mitra & layanan tersimpan" href="/profile/favorites" />
           <MenuListItem icon={Mail} label="Notifikasi" subtitle="Email, push notification" href="/profile/notifications" />
@@ -231,6 +234,10 @@ export default function ProfilePage() {
           <MenuListItem icon={Phone} label="Hubungi Kami" subtitle="FAQ, bantuan" href="/help" />
           <MenuListItem icon={FileText} label="Syarat & Ketentuan" href="/terms" />
           <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
+          {/* Satu-satunya tautan ke sini dulu ada di Footer, dan Footer
+              `hidden md:block` . jadi pengguna ponsel, mayoritas pengguna,
+              tidak punya jalan ke penghapusan akun sama sekali (audit A4). */}
+          <MenuListItem icon={Trash2} label="Hapus Akun" subtitle="Ajukan penghapusan akun permanen" href="/hapus-akun" />
         </MenuCard>
 
         {logoutButton}
@@ -318,7 +325,8 @@ export default function ProfilePage() {
                   </div>
                   <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
                   <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
-                  <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo & riwayat refund" href="/profile/wallet" />
+                  <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo, tarik dana & riwayat refund" href="/profile/wallet" />
+                  <MenuListItem icon={CreditCard} label="Rekening Bank" subtitle="Tujuan pencairan saldo" href="/profile/bank-account" />
                   <MenuListItem icon={TicketPercent} label="Promo" subtitle="Voucher & diskon aktif" href="/promos" />
                 </MenuCard>
 
@@ -480,6 +488,7 @@ export default function ProfilePage() {
                 <MenuCard title="Bantuan & Legal">
                   <MenuListItem icon={FileText} label="Syarat & Ketentuan" href="/terms" />
                   <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
+                  <MenuListItem icon={Trash2} label="Hapus Akun" subtitle="Ajukan penghapusan akun permanen" href="/hapus-akun" />
                 </MenuCard>
               </div>
             )}

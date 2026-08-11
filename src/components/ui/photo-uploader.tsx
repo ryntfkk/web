@@ -105,7 +105,9 @@ function PhotoPreview({ file, onRemove }: { file: File, onRemove: () => void }) 
 
   return (
     <div className="group relative aspect-square overflow-hidden rounded-md border border-brand-gray-100 transition-transform duration-200 hover:scale-[1.02] hover:shadow-md">
-      {url && <img src={url} alt={`Preview`} className="h-full w-full object-cover" />}
+      {/* Selalu `blob:` . `url` diisi dari URL.createObjectURL di komponen ini. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      {url && <img src={url} alt="Pratinjau foto" className="h-full w-full object-cover" />}
       <button
         type="button"
         onClick={onRemove}

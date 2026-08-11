@@ -105,7 +105,9 @@ export default function AccountPage() {
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10 relative">
 
-      <MobilePageHeader title="Informasi Akun" backHref="/profile" />
+      {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
+      <MobilePageHeader
+        titleAs="p" title="Informasi Akun" backHref="/profile" />
 
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">

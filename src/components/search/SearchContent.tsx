@@ -36,6 +36,8 @@ export default function SearchContent({ query }: SearchContentProps) {
         minRating={listing.minRating}
         onMinRatingChange={listing.setMinRating}
         sort={listing.sort}
+        sortDir={listing.sortDir}
+        onSortDirChange={listing.setSortDir}
         partnerType={listing.partnerType}
         onPartnerTypeChange={listing.setPartnerType}
         onSortChange={listing.setSort}
