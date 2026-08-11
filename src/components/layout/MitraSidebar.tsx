@@ -3,11 +3,23 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { RefreshCw, ClipboardCheck } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Package,
+  Wrench,
+  CalendarDays,
+  MessageSquare,
+  Star,
+  Wallet,
+  User,
+  ShieldCheck,
+  HelpCircle,
+  RefreshCw,
+  ClipboardCheck,
+} from 'lucide-react';
 
 import { useUnreadChatCount } from '@/hooks/useChatRooms';
 import { canAccess } from '@/lib/mitra-access';
-import { MITRA_MAIN_ITEMS, MITRA_FOOTER_ITEMS, type MitraNavItem } from '@/lib/mitra-nav';
 import type { PartnerApplicationStatus } from '@/hooks/usePartnerVerificationStatus';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 
@@ -20,10 +32,21 @@ import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
  * memperbesar objek.
  */
 
-// Definisi menu dipindah ke `@/lib/mitra-nav` agar dipakai bersama
-// MitraBottomNav (audit A7) . jangan definisikan ulang di sini.
-const MAIN_ITEMS = MITRA_MAIN_ITEMS;
-const FOOTER_ITEMS = MITRA_FOOTER_ITEMS;
+const MAIN_ITEMS = [
+  { href: '/mitra/dashboard', label: 'Ringkasan', icon: LayoutDashboard },
+  { href: '/mitra/orders', label: 'Pesanan', icon: Package },
+  { href: '/mitra/services', label: 'Layanan', icon: Wrench },
+  { href: '/mitra/schedule', label: 'Jadwal', icon: CalendarDays },
+  { href: '/mitra/chat', label: 'Chat', icon: MessageSquare },
+  { href: '/mitra/reviews', label: 'Ulasan', icon: Star },
+  { href: '/mitra/wallet', label: 'Keuangan', icon: Wallet },
+];
+
+const FOOTER_ITEMS = [
+  { href: '/mitra/profile', label: 'Profil Bisnis', icon: User },
+  { href: '/mitra/verification-status', label: 'Dokumen & Verifikasi', icon: ShieldCheck },
+  { href: '/mitra/bantuan', label: 'Bantuan', icon: HelpCircle },
+];
 
 interface Props {
   verification: PartnerApplicationStatus | undefined;
@@ -39,7 +62,7 @@ export default function MitraSidebar({ verification }: Props) {
   // mitra kembali ke halaman status adalah jebakan, bukan navigasi.
   const mainItems = MAIN_ITEMS.filter((item) => canAccess(item.href, verification));
 
-  const renderItem = (item: MitraNavItem) => {
+  const renderItem = (item: (typeof MAIN_ITEMS)[number]) => {
     const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
     const Icon = item.icon;
     return (

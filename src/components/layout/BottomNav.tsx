@@ -45,9 +45,7 @@ export default function BottomNav() {
     // di bawah `lg` (768-1023px) nav ini justru satu-satunya navigasi yang ada.
     return (
       <div className="lg:hidden">
-        {/* active_role 'partner' hanya untuk mitra yang SUDAH disetujui
-            (lihat canEnterMitraShell), jadi navigasinya = versi approved penuh. */}
-        <MitraBottomNav verification="APPROVED" />
+        <MitraBottomNav />
       </div>
     );
   }

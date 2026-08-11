@@ -167,7 +167,7 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
           excluded flow: bilah aksi halaman jadi satu-satunya CTA bawah, dan
           tombol back di MitraPageHeader cukup untuk navigasi naik di md. */}
       <div className={`lg:hidden ${isExcludedFlow ? 'hidden' : 'block'}`}>
-        <MitraBottomNav verification={verification} />
+        <MitraBottomNav approved={verification === 'APPROVED'} />
       </div>
     </>
   );
