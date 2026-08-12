@@ -17,8 +17,8 @@ export function useBanners(placement: 'hero' | 'secondary' = 'hero') {
     queryKey: ['banners', placement],
     queryFn: async () => {
       const res = await fetchAPI<Banner[]>(`/banners?placement=${placement}`);
-      if (!res.success || !res.data) throw new Error(getErrorMessage(res));
-      return res.data;
+      if (!res.success) throw new Error(getErrorMessage(res));
+      return res.data || [];
     },
     // Banner jarang berubah, cache agak lama
     staleTime: 5 * 60 * 1000, 
