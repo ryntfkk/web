@@ -8,6 +8,7 @@ import AllServicesSection from '@/components/home/AllServicesSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
 import PopularCitiesSection from '@/components/home/PopularCitiesSection';
 import PartnerCtaBanner from '@/components/home/PartnerCtaBanner';
+import SecondaryBannerCarousel from '@/components/ui/secondary-banner-carousel';
 import PartnerRedirectGate from './PartnerRedirectGate';
 import JsonLd from '@/components/seo/JsonLd';
 import type { Category } from '@/types/category';
@@ -63,10 +64,28 @@ async function getCategories(): Promise<Category[]> {
   }
 }
 
+async function getBanners(placement: string) {
+  try {
+    const res = await fetch(`${API}/banners?placement=${placement}`, {
+      headers: { 'X-Platform': 'web', 'X-App-Version': '1.0.0' },
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return Array.isArray(json?.data) ? json.data : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function Home() {
   const queryClient = new QueryClient();
   // prefetchQuery menelan error sendiri → tak menggagalkan render halaman.
-  await queryClient.prefetchQuery({ queryKey: ['categories'], queryFn: getCategories });
+  await Promise.all([
+    queryClient.prefetchQuery({ queryKey: ['categories'], queryFn: getCategories }),
+    queryClient.prefetchQuery({ queryKey: ['banners', 'hero'], queryFn: () => getBanners('hero') }),
+    queryClient.prefetchQuery({ queryKey: ['banners', 'secondary'], queryFn: () => getBanners('secondary') })
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -102,6 +121,9 @@ export default async function Home() {
           {/* <RecentlyViewedSection /> */}
           <ProductsSection />
           <PartnerCtaBanner />
+          <div className="my-8">
+            <SecondaryBannerCarousel />
+          </div>
           <TopPartnersSection />
           <AllServicesSection />
 
