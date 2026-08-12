@@ -173,7 +173,7 @@ export default function MitraBusinessPage() {
             <Button
               variant="outline"
               className="mt-4 border-brand-red text-brand-red hover:bg-brand-error-soft"
-              onClick={() => router.push('/profile/account')}
+              onClick={() => router.push('/mitra/account')}
             >
               Buka Informasi Akun
             </Button>

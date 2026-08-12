@@ -167,7 +167,7 @@ export default function MitraProfilePage() {
             icon={User}
             label="Informasi Akun"
             subtitle={isVendor ? 'Nama PIC, nomor HP & email pribadi' : 'Nama, nomor HP & email'}
-            href="/profile/account"
+            href="/mitra/account"
           />
           {/* Vendor punya identitas kedua (nama tampil, PIC, kontak bisnis) yang
               tidak ada padanannya di akun perorangan. */}
@@ -181,7 +181,7 @@ export default function MitraProfilePage() {
           )}
           <MenuListItem icon={ShieldCheck} label="Status Verifikasi Dokumen" subtitle="Cek status & unggah ulang dokumen" href="/mitra/verification-status" />
           <MenuListItem icon={FileText} label="Dokumen Pendukung" subtitle="SKCK, sertifikat, izin usaha" href="/mitra/documents" />
-          <MenuListItem icon={User} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
+          <MenuListItem icon={User} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/mitra/security" />
           <MenuListItem icon={MapPin} label="Alamat Basecamp" subtitle="Titik lokasi & jangkauan layanan" href="/mitra/basecamp" />
           <MenuListItem icon={CalendarDays} label="Jam Operasional" subtitle="Atur jam kerja & cuti" href="/mitra/schedule" />
           <MenuListItem icon={CreditCard} label="Rekening Bank" subtitle="Tujuan pencairan saldo" href="/mitra/bank-account" />
@@ -189,7 +189,7 @@ export default function MitraProfilePage() {
           {/* Dua hal berbeda, dan subtitle lama menjanjikan yang kedua sambil
               menuju yang pertama (P1-14). */}
           <MenuListItem icon={Bell} label="Notifikasi" subtitle="Kotak masuk pemberitahuan" href="/notifications" />
-          <MenuListItem icon={SlidersHorizontal} label="Preferensi Notifikasi" subtitle="Atur pemberitahuan push & email" href="/profile/notifications" />
+          <MenuListItem icon={SlidersHorizontal} label="Preferensi Notifikasi" subtitle="Atur pemberitahuan push & email" href="/mitra/notifications" />
         </MenuCard>
 
         <MenuCard title="Bantuan & Legal">
