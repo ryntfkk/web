@@ -33,7 +33,7 @@ export default function SecondaryBannerCarousel() {
   if (isLoading) {
     return (
       <div className="w-full bg-white flex justify-center py-6">
-        <div className="w-full max-w-[1200px] h-[80px] sm:h-[100px] md:h-[120px] bg-brand-gray-100 rounded-lg animate-pulse" />
+        <div className="w-full max-w-[1200px] aspect-[21/9] max-h-[140px] sm:max-h-[200px] md:max-h-[260px] bg-brand-gray-100 rounded-lg animate-pulse" />
       </div>
     );
   }
@@ -43,7 +43,7 @@ export default function SecondaryBannerCarousel() {
 
   return (
     <div className="w-full flex justify-center">
-      <section className="relative w-full max-w-[1200px] h-[80px] sm:h-[100px] md:h-[120px] overflow-hidden rounded-lg bg-brand-gray-100 shadow-sm border border-brand-gray-200/60">
+      <section className="relative w-full max-w-[1200px] aspect-[21/9] max-h-[140px] sm:max-h-[200px] md:max-h-[260px] overflow-hidden rounded-lg bg-brand-gray-100 shadow-sm border border-brand-gray-200/60">
         <div className="relative w-full h-full">
           {slides.map((slide, index) => {
             const content = (

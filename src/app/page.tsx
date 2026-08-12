@@ -7,7 +7,6 @@ import ProductsSection from '@/components/home/ProductsSection';
 import AllServicesSection from '@/components/home/AllServicesSection';
 import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
 import PopularCitiesSection from '@/components/home/PopularCitiesSection';
-import PartnerCtaBanner from '@/components/home/PartnerCtaBanner';
 import SecondaryBannerCarousel from '@/components/ui/secondary-banner-carousel';
 import PartnerRedirectGate from './PartnerRedirectGate';
 import JsonLd from '@/components/seo/JsonLd';
@@ -120,7 +119,6 @@ export default async function Home() {
 
           {/* <RecentlyViewedSection /> */}
           <ProductsSection />
-          <PartnerCtaBanner />
           <div className="my-8">
             <SecondaryBannerCarousel />
           </div>
