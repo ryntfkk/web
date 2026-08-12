@@ -137,7 +137,7 @@ const nextConfig: NextConfig = {
               // CSP di-enforce.
               // maps.gstatic.com = ubin & aset Google Maps (terbukti dari
               // laporan CSP nyata, bukan tebakan).
-              "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-1.amazonaws.com https://*.googleusercontent.com https://maps.gstatic.com https://*.googleapis.com; " +
+              "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-3.amazonaws.com https://*.googleusercontent.com https://maps.gstatic.com https://*.googleapis.com; " +
               // accounts.google.com = skrip Google Identity Services (tombol
               // "Masuk dengan Google").
               "script-src 'self' 'unsafe-inline' " + (isDev ? "'unsafe-eval' " : "") + "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com https://maps.googleapis.com; " +
@@ -182,7 +182,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'poskojasa-media-dev.s3.ap-southeast-1.amazonaws.com',
+        hostname: 'poskojasa-media.s3.ap-southeast-3.amazonaws.com',
       },
       {
         protocol: 'https',
