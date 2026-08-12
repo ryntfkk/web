@@ -134,7 +134,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             </div>
 
             {/* Identitas badan usaha: yang menerima pembayaran bukan nama merek. */}
-            {profile.partner_type === 'vendor' && profile.legal_name && profile.legal_name !== profile.name && (
+            {profile.partner_type === 'vendor' && profile.legal_name && (
               <p className="text-xs text-brand-gray-450 mb-2">
                 Badan usaha: <span className="font-medium text-brand-gray-700">{profile.legal_name}</span>
               </p>

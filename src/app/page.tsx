@@ -99,7 +99,7 @@ export default async function Home() {
 
           </div>
 
-          <RecentlyViewedSection />
+          {/* <RecentlyViewedSection /> */}
           <ProductsSection />
           <PartnerCtaBanner />
           <TopPartnersSection />
