@@ -1,5 +1,4 @@
-﻿import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata } from "next";
 import "./globals.css";
 import HeaderWrapper from "@/components/layout/HeaderWrapper";
 import BottomNav from "@/components/layout/BottomNav";
@@ -12,14 +11,8 @@ import FloatingChatWrapper from "@/components/ui/floating-chat-wrapper";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { Toaster } from "@/components/ui/toast";
 
-// Load Inter font with proper weights
-// Dipetakan ke --font-sans lewat @theme di globals.css. Namanya sengaja bukan
-// --font-sans agar tidak bertabrakan dengan token Tailwind pada <html>.
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
-});
+// Load Inter font via standard Google Fonts link to bypass Turbopack next/font bug on Amplify
+// Dipetakan ke --font-sans lewat @theme di globals.css.
 
 // SE3: metadata root lengkap. `metadataBase` memperbaiki resolusi URL OG relatif;
 // `template` membuat judul tiap halaman anak konsisten ("%s | Posko Jasa").
@@ -83,7 +76,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`h-full antialiased ${inter.variable}`}>
+    <html lang="id" className="h-full antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <style dangerouslySetInnerHTML={{ __html: `:root { --font-inter: 'Inter', sans-serif; }` }} />
+      </head>
       {/* `pb-16 lg:pb-0` = ruang untuk BottomNav, dan ambangnya WAJIB sama dengan
           ambang BottomNav (`lg:hidden`) serta TopNavbar (`hidden lg:block`).
           Dulu `md:pb-0`, sementara navbar baru muncul di `lg` . di antara keduanya
