@@ -25,7 +25,7 @@ import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { uploadFileToS3 } from '@/hooks/useUpload';
-import { useCategories } from '@/hooks/useCategories';
+import { useCategories, useSubcategories } from '@/hooks/useCategories';
 import { useActiveLegalDocuments } from '@/hooks/useLegalConsent';
 import RegionSelect, { type RegionValue } from '@/components/ui/RegionSelect';
 import PhotoPickerBox, { type PhotoPickerItem } from '@/components/mitra/PhotoPickerBox';
@@ -70,7 +70,28 @@ const quotaFor = (t: 'individual' | 'vendor') => (t === 'vendor' ? 3 : 1);
 const MAX_EVIDENCE_PHOTOS = 5;
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-type SubmitStage = 'idle' | 'account' | 'files' | 'submit' | 'done';
+type SubmitStage = 'idle' | 'account' | 'files' | 'submit' | 'photos' | 'done';
+
+/**
+ * Satu grup pilihan per kategori utama yang diklaim: kategori utamanya sendiri
+ * (umum) + subkategorinya. Layanan memang seharusnya menempel ke SUBKATEGORI
+ * bila ada . kategori utama saja terlalu lebar untuk etalase. Gate slot backend
+ * (assertServiceCategoryAllowed) memeriksa induknya, jadi subkategori dari
+ * kategori yang diklaim tetap sah.
+ */
+function ServiceCategoryGroup({ mainId, label }: { mainId: string; label: string }) {
+  const { data: subs } = useSubcategories(mainId);
+  return (
+    <optgroup label={label}>
+      <option value={mainId}>{label} . Umum</option>
+      {(subs ?? []).map((s) => (
+        <option key={s.id} value={s.id}>
+          {s.name}
+        </option>
+      ))}
+    </optgroup>
+  );
+}
 
 export default function QuickRegisterPage() {
   const router = useRouter();
@@ -108,6 +129,9 @@ export default function QuickRegisterPage() {
     unit: 'per_service', estimated_duration: '60', min_order: '1',
     included_items: '', excluded_items: '',
   });
+  // Foto produk jasa. Etalase tanpa foto nyaris tidak pernah dilirik pelanggan,
+  // jadi minimal 1 wajib . dilampirkan setelah layanan terbuat (butuh id-nya).
+  const [servicePhotos, setServicePhotos] = useState<File[]>([]);
   // ── Rekening (wajib: tujuan pencairan) ──
   const [bank, setBank] = useState({ bank_code: '', bank_account_number: '', bank_account_name: '' });
   const [agreed, setAgreed] = useState(false);
@@ -148,6 +172,18 @@ export default function QuickRegisterPage() {
   );
   const evidenceItems = (catId: string): PhotoPickerItem[] => evidenceUrlMap[catId] ?? [];
 
+  // Pratinjau foto layanan . pola memo+revoke yang sama dengan bukti kategori.
+  const servicePhotoItems = useMemo(
+    () => servicePhotos.map((f) => ({ key: `svc-${f.name}-${f.size}-${f.lastModified}`, src: URL.createObjectURL(f) })),
+    [servicePhotos],
+  );
+  useEffect(
+    () => () => {
+      for (const item of servicePhotoItems) URL.revokeObjectURL(item.src);
+    },
+    [servicePhotoItems],
+  );
+
   const toggleCat = (id: string) => {
     setChosenCats((prev) => {
       if (prev.includes(id)) {
@@ -165,10 +201,6 @@ export default function QuickRegisterPage() {
 
   // Kategori layanan pertama dibatasi pada kategori yang diklaim . slot gate
   // backend (assertServiceCategoryAllowed) menolak kategori di luar itu.
-  const serviceCatOptions = useMemo(
-    () => (categories ?? []).filter((c) => chosenCats.includes(c.id)),
-    [categories, chosenCats],
-  );
 
   const validate = (): string | null => {
     if (needAccount) {
@@ -198,6 +230,7 @@ export default function QuickRegisterPage() {
     if (!service.category_id) return 'Pilih kategori untuk layanan pertamamu';
     if (!service.name.trim()) return 'Nama layanan wajib diisi';
     if (!(Number(service.price) > 0)) return 'Harga layanan harus lebih dari 0';
+    if (servicePhotos.length === 0) return 'Unggah minimal 1 foto produk jasamu';
     if (!service.included_items.trim() || !service.excluded_items.trim())
       return 'Isi minimal satu baris "harga termasuk" dan "tidak termasuk"';
     if (!bank.bank_code || !bank.bank_account_number.trim() || !bank.bank_account_name.trim())
@@ -273,7 +306,7 @@ export default function QuickRegisterPage() {
         .map((d) => d.id);
 
       const lines = (s: string) => s.split('\n').map((l) => l.trim()).filter(Boolean);
-      const res = await fetchAPI<{ service_created: boolean; service_error?: string }>(
+      const res = await fetchAPI<{ service_created: boolean; service_error?: string; service_id?: string }>(
         '/partners/me/onboarding/express',
         {
           method: 'POST',
@@ -328,6 +361,28 @@ export default function QuickRegisterPage() {
       if (res.data && res.data.service_created === false) {
         setServiceWarning(res.data.service_error || 'Layanan pertama gagal dibuat');
       }
+
+      // 4. Foto layanan menyusul: butuh id layanan yang baru lahir. Kegagalan
+      // di sini tidak menggagalkan pendaftaran . fotonya bisa ditambah dari
+      // menu Layanan.
+      const svcId = res.data?.service_id;
+      if (res.data?.service_created && svcId && servicePhotos.length > 0) {
+        setStage('photos');
+        try {
+          for (const f of servicePhotos) {
+            const url = await uploadFileToS3(f, 'service');
+            const photoRes = await fetchAPI(`/partners/me/services/${svcId}/photos`, {
+              method: 'POST',
+              credentials: 'include',
+              body: JSON.stringify({ photo_url: url }),
+            });
+            if (!photoRes.success) throw new Error(getErrorMessage(photoRes));
+          }
+        } catch {
+          setServiceWarning('Layanan terbuat, tetapi fotonya gagal diunggah. Tambahkan dari menu Layanan.');
+        }
+      }
+
       track('partner_quick_register_submitted');
       setStage('done');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -394,7 +449,10 @@ export default function QuickRegisterPage() {
 
   const busy = stage !== 'idle';
   const busyLabel =
-    stage === 'account' ? 'Membuat akun…' : stage === 'files' ? 'Mengunggah berkas…' : stage === 'submit' ? 'Mengirim pendaftaran…' : '';
+    stage === 'account' ? 'Membuat akun…'
+      : stage === 'files' ? 'Mengunggah berkas…'
+        : stage === 'submit' ? 'Mengirim pendaftaran…'
+          : stage === 'photos' ? 'Mengunggah foto layanan…' : '';
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 lg:py-12">
@@ -664,8 +722,17 @@ export default function QuickRegisterPage() {
               <select id="qr-svc-cat" className={INPUT_CLASS} value={service.category_id}
                 onChange={(e) => setService({ ...service, category_id: e.target.value })}>
                 <option value="">{chosenCats.length === 0 ? 'Pilih kategori jasa dulu di atas' : 'Pilih kategori…'}</option>
-                {serviceCatOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {chosenCats.map((mainId) => (
+                  <ServiceCategoryGroup
+                    key={mainId}
+                    mainId={mainId}
+                    label={(categories ?? []).find((c) => c.id === mainId)?.name ?? 'Kategori'}
+                  />
+                ))}
               </select>
+              <p className="mt-1 text-xs text-brand-gray-450">
+                Pilih subkategori yang paling spesifik bila ada . pelanggan mencari lewat itu.
+              </p>
             </div>
             <div>
               <label htmlFor="qr-svc-name" className={LABEL_CLASS}>Nama layanan *</label>
@@ -702,6 +769,24 @@ export default function QuickRegisterPage() {
             <label htmlFor="qr-svc-desc" className={LABEL_CLASS}>Deskripsi</label>
             <textarea id="qr-svc-desc" className={INPUT_CLASS} rows={2} value={service.description}
               onChange={(e) => setService({ ...service, description: e.target.value })} />
+          </div>
+          <div>
+            <span className={LABEL_CLASS}>Foto produk jasa * (1–{MAX_EVIDENCE_PHOTOS} foto)</span>
+            <PhotoPickerBox
+              id="qr-svc-photos"
+              items={servicePhotoItems}
+              max={MAX_EVIDENCE_PHOTOS}
+              accept="image/jpeg,image/png,image/jpg,image/webp"
+              onPick={(picked) => {
+                if (!picked) return;
+                const files = Array.from(picked).filter((f) => f.size <= MAX_UPLOAD_BYTES);
+                setServicePhotos((prev) => [...prev, ...files].slice(0, MAX_EVIDENCE_PHOTOS));
+              }}
+              onRemove={(i) => setServicePhotos((prev) => prev.filter((_, idx) => idx !== i))}
+            />
+            <p className="mt-1 text-xs text-brand-gray-450">
+              Foto hasil kerja atau suasana pengerjaan. Etalase tanpa foto nyaris tidak pernah dilirik.
+            </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>

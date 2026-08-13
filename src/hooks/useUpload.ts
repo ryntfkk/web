@@ -12,7 +12,8 @@ export type UploadFileType =
   | 'category-evidence'
   | 'ktp'
   | 'selfie'
-  | 'documents';
+  | 'documents'
+  | 'service';
 
 /**
  * Upload satu file ke S3 lewat presigned URL, tanpa state React . untuk alur
