@@ -10,7 +10,7 @@
  *   1. POST /auth/register/quick   . buat akun TANPA OTP, langsung masuk
  *      (dilewati bila pengunjung sudah login)
  *   2. /upload/presign + confirm   . KTP, swafoto, dokumen badan usaha, bukti
- *   3. POST /partners/me/onboarding/express . mitra pending + jam kerja default
+ *   3. POST /partners/onboarding/express . mitra pending + jam kerja default
  *      + layanan pertama, dalam satu panggilan
  *
  * Persetujuan tetap milik admin (gate V4: dokumen wajib APPROVED). Halaman ini
@@ -309,7 +309,7 @@ export default function QuickRegisterPage() {
 
       const lines = (s: string) => s.split('\n').map((l) => l.trim()).filter(Boolean);
       const res = await fetchAPI<{ service_created: boolean; service_error?: string; service_id?: string }>(
-        '/partners/me/onboarding/express',
+        '/partners/onboarding/express',
         {
           method: 'POST',
           credentials: 'include',
