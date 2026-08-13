@@ -45,6 +45,8 @@ const INPUT_CLASS =
   'w-full rounded-md border border-brand-gray-100 bg-white p-3 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red';
 const LABEL_CLASS = 'mb-2 block text-sm font-semibold text-brand-gray-900';
 const SECTION_CLASS = 'space-y-4 rounded-2xl border border-brand-gray-100 bg-white p-4 lg:p-6';
+/** Judul section: nomor urut + garis bawah, supaya tiap bagian terpisah tegas. */
+const SECTION_TITLE_CLASS = 'border-b border-brand-gray-100 pb-3 text-base font-bold text-brand-gray-900';
 
 const ENTITY_FORMS = [
   { value: 'PT', label: 'PT (Perseroan Terbatas)' },
@@ -454,6 +456,19 @@ export default function QuickRegisterPage() {
         : stage === 'submit' ? 'Mengirim pendaftaran…'
           : stage === 'photos' ? 'Mengunggah foto layanan…' : '';
 
+  // Nomor section berurut. Bagian Akun hanya ada untuk pengunjung yang belum
+  // login, jadi nomornya dihitung, bukan diketik tetap.
+  let secNo = 0;
+  const secNum = {
+    account: needAccount ? ++secNo : 0,
+    type: ++secNo,
+    identity: ++secNo,
+    location: ++secNo,
+    category: ++secNo,
+    service: ++secNo,
+    bank: ++secNo,
+  };
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 lg:py-12">
       <div className="mb-6">
@@ -479,7 +494,7 @@ export default function QuickRegisterPage() {
         {/* ── Akun ── */}
         {needAccount && (
           <section className={SECTION_CLASS}>
-            <h2 className="text-base font-bold text-brand-gray-900">1. Akun</h2>
+            <h2 className={SECTION_TITLE_CLASS}>{secNum.account}. Akun</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor="qr-name" className={LABEL_CLASS}>Nama lengkap *</label>
@@ -514,7 +529,7 @@ export default function QuickRegisterPage() {
 
         {/* ── Tipe mitra ── */}
         <section className={SECTION_CLASS}>
-          <h2 className="text-base font-bold text-brand-gray-900">{needAccount ? '2' : '1'}. Tipe Pendaftar</h2>
+          <h2 className={SECTION_TITLE_CLASS}>{secNum.type}. Tipe Pendaftar</h2>
           <div className="flex gap-3">
             {(['individual', 'vendor'] as const).map((t) => (
               <button
@@ -600,7 +615,7 @@ export default function QuickRegisterPage() {
 
         {/* ── Identitas ── */}
         <section className={SECTION_CLASS}>
-          <h2 className="text-base font-bold text-brand-gray-900">Identitas {isVendor ? 'PIC ' : ''}(KYC)</h2>
+          <h2 className={SECTION_TITLE_CLASS}>{secNum.identity}. Identitas {isVendor ? 'PIC ' : ''}(KYC)</h2>
           <div>
             <label htmlFor="qr-ktp" className={LABEL_CLASS}>NIK KTP *</label>
             <input id="qr-ktp" className={INPUT_CLASS} inputMode="numeric" maxLength={16}
@@ -627,7 +642,7 @@ export default function QuickRegisterPage() {
 
         {/* ── Lokasi & profil ── */}
         <section className={SECTION_CLASS}>
-          <h2 className="text-base font-bold text-brand-gray-900">Lokasi Kerja</h2>
+          <h2 className={SECTION_TITLE_CLASS}>{secNum.location}. Lokasi Kerja</h2>
           <RegionSelect value={region} onChange={setRegion} />
           <div>
             <label htmlFor="qr-addr" className={LABEL_CLASS}>Detail alamat</label>
@@ -654,7 +669,7 @@ export default function QuickRegisterPage() {
 
         {/* ── Kategori + bukti ── */}
         <section className={SECTION_CLASS}>
-          <h2 className="text-base font-bold text-brand-gray-900">Kategori Jasa</h2>
+          <h2 className={SECTION_TITLE_CLASS}>{secNum.category}. Kategori Jasa</h2>
           <p className="text-xs text-brand-gray-450">
             Pilih {quota === 1 ? 'satu' : `sampai ${quota}`} kategori utama, lalu unggah foto alat &
             bahan yang membuktikan (1–{MAX_EVIDENCE_PHOTOS} foto per kategori).
@@ -711,11 +726,32 @@ export default function QuickRegisterPage() {
 
         {/* ── Layanan pertama ── */}
         <section className={SECTION_CLASS}>
-          <h2 className="text-base font-bold text-brand-gray-900">Layanan Pertamamu</h2>
+          <h2 className={SECTION_TITLE_CLASS}>{secNum.service}. Layanan Pertamamu</h2>
           <p className="text-xs text-brand-gray-450">
             Inilah yang langsung dilihat pelanggan begitu pendaftaranmu disetujui. Kamu bisa menambah
             layanan lain nanti dari area mitra.
           </p>
+          {/* Foto sengaja PALING ATAS: etalase tanpa foto nyaris tidak pernah
+              dilirik, jadi jangan sampai jadi isian terakhir yang diskip. */}
+          <div>
+            <span className={LABEL_CLASS}>Foto produk jasa * (1–{MAX_EVIDENCE_PHOTOS} foto)</span>
+            <PhotoPickerBox
+              id="qr-svc-photos"
+              items={servicePhotoItems}
+              max={MAX_EVIDENCE_PHOTOS}
+              accept="image/jpeg,image/png,image/jpg,image/webp"
+              onPick={(picked) => {
+                if (!picked) return;
+                const files = Array.from(picked).filter((f) => f.size <= MAX_UPLOAD_BYTES);
+                setServicePhotos((prev) => [...prev, ...files].slice(0, MAX_EVIDENCE_PHOTOS));
+              }}
+              onRemove={(i) => setServicePhotos((prev) => prev.filter((_, idx) => idx !== i))}
+            />
+            <p className="mt-1 text-xs text-brand-gray-450">
+              Foto hasil kerja atau suasana pengerjaan, misalnya: kondisi sebelum &amp; sesudah,
+              peralatan yang dipakai, atau hasil akhir yang rapi.
+            </p>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="qr-svc-cat" className={LABEL_CLASS}>Kategori layanan *</label>
@@ -770,43 +806,32 @@ export default function QuickRegisterPage() {
             <textarea id="qr-svc-desc" className={INPUT_CLASS} rows={2} value={service.description}
               onChange={(e) => setService({ ...service, description: e.target.value })} />
           </div>
-          <div>
-            <span className={LABEL_CLASS}>Foto produk jasa * (1–{MAX_EVIDENCE_PHOTOS} foto)</span>
-            <PhotoPickerBox
-              id="qr-svc-photos"
-              items={servicePhotoItems}
-              max={MAX_EVIDENCE_PHOTOS}
-              accept="image/jpeg,image/png,image/jpg,image/webp"
-              onPick={(picked) => {
-                if (!picked) return;
-                const files = Array.from(picked).filter((f) => f.size <= MAX_UPLOAD_BYTES);
-                setServicePhotos((prev) => [...prev, ...files].slice(0, MAX_EVIDENCE_PHOTOS));
-              }}
-              onRemove={(i) => setServicePhotos((prev) => prev.filter((_, idx) => idx !== i))}
-            />
-            <p className="mt-1 text-xs text-brand-gray-450">
-              Foto hasil kerja atau suasana pengerjaan. Etalase tanpa foto nyaris tidak pernah dilirik.
-            </p>
-          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="qr-svc-inc" className={LABEL_CLASS}>Harga termasuk * (satu per baris)</label>
-              <textarea id="qr-svc-inc" className={INPUT_CLASS} rows={3} value={service.included_items}
-                placeholder={'Jasa pengerjaan\nPembersihan ringan'}
+              <textarea id="qr-svc-inc" className={INPUT_CLASS} rows={4} value={service.included_items}
+                placeholder={'Jasa pengerjaan\nPembersihan area setelah selesai\nGaransi pengerjaan 7 hari\nKonsultasi & pengecekan awal'}
                 onChange={(e) => setService({ ...service, included_items: e.target.value })} />
             </div>
             <div>
               <label htmlFor="qr-svc-exc" className={LABEL_CLASS}>Tidak termasuk * (satu per baris)</label>
-              <textarea id="qr-svc-exc" className={INPUT_CLASS} rows={3} value={service.excluded_items}
-                placeholder={'Biaya transport\nSparepart'}
+              <textarea id="qr-svc-exc" className={INPUT_CLASS} rows={4} value={service.excluded_items}
+                placeholder={'Sparepart / suku cadang\nPembelian material & bahan\nPerbaikan kerusakan berat yang baru ditemukan di lokasi\nPekerjaan tambahan di luar kesepakatan awal'}
                 onChange={(e) => setService({ ...service, excluded_items: e.target.value })} />
             </div>
           </div>
+          <p className="text-xs leading-relaxed text-brand-gray-450">
+            Contoh <b>termasuk</b>: jasa pengerjaan, pembersihan ringan setelah selesai, garansi,
+            konsultasi awal, pengujian hasil kerja. Contoh <b>tidak termasuk</b>: sparepart,
+            material/bahan, pembongkaran besar, pekerjaan tambahan di luar kesepakatan. Semakin jelas
+            daftarnya, semakin kecil selisih ekspektasi dengan pelanggan . ongkos transport tidak perlu
+            ditulis di sini karena sudah dihitung otomatis oleh platform saat pemesanan.
+          </p>
         </section>
 
         {/* ── Rekening ── */}
         <section className={SECTION_CLASS}>
-          <h2 className="text-base font-bold text-brand-gray-900">Rekening Pencairan</h2>
+          <h2 className={SECTION_TITLE_CLASS}>{secNum.bank}. Rekening Pencairan</h2>
           {isVendor && (
             <p className="rounded-lg border border-brand-warning-border bg-brand-warning-soft p-3 text-xs text-brand-gray-700">
               Rekening wajib <b>atas nama badan usaha</b>, bukan rekening pribadi PIC. Nama yang tidak
