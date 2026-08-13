@@ -755,15 +755,7 @@ export default function OrderDetailClient() {
                       )}
                     </div>
 
-                    {/* Badan hukum penerima pembayaran. Hanya ditampilkan bila
-                        BERBEDA dari nama tampil . untuk mitra perorangan
-                        keduanya sama dan barisnya cuma mengulang. */}
-                    {order.partner.legal_name &&
-                      order.partner.legal_name !== order.partner.name && (
-                        <p className="text-xs text-brand-gray-450 truncate">
-                          Pembayaran diterima oleh {order.partner.legal_name}
-                        </p>
-                      )}
+
 
                     {order.partner.username && (
                       <p className="text-xs text-brand-gray-450 truncate">@{order.partner.username}</p>

@@ -942,20 +942,7 @@ export default function BookingClient() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-brand-gray-900 truncate">{partner?.name}</p>
-                {/* Untuk mitra badan usaha, nama merek BUKAN pihak yang menerima
-                    uang. Halaman detail layanan sudah menyebutkannya; halaman
-                    pemesanan . tempat keputusan membayar benar-benar diambil .
-                    dulu belum. Pelanggan berhak tahu ia berkontrak dengan siapa
-                    sebelum menekan Pesan, bukan sesudahnya di struk. */}
-                {partner?.partner_type === 'vendor' &&
-                partner?.legal_name &&
-                partner.legal_name !== partner.name ? (
-                  <p className="text-xs text-brand-gray-450 truncate">
-                    Pembayaran diterima oleh <strong className="font-medium">{partner.legal_name}</strong>
-                  </p>
-                ) : (
                   <p className="text-xs text-brand-gray-450">Pilih satu atau lebih layanan di bawah ini</p>
-                )}
               </div>
             </div>
 

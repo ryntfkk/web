@@ -158,14 +158,7 @@ export default function CartPage() {
                     <span className="block text-sm font-semibold text-brand-gray-900 truncate">
                       {group.partner_name ? group.partner_name : `@${group.partner_username}`}
                     </span>
-                    {/* F-15: badan hukum penerima pembayaran. Kosong untuk
-                        perorangan dan untuk item keranjang lama yang disimpan
-                        sebelum kolom ini ada. */}
-                    {group.partner_type === 'vendor' && group.partner_legal_name && (
-                      <span className="block text-[11px] text-brand-gray-450 truncate">
-                        Pembayaran diterima oleh {group.partner_legal_name}
-                      </span>
-                    )}
+
                   </span>
                   <ChevronRight className="w-4 h-4 text-brand-gray-450 shrink-0" />
                 </Link>

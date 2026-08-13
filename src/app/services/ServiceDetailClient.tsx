@@ -646,17 +646,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-brand-gray-900 truncate">{service.partner_name}</p>
-                    {/* Untuk mitra badan usaha, nama merek bukan penerima uang.
-                        Pelanggan berhak tahu badan hukum mana yang menerima
-                        pembayarannya SEBELUM memesan . detail pesanan sudah
-                        menampilkannya, halaman produk dulu belum. */}
-                    {service.partner_type === 'vendor' &&
-                      service.partner_legal_name &&
-                      service.partner_legal_name !== service.partner_name && (
-                        <p className="text-xs text-brand-gray-450 truncate mt-0.5">
-                          Pembayaran diterima oleh {service.partner_legal_name}
-                        </p>
-                      )}
+
                     {service.partner_city && (
                       <div className="flex items-center gap-1 text-xs text-brand-gray-700 mt-0.5">
                         <MapPin className="w-3 h-3 flex-shrink-0" />
