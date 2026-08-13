@@ -20,7 +20,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { CheckCircle2, MapPin } from 'lucide-react';
+import { CheckCircle2, MapPin, User, Briefcase, IdCard, Grid as GridIcon, Wrench, Wallet } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
 import { useAuthStore } from '@/lib/store/authStore';
@@ -42,11 +42,11 @@ const MapPicker = dynamic(() => import('@/components/MapPicker'), {
 });
 
 const INPUT_CLASS =
-  'w-full rounded-md border border-brand-gray-100 bg-white p-3 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red';
+  'w-full rounded-md border border-brand-gray-100 bg-white px-3 py-2.5 sm:p-3 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red';
 const LABEL_CLASS = 'mb-2 block text-sm font-semibold text-brand-gray-900';
-const SECTION_CLASS = 'space-y-4 rounded-2xl border border-brand-gray-100 bg-white p-4 lg:p-6';
+const SECTION_CLASS = 'space-y-3 sm:space-y-4 rounded-2xl border border-brand-gray-100 bg-white p-4 sm:p-5 lg:p-6';
 /** Judul section: nomor urut + garis bawah, supaya tiap bagian terpisah tegas. */
-const SECTION_TITLE_CLASS = 'border-b border-brand-gray-100 pb-3 text-base font-bold text-brand-gray-900';
+const SECTION_TITLE_CLASS = 'flex items-center gap-2 border-b border-brand-gray-100 pb-3 text-base font-bold text-brand-gray-900';
 
 const ENTITY_FORMS = [
   { value: 'PT', label: 'PT (Perseroan Terbatas)' },
@@ -494,7 +494,10 @@ export default function QuickRegisterPage() {
         {/* ── Akun ── */}
         {needAccount && (
           <section className={SECTION_CLASS}>
-            <h2 className={SECTION_TITLE_CLASS}>{secNum.account}. Akun</h2>
+            <h2 className={SECTION_TITLE_CLASS}>
+              <User className="h-5 w-5 shrink-0 text-brand-red" />
+              {secNum.account}. Info Akun
+            </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor="qr-name" className={LABEL_CLASS}>Nama lengkap *</label>
@@ -529,7 +532,10 @@ export default function QuickRegisterPage() {
 
         {/* ── Tipe mitra ── */}
         <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>{secNum.type}. Tipe Pendaftar</h2>
+          <h2 className={SECTION_TITLE_CLASS}>
+            <Briefcase className="h-5 w-5 shrink-0 text-brand-red" />
+            {secNum.type}. Tipe Usaha
+          </h2>
           <div className="flex gap-3">
             {(['individual', 'vendor'] as const).map((t) => (
               <button
@@ -615,7 +621,10 @@ export default function QuickRegisterPage() {
 
         {/* ── Identitas ── */}
         <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>{secNum.identity}. Identitas {isVendor ? 'PIC ' : ''}(KYC)</h2>
+          <h2 className={SECTION_TITLE_CLASS}>
+            <IdCard className="h-5 w-5 shrink-0 text-brand-red" />
+            {secNum.identity}. Identitas {isVendor ? 'PIC ' : ''}(KTP)
+          </h2>
           <div>
             <label htmlFor="qr-ktp" className={LABEL_CLASS}>NIK KTP *</label>
             <input id="qr-ktp" className={INPUT_CLASS} inputMode="numeric" maxLength={16}
@@ -642,7 +651,10 @@ export default function QuickRegisterPage() {
 
         {/* ── Lokasi & profil ── */}
         <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>{secNum.location}. Lokasi Kerja</h2>
+          <h2 className={SECTION_TITLE_CLASS}>
+            <MapPin className="h-5 w-5 shrink-0 text-brand-red" />
+            {secNum.location}. Lokasi Jasa & Basecamp
+          </h2>
           <RegionSelect value={region} onChange={setRegion} />
           <div>
             <label htmlFor="qr-addr" className={LABEL_CLASS}>Detail alamat</label>
@@ -654,9 +666,11 @@ export default function QuickRegisterPage() {
             <span className={LABEL_CLASS}>Pin basecamp di peta *</span>
             <MapPicker lat={basecamp.lat} lng={basecamp.lon}
               onChange={(lat, lng) => { setBasecamp({ lat, lon: lng }); setBasecampTouched(true); }} />
-            <p className="mt-1 text-xs text-brand-gray-450">
-              Pelanggan di sekitar titik inilah yang akan menemukanmu. Titik pastinya tidak pernah
-              ditampilkan ke publik.
+            <p className="mt-2 text-xs leading-relaxed text-brand-gray-450">
+              Pelanggan di sekitar titik inilah yang akan menemukanmu. Titik pastinya tidak pernah ditampilkan ke publik.
+              <br />
+              <b className="text-brand-red">Penting:</b> Pastikan pin peta seakurat mungkin. Jika jarak pelanggan melebihi 15 km, kamu akan mendapat tambahan <b>Biaya Transportasi (Rp 3.000 / km berikutnya)</b>. 
+              Mitra menerima <b>100%</b> dari biaya transportasi ini tanpa dipotong biaya admin platform!
             </p>
           </div>
           <div>
@@ -669,12 +683,14 @@ export default function QuickRegisterPage() {
 
         {/* ── Kategori + bukti ── */}
         <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>{secNum.category}. Kategori Jasa</h2>
+          <h2 className={SECTION_TITLE_CLASS}>
+            <GridIcon className="h-5 w-5 shrink-0 text-brand-red" />
+            {secNum.category}. Keahlian & Kategori
+          </h2>
           <p className="text-xs text-brand-gray-450">
-            Pilih {quota === 1 ? 'satu' : `sampai ${quota}`} kategori utama, lalu unggah foto alat &
-            bahan yang membuktikan (1–{MAX_EVIDENCE_PHOTOS} foto per kategori).
+            Pilih {quota === 1 ? 'satu' : `sampai ${quota}`} kategori utama, lalu unggah foto bukti keahlian yang relevan (1–{MAX_EVIDENCE_PHOTOS} foto per kategori).
           </p>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="flex flex-wrap gap-2">
             {(categories ?? []).map((c) => {
               const active = chosenCats.includes(c.id);
               const full = !active && chosenCats.length >= quota;
@@ -684,7 +700,7 @@ export default function QuickRegisterPage() {
                   type="button"
                   disabled={full}
                   onClick={() => toggleCat(c.id)}
-                  className={`rounded-md border p-3 text-left text-sm font-semibold transition-colors ${
+                  className={`w-fit rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                     active
                       ? 'border-brand-red bg-brand-red-soft text-brand-red'
                       : full
@@ -701,7 +717,8 @@ export default function QuickRegisterPage() {
             const cat = (categories ?? []).find((c) => c.id === catId);
             return (
               <div key={catId}>
-                <span className={LABEL_CLASS}>Foto alat & bahan . {cat?.name ?? 'Kategori'} *</span>
+                <span className={LABEL_CLASS}>Bukti Keahlian/Peralatan (Wajib) . {cat?.name ?? 'Kategori'} *</span>
+                <p className="mb-2 text-xs text-brand-gray-450">Foto alat, bahan, atau sertifikat untuk membuktikan kamu ahli di bidang ini.</p>
                 <PhotoPickerBox
                   id={`evidence-${catId}`}
                   items={evidenceItems(catId)}
@@ -726,15 +743,17 @@ export default function QuickRegisterPage() {
 
         {/* ── Layanan pertama ── */}
         <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>{secNum.service}. Layanan Pertamamu</h2>
+          <h2 className={SECTION_TITLE_CLASS}>
+            <Wrench className="h-5 w-5 shrink-0 text-brand-red" />
+            {secNum.service}. Etalase Layanan Pertama
+          </h2>
           <p className="text-xs text-brand-gray-450">
-            Inilah yang langsung dilihat pelanggan begitu pendaftaranmu disetujui. Kamu bisa menambah
-            layanan lain nanti dari area mitra.
+            Inilah yang langsung dilihat pelanggan begitu pendaftaranmu disetujui. Buatlah semenarik mungkin.
           </p>
           {/* Foto sengaja PALING ATAS: etalase tanpa foto nyaris tidak pernah
               dilirik, jadi jangan sampai jadi isian terakhir yang diskip. */}
           <div>
-            <span className={LABEL_CLASS}>Foto produk jasa * (1–{MAX_EVIDENCE_PHOTOS} foto)</span>
+            <span className={LABEL_CLASS}>Foto Hasil Kerja (Etalase) * (1–{MAX_EVIDENCE_PHOTOS} foto)</span>
             <PhotoPickerBox
               id="qr-svc-photos"
               items={servicePhotoItems}
@@ -748,8 +767,7 @@ export default function QuickRegisterPage() {
               onRemove={(i) => setServicePhotos((prev) => prev.filter((_, idx) => idx !== i))}
             />
             <p className="mt-1 text-xs text-brand-gray-450">
-              Foto hasil kerja atau suasana pengerjaan, misalnya: kondisi sebelum &amp; sesudah,
-              peralatan yang dipakai, atau hasil akhir yang rapi.
+              Foto yang akan dilihat pelanggan pertama kali (misal: AC sebelum/sesudah dicuci, atau hasil akhir yang rapi).
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -783,7 +801,7 @@ export default function QuickRegisterPage() {
                 onChange={(e) => setService({ ...service, price: e.target.value.replace(/\D/g, '') })} />
             </div>
             <div>
-              <label htmlFor="qr-svc-unit" className={LABEL_CLASS}>Satuan *</label>
+              <label htmlFor="qr-svc-unit" className={LABEL_CLASS}>Tarif Dihitung Per *</label>
               <select id="qr-svc-unit" className={INPUT_CLASS} value={service.unit}
                 onChange={(e) => setService({ ...service, unit: e.target.value })}>
                 {UNIT_OPTIONS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
@@ -796,7 +814,7 @@ export default function QuickRegisterPage() {
                 onChange={(e) => setService({ ...service, estimated_duration: e.target.value.replace(/\D/g, '') })} />
             </div>
             <div>
-              <label htmlFor="qr-svc-min" className={LABEL_CLASS}>Minimal order</label>
+              <label htmlFor="qr-svc-min" className={LABEL_CLASS}>Minimal Pesanan *</label>
               <input id="qr-svc-min" className={INPUT_CLASS} inputMode="numeric" value={service.min_order}
                 onChange={(e) => setService({ ...service, min_order: e.target.value.replace(/\D/g, '') })} />
             </div>
@@ -831,7 +849,10 @@ export default function QuickRegisterPage() {
 
         {/* ── Rekening ── */}
         <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>{secNum.bank}. Rekening Pencairan</h2>
+          <h2 className={SECTION_TITLE_CLASS}>
+            <Wallet className="h-5 w-5 shrink-0 text-brand-red" />
+            {secNum.bank}. Rekening Pencairan
+          </h2>
           {isVendor && (
             <p className="rounded-lg border border-brand-warning-border bg-brand-warning-soft p-3 text-xs text-brand-gray-700">
               Rekening wajib <b>atas nama badan usaha</b>, bukan rekening pribadi PIC. Nama yang tidak
