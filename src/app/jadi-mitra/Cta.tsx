@@ -39,11 +39,15 @@ interface CtaDaftarProps {
 }
 
 /**
- * Tombol daftar. Selalu mengarah ke /mitra/register.
+ * Tombol daftar. Mengarah ke /jadi-mitra/daftar . formulir satu-atap (akun +
+ * KYC + kategori + layanan pertama), menggantikan arah lama ke /mitra/register
+ * yang mengharuskan calon mitra melewati 7 langkah dan dua verifikasi kontak
+ * sebelum bisa menyiapkan etalase. /mitra/register tetap hidup untuk jalur
+ * dalam aplikasi (pengguna yang sudah login).
  *
- * Pengunjung anonim tidak dibiarkan buntu di sana: layout mitra mengalihkannya
- * ke /login?redirect=/mitra/register, dan rantai redirect itu kini terjaga
- * sampai halaman pendaftaran akun (lihat perubahan di (auth)/login & register).
+ * Pengunjung anonim tidak buntu: halaman daftar membuat akun lewat
+ * /auth/register/quick tanpa OTP, dan pengguna yang sudah login langsung
+ * melewati bagian akun.
  */
 export function CtaDaftar({
   position,
@@ -60,7 +64,7 @@ export function CtaDaftar({
 
   return (
     <Link
-      href="/mitra/register"
+      href="/jadi-mitra/daftar"
       onClick={() => track('partner_landing_cta_clicked', { position })}
       className={`${base} ${skin} ${className}`}
     >
