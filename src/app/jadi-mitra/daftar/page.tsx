@@ -9,7 +9,7 @@
  *
  *   1. POST /auth/register/quick   . buat akun TANPA OTP, langsung masuk
  *      (dilewati bila pengunjung sudah login)
- *   2. /upload/presign + confirm   . KTP, swafoto, dokumen badan usaha, bukti
+ *   2. /upload/presign + confirm   . KTP, foto KTP belakang, dokumen badan usaha, bukti
  *   3. POST /partners/onboarding/express . mitra pending + jam kerja default
  *      + layanan pertama, dalam satu panggilan
  *
@@ -214,7 +214,7 @@ export default function QuickRegisterPage() {
     }
     if (!/^\d{16}$/.test(ktpNumber.trim())) return 'NIK KTP harus tepat 16 digit angka';
     if (!ktpFile) return 'Foto KTP wajib diunggah';
-    if (!selfieFile) return 'Swafoto dengan KTP wajib diunggah';
+    if (!selfieFile) return 'Foto KTP bagian belakang wajib diunggah';
     if (isVendor) {
       if (!vendor.display_name.trim() || !vendor.legal_entity_name.trim() || !vendor.pic_name.trim())
         return 'Badan usaha: nama tampil, nama legal, dan nama PIC wajib diisi';
@@ -631,7 +631,7 @@ export default function QuickRegisterPage() {
               {ktpFile && <p className="mt-1 truncate text-xs text-brand-gray-450">{ktpFile.name}</p>}
             </div>
             <div>
-              <label htmlFor="qr-selfie-file" className={LABEL_CLASS}>Swafoto memegang KTP *</label>
+              <label htmlFor="qr-selfie-file" className={LABEL_CLASS}>Foto KTP bagian belakang *</label>
               <input id="qr-selfie-file" type="file" accept="image/jpeg,image/png,image/jpg,image/webp"
                 className="w-full text-xs text-brand-gray-700 file:mr-2 file:rounded-md file:border-0 file:bg-brand-gray-60 file:px-3 file:py-2 file:text-xs file:font-semibold hover:file:bg-brand-gray-100"
                 onChange={pickFile(setSelfieFile)} />
