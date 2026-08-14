@@ -3,7 +3,7 @@
 import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, MapPin, ShieldCheck } from 'lucide-react';
+import { Star, MapPin, ShieldCheck, BadgeCheck } from 'lucide-react';
 import type { PublicService } from '@/hooks/usePublicServices';
 import { PLACEHOLDER_SERVICE } from '@/lib/images';
 import { formatDistanceMeters } from '@/lib/distance';
@@ -84,6 +84,20 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             <span className="text-[11px] sm:text-[12px] text-brand-gray-700 truncate">
               {service.partner_name}
             </span>
+            {/* Badge KYC (model mitra instan) . BERBEDA dari "Terpercaya" di
+                bawahnya: ini status verifikasi identitas, bukan performa.
+                Ketat === true: `undefined` (payload lama / field belum dikirim)
+                TIDAK boleh tampil "Terverifikasi" . badge palsu lebih buruk
+                daripada tak ada badge. */}
+            {service.partner_is_verified === true && (
+              <span
+                title="Identitas mitra sudah diverifikasi (KYC)"
+                className="flex-shrink-0 inline-flex items-center gap-0.5 rounded bg-brand-info-soft px-1 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-none text-brand-info-dark"
+              >
+                <BadgeCheck className="w-2.5 h-2.5" />
+                Terverifikasi
+              </span>
+            )}
             {isTrusted && (
               <Badge
                 variant="verified"

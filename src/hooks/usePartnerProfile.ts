@@ -19,7 +19,12 @@ export interface PartnerProfileData {
   city: string;
   district: string;
   province: string;
-  /** Endpoint publik hanya membalas mitra approved, jadi ini selalu true. */
+  /**
+   * Badge KYC (model mitra instan): true HANYA bila verifikasi identitas mitra
+   * disetujui admin. Profil publik kini juga memuat mitra belum-KYC, jadi nilai
+   * false itu NYATA dan wajib dirender sebagai "Belum Terverifikasi" . jangan
+   * kembali mengasumsikan "selalu true".
+   */
   is_verified: boolean;
   /** Tanggal mitra DISETUJUI (bukan tanggal akun dibuat). Kosong untuk mitra lama. */
   member_since?: string;

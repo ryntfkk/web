@@ -75,9 +75,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const hasServices = count > 0;
   const minPrice = minServicePrice(list);
   // Tanpa "| Posko Jasa" . template root layout sudah menambahkannya.
-  const title = `Jasa ${cat.name} ${city} - Mitra Terverifikasi`;
+  // "Mitra Terverifikasi" DIHAPUS (model mitra instan) . lihat catatan di
+  // /kategori/[slug]: listing bisa memuat mitra belum-KYC, badge kartu yang jujur.
+  const title = `Jasa ${cat.name} ${city} - Panggil ke Lokasi`;
   const description =
-    `${count > 0 ? `${countLabel(count, hasMore)} ` : ''}jasa ${cat.name} di ${city} dari mitra terverifikasi` +
+    `${count > 0 ? `${countLabel(count, hasMore)} ` : ''}jasa ${cat.name} di ${city}` +
     `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Pesan online, ulasan asli - Posko Jasa.`;
   return {
     title,

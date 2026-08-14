@@ -290,6 +290,19 @@ function MitraRegisterForm() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const isReverify = searchParams?.get('mode') === 'reverify';
+
+  // Model mitra instan (keputusan Q5a PLAN-MITRA-INSTAN): wizard ini
+  // DIPENSIUNKAN untuk pendaftaran BARU . jalurnya /jadi-mitra/daftar (instan,
+  // tanpa KYC). Wizard tetap hidup untuk (a) ?mode=reverify . pengajuan ulang
+  // setelah KYC ditolak butuh form lengkap (PUT /partners/me/resubmission),
+  // dan (b) saat sakelar instan OFF di backend (jendela pra-flip / flip-back):
+  // di keadaan itu backend MENUNTUT KYC penuh, dan wizard inilah satu-satunya
+  // form yang memilikinya . redirect justru mematikan pendaftaran total.
+  const instantOff = usePlatformConfig().instant_partner_activation === false;
+  useEffect(() => {
+    if (!isReverify && !instantOff) router.replace('/jadi-mitra/daftar');
+  }, [isReverify, instantOff, router]);
+
   const [stepIndex, setStepIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -874,6 +887,11 @@ function MitraRegisterForm() {
     : isReverify
       ? 'Perbaiki & Kirim Ulang'
       : 'Kirim Pendaftaran';
+
+  // Pendaftaran baru sedang dialihkan ke /jadi-mitra/daftar (lihat useEffect di
+  // atas) . jangan sempat merender wizard lamanya. Saat sakelar instan OFF,
+  // wizard TETAP dirender: itu satu-satunya form ber-KYC yang backend tuntut.
+  if (!isReverify && !instantOff) return null;
 
   return (
     <div>

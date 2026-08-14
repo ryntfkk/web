@@ -29,6 +29,8 @@ export interface ServiceDetail {
   partner_avatar_url: string;
   partner_avg_rating: number;
   partner_total_reviews: number;
+  /** Badge KYC mitra (model mitra instan). `undefined` = payload backend lama. */
+  partner_is_verified?: boolean;
   partner_city: string;
   category_id: string;
   category_name: string;

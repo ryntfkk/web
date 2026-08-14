@@ -21,6 +21,7 @@ import {
   X,
   MapPin,
   MessageSquare,
+  BadgeCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
@@ -645,7 +646,21 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-brand-gray-900 truncate">{service.partner_name}</p>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <p className="text-sm font-semibold text-brand-gray-900 truncate">{service.partner_name}</p>
+                      {/* Badge KYC dua arah (model mitra instan). Ketat ===:
+                          undefined (payload lama) tidak merender apa pun. */}
+                      {service.partner_is_verified === true && (
+                        <span className="flex-shrink-0 inline-flex items-center gap-0.5 rounded bg-brand-info-soft px-1.5 py-0.5 text-[10px] font-semibold leading-none text-brand-info-dark">
+                          <BadgeCheck className="w-3 h-3" /> Terverifikasi
+                        </span>
+                      )}
+                      {service.partner_is_verified === false && (
+                        <span className="flex-shrink-0 inline-flex items-center rounded border border-brand-gray-100 bg-brand-gray-60 px-1.5 py-0.5 text-[10px] font-medium leading-none text-brand-gray-700">
+                          Belum Terverifikasi
+                        </span>
+                      )}
+                    </div>
 
                     {service.partner_city && (
                       <div className="flex items-center gap-1 text-xs text-brand-gray-700 mt-0.5">

@@ -120,31 +120,38 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
             </div>
 
             <h3 className="text-sm md:text-base font-bold text-brand-gray-900 mb-1 md:mb-2 tracking-tight">
-              {partnerStatus?.verification_status === 'pending' ? 'Verifikasi Sedang Diproses' : 'Mulai Perjalanan Anda'}
+              {partnerStatus?.verification_status === 'pending' ? 'Akun Mitramu Aktif' : 'Mulai Perjalanan Anda'}
             </h3>
 
+            {/* Model mitra instan: pending = mitra LIVE yang belum lolos KYC.
+                Jangan menulis "belum bisa menerima pesanan" . itu bohong. */}
             <p className="text-xs text-brand-gray-400 mb-4 md:mb-6 max-w-[200px] md:max-w-[250px] leading-relaxed">
               {partnerStatus?.verification_status === 'pending'
-                ? 'Tim kami sedang meninjau dokumen pendaftaran Anda. Mohon tunggu maksimal 1x24 jam kerja.'
+                ? 'Layananmu sudah tayang & bisa dipesan. Lengkapi verifikasi identitas untuk badge Terverifikasi dan tarik dana.'
                 : 'Daftar sebagai mitra dan raih penghasilan tambahan bersama Posko Jasa.'}
             </p>
 
             {!partnerStatus ? (
               <button
-                onClick={() => router.push('/mitra/register')}
+                onClick={() => router.push('/jadi-mitra/daftar')}
                 className="w-full bg-brand-red text-white font-bold py-3 px-4 rounded-xl shadow-[0_4px_12px_rgba(181,24,34,0.2)] hover:bg-brand-red-dark hover:shadow-[0_6px_16px_rgba(181,24,34,0.3)] transition-all duration-300 flex items-center justify-center gap-2 group"
               >
                 Daftar Jadi Mitra Sekarang
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             ) : partnerStatus.verification_status === 'pending' ? (
-              <div className="bg-brand-warning-soft rounded-xl p-4 border border-brand-warning-light flex flex-col items-center justify-center">
-                <div className="flex items-center gap-2 mb-1 text-brand-warning-dark">
-                  <div className="w-2 h-2 rounded-full bg-brand-warning animate-pulse"></div>
-                  <p className="text-sm font-bold">Sedang Ditinjau</p>
-                </div>
-                <p className="text-xs text-brand-warning-dark">Mohon cek secara berkala</p>
-              </div>
+              // Lewat switch-role, BUKAN router.push polos: token sesi mungkin
+              // belum memuat klaim partner (dicetak sebelum onboarding), dan
+              // switch-role-lah yang menerbitkan token baru ber-klaim . tanpa
+              // itu halaman mitra terbuka tapi seluruh fetch-nya ditolak.
+              <button
+                onClick={onSwitchRole}
+                disabled={switching}
+                className="w-full bg-brand-red text-white font-bold py-3 px-4 rounded-xl shadow-[0_4px_12px_rgba(181,24,34,0.2)] hover:bg-brand-red-dark transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                Buka Mode Mitra
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
             ) : partnerStatus.verification_status === 'rejected' ? (
               <div className="space-y-3">
                 {partnerStatus.rejection_reason && (

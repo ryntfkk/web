@@ -114,9 +114,20 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-bold text-brand-gray-900">{profile.name}</h1>
-              {profile.is_verified && (
+              {/* Badge KYC dua arah (model mitra instan): profil publik kini juga
+                  memuat mitra belum-KYC, dan pelanggan berhak tahu keadaan
+                  jujurnya . `is_verified === false` HARUS tampil sebagai
+                  "Belum Terverifikasi" (netral, bukan merah), jangan cuma
+                  disembunyikan. `undefined` (payload lama) tidak merender
+                  apa-apa . jangan mengarang badge dari ketiadaan data. */}
+              {profile.is_verified === true && (
                 <span className="bg-brand-info-soft text-brand-info-dark text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
                   <BadgeCheck className="w-3.5 h-3.5" /> Terverifikasi
+                </span>
+              )}
+              {profile.is_verified === false && (
+                <span className="bg-brand-gray-60 text-brand-gray-700 border border-brand-gray-100 text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                  Belum Terverifikasi
                 </span>
               )}
               {profile.is_online && (

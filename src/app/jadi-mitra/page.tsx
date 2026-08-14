@@ -510,7 +510,8 @@ export default async function JadiMitraPage() {
             </ul>
           </div>
           <p className="mt-4 text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-450 max-w-xl">
-            Setelah dikirim, berkas diperiksa tim Posko. Sambil menunggu, Anda sudah bisa mulai mengisi etalase layanan dan mengatur jadwal jam kerja.
+            Begitu formulir terkirim, akun Anda langsung aktif dan layanan Anda langsung bisa
+            dipesan. Verifikasi identitas (KTP + rekening) menyusul saat Anda ingin menarik dana.
           </p>
         </section>
       </AnimateOnScroll>

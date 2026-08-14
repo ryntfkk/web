@@ -1,28 +1,31 @@
 'use client';
 
 /**
- * /jadi-mitra/daftar . pendaftaran mitra SATU ATAP (2026-08-13).
+ * /jadi-mitra/daftar . pendaftaran mitra INSTAN (model mitra instan,
+ * PLAN-MITRA-INSTAN 2026-08-14; sebelumnya "satu atap" 2026-08-13).
  *
- * Satu halaman mengumpulkan SEMUA yang dibutuhkan sampai mitra bisa transaksi:
- * akun, KYC, lokasi basecamp, kategori jasa + bukti, layanan pertama, dan
- * rekening. Rantai submit-nya:
+ * TANPA KYC, TANPA rekening, TANPA dokumen badan usaha, TANPA foto bukti
+ * kategori . semuanya menyusul lewat wizard /mitra/kyc saat mitra hendak
+ * menarik dana. Yang dikumpulkan di sini hanyalah yang dibutuhkan supaya
+ * "langsung bisa dipesan" benar sejak detik pertama:
  *
  *   1. POST /auth/register/quick   . buat akun TANPA OTP, langsung masuk
  *      (dilewati bila pengunjung sudah login)
- *   2. /upload/presign + confirm   . KTP, foto KTP belakang, dokumen badan usaha, bukti
- *   3. POST /partners/onboarding/express . mitra pending + jam kerja default
- *      + layanan pertama, dalam satu panggilan
+ *   2. POST /partners/onboarding/express . mitra langsung AKTIF + jam kerja
+ *      default + kategori + layanan pertama, dalam satu panggilan
+ *   3. Upload foto layanan menyusul (butuh id layanan)
  *
- * Persetujuan tetap milik admin (gate V4: dokumen wajib APPROVED). Halaman ini
- * hanya memangkas jumlah layar . bukan melonggarkan verifikasi.
+ * Profil tampil dengan badge "Belum Terverifikasi" sampai KYC disetujui admin.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { CheckCircle2, MapPin, User, Briefcase, IdCard, Grid as GridIcon, Wrench, Wallet } from 'lucide-react';
+import { CheckCircle2, MapPin, User, Briefcase, Grid as GridIcon, Wrench } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import { useAuthStore } from '@/lib/store/authStore';
 import { uploadFileToS3 } from '@/hooks/useUpload';
 import { useCategories, useSubcategories } from '@/hooks/useCategories';
@@ -65,14 +68,12 @@ const UNIT_OPTIONS = [
   { value: 'per_kg', label: 'Per kg' },
 ];
 
-const BANK_OPTIONS = ['BCA', 'MANDIRI', 'BNI', 'BRI', 'BSI'];
-
 /** Kuota kategori utama per tipe . cermin aturan backend (000080): 1 perorangan, 3 vendor. */
 const quotaFor = (t: 'individual' | 'vendor') => (t === 'vendor' ? 3 : 1);
-const MAX_EVIDENCE_PHOTOS = 5;
+const MAX_SERVICE_PHOTOS = 5;
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-type SubmitStage = 'idle' | 'account' | 'files' | 'submit' | 'photos' | 'done';
+type SubmitStage = 'idle' | 'account' | 'submit' | 'photos' | 'done';
 
 /**
  * Satu grup pilihan per kategori utama yang diklaim: kategori utamanya sendiri
@@ -97,34 +98,35 @@ function ServiceCategoryGroup({ mainId, label }: { mainId: string; label: string
 
 export default function QuickRegisterPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, isAuthenticated, login } = useAuthStore();
   const { data: categories } = useCategories();
   const { data: legalDocs } = useActiveLegalDocuments();
+  // Sakelar backend menentukan bentuk pendaftaran yang SAH. false eksplisit =
+  // backend masih menuntut KYC penuh → form instan ini pasti ditolak 400 tanpa
+  // ada field KTP untuk diisi; arahkan ke wizard lama. undefined = anggap ON
+  // (keadaan tunak pasca-rilis; backend tetap penjaga sesungguhnya).
+  const instantOff = usePlatformConfig().instant_partner_activation === false;
 
   // ── Akun ──
   const [account, setAccount] = useState({ name: '', username: '', phone: '', email: '', password: '' });
   // ── Tipe & badan usaha ──
+  // Identitas badan usaha TETAP diisi saat daftar (constraint DB
+  // chk_partners_vendor_identity menuntutnya); DOKUMEN-nya (akta/NPWP/NIB)
+  // yang dipindah ke wizard KYC.
   const [partnerType, setPartnerType] = useState<'individual' | 'vendor'>('individual');
   const [vendor, setVendor] = useState({
     display_name: '', legal_entity_name: '', entity_form: 'PT',
     npwp: '', nib: '', pic_name: '', pic_position: '', business_phone: '', business_email: '',
   });
-  const [vendorDocs, setVendorDocs] = useState<{ akta: File | null; npwp: File | null; nib: File | null }>({
-    akta: null, npwp: null, nib: null,
-  });
-  // ── Identitas ──
-  const [ktpNumber, setKtpNumber] = useState('');
-  const [ktpFile, setKtpFile] = useState<File | null>(null);
-  const [selfieFile, setSelfieFile] = useState<File | null>(null);
   // ── Profil & lokasi ──
   const [bio, setBio] = useState('');
   const [region, setRegion] = useState<RegionValue>({ province: '', city: '', district: '' });
   const [addressDetail, setAddressDetail] = useState('');
   const [basecamp, setBasecamp] = useState({ lat: -6.2, lon: 106.816666 });
   const [basecampTouched, setBasecampTouched] = useState(false);
-  // ── Keahlian: kategori utama + bukti foto per kategori ──
+  // ── Keahlian: kategori utama (foto bukti alat menyusul saat KYC) ──
   const [chosenCats, setChosenCats] = useState<string[]>([]);
-  const [evidence, setEvidence] = useState<Record<string, File[]>>({});
   // ── Layanan pertama ──
   const [service, setService] = useState({
     category_id: '', name: '', description: '', price: '',
@@ -134,8 +136,6 @@ export default function QuickRegisterPage() {
   // Foto produk jasa. Etalase tanpa foto nyaris tidak pernah dilirik pelanggan,
   // jadi minimal 1 wajib . dilampirkan setelah layanan terbuat (butuh id-nya).
   const [servicePhotos, setServicePhotos] = useState<File[]>([]);
-  // ── Rekening (wajib: tujuan pencairan) ──
-  const [bank, setBank] = useState({ bank_code: '', bank_account_number: '', bank_account_name: '' });
   const [agreed, setAgreed] = useState(false);
 
   const [stage, setStage] = useState<SubmitStage>('idle');
@@ -154,27 +154,9 @@ export default function QuickRegisterPage() {
   const isVendor = partnerType === 'vendor';
   const quota = quotaFor(partnerType);
 
-  // Bukti per kategori sebagai item pratinjau. URL objek dibangun sekali per
-  // perubahan daftar berkas (useMemo) dan dicabut saat diganti . membangunnya
-  // di badan render akan menumpuk blob URL baru pada tiap ketikan di form.
-  const evidenceUrlMap = useMemo(() => {
-    const map: Record<string, PhotoPickerItem[]> = {};
-    for (const [catId, files] of Object.entries(evidence)) {
-      map[catId] = files.map((f) => ({ key: `${catId}-${f.name}-${f.size}-${f.lastModified}`, src: URL.createObjectURL(f) }));
-    }
-    return map;
-  }, [evidence]);
-  useEffect(
-    () => () => {
-      for (const items of Object.values(evidenceUrlMap)) {
-        for (const item of items) URL.revokeObjectURL(item.src);
-      }
-    },
-    [evidenceUrlMap],
-  );
-  const evidenceItems = (catId: string): PhotoPickerItem[] => evidenceUrlMap[catId] ?? [];
-
-  // Pratinjau foto layanan . pola memo+revoke yang sama dengan bukti kategori.
+  // Pratinjau foto layanan: URL objek dibangun sekali per perubahan daftar
+  // berkas (useMemo) dan dicabut saat diganti . membangunnya di badan render
+  // akan menumpuk blob URL baru pada tiap ketikan di form.
   const servicePhotoItems = useMemo(
     () => servicePhotos.map((f) => ({ key: `svc-${f.name}-${f.size}-${f.lastModified}`, src: URL.createObjectURL(f) })),
     [servicePhotos],
@@ -188,21 +170,11 @@ export default function QuickRegisterPage() {
 
   const toggleCat = (id: string) => {
     setChosenCats((prev) => {
-      if (prev.includes(id)) {
-        setEvidence((ev) => {
-          const next = { ...ev };
-          delete next[id];
-          return next;
-        });
-        return prev.filter((c) => c !== id);
-      }
+      if (prev.includes(id)) return prev.filter((c) => c !== id);
       if (prev.length >= quota) return prev;
       return [...prev, id];
     });
   };
-
-  // Kategori layanan pertama dibatasi pada kategori yang diklaim . slot gate
-  // backend (assertServiceCategoryAllowed) menolak kategori di luar itu.
 
   const validate = (): string | null => {
     if (needAccount) {
@@ -212,43 +184,22 @@ export default function QuickRegisterPage() {
       if (!account.phone.trim()) return 'Nomor HP wajib diisi';
       if (account.password.length < 8) return 'Password minimal 8 karakter';
     }
-    if (!/^\d{16}$/.test(ktpNumber.trim())) return 'NIK KTP harus tepat 16 digit angka';
-    if (!ktpFile) return 'Foto KTP wajib diunggah';
-    if (!selfieFile) return 'Foto KTP bagian belakang wajib diunggah';
     if (isVendor) {
       if (!vendor.display_name.trim() || !vendor.legal_entity_name.trim() || !vendor.pic_name.trim())
         return 'Badan usaha: nama tampil, nama legal, dan nama PIC wajib diisi';
-      if (!vendorDocs.akta || !vendorDocs.npwp || !vendorDocs.nib)
-        return 'Badan usaha: akta pendirian, NPWP badan, dan NIB wajib diunggah';
     }
     if (!region.province || !region.city || !region.district)
       return 'Provinsi, kota, dan kecamatan wajib dipilih';
     if (!basecampTouched) return 'Tandai lokasi basecamp di peta (geser pin ke lokasi kerjamu)';
     if (chosenCats.length === 0) return 'Pilih minimal 1 kategori jasa';
-    for (const c of chosenCats) {
-      if ((evidence[c] ?? []).length === 0)
-        return `Unggah minimal 1 foto alat & bahan untuk tiap kategori`;
-    }
     if (!service.category_id) return 'Pilih kategori untuk layanan pertamamu';
     if (!service.name.trim()) return 'Nama layanan wajib diisi';
     if (!(Number(service.price) > 0)) return 'Harga layanan harus lebih dari 0';
     if (servicePhotos.length === 0) return 'Unggah minimal 1 foto produk jasamu';
     if (!service.included_items.trim() || !service.excluded_items.trim())
       return 'Isi minimal satu baris "harga termasuk" dan "tidak termasuk"';
-    if (!bank.bank_code || !bank.bank_account_number.trim() || !bank.bank_account_name.trim())
-      return 'Rekening bank wajib lengkap . ke sana hasil kerjamu dicairkan';
     if (!agreed) return 'Centang persetujuan S&K terlebih dahulu';
     return null;
-  };
-
-  const pickFile = (setter: (f: File | null) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] ?? null;
-    if (f && f.size > MAX_UPLOAD_BYTES) {
-      setError('Ukuran file maksimal 5MB');
-      return;
-    }
-    setError(null);
-    setter(f);
   };
 
   const handleSubmit = async () => {
@@ -280,31 +231,14 @@ export default function QuickRegisterPage() {
         login(res.data.user, res.data.access_token);
       }
 
-      // 2. Berkas.
-      setStage('files');
-      const ktpUrl = await uploadFileToS3(ktpFile!, 'ktp');
-      const selfieUrl = await uploadFileToS3(selfieFile!, 'selfie');
-      let vendorDocUrls = { akta_url: '', npwp_doc_url: '', nib_doc_url: '' };
-      if (isVendor) {
-        vendorDocUrls = {
-          akta_url: await uploadFileToS3(vendorDocs.akta!, 'documents'),
-          npwp_doc_url: await uploadFileToS3(vendorDocs.npwp!, 'documents'),
-          nib_doc_url: await uploadFileToS3(vendorDocs.nib!, 'documents'),
-        };
-      }
-      const mainCategoriesPayload = [];
-      for (const catId of chosenCats) {
-        const urls: string[] = [];
-        for (const file of evidence[catId] ?? []) {
-          urls.push(await uploadFileToS3(file, 'category-evidence'));
-        }
-        mainCategoriesPayload.push({ category_id: catId, evidence_urls: urls });
-      }
-
-      // 3. Pendaftaran + layanan pertama dalam satu panggilan.
+      // 2. Pendaftaran + layanan pertama dalam satu panggilan. Tanpa upload
+      // KYC/dokumen: paketnya menyusul di /mitra/kyc saat mau tarik dana.
       setStage('submit');
+      // partner-terms IKUT disetujui di sini (model instan): mitra bisa
+      // menerima order sejak detik pertama, jadi persetujuan kontrak mitranya
+      // tidak boleh menunggu modal re-consent di kunjungan berikutnya.
       const legalDocumentIds = (legalDocs || [])
-        .filter((d) => d.slug === 'terms' || d.slug === 'privacy')
+        .filter((d) => d.slug === 'terms' || d.slug === 'privacy' || d.slug === 'partner-terms')
         .map((d) => d.id);
 
       const lines = (s: string) => s.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -315,9 +249,6 @@ export default function QuickRegisterPage() {
           credentials: 'include',
           body: JSON.stringify({
             partner_type: partnerType,
-            ktp_number: ktpNumber.trim(),
-            ktp_photo_url: ktpUrl,
-            selfie_ktp_url: selfieUrl,
             bio: bio.trim(),
             service_area: [[region.district, region.city].filter(Boolean).join(', ') || 'general'],
             province: region.province,
@@ -326,11 +257,10 @@ export default function QuickRegisterPage() {
             address_detail: addressDetail.trim(),
             basecamp_lat: basecamp.lat,
             basecamp_lon: basecamp.lon,
-            bank_code: bank.bank_code,
-            bank_account_number: bank.bank_account_number.trim(),
-            bank_account_name: bank.bank_account_name.trim(),
             legal_document_ids: legalDocumentIds,
-            main_categories: mainCategoriesPayload,
+            // Bukti alat per kategori menyusul saat KYC (backend mengizinkan
+            // evidence kosong pada pendaftaran instan).
+            main_categories: chosenCats.map((catId) => ({ category_id: catId, evidence_urls: [] })),
             ...(isVendor
               ? {
                   display_name: vendor.display_name.trim(),
@@ -342,7 +272,6 @@ export default function QuickRegisterPage() {
                   pic_position: vendor.pic_position.trim(),
                   business_phone: vendor.business_phone.trim(),
                   business_email: vendor.business_email.trim(),
-                  ...vendorDocUrls,
                 }
               : {}),
             service: {
@@ -364,7 +293,24 @@ export default function QuickRegisterPage() {
         setServiceWarning(res.data.service_error || 'Layanan pertama gagal dibuat');
       }
 
-      // 4. Foto layanan menyusul: butuh id layanan yang baru lahir. Kegagalan
+      // Token sesi dicetak SEBELUM baris mitra lahir, jadi belum memuat klaim
+      // partner_id/role — tanpa refresh, seluruh endpoint mode mitra menolak
+      // sampai token kedaluwarsa. switch-role menerbitkan token baru ber-klaim
+      // (backend menerima mitra pending saat model instan ON). Best-effort:
+      // gagal di sini tidak menggagalkan pendaftaran yang sudah tersimpan.
+      try {
+        const sw = await fetchAPI<{ user: any; access_token: string }>('/auth/switch-role', {
+          method: 'POST',
+          credentials: 'include',
+          body: JSON.stringify({ target_role: 'partner' }),
+        });
+        if (sw.success && sw.data?.access_token) login(sw.data.user, sw.data.access_token);
+      } catch { /* silent refresh berikutnya memperbaikinya */ }
+      // Cache status verifikasi bisa memegang 'NONE' basi (mount /mitra/*
+      // sebelum daftar) — tanpa invalidasi, layout melempar mitra baru pulang.
+      queryClient.invalidateQueries({ queryKey: ['partner', 'me', 'verification-status'] });
+
+      // 3. Foto layanan menyusul: butuh id layanan yang baru lahir. Kegagalan
       // di sini tidak menggagalkan pendaftaran . fotonya bisa ditambah dari
       // menu Layanan.
       const svcId = res.data?.service_id;
@@ -401,11 +347,12 @@ export default function QuickRegisterPage() {
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="rounded-2xl border border-brand-gray-100 bg-white p-6 text-center lg:p-10">
           <CheckCircle2 className="mx-auto h-14 w-14 text-brand-success" />
-          <h1 className="mt-4 text-xl font-bold text-brand-gray-900">Pendaftaran Terkirim</h1>
+          <h1 className="mt-4 text-xl font-bold text-brand-gray-900">Selamat, Akun Mitramu Aktif!</h1>
           <p className="mt-2 text-sm leading-relaxed text-brand-gray-700">
-            Datamu sedang ditinjau tim kami. Begitu disetujui, layananmu langsung tayang dan bisa
-            menerima pesanan . jam kerja sementara diset <b>setiap hari 08.00–17.00</b> dan bisa
-            kamu ubah kapan pun dari menu Jadwal.
+            Layananmu <b>langsung tayang dan bisa dipesan sekarang</b>. Jam kerja sementara diset{' '}
+            <b>setiap hari 08.00–17.00</b> dan bisa kamu ubah kapan pun dari menu Jadwal. Untuk
+            mendapatkan badge <b>Terverifikasi</b> di profilmu dan bisa <b>menarik dana</b>, lengkapi
+            verifikasi identitas (KTP + rekening) kapan pun dari menu Verifikasi.
           </p>
           {serviceWarning && (
             <p className="mt-3 rounded-lg border border-brand-warning-border bg-brand-warning-soft p-3 text-xs text-brand-gray-700">
@@ -414,19 +361,37 @@ export default function QuickRegisterPage() {
           )}
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <button
-              onClick={() => router.push('/mitra/verification-status')}
+              onClick={() => router.push('/mitra/dashboard')}
               className="rounded-md bg-brand-red px-6 py-3 text-sm font-bold text-white hover:bg-brand-red-dark"
             >
-              Lihat Status Verifikasi
+              Buka Dasbor Mitra
             </button>
             <button
-              onClick={() => router.push('/mitra/services')}
+              onClick={() => router.push('/mitra/kyc')}
               className="rounded-md border border-brand-gray-100 bg-white px-6 py-3 text-sm font-bold text-brand-gray-900 hover:border-brand-red hover:text-brand-red"
             >
-              Kelola Layanan
+              Verifikasi Identitas
             </button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // ── Sakelar instan OFF: form ini pasti ditolak backend ──
+  if (instantOff) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-12 text-center">
+        <h1 className="text-xl font-bold text-brand-gray-900">Pendaftaran Lewat Formulir Lengkap</h1>
+        <p className="mt-2 text-sm leading-relaxed text-brand-gray-700">
+          Saat ini pendaftaran mitra memakai formulir lengkap (dengan verifikasi KTP &amp; rekening).
+        </p>
+        <Link
+          href="/mitra/register"
+          className="mt-6 inline-block rounded-md bg-brand-red px-6 py-3 text-sm font-bold text-white hover:bg-brand-red-dark"
+        >
+          Lanjut ke Formulir Pendaftaran
+        </Link>
       </div>
     );
   }
@@ -452,9 +417,8 @@ export default function QuickRegisterPage() {
   const busy = stage !== 'idle';
   const busyLabel =
     stage === 'account' ? 'Membuat akun…'
-      : stage === 'files' ? 'Mengunggah berkas…'
-        : stage === 'submit' ? 'Mengirim pendaftaran…'
-          : stage === 'photos' ? 'Mengunggah foto layanan…' : '';
+      : stage === 'submit' ? 'Mengirim pendaftaran…'
+        : stage === 'photos' ? 'Mengunggah foto layanan…' : '';
 
   // Nomor section berurut. Bagian Akun hanya ada untuk pengunjung yang belum
   // login, jadi nomornya dihitung, bukan diketik tetap.
@@ -462,11 +426,9 @@ export default function QuickRegisterPage() {
   const secNum = {
     account: needAccount ? ++secNo : 0,
     type: ++secNo,
-    identity: ++secNo,
     location: ++secNo,
     category: ++secNo,
     service: ++secNo,
-    bank: ++secNo,
   };
 
   return (
@@ -474,9 +436,9 @@ export default function QuickRegisterPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-brand-gray-900">Daftar Jadi Mitra</h1>
         <p className="mt-1 text-sm leading-relaxed text-brand-gray-700">
-          Satu formulir, langsung lengkap: akun, identitas, kategori jasa, dan layanan pertamamu.
-          Tim kami meninjau dan menyetujui pendaftaranmu . setelah itu layananmu langsung bisa
-          dipesan. Sudah punya akun?{' '}
+          Satu formulir singkat . tanpa KTP, tanpa rekening. Begitu terkirim, akunmu{' '}
+          <b>langsung aktif dan layananmu bisa dipesan</b>. Verifikasi identitas menyusul saat kamu
+          mau menarik dana. Sudah punya akun?{' '}
           <Link href="/login?redirect=/jadi-mitra/daftar" className="font-semibold text-brand-red">
             Masuk dulu
           </Link>{' '}
@@ -541,7 +503,7 @@ export default function QuickRegisterPage() {
               <button
                 key={t}
                 type="button"
-                onClick={() => { setPartnerType(t); setChosenCats([]); setEvidence({}); setService({ ...service, category_id: '' }); }}
+                onClick={() => { setPartnerType(t); setChosenCats([]); setService({ ...service, category_id: '' }); }}
                 className={`flex-1 rounded-md border p-3 text-sm font-semibold transition-colors ${
                   partnerType === t
                     ? 'border-brand-red bg-brand-red-soft text-brand-red'
@@ -589,64 +551,12 @@ export default function QuickRegisterPage() {
                     onChange={(e) => setVendor({ ...vendor, nib: e.target.value })} />
                 </div>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {(
-                  [
-                    { key: 'akta', label: 'Akta Pendirian *' },
-                    { key: 'npwp', label: 'Dokumen NPWP Badan *' },
-                    { key: 'nib', label: 'Dokumen NIB *' },
-                  ] as const
-                ).map((d) => (
-                  <div key={d.key}>
-                    <label htmlFor={`qr-doc-${d.key}`} className={LABEL_CLASS}>{d.label}</label>
-                    <input
-                      id={`qr-doc-${d.key}`}
-                      type="file"
-                      accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf"
-                      className="w-full text-xs text-brand-gray-700 file:mr-2 file:rounded-md file:border-0 file:bg-brand-gray-60 file:px-3 file:py-2 file:text-xs file:font-semibold hover:file:bg-brand-gray-100"
-                      onChange={pickFile((f) => setVendorDocs((v) => ({ ...v, [d.key]: f })))}
-                    />
-                    {vendorDocs[d.key] && (
-                      <p className="mt-1 truncate text-xs text-brand-gray-450">{vendorDocs[d.key]!.name}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
               <p className="text-xs text-brand-gray-450">
-                KTP di bagian berikutnya adalah KTP penanggung jawab (PIC), bukan &quot;KTP perusahaan&quot;.
+                Dokumen badan usaha (akta pendirian, NPWP badan, NIB) TIDAK diminta sekarang .
+                diunggah nanti bersama verifikasi identitas saat kamu mau menarik dana.
               </p>
             </div>
           )}
-        </section>
-
-        {/* ── Identitas ── */}
-        <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>
-            <IdCard className="h-5 w-5 shrink-0 text-brand-red" />
-            {secNum.identity}. Identitas {isVendor ? 'PIC ' : ''}(KTP)
-          </h2>
-          <div>
-            <label htmlFor="qr-ktp" className={LABEL_CLASS}>NIK KTP *</label>
-            <input id="qr-ktp" className={INPUT_CLASS} inputMode="numeric" maxLength={16}
-              value={ktpNumber} placeholder="16 digit"
-              onChange={(e) => setKtpNumber(e.target.value.replace(/\D/g, ''))} />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="qr-ktp-file" className={LABEL_CLASS}>Foto KTP *</label>
-              <input id="qr-ktp-file" type="file" accept="image/jpeg,image/png,image/jpg,image/webp"
-                className="w-full text-xs text-brand-gray-700 file:mr-2 file:rounded-md file:border-0 file:bg-brand-gray-60 file:px-3 file:py-2 file:text-xs file:font-semibold hover:file:bg-brand-gray-100"
-                onChange={pickFile(setKtpFile)} />
-              {ktpFile && <p className="mt-1 truncate text-xs text-brand-gray-450">{ktpFile.name}</p>}
-            </div>
-            <div>
-              <label htmlFor="qr-selfie-file" className={LABEL_CLASS}>Foto KTP bagian belakang *</label>
-              <input id="qr-selfie-file" type="file" accept="image/jpeg,image/png,image/jpg,image/webp"
-                className="w-full text-xs text-brand-gray-700 file:mr-2 file:rounded-md file:border-0 file:bg-brand-gray-60 file:px-3 file:py-2 file:text-xs file:font-semibold hover:file:bg-brand-gray-100"
-                onChange={pickFile(setSelfieFile)} />
-              {selfieFile && <p className="mt-1 truncate text-xs text-brand-gray-450">{selfieFile.name}</p>}
-            </div>
-          </div>
         </section>
 
         {/* ── Lokasi & profil ── */}
@@ -669,7 +579,7 @@ export default function QuickRegisterPage() {
             <p className="mt-2 text-xs leading-relaxed text-brand-gray-450">
               Pelanggan di sekitar titik inilah yang akan menemukanmu. Titik pastinya tidak pernah ditampilkan ke publik.
               <br />
-              <b className="text-brand-red">Penting:</b> Pastikan pin peta seakurat mungkin. Jika jarak pelanggan melebihi 15 km, kamu akan mendapat tambahan <b>Biaya Transportasi (Rp 3.000 / km berikutnya)</b>. 
+              <b className="text-brand-red">Penting:</b> Pastikan pin peta seakurat mungkin. Jika jarak pelanggan melebihi 15 km, kamu akan mendapat tambahan <b>Biaya Transportasi (Rp 3.000 / km berikutnya)</b>.
               Mitra menerima <b>100%</b> dari biaya transportasi ini tanpa dipotong biaya admin platform!
             </p>
           </div>
@@ -681,14 +591,15 @@ export default function QuickRegisterPage() {
           </div>
         </section>
 
-        {/* ── Kategori + bukti ── */}
+        {/* ── Kategori ── */}
         <section className={SECTION_CLASS}>
           <h2 className={SECTION_TITLE_CLASS}>
             <GridIcon className="h-5 w-5 shrink-0 text-brand-red" />
             {secNum.category}. Keahlian & Kategori
           </h2>
           <p className="text-xs text-brand-gray-450">
-            Pilih {quota === 1 ? 'satu' : `sampai ${quota}`} kategori utama, lalu unggah foto bukti keahlian yang relevan (1–{MAX_EVIDENCE_PHOTOS} foto per kategori).
+            Pilih {quota === 1 ? 'satu' : `sampai ${quota}`} kategori utama sesuai keahlianmu. Foto
+            bukti alat &amp; bahan diminta nanti saat verifikasi identitas . tidak sekarang.
           </p>
           <div className="flex flex-wrap gap-2">
             {(categories ?? []).map((c) => {
@@ -713,32 +624,6 @@ export default function QuickRegisterPage() {
               );
             })}
           </div>
-          {chosenCats.map((catId) => {
-            const cat = (categories ?? []).find((c) => c.id === catId);
-            return (
-              <div key={catId}>
-                <span className={LABEL_CLASS}>Bukti Keahlian/Peralatan (Wajib) . {cat?.name ?? 'Kategori'} *</span>
-                <p className="mb-2 text-xs text-brand-gray-450">Foto alat, bahan, atau sertifikat untuk membuktikan kamu ahli di bidang ini.</p>
-                <PhotoPickerBox
-                  id={`evidence-${catId}`}
-                  items={evidenceItems(catId)}
-                  max={MAX_EVIDENCE_PHOTOS}
-                  accept="image/jpeg,image/png,image/jpg,image/webp"
-                  onPick={(picked) => {
-                    if (!picked) return;
-                    const files = Array.from(picked).filter((f) => f.size <= MAX_UPLOAD_BYTES);
-                    setEvidence((ev) => ({
-                      ...ev,
-                      [catId]: [...(ev[catId] ?? []), ...files].slice(0, MAX_EVIDENCE_PHOTOS),
-                    }));
-                  }}
-                  onRemove={(i) =>
-                    setEvidence((ev) => ({ ...ev, [catId]: (ev[catId] ?? []).filter((_, idx) => idx !== i) }))
-                  }
-                />
-              </div>
-            );
-          })}
         </section>
 
         {/* ── Layanan pertama ── */}
@@ -748,21 +633,21 @@ export default function QuickRegisterPage() {
             {secNum.service}. Etalase Layanan Pertama
           </h2>
           <p className="text-xs text-brand-gray-450">
-            Inilah yang langsung dilihat pelanggan begitu pendaftaranmu disetujui. Buatlah semenarik mungkin.
+            Inilah yang langsung dilihat pelanggan begitu kamu selesai mendaftar. Buatlah semenarik mungkin.
           </p>
           {/* Foto sengaja PALING ATAS: etalase tanpa foto nyaris tidak pernah
               dilirik, jadi jangan sampai jadi isian terakhir yang diskip. */}
           <div>
-            <span className={LABEL_CLASS}>Foto Hasil Kerja (Etalase) * (1–{MAX_EVIDENCE_PHOTOS} foto)</span>
+            <span className={LABEL_CLASS}>Foto Hasil Kerja (Etalase) * (1–{MAX_SERVICE_PHOTOS} foto)</span>
             <PhotoPickerBox
               id="qr-svc-photos"
               items={servicePhotoItems}
-              max={MAX_EVIDENCE_PHOTOS}
+              max={MAX_SERVICE_PHOTOS}
               accept="image/jpeg,image/png,image/jpg,image/webp"
               onPick={(picked) => {
                 if (!picked) return;
                 const files = Array.from(picked).filter((f) => f.size <= MAX_UPLOAD_BYTES);
-                setServicePhotos((prev) => [...prev, ...files].slice(0, MAX_EVIDENCE_PHOTOS));
+                setServicePhotos((prev) => [...prev, ...files].slice(0, MAX_SERVICE_PHOTOS));
               }}
               onRemove={(i) => setServicePhotos((prev) => prev.filter((_, idx) => idx !== i))}
             />
@@ -847,42 +732,8 @@ export default function QuickRegisterPage() {
           </p>
         </section>
 
-        {/* ── Rekening ── */}
-        <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>
-            <Wallet className="h-5 w-5 shrink-0 text-brand-red" />
-            {secNum.bank}. Rekening Pencairan
-          </h2>
-          {isVendor && (
-            <p className="rounded-lg border border-brand-warning-border bg-brand-warning-soft p-3 text-xs text-brand-gray-700">
-              Rekening wajib <b>atas nama badan usaha</b>, bukan rekening pribadi PIC. Nama yang tidak
-              cocok akan ditolak saat verifikasi.
-            </p>
-          )}
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div>
-              <label htmlFor="qr-bank" className={LABEL_CLASS}>Bank *</label>
-              <select id="qr-bank" className={INPUT_CLASS} value={bank.bank_code}
-                onChange={(e) => setBank({ ...bank, bank_code: e.target.value })}>
-                <option value="">Pilih bank</option>
-                {BANK_OPTIONS.map((b) => <option key={b} value={b}>{b}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="qr-accno" className={LABEL_CLASS}>Nomor rekening *</label>
-              <input id="qr-accno" className={INPUT_CLASS} inputMode="numeric" value={bank.bank_account_number}
-                onChange={(e) => setBank({ ...bank, bank_account_number: e.target.value.replace(/\D/g, '') })} />
-            </div>
-            <div>
-              <label htmlFor="qr-accname" className={LABEL_CLASS}>Atas nama *</label>
-              <input id="qr-accname" className={INPUT_CLASS} value={bank.bank_account_name}
-                onChange={(e) => setBank({ ...bank, bank_account_name: e.target.value })} />
-            </div>
-          </div>
-        </section>
-
         {/* ── Legal + submit ── */}
-        <LegalConsentCheckbox checked={agreed} onChange={setAgreed} />
+        <LegalConsentCheckbox checked={agreed} onChange={setAgreed} includePartnerTerms />
 
         <button
           type="button"
@@ -890,10 +741,12 @@ export default function QuickRegisterPage() {
           onClick={handleSubmit}
           className="h-12 w-full rounded-md bg-brand-red text-base font-bold text-white transition-colors hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {busy ? busyLabel : 'Kirim Pendaftaran'}
+          {busy ? busyLabel : 'Daftar & Langsung Aktif'}
         </button>
         <p className="text-center text-xs text-brand-gray-450">
-          Dengan mengirim, datamu akan ditinjau tim kami. Keputusan persetujuan sepenuhnya di tangan admin.
+          Akunmu aktif seketika setelah mendaftar. Verifikasi identitas (KTP + rekening) diperlukan
+          hanya saat kamu ingin menarik dana . profilmu memakai badge &quot;Belum Terverifikasi&quot;
+          sampai verifikasimu disetujui.
         </p>
       </div>
     </div>

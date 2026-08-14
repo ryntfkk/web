@@ -99,6 +99,8 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
   const excludeBottomNavPatterns = [
     '/mitra/register',
     '/mitra/verification-status',
+    // Wizard KYC (model mitra instan) . form panjang dengan aksi di dasar layar.
+    '/mitra/kyc',
     '/mitra/services/new',
     '/mitra/wallet/withdraw',
     '/mitra/basecamp',
@@ -167,7 +169,7 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
           excluded flow: bilah aksi halaman jadi satu-satunya CTA bawah, dan
           tombol back di MitraPageHeader cukup untuk navigasi naik di md. */}
       <div className={`lg:hidden ${isExcludedFlow ? 'hidden' : 'block'}`}>
-        <MitraBottomNav approved={verification === 'APPROVED'} />
+        <MitraBottomNav />
       </div>
     </>
   );

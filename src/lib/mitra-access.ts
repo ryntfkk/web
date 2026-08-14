@@ -3,21 +3,20 @@ import type { PartnerApplicationStatus } from '@/hooks/usePartnerVerificationSta
 /**
  * Matrix akses mode mitra (P1-10) . SATU definisi untuk seluruh aplikasi.
  *
- * Sebelumnya mitra berstatus pending/rejected bisa membuka semua halaman
- * operasional. Halamannya memuat, tombolnya bisa ditekan, lalu backend menolak .
- * atau lebih buruk, membalas sukses atas nol baris. Yang dilihat mitra adalah
- * aplikasi yang seolah berfungsi padahal belum boleh dipakai.
+ * ⚠️ MODEL MITRA INSTAN (PLAN-MITRA-INSTAN, 2026-08-14): `verification_status`
+ * berubah makna dari "gerbang boleh beroperasi" menjadi "status KYC". Mitra
+ * PENDING/REJECTED kini LIVE sejak mendaftar . tampil publik, bisa dipesan,
+ * dan backend memberi role `partner` + klaim JWT sejak onboarding. Yang
+ * digerbangi KYC hanya TARIK DANA (backend membalas `KYC_REQUIRED`).
  *
- * Tiga tingkat, dan pembagiannya berdasar satu pertanyaan: **apakah halaman ini
- * mengandaikan bisnisnya sudah hidup?**
+ * Konsekuensinya matrix ini menyusut jadi dua pertanyaan:
+ *  - `always`/`prepare`/`live` DIPERTAHANKAN sebagai taksonomi (dipakai
+ *    banner persiapan & test), tetapi PENDING/REJECTED kini lolos ketiganya.
+ *  - Satu-satunya yang tetap tertutup: akun TANPA baris mitra (`NONE`) dan
+ *    status yang belum diketahui (layout menahan render sampai tahu).
  *
- * - `always`  . akun & berkas. Justru inilah yang harus dikerjakan mitra pending.
- * - `prepare` . menyiapkan etalase. Aman sebelum disetujui karena layanan mitra
- *               non-approved TIDAK tampil publik (query publik menyaring
- *               `verification_status = 'approved'`), jadi tak ada pelanggan yang
- *               bisa memesannya lebih dulu.
- * - `live`    . mengandaikan ada pesanan, pelanggan, atau uang. Tidak masuk akal
- *               sebelum disetujui.
+ * Riwayat model lama (pending hanya always+prepare) ada di git . jangan
+ * dikembalikan tanpa membaca PLAN-MITRA-INSTAN §2.
  */
 export type MitraAccessLevel = 'always' | 'prepare' | 'live';
 
@@ -25,6 +24,8 @@ export type MitraAccessLevel = 'always' | 'prepare' | 'live';
 const ACCESS_RULES: Array<{ prefix: string; level: MitraAccessLevel }> = [
   // ── always ──
   { prefix: '/mitra/verification-status', level: 'always' },
+  // Wizard KYC menyusul (model mitra instan): syarat tarik dana + badge.
+  { prefix: '/mitra/kyc', level: 'always' },
   { prefix: '/mitra/register', level: 'always' },
   { prefix: '/mitra/profile', level: 'always' },
   { prefix: '/mitra/documents', level: 'always' },
@@ -50,9 +51,9 @@ const ACCESS_RULES: Array<{ prefix: string; level: MitraAccessLevel }> = [
 ];
 
 /**
- * Rute mitra yang tidak terdaftar dianggap `live` . fail-closed. Halaman baru
- * lebih baik terlalu tertutup lalu ketahuan, daripada diam-diam terbuka untuk
- * mitra yang belum diverifikasi.
+ * Rute mitra yang tidak terdaftar dianggap `live`. Di model instan `live`
+ * terbuka untuk semua status pelamar, jadi fail-closed-nya kini terletak pada
+ * `NONE`/undefined . bukan pada level.
  */
 export function accessLevelFor(pathname: string | null): MitraAccessLevel {
   if (!pathname) return 'live';
@@ -73,8 +74,10 @@ export function canAccess(
   if (!status) return false;
   // Bukan pelamar sama sekali . tidak ada satu pun halaman mitra untuknya.
   if (status === 'NONE') return false;
-  if (status === 'APPROVED') return true;
-  return level === 'prepare';
+  // Model mitra instan: PENDING/REJECTED = mitra live yang belum lolos KYC.
+  // Seluruh halaman operasional terbuka; gerbang KYC hidup di alur tarik dana
+  // (halaman withdraw + backend KYC_REQUIRED), bukan di matrix ini.
+  return true;
 }
 
 /**
@@ -82,18 +85,12 @@ export function canAccess(
  *
  * Dua jalan masuk, dan keduanya perlu:
  *
- *  1. `active_role === 'partner'` . mitra yang sudah disetujui dan menekan
- *     "Mode Mitra". Ini satu-satunya jalan yang dulu ada.
- *  2. **Pelamar**: akun yang punya pengajuan berstatus PENDING/REJECTED.
- *     Backend TIDAK memberinya role `partner` (dan itu benar . role itu
- *     membuka endpoint order/chat/wallet), sehingga sebelum ini ia tidak
- *     pernah bisa mencapai halaman `prepare` yang secara eksplisit
- *     diizinkan matrix akses di atas. Yang dijanjikan "daftar → siapkan
- *     layanan sambil menunggu" tidak pernah bisa dilakukan siapa pun.
- *
- * Kapabilitasnya tetap dibatasi `canAccess`: pelamar hanya `always` +
- * `prepare`, tidak pernah `live`. Endpoint live tetap dijaga backend .
- * ini hanya membuka pintu yang memang sudah boleh dilewati.
+ *  1. `active_role === 'partner'` . mitra yang menekan "Mode Mitra". Di model
+ *     instan backend memberi role sejak onboarding, jadi jalur ini kini
+ *     mencakup mitra pending juga (setelah refresh token / switch-role).
+ *  2. **Pelamar** dengan pengajuan PENDING/REJECTED . penjaga untuk sesi yang
+ *     token-nya belum memuat klaim partner (JWT lama, lahir sebelum
+ *     onboarding).
  */
 export function canEnterMitraShell(
   activeRole: string | undefined,

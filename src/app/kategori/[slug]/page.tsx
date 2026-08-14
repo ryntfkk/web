@@ -70,9 +70,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const minPrice = minServicePrice(list);
   // Judul TANPA "| Posko Jasa": template di root layout sudah menambahkannya.
   // Sebelumnya ganda ("... | Posko Jasa | Posko Jasa") dan judul terpotong di SERP.
-  const title = `Jasa ${cat.name} - Mitra Terverifikasi`;
+  // "Mitra Terverifikasi" DIHAPUS dari title/description (model mitra instan):
+  // listing kini bisa memuat mitra belum-KYC, dan klaim itu jadi bohong di SERP.
+  // Badge per-mitra di kartu yang bicara jujur.
+  const title = `Jasa ${cat.name} - Panggil ke Lokasi`;
   const description =
-    `Bandingkan ${count > 0 ? `${countLabel(count, hasMore)} ` : ''}layanan ${cat.name} dari mitra terverifikasi di Posko Jasa` +
+    `Bandingkan ${count > 0 ? `${countLabel(count, hasMore)} ` : ''}layanan ${cat.name} di Posko Jasa` +
     `${minPrice ? `, harga mulai ${formatRupiah(minPrice)}` : ''}. Ulasan asli, pesan online.`;
   // Kategori tanpa layanan DAN tanpa subkategori = halaman tipis → noindex agar
   // tidak dinilai soft-404 (sejalan dengan aturan di /jasa/[kategori]/[kota]).

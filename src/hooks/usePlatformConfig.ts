@@ -19,6 +19,13 @@ export interface PlatformConfig {
   /** Plafon total per item biaya tambahan yang boleh diajukan mitra. */
   max_additional_fee: number;
   /**
+   * Sakelar model mitra instan (backend 000085). Menentukan bentuk pendaftaran
+   * mitra: true = form instan /jadi-mitra/daftar; false = wizard lama ber-KYC.
+   * `undefined` (backend lama / /config gagal) diperlakukan seperti true .
+   * keadaan tunak pasca-rilis; backend tetap penjaga sesungguhnya.
+   */
+  instant_partner_activation?: boolean;
+  /**
    * Identitas & kontak platform. Setiap field boleh kosong . tampilkan secara
    * KONDISIONAL, jangan cetak "-": itu memberi kesan datanya ada tapi hilang.
    * Absen sama sekali bila profil gagal dibaca.

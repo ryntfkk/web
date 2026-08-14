@@ -101,17 +101,19 @@ export default function MitraSidebar({ verification }: Props) {
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+        {/* Model mitra instan: banner ini bukan lagi soal menu yang terkunci .
+            akun sudah live; yang tertahan hanyalah badge + penarikan dana. */}
         {!approved && (
           <Link
-            href="/mitra/verification-status"
+            href="/mitra/kyc"
             className="mb-2 flex items-start gap-2 rounded-md border border-brand-warning-border bg-brand-warning-soft p-2.5 text-xs text-brand-gray-700"
           >
             <ClipboardCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-warning-dark" />
             <span>
               <span className="block font-semibold text-brand-gray-900">
-                {verification === 'REJECTED' ? 'Verifikasi ditolak' : 'Menunggu verifikasi'}
+                {verification === 'REJECTED' ? 'Verifikasi ditolak' : 'Belum terverifikasi'}
               </span>
-              Sebagian menu terbuka setelah disetujui.
+              Lengkapi verifikasi identitas untuk badge Terverifikasi &amp; tarik dana.
             </span>
           </Link>
         )}

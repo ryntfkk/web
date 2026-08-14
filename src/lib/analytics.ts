@@ -36,9 +36,11 @@ export type AnalyticsEvent =
   | 'partner_landing_viewed'
   | 'partner_landing_cta_clicked'
   | 'home_partner_banner_clicked'
-  // Form satu-atap /jadi-mitra/daftar (akun + KYC + kategori + layanan pertama)
+  // Form instan /jadi-mitra/daftar (akun + kategori + layanan pertama . tanpa KYC)
   | 'partner_quick_register_viewed'
   | 'partner_quick_register_submitted'
+  // Wizard KYC menyusul /mitra/kyc (model mitra instan): paket KTP + rekening.
+  | 'partner_kyc_submitted'
   // ── Dompet pelanggan ──
   // Refund pembatalan/no-show mengkredit dompet PELANGGAN, dan penarikannya
   // memakai jalur `/wallet/*` yang sama dengan mitra. Event-nya sengaja

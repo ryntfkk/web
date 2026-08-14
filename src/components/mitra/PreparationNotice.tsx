@@ -7,11 +7,12 @@ import MitraPageContainer, { type MitraContainerVariant } from './MitraPageConta
 
 /**
  * Ditampilkan di halaman "prepare" (layanan, portofolio, jadwal) untuk mitra
- * yang belum disetujui (P1-10).
+ * yang belum lolos KYC.
  *
- * Tanpa ini, mitra menyiapkan etalasenya lalu bingung kenapa tidak ada yang
- * memesan . layanannya memang belum tampil publik. Menjelaskannya di tempat ia
- * bekerja lebih jujur daripada membiarkannya menebak.
+ * MODEL MITRA INSTAN: layanan mitra belum-KYC SUDAH tampil publik & bisa
+ * dipesan . kebalikan model lama. Spanduk ini kini bicara soal badge &
+ * penarikan dana, BUKAN soal etalase yang tersembunyi. Jangan kembalikan
+ * kalimat "baru tampil setelah disetujui" . itu janji privasi yang tidak ada.
  */
 export default function PreparationNotice({
   status,
@@ -36,17 +37,18 @@ export default function PreparationNotice({
         />
         <div className="min-w-0">
           <p className="text-xs font-semibold text-brand-gray-900">
-            {rejected ? 'Verifikasi ditolak' : 'Menunggu verifikasi'}
+            {rejected ? 'Verifikasi ditolak' : 'Belum terverifikasi'}
           </p>
           <p className="mt-0.5 text-xs leading-snug text-brand-gray-700">
-            Kamu tetap bisa menyiapkan semuanya dari sini. Yang kamu simpan{' '}
-            <strong>baru tampil ke pelanggan setelah akunmu disetujui</strong>.
+            Layananmu <strong>sudah tayang dan bisa dipesan</strong>. Lengkapi
+            verifikasi identitas untuk badge Terverifikasi di profilmu dan untuk
+            bisa menarik dana.
           </p>
           <Link
-            href="/mitra/verification-status"
+            href={rejected ? '/mitra/verification-status' : '/mitra/kyc'}
             className="mt-1.5 inline-block text-xs font-semibold text-brand-red hover:underline"
           >
-            {rejected ? 'Lihat alasan & ajukan ulang' : 'Lihat status verifikasi'}
+            {rejected ? 'Lihat alasan & ajukan ulang' : 'Verifikasi sekarang'}
           </Link>
         </div>
       </div>

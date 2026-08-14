@@ -14,9 +14,16 @@ interface Props {
   /** Konteks tambahan di atas checkbox . mis. rincian komisi untuk mitra. */
   children?: React.ReactNode;
   id?: string;
+  /**
+   * Form PENDAFTARAN MITRA menyetel true: S&K Mitra ikut disetujui di momen
+   * daftar (model mitra instan . mitra bisa menerima order sejak detik
+   * pertama, kontraknya tidak boleh menyusul lewat modal re-consent).
+   * Form pelanggan biasa JANGAN menyalakannya.
+   */
+  includePartnerTerms?: boolean;
 }
 
-export default function LegalConsentCheckbox({ checked, onChange, children, id = 'legal-consent' }: Props) {
+export default function LegalConsentCheckbox({ checked, onChange, children, id = 'legal-consent', includePartnerTerms = false }: Props) {
   return (
     <div className="rounded-2xl border border-brand-gray-100 bg-brand-gray-50/50 p-3.5">
       {children}
@@ -37,7 +44,7 @@ export default function LegalConsentCheckbox({ checked, onChange, children, id =
           >
             Syarat &amp; Ketentuan
           </Link>{' '}
-          dan{' '}
+          {includePartnerTerms ? ', ' : ' dan '}
           <Link
             href="/privacy"
             target="_blank"
@@ -45,6 +52,18 @@ export default function LegalConsentCheckbox({ checked, onChange, children, id =
           >
             Kebijakan Privasi
           </Link>
+          {includePartnerTerms && (
+            <>
+              , dan{' '}
+              <Link
+                href="/legal/partner-terms"
+                target="_blank"
+                className="font-semibold text-brand-red hover:underline"
+              >
+                S&amp;K Mitra
+              </Link>
+            </>
+          )}
           , termasuk ketentuan penyimpanan data setelah akun dihapus.
         </span>
       </label>

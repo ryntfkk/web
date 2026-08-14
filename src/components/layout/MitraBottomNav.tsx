@@ -1,10 +1,15 @@
 "use client";
 
 import Link from 'next/link';
-import { LayoutDashboard, Package, MessageSquare, Settings, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Package, MessageSquare, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useUnreadChatCount } from '@/hooks/useChatRooms';
 
+// Model mitra instan (PLAN-MITRA-INSTAN): SATU navigasi untuk semua status.
+// Varian `pendingNavItems` lama dihapus . mitra pending kini benar-benar live
+// (pesanan/chat berfungsi), jadi menyembunyikan tujuannya bukan lagi
+// perlindungan melainkan jebakan terbalik. Status KYC punya pintunya sendiri
+// di /mitra/profile & banner dompet.
 const navItems = [
   { href: '/mitra/dashboard', label: 'Beranda', icon: LayoutDashboard },
   { href: '/mitra/orders', label: 'Pesanan', icon: Package },
@@ -12,19 +17,10 @@ const navItems = [
   { href: '/mitra/profile', label: 'Profil', icon: Settings },
 ];
 
-// Navigasi mitra yang BELUM disetujui: hanya tujuan yang benar-benar bisa ia
-// pakai (P1-10). Menawarkan "Pesanan" lalu melemparnya kembali ke halaman
-// status adalah jebakan, bukan navigasi.
-const pendingNavItems = [
-  { href: '/mitra/verification-status', label: 'Status', icon: ClipboardCheck },
-  { href: '/mitra/services', label: 'Layanan', icon: Package },
-  { href: '/mitra/profile', label: 'Profil', icon: Settings },
-];
-
-export default function MitraBottomNav({ approved = true }: { approved?: boolean }) {
+export default function MitraBottomNav() {
   const pathname = usePathname();
   const unreadCount = useUnreadChatCount();
-  const items = approved ? navItems : pendingNavItems;
+  const items = navItems;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-gray-100 pb-safe z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">

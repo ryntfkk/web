@@ -1,13 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchAPI } from '@/lib/api';
 
-// F2 (MITRA-IMPLEMENTATION-PLAN): hook tunggal untuk status verifikasi mitra.
-// Backend kirim enum LOWERCASE ('pending'/'approved'/'rejected'); hook
-// normalisasi ke UPPERCASE supaya konsumen tidak perlu .toUpperCase() tiap
-// tempat. Default fail-closed ke 'PENDING' (bukan 'VERIFIED') . lihat plan §2.
+// F2: hook tunggal untuk status verifikasi mitra. Backend kirim enum LOWERCASE
+// ('pending'/'approved'/'rejected'); hook normalisasi ke UPPERCASE supaya
+// konsumen tidak perlu .toUpperCase() tiap tempat.
 //
-// isVerified = true HANYA jika status 'APPROVED'. Dipakai untuk sembunyikan
-// tombol hapus/edit data verifikasi di halaman mitra.
+// ⚠️ MODEL MITRA INSTAN (PLAN-MITRA-INSTAN): makna status ini kini = STATUS
+// KYC, bukan "boleh beroperasi". PENDING/REJECTED tetap live (matrix akses
+// membukanya); yang digerbangi hanyalah badge & tarik dana.
+//
+// Fallback error → 'PENDING' arahnya kini GANDA dan dua-duanya aman:
+//   - untuk matrix akses: PENDING membuka halaman (mitra live memang boleh);
+//   - untuk gerbang tarik dana & lock data: PENDING MENUTUP (fail-closed di
+//     sisi uang) . backend tetap penjaga sesungguhnya (KYC_REQUIRED).
+//
+// isVerified = true HANYA jika status 'APPROVED'. Dipakai untuk badge, gerbang
+// tarik dana, dan sembunyikan tombol hapus/edit data verifikasi (lock F1).
 
 export type PartnerVerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 

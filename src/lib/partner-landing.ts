@@ -160,13 +160,14 @@ export const FLOW_STEPS = [
 
 /* ─────────── Prep items ─────────── */
 
-/** Yang perlu disiapkan sebelum mendaftar . urut sesuai langkah form. */
+/** Yang perlu disiapkan sebelum mendaftar . urut sesuai langkah form.
+ *  Model mitra instan: TANPA KTP & TANPA rekening . keduanya menyusul saat
+ *  verifikasi identitas (sebelum tarik dana pertama). */
 export const PREP_ITEMS = [
-  'Foto KTP',
-  'Data badan usaha beserta dokumennya (khusus vendor/PT/CV)',
-  'Foto profil dan deskripsi singkat keahlian Anda',
+  'Deskripsi singkat keahlian Anda',
+  'Data badan usaha (khusus vendor/PT/CV . dokumennya menyusul saat verifikasi)',
   'Titik lokasi basecamp tempat Anda beroperasi',
-  'Nomor rekening bank untuk pencairan dana',
+  'Foto hasil kerja untuk etalase layanan pertama',
 ];
 
 /* ─────────── Early advantages ─────────── */
@@ -227,11 +228,11 @@ export function partnerFaq(cfg: PlatformConfig): FaqItem[] {
     },
     {
       q: 'Siapa saja yang bisa mendaftar jadi mitra?',
-      a: 'Perorangan maupun badan usaha. Pendaftar perorangan diverifikasi lewat KTP dan swafoto; pendaftar badan usaha melengkapi data serta dokumen usahanya. Keduanya perlu rekening bank untuk pencairan dana.',
+      a: 'Perorangan maupun badan usaha. Mendaftar tidak butuh KTP maupun rekening bank - akun langsung aktif dan layanan Anda langsung bisa dipesan. Verifikasi identitas (KTP + swafoto + rekening; badan usaha menambah dokumen usahanya) dilakukan satu kali saat Anda ingin menarik dana, dan setelah lolos profil Anda mendapat badge Terverifikasi.',
     },
     {
       q: 'Kapan uang hasil pekerjaan bisa saya tarik?',
-      a: `Pembayaran pelanggan ditahan Posko sampai pekerjaan dinyatakan selesai, lalu bagian Anda masuk ke saldo dan bisa diajukan penarikan ke rekening pribadi.${slaTarik ? ` Pencairan diproses ${slaTarik}.` : ''}`,
+      a: `Pembayaran pelanggan ditahan Posko sampai pekerjaan dinyatakan selesai, lalu bagian Anda masuk ke saldo. Penarikan ke rekening terbuka setelah verifikasi identitas Anda disetujui - saldo tetap aman tersimpan selama proses itu.${slaTarik ? ` Pencairan diproses ${slaTarik}.` : ''}`,
     },
     {
       q: 'Apakah saya harus siap menerima pesanan setiap saat?',

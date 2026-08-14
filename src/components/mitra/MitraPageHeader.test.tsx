@@ -24,7 +24,13 @@ function renderAt(pathname: string, verification: string | undefined) {
   return render(<MitraPageHeader title="Layanan Saya" />);
 }
 
-describe('MitraPageHeader . spanduk menunggu verifikasi', () => {
+/**
+ * Model mitra instan (PLAN-MITRA-INSTAN): spanduk untuk mitra belum-KYC kini
+ * berjudul "Belum terverifikasi" dan bicara soal badge + tarik dana . BUKAN
+ * lagi "Menunggu verifikasi"/"baru tampil setelah disetujui" (layanan mitra
+ * pending SUDAH tayang publik). Test direvisi sengaja bersama copy-nya.
+ */
+describe('MitraPageHeader . spanduk verifikasi KYC', () => {
   /**
    * Inti keluhannya: spanduk dulu dirender shell (`MitraLayoutClient`) SEBELUM
    * `{children}`, sementara header halaman ada di dalam children . jadi
@@ -34,7 +40,7 @@ describe('MitraPageHeader . spanduk menunggu verifikasi', () => {
     const { container } = renderAt('/mitra/services', 'PENDING');
 
     const sticky = container.querySelector('.sticky');
-    const notice = screen.getByText('Menunggu verifikasi');
+    const notice = screen.getByText('Belum terverifikasi');
     expect(sticky).not.toBeNull();
     // Node.DOCUMENT_POSITION_FOLLOWING = spanduk muncul sesudah header.
     expect(sticky!.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -44,15 +50,20 @@ describe('MitraPageHeader . spanduk menunggu verifikasi', () => {
     for (const path of ['/mitra/services', '/mitra/services/new', '/mitra/portfolio', '/mitra/schedule']) {
       const { unmount } = renderAt(path, 'PENDING');
       // getByText sendiri sudah melempar bila tidak ada.
-      expect(screen.getByText('Menunggu verifikasi')).toBeTruthy();
+      expect(screen.getByText('Belum terverifikasi')).toBeTruthy();
       unmount();
     }
+  });
+
+  it('mengarahkan mitra pending ke wizard KYC', () => {
+    renderAt('/mitra/services', 'PENDING');
+    expect(screen.getByText('Verifikasi sekarang').getAttribute('href')).toBe('/mitra/kyc');
   });
 
   it('DIAM di halaman `always` dan `live` . di sana bukan itu pesannya', () => {
     for (const path of ['/mitra/profile', '/mitra/documents', '/mitra/dashboard', '/mitra/wallet']) {
       const { unmount } = renderAt(path, 'PENDING');
-      expect(screen.queryByText('Menunggu verifikasi')).toBeNull();
+      expect(screen.queryByText('Belum terverifikasi')).toBeNull();
       unmount();
     }
   });
@@ -60,7 +71,7 @@ describe('MitraPageHeader . spanduk menunggu verifikasi', () => {
   it('DIAM untuk mitra yang sudah disetujui / status belum diketahui', () => {
     for (const status of ['APPROVED', 'NONE', undefined]) {
       const { unmount } = renderAt('/mitra/services', status);
-      expect(screen.queryByText('Menunggu verifikasi')).toBeNull();
+      expect(screen.queryByText('Belum terverifikasi')).toBeNull();
       expect(screen.queryByText('Verifikasi ditolak')).toBeNull();
       unmount();
     }
