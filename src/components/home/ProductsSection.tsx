@@ -4,6 +4,19 @@ import Link from 'next/link';
 import { usePublicServices } from '@/hooks/usePublicServices';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
+import { FeedbackCard } from '@/components/home/FeedbackCard';
+
+// Feed gaya Shopee: mobile = masonry (staggered, kartu tidak sejajar), desktop =
+// grid rapi sejajar. Multi-column (`columns-*`) di bawah md, lalu `md:columns-none
+// md:grid` mengambil alih . tiap item butuh `break-inside-avoid` + margin bawah
+// yang dinolkan saat sudah jadi grid (grid pakai `gap`).
+const MASONRY_CLASS =
+  'columns-2 gap-3 sm:columns-3 md:columns-none md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4';
+const ITEM_CLASS = 'mb-3 break-inside-avoid md:mb-0';
+
+// Sisipkan kartu "Masukan" setelah kartu ke-4 (atau di akhir bila kurang), agar
+// muncul lebih awal di feed tanpa mendominasi baris pertama.
+const FEEDBACK_SLOT = 4;
 
 export default function ProductsSection() {
   // Lokasi (bukan kota) = acuan jarak & urutan terdekat. Filter kota dihapus
@@ -30,17 +43,30 @@ export default function ProductsSection() {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+        <div className={MASONRY_CLASS}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
+            <div
+              key={i}
+              className={`${ITEM_CLASS} ${i % 2 ? 'h-[240px]' : 'h-[280px]'} bg-brand-gray-100 animate-pulse rounded-lg`}
+            />
           ))}
         </div>
       ) : isError ? (
         <div className="text-sm text-brand-error">Gagal memuat layanan.</div>
       ) : services && services.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-          {services.map((service) => (
-            <ServiceProductCard key={service.id} service={service} />
+        <div className={MASONRY_CLASS}>
+          {services.slice(0, FEEDBACK_SLOT).map((service) => (
+            <div key={service.id} className={ITEM_CLASS}>
+              <ServiceProductCard service={service} />
+            </div>
+          ))}
+          <div key="feedback-card" className={ITEM_CLASS}>
+            <FeedbackCard />
+          </div>
+          {services.slice(FEEDBACK_SLOT).map((service) => (
+            <div key={service.id} className={ITEM_CLASS}>
+              <ServiceProductCard service={service} />
+            </div>
           ))}
         </div>
       ) : (
