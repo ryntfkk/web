@@ -229,11 +229,11 @@ export default function TopNavbar() {
                             
                             <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
                               <User className="w-4 h-4" />
-                              Akun Saya
+                              Profil
                             </Link>
                             <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
                               <Package className="w-4 h-4" />
-                              Pesanan Saya
+                              Pesanan
                             </Link>
                             <Link href="/chat" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-brand-gray-700 hover:bg-brand-gray-50 hover:text-brand-red transition-colors" onClick={() => setIsDropdownOpen(false)}>
                               <MessageSquare className="w-4 h-4" />

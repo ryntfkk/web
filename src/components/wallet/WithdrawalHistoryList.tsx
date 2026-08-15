@@ -51,11 +51,17 @@ const STATUS_META: Record<
   FAILED: { label: 'Gagal', className: 'bg-brand-error-soft text-brand-error', icon: XCircle },
 };
 
+// Label chip mengikuti STATUS_META (badge) agar tak ada dua kata untuk satu
+// status, dan tiap status yang mungkin muncul PUNYA chip-nya sendiri . dulu
+// PROCESSING & FAILED hanya terlihat di "Semua" dan "Diproses" salah tunjuk
+// ke PENDING.
 const FILTERS: { value: '' | WithdrawalStatus; label: string }[] = [
   { value: '', label: 'Semua' },
-  { value: 'PENDING', label: 'Diproses' },
+  { value: 'PENDING', label: 'Menunggu' },
+  { value: 'PROCESSING', label: 'Diproses' },
   { value: 'COMPLETED', label: 'Berhasil' },
   { value: 'REJECTED', label: 'Ditolak' },
+  { value: 'FAILED', label: 'Gagal' },
 ];
 
 const PER_PAGE = 20;

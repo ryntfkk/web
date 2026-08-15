@@ -631,9 +631,10 @@ export default function OrderDetailClient() {
             <div className="min-w-0 flex-1">
               <StatusBadge status={status} size="sm" className="bg-white/20 border-white/30 text-white mb-1.5 sm:mb-2" />
               <h2 className="text-base sm:text-xl font-bold leading-snug">{hero.title}</h2>
-              {/* Deskripsi panjang disembunyikan di mobile (≤360px) untuk hemat
-                  ruang; judul + badge sudah cukup konteks. Tampilkan penuh di sm+. */}
-              <p className="hidden sm:block text-sm text-white/85 mt-1 max-w-xl">{hero.desc}</p>
+              {/* Deskripsi panjang disembunyikan HANYA di layar sangat sempit
+                  (<360px); di HP normal (≥360px) tetap tampil . panduan tindakan
+                  per status jangan hilang di seluruh mobile. */}
+              <p className="hidden min-[360px]:block text-sm text-white/85 mt-1 max-w-xl">{hero.desc}</p>
             </div>
 
             {status === 'WAITING_PAYMENT' && order.payment_expired_at && (

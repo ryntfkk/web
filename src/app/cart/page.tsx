@@ -286,7 +286,7 @@ export default function CartPage() {
               className="bg-brand-red hover:bg-brand-red-dark rounded-md px-6"
               onClick={() => handleCheckout(groups[0])}
             >
-              Checkout
+              Pesan
             </Button>
           ) : (
             <p className="text-[11px] text-brand-gray-450 text-right leading-snug">

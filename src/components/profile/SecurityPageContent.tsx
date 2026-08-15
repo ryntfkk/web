@@ -32,8 +32,8 @@ export default function SecurityPageContent({ user }: SecurityPageContentProps) 
       setError('Password baru dan konfirmasi password tidak cocok');
       return;
     }
-    if (newPassword.length < 6) {
-      setError('Password baru minimal 6 karakter');
+    if (newPassword.length < 8) {
+      setError('Password baru minimal 8 karakter');
       return;
     }
 
@@ -103,7 +103,7 @@ export default function SecurityPageContent({ user }: SecurityPageContentProps) 
               type="password"
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
-              placeholder="Minimal 6 karakter"
+              placeholder="Minimal 8 karakter"
               className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
             />
           </div>

@@ -37,9 +37,9 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     ],
   },
   {
-    title: 'Bantuan',
+    title: 'Dukungan',
     links: [
-      { label: 'FAQ', href: '/help' },
+      { label: 'Bantuan', href: '/help' },
       { label: 'Chat CS', href: '/bantuan' },
       { label: 'Hapus Akun', href: '/hapus-akun' },
     ],

@@ -5,7 +5,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store, Clock, AlertCircle, XCircle } from 'lucide-react';
+import { Package, Calendar, MapPin, ChevronRight, Loader2, Search, RotateCcw, Store, Clock, AlertCircle, XCircle, Star } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { OrderCardSkeleton } from '@/components/ui/skeleton';
@@ -480,13 +480,13 @@ function OrdersPageInner() {
                     <div className="px-4 py-2.5 border-t border-brand-red-light flex items-center justify-end gap-2 flex-wrap">
                       {order.status === 'WAITING_PAYMENT' && (
                         <Link href={`/payment/${order.id}`}>
-                          <Button size="sm" className="bg-brand-orange hover:bg-brand-orange rounded-md">Bayar</Button>
+                          <Button size="sm" className="bg-brand-orange hover:bg-brand-orange rounded-md">Bayar Sekarang</Button>
                         </Link>
                       )}
                       {order.status === 'COMPLETED' && (
                         <Link href={`/orders/${order.id}/review`}>
                           <Button size="sm" variant="secondary" className="border-brand-gray-100 text-brand-gray-700 rounded-md">
-                            <MessageSquare className="w-4 h-4 mr-1" /> Ulasan
+                            <Star className="w-4 h-4 mr-1" /> Beri Ulasan
                           </Button>
                         </Link>
                       )}

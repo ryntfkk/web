@@ -119,7 +119,7 @@ function RegisterContent() {
             <form className="space-y-6" onSubmit={handleSendOTP}>
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-brand-gray-900">
-                  Nomor Handphone
+                  Nomor WhatsApp / HP
                 </label>
                 <div className="mt-1">
                   <input

@@ -308,13 +308,17 @@ export default function WithdrawForm({
         <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-4">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold text-brand-gray-900">Rekening Tujuan</h3>
-            <button
-              type="button"
-              onClick={() => router.push(bankAccountHref)}
-              className="text-sm font-semibold text-brand-red hover:underline"
-            >
-              Ubah Rekening
-            </button>
+            {/* "Ubah Rekening" hanya saat rekening SUDAH ada . kalau belum, blok
+                "Tambah Rekening" di bawah yang menjadi ajakannya. */}
+            {bankAccount && (
+              <button
+                type="button"
+                onClick={() => router.push(bankAccountHref)}
+                className="text-sm font-semibold text-brand-red hover:underline"
+              >
+                Ubah Rekening
+              </button>
+            )}
           </div>
 
           {bankAccount ? (

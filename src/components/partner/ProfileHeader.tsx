@@ -229,11 +229,21 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                   <span className="ml-1.5 sm:hidden">{isFav ? 'Tersimpan' : 'Favorit'}</span>
                 </Button>
                 <Button
-                  className="flex-1 sm:flex-none bg-brand-red hover:bg-brand-red-dark text-white"
+                  variant="secondary"
+                  className="flex-1 sm:flex-none bg-brand-red-light text-brand-gray-700 hover:bg-brand-gray-100"
                   onClick={handleChat}
                   disabled={isChatLoading}
                 >
                   {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
+                </Button>
+                {/* Desktop tak punya StickyActionBar (lg:hidden), jadi tanpa tombol
+                    ini pengguna desktop tak bisa memesan dari profil mitra. Mobile
+                    memakai sticky bar . karena itu tombol ini lg-only. */}
+                <Button
+                  className="flex-1 sm:flex-none hidden lg:inline-flex"
+                  onClick={() => router.push(`/book/${profile.username}`)}
+                >
+                  Pesan Sekarang
                 </Button>
               </>
             )}

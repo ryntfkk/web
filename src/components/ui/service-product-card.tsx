@@ -144,7 +144,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
             <Price price={service.price || 0} size="sm" className="text-[14px] sm:text-[16px] font-semibold" />
             {orderCount > 0 && (
               <span className="text-[10px] sm:text-[11px] text-brand-gray-400 shrink-0">
-                {formatCompactNumber(orderCount)} Selesai
+                {formatCompactNumber(orderCount)} pesanan
               </span>
             )}
           </div>

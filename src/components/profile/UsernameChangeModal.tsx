@@ -56,7 +56,7 @@ export default function UsernameChangeModal({
       return;
     }
     if (hasPassword && !password) {
-      setError('Masukkan kata sandi untuk konfirmasi');
+      setError('Masukkan password untuk konfirmasi');
       return;
     }
 
@@ -129,7 +129,7 @@ export default function UsernameChangeModal({
 
           {hasPassword && (
             <div>
-              <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Kata Sandi</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-1">Password</label>
               <div className="relative">
                 <Lock className="w-5 h-5 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -138,7 +138,7 @@ export default function UsernameChangeModal({
                   onChange={e => setPassword(e.target.value)}
                   autoComplete="current-password"
                   className="w-full p-3 pl-10 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
-                  placeholder="Masukkan kata sandi untuk konfirmasi"
+                  placeholder="Masukkan password untuk konfirmasi"
                 />
               </div>
             </div>

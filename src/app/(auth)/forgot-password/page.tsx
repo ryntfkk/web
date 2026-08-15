@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
         router.push('/login');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Gagal mengubah password. Token mungkin salah atau kadaluarsa.');
+      setError(err.message || 'Gagal mengubah password. Kode OTP mungkin salah atau kadaluarsa.');
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
           Lupa Password
         </h2>
         <p className="mt-2 text-center text-sm text-brand-gray-700">
-          {step === 1 ? 'Masukkan identitas akun untuk pemulihan' : 'Verifikasi token dan buat password baru'}
+          {step === 1 ? 'Masukkan identitas akun untuk pemulihan' : 'Verifikasi kode OTP dan buat password baru'}
         </p>
       </div>
 
@@ -147,7 +147,7 @@ export default function ForgotPasswordPage() {
             <form className="space-y-6" onSubmit={handleResetPassword}>
               <div>
                 <label htmlFor="token" className="block text-sm font-medium text-brand-gray-900">
-                  Kode Token / OTP
+                  Kode OTP
                 </label>
                 <div className="mt-1">
                   <input

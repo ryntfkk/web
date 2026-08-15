@@ -214,7 +214,7 @@ export default function ProfilePage() {
 
         <MenuCard title="Akun">
           <MenuListItem icon={User} label="Informasi Akun" subtitle="Username, nama, nomor HP, email" href="/profile/account" />
-          <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
+          <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah password & keamanan" href="/profile/security" />
           <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
         </MenuCard>
 
@@ -232,7 +232,7 @@ export default function ProfilePage() {
         </MenuCard>
 
         <MenuCard title="Bantuan & Legal">
-          <MenuListItem icon={Phone} label="Hubungi Kami" subtitle="FAQ, bantuan" href="/help" />
+          <MenuListItem icon={Phone} label="Bantuan" subtitle="FAQ & panduan" href="/help" />
           <MenuListItem icon={FileText} label="Syarat & Ketentuan" href="/terms" />
           <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
           {/* Satu-satunya tautan ke sini dulu ada di Footer, dan Footer
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <MenuListItem icon={Pencil} label="Kelola Informasi Akun" subtitle="Ubah username, nama, email & foto profil" href="/profile/account" />
-                  <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
+                  <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah password & keamanan" href="/profile/security" />
                   <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
                   <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo, tarik dana & riwayat refund" href="/profile/wallet" />
                   <MenuListItem icon={CreditCard} label="Rekening Bank" subtitle="Tujuan pencairan saldo" href="/profile/bank-account" />
@@ -489,10 +489,10 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 {/* Account Settings */}
                 <MenuCard title="Pengaturan Akun">
-                  <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
+                  <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah password & keamanan" href="/profile/security" />
                   <MenuListItem icon={Heart} label="Favorit" subtitle="Mitra & layanan tersimpan" href="/profile/favorites" />
                   <MenuListItem icon={Mail} label="Notifikasi" subtitle="Email, push notification" href="/profile/notifications" />
-                  <MenuListItem icon={Phone} label="Hubungi Kami" subtitle="FAQ, bantuan" href="/help" />
+                  <MenuListItem icon={Phone} label="Bantuan" subtitle="FAQ & panduan" href="/help" />
                 </MenuCard>
 
                 {/* Legal & Support */}

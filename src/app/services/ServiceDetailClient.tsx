@@ -706,7 +706,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                   className={`flex-1 h-11 text-sm font-medium ${inCart ? 'border-brand-success text-brand-success-dark bg-brand-success-soft' : ''}`}
                   onClick={handleCartToggle}
                 >
-                  {inCart ? <><Check className="w-4 h-4 mr-1.5" /> Ditambahkan</> : <><ShoppingCart className="w-4 h-4 mr-1.5" /> Masukan Keranjang</>}
+                  {inCart ? <><Check className="w-4 h-4 mr-1.5" /> Ditambahkan</> : <><ShoppingCart className="w-4 h-4 mr-1.5" /> Tambah ke Keranjang</>}
                 </Button>
                 <Button
                   className="flex-1 h-11 text-sm"
@@ -996,7 +996,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
           )}
         </div>
         <Button className="h-10 px-5 text-sm" onClick={handleOrderNow}>
-          <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan
+          <Zap className="w-3.5 h-3.5 mr-1.5" /> Pesan Sekarang
         </Button>
       </StickyActionBar>
 

@@ -11,7 +11,7 @@ import { useUnreadChatCount } from '@/hooks/useChatRooms';
 // perlindungan melainkan jebakan terbalik. Status KYC punya pintunya sendiri
 // di /mitra/profile & banner dompet.
 const navItems = [
-  { href: '/mitra/dashboard', label: 'Beranda', icon: LayoutDashboard },
+  { href: '/mitra/dashboard', label: 'Ringkasan', icon: LayoutDashboard },
   { href: '/mitra/orders', label: 'Pesanan', icon: Package },
   { href: '/mitra/chat', label: 'Chat', icon: MessageSquare },
   { href: '/mitra/profile', label: 'Profil', icon: Settings },

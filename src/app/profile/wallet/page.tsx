@@ -260,7 +260,7 @@ export default function WalletPage() {
                       </span>
                       {t.status === 'PENDING' && (
                         <span className="bg-brand-warning-light text-brand-amber-dark text-[10px] font-bold px-1.5 py-0.5 rounded uppercase flex items-center gap-1">
-                          <Clock className="w-2.5 h-2.5" /> Pending
+                          <Clock className="w-2.5 h-2.5" /> Menunggu
                         </span>
                       )}
                       {/* Transaksi GAGAL sebelumnya tidak ditandai sama sekali .

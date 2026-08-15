@@ -88,10 +88,10 @@ export default function ServiceListLayout({
 
   const emptyTitle = isSearch && query
     ? `Tidak ada hasil untuk "${query}"`
-    : 'Tidak ada mitra tersedia';
+    : 'Tidak ada layanan tersedia';
 
   const emptyDescription = city
-    ? `Belum ada mitra di ${city} yang cocok dengan filter kamu. Coba kota lain atau ubah filter rating.`
+    ? `Belum ada layanan di ${city} yang cocok dengan filter kamu. Coba kota lain atau ubah filter rating.`
     : 'Coba ubah filter atau kata kunci pencarian.';
 
   return (

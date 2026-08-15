@@ -209,7 +209,7 @@ export default function AdditionalFeeClient() {
           <div className="flex justify-between text-sm">
             <span className="text-brand-gray-450">Tipe</span>
             <span className="font-medium text-brand-gray-900">
-              {fee.type === 'material' ? 'Material' : 'Jasa Ekstra'}
+              {fee.type === 'material' ? 'Material' : 'Jasa'}
             </span>
           </div>
           <div className="flex justify-between text-sm">

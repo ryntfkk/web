@@ -41,10 +41,13 @@ export default function PromosClient() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
-      <MobilePageHeader title="Promo Menarik" titleAs="p" backHref="/" maxWidthClass="max-w-3xl" />
+      <MobilePageHeader title="Promo & Diskon" titleAs="p" backHref="/" maxWidthClass="max-w-3xl" />
 
       <div className="max-w-3xl mx-auto px-4 py-6 md:py-10">
-        <div className="flex items-center gap-3 mb-6">
+        {/* Heading disembunyikan di mobile . MobilePageHeader sudah memberi judul
+            "Promo & Diskon" di sana; menampilkan keduanya = dua judul menumpuk.
+            Pola sama dgn halaman list lain (favorites/notifications). */}
+        <div className="hidden lg:flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-md bg-brand-red-light flex items-center justify-center shrink-0">
             <TicketPercent className="w-5 h-5 text-brand-red" />
           </div>

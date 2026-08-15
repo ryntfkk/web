@@ -118,8 +118,17 @@ export function ServiceCard({
         {/* Rating + Orders + City Row */}
         <div className="flex items-center justify-between gap-1 mt-0.5 sm:mt-1">
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 min-w-0">
-            <Star className="w-3 h-3 fill-brand-warning text-brand-warning flex-shrink-0" />
-            <span className="text-[12px] font-medium text-brand-gray-900">{Number(rating).toFixed(1)}</span>
+            {/* Mitra tanpa ulasan = "Mitra baru", BUKAN "0.0" berbintang emas
+                (angka nol terbaca "dinilai buruk"). Samakan dengan
+                ServiceProductCard & ProfileHeader. */}
+            {Number(rating) > 0 ? (
+              <>
+                <Star className="w-3 h-3 fill-brand-warning text-brand-warning flex-shrink-0" />
+                <span className="text-[12px] font-medium text-brand-gray-900">{Number(rating).toFixed(1)}</span>
+              </>
+            ) : (
+              <span className="text-[11px] font-medium text-brand-gray-450">Mitra baru</span>
+            )}
             {typeof orderCount === 'number' && orderCount > 0 && (
               <span className="text-[10px] sm:text-[11px] text-brand-gray-400 truncate">
                 · {formatCompactNumber(orderCount)} pesanan
