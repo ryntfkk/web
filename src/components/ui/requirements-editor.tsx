@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
@@ -25,6 +25,8 @@ interface RequirementsEditorProps {
   items: ServiceRequirement[];
   catalog: RequirementCatalogItem[];
   onChange: (items: ServiceRequirement[]) => void;
+  /** Tombol bantuan opsional, dirender di sebelah label. */
+  help?: ReactNode;
 }
 
 /** Cerminan batas backend. Kalau berbeda, mitra baru tahu ditolak setelah submit. */
@@ -39,7 +41,7 @@ const MAX_NOTE = 200;
  * tidak membaca 40 variasi untuk "butuh listrik"), teks bebas menampung kasus
  * yang belum ada di katalog.
  */
-export function RequirementsEditor({ items, catalog, onChange }: RequirementsEditorProps) {
+export function RequirementsEditor({ items, catalog, onChange, help }: RequirementsEditorProps) {
   const [picked, setPicked] = useState('');
 
   const usedCodes = useMemo(
@@ -83,14 +85,15 @@ export function RequirementsEditor({ items, catalog, onChange }: RequirementsEdi
   return (
     <div className="space-y-3">
       <div>
-        <label className="block text-sm font-semibold text-brand-gray-900">
-          Yang Perlu Disiapkan Pelanggan{' '}
-          <span className="text-brand-gray-450 font-normal">(opsional)</span>
-        </label>
+        <div className="flex items-center gap-1">
+          <label className="block text-sm font-semibold text-brand-gray-900">
+            Yang Perlu Disiapkan Pelanggan{' '}
+            <span className="text-brand-gray-450 font-normal">(opsional)</span>
+          </label>
+          {help}
+        </div>
         <p className="mt-1 text-xs text-brand-gray-450">
-          Pelanggan melihat daftar ini di halaman layanan dan menyetujuinya sebelum
-          membayar. Isi hanya yang benar-benar Anda butuhkan - daftar yang terlalu
-          panjang membuat pelanggan ragu memesan.
+          Pelanggan menyetujui daftar ini sebelum membayar. Isi seperlunya saja.
         </p>
       </div>
 

@@ -6,6 +6,7 @@ import { Info, Tag, ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { VariationsEditor } from '@/components/ui/variations-editor';
 import CategoryPicker from '@/components/mitra/CategoryPicker';
+import SectionHelp from '@/components/mitra/SectionHelp';
 import { DynamicStringList } from '@/components/ui/dynamic-string-list';
 import { DynamicFaqList, type Faq } from '@/components/ui/dynamic-faq-list';
 import {
@@ -111,6 +112,47 @@ interface ServiceFormProps {
 const INPUT_CLASS =
   'w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red';
 
+/**
+ * Teks bantuan "mengapa data ini penting", ditampilkan on-demand lewat tombol
+ * `?` (SectionHelp) . BUKAN sebagai prosa yang selalu tampil. Ditulis dari sudut
+ * pandang konversi/kepercayaan pelanggan supaya mitra baru paham dampaknya, dan
+ * dipindah ke sheet supaya halaman TIDAK bertambah tinggi di mobile.
+ *
+ * Sengaja tanpa angka minimum yang bisa diubah admin (mis. batas transaksi) .
+ * itu tetap ditegakkan oleh `MIN_PRICE` (usePlatformConfig) dan ditampilkan
+ * sebagai micro-hint inline di sebelah field, bukan dikeraskan di prosa ini.
+ */
+const HELP_INFO = `Foto, nama, dan kategori adalah tiga hal pertama yang dilihat calon pelanggan di hasil pencarian — inilah yang menentukan mereka mengklik layananmu atau melewatinya.
+
+• Foto — foto asli hasil kerjamu sendiri paling menaikkan kepercayaan dan lebih sering diklik. Foto pertama otomatis jadi sampul; taruh yang terbaik di urutan pertama.
+• Nama — tulis spesifik dengan ukuran/kapasitas (mis. "Cuci AC 0.5–1 PK"). Pelanggan mencari dengan kata seperti ini.
+• Kategori — menentukan di pencarian mana layananmu muncul. Salah kategori berarti tidak ditemukan pelanggan yang tepat.`;
+
+const HELP_PRICE = `Harga dan durasi yang jujur & jelas membuat pelanggan langsung yakin memesan tanpa bertanya dulu lewat chat, sekaligus menekan pembatalan.
+
+• Satuan — menentukan cara pelanggan ditagih & memilih jumlah (Per Layanan borongan, Per Jam, atau Per Unit/Kg yang dikali jumlah).
+• Variasi — untuk beberapa paket/ukuran; harga termurah otomatis tampil di daftar.
+• Harga — mengikuti batas minimum transaksi platform; di bawah itu tidak bisa disimpan.
+• Minimal order — melindungimu dari pesanan terlalu kecil yang tak sebanding ongkos datang.
+• Durasi — perkiraan realistis mengurangi komplain "kok lama" dan ulasan buruk.`;
+
+const HELP_DETAIL = `Bagian ini yang membuat pelanggan yakin memesan tanpa harus bertanya dulu. Makin lengkap, makin sedikit chat masuk dan makin tinggi peluang dipesan.
+
+• Termasuk / Tidak Termasuk — pembatas ekspektasi paling penting. Dikosongkan atau kabur = penyebab sengketa & rating buruk nomor satu setelah pengerjaan.
+• Persyaratan — beri tahu yang harus pelanggan siapkan (mis. sumber air, colokan listrik) agar pekerjaan tidak gagal saat kamu tiba.
+• FAQ — jawab lebih dulu pertanyaan yang sering berulang.
+• Deskripsi — tempat menonjolkan keunggulanmu (pengalaman, garansi, kecepatan).`;
+
+const HELP_UNIT = `Satuan menentukan cara pelanggan ditagih dan memilih jumlah:
+• Per Layanan — satu harga borongan untuk sekali pengerjaan.
+• Per Jam — untuk jasa yang dihitung durasi.
+• Per Unit / Per Kg — pelanggan mengisi jumlah, harga dikali otomatis.
+Pilih yang paling wajar agar harga tidak terlihat membingungkan atau salah hitung.`;
+
+const HELP_VARIATION = `Punya beberapa paket atau ukuran? Tambahkan sebagai variasi (mis. "AC 0.5–1 PK", "AC 2 PK") dengan harga masing-masing. Pelanggan memilih satu saat memesan, dan harga termurah otomatis tampil di daftar sehingga layananmu terlihat terjangkau. Kosongkan bila layananmu satu harga saja.`;
+
+const HELP_REQUIREMENT = `Beri tahu apa yang harus pelanggan siapkan sebelum kamu datang (mis. sumber air, colokan listrik, akses parkir). Persyaratan yang jelas mencegah pekerjaan gagal saat tiba di lokasi. Isi hanya yang benar-benar dibutuhkan; daftar yang terlalu panjang membuat pelanggan ragu memesan. Opsional.`;
+
 export default function ServiceForm({
   initialValues,
   initialMainCategoryId,
@@ -197,8 +239,26 @@ export default function ServiceForm({
       .filter((v) => v.name || v.price);
     const hasVariations = parsedVariations.length > 0;
 
-    if (!form.name || !form.category_id || !numDuration || included.length === 0 || excluded.length === 0) {
-      setValidationError('Semua field wajib diisi, termasuk minimal 1 include dan 1 exclude');
+    // Pesan spesifik per field, bukan satu kalimat gabungan . mitra langsung tahu
+    // field mana yang bermasalah tanpa menebak.
+    if (!form.name.trim()) {
+      setValidationError('Nama layanan wajib diisi.');
+      return;
+    }
+    if (!form.category_id) {
+      setValidationError('Pilih kategori layanan.');
+      return;
+    }
+    if (included.length === 0) {
+      setValidationError('Tambahkan minimal 1 item pada "Termasuk".');
+      return;
+    }
+    if (excluded.length === 0) {
+      setValidationError('Tambahkan minimal 1 item pada "Tidak Termasuk".');
+      return;
+    }
+    if (!numDuration) {
+      setValidationError('Estimasi durasi wajib diisi.');
       return;
     }
     if (hasVariations) {
@@ -247,12 +307,13 @@ export default function ServiceForm({
   const shownError = validationError || externalError;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
       {/* 1. Informasi Dasar */}
-      <div className="space-y-3 rounded-lg border border-brand-gray-100 bg-white p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:p-5">
-        <div className="mb-3 flex items-center gap-2">
+      <div className="space-y-2.5 rounded-lg border border-brand-gray-100 bg-white p-3.5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:space-y-3 lg:p-5">
+        <div className="mb-2 flex items-center gap-2 lg:mb-3">
           <Info className="h-4 w-4 text-brand-red" />
           <h2 className="text-sm font-bold text-brand-gray-900 lg:text-base">Informasi Dasar</h2>
+          <SectionHelp label="Informasi Dasar" className="ml-auto">{HELP_INFO}</SectionHelp>
         </div>
 
         {photoSection}
@@ -279,16 +340,20 @@ export default function ServiceForm({
       </div>
 
       {/* 2. Harga & Durasi */}
-      <div className="space-y-3 rounded-lg border border-brand-gray-100 bg-white p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:p-5">
-        <div className="mb-3 flex items-center gap-2">
+      <div className="space-y-2.5 rounded-lg border border-brand-gray-100 bg-white p-3.5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:space-y-3 lg:p-5">
+        <div className="mb-2 flex items-center gap-2 lg:mb-3">
           <Tag className="h-4 w-4 text-brand-red" />
           <h2 className="text-sm font-bold text-brand-gray-900 lg:text-base">Harga & Durasi</h2>
+          <SectionHelp label="Harga & Durasi" className="ml-auto">{HELP_PRICE}</SectionHelp>
         </div>
 
         <div>
-          <label htmlFor="service-unit" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
-            Satuan Harga
-          </label>
+          <div className="mb-1.5 flex items-center gap-1">
+            <label htmlFor="service-unit" className="text-sm font-semibold text-brand-gray-900">
+              Satuan Harga
+            </label>
+            <SectionHelp size="sm" label="Satuan Harga">{HELP_UNIT}</SectionHelp>
+          </div>
           <select
             id="service-unit"
             value={form.unit}
@@ -314,9 +379,14 @@ export default function ServiceForm({
         </div>
 
         {/* Variasi (opsional) . bila diisi, harga tunggal disembunyikan. */}
-        <VariationsEditor value={variations} onChange={setVariations} minPrice={MIN_PRICE} />
+        <VariationsEditor
+          value={variations}
+          onChange={setVariations}
+          minPrice={MIN_PRICE}
+          help={<SectionHelp size="sm" label="Variasi">{HELP_VARIATION}</SectionHelp>}
+        />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor="service-price" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
               Harga
@@ -385,10 +455,11 @@ export default function ServiceForm({
       </div>
 
       {/* 3. Detail & Syarat */}
-      <div className="space-y-3 rounded-lg border border-brand-gray-100 bg-white p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:p-5">
-        <div className="mb-3 flex items-center gap-2">
+      <div className="space-y-2.5 rounded-lg border border-brand-gray-100 bg-white p-3.5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:space-y-3 lg:p-5">
+        <div className="mb-2 flex items-center gap-2 lg:mb-3">
           <ListChecks className="h-4 w-4 text-brand-red" />
           <h2 className="text-sm font-bold text-brand-gray-900 lg:text-base">Detail & Syarat Khusus</h2>
+          <SectionHelp label="Detail & Syarat Khusus" className="ml-auto">{HELP_DETAIL}</SectionHelp>
         </div>
 
         <DynamicStringList
@@ -411,6 +482,7 @@ export default function ServiceForm({
           items={form.requirements}
           catalog={reqCatalog}
           onChange={(items) => setForm({ ...form, requirements: items })}
+          help={<SectionHelp size="sm" label="Yang Perlu Disiapkan Pelanggan">{HELP_REQUIREMENT}</SectionHelp>}
         />
 
         <DynamicFaqList

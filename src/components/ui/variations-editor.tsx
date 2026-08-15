@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
 export interface VariationInput {
@@ -19,10 +20,13 @@ export function VariationsEditor({
   value,
   onChange,
   minPrice,
+  help,
 }: {
   value: VariationInput[];
   onChange: (v: VariationInput[]) => void;
   minPrice: number;
+  /** Tombol bantuan opsional, dirender di sebelah label. */
+  help?: ReactNode;
 }) {
   const add = () => onChange([...value, { name: '', price: '' }]);
   const remove = (idx: number) => onChange(value.filter((_, i) => i !== idx));
@@ -36,9 +40,12 @@ export function VariationsEditor({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <label className="block text-sm font-semibold text-brand-gray-900">
-          Variasi <span className="text-brand-gray-450 font-normal">(opsional)</span>
-        </label>
+        <div className="flex items-center gap-1">
+          <label className="block text-sm font-semibold text-brand-gray-900">
+            Variasi <span className="text-brand-gray-450 font-normal">(opsional)</span>
+          </label>
+          {help}
+        </div>
         <button
           type="button"
           onClick={add}
