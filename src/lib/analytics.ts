@@ -36,7 +36,8 @@ export type AnalyticsEvent =
   | 'partner_landing_viewed'
   | 'partner_landing_cta_clicked'
   | 'home_partner_banner_clicked'
-  // Form instan /jadi-mitra/daftar (akun + kategori + layanan pertama . tanpa KYC)
+  // Form instan /jadi-mitra/daftar (akun + lokasi + kategori . tanpa KYC;
+  // layanan pertama dibuat SETELAHNYA di /mitra/services/new)
   | 'partner_quick_register_viewed'
   | 'partner_quick_register_submitted'
   // Wizard KYC menyusul /mitra/kyc (model mitra instan): paket KTP + rekening.

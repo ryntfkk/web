@@ -5,34 +5,35 @@
  * PLAN-MITRA-INSTAN 2026-08-14; sebelumnya "satu atap" 2026-08-13).
  *
  * TANPA KYC, TANPA rekening, TANPA dokumen badan usaha, TANPA foto bukti
- * kategori . semuanya menyusul lewat wizard /mitra/kyc saat mitra hendak
- * menarik dana. Yang dikumpulkan di sini hanyalah yang dibutuhkan supaya
- * "langsung bisa dipesan" benar sejak detik pertama:
+ * kategori, dan (sejak 2026-08-15, permintaan pemilik) TANPA layanan pertama .
+ * form ini murni AKUN + TIPE + LOKASI + KATEGORI:
  *
  *   1. POST /auth/register/quick   . buat akun TANPA OTP, langsung masuk
  *      (dilewati bila pengunjung sudah login)
  *   2. POST /partners/onboarding/express . mitra langsung AKTIF + jam kerja
- *      default + kategori + layanan pertama, dalam satu panggilan
- *   3. Upload foto layanan menyusul (butuh id layanan)
+ *      default + kategori (payload `service` SENGAJA tidak dikirim . backend
+ *      memperlakukannya opsional)
+ *   3. Redirect ke /mitra/services/new . produk jasa didaftarkan di HALAMAN
+ *      ASLI tambah layanan mitra, bukan di form pendaftaran. KYC menyusul via
+ *      /mitra/kyc saat mau tarik dana.
  *
  * Profil tampil dengan badge "Belum Terverifikasi" sampai KYC disetujui admin.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { CheckCircle2, MapPin, User, Briefcase, Grid as GridIcon, Wrench } from 'lucide-react';
+import { MapPin, User, Briefcase, Grid as GridIcon } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import { useAuthStore } from '@/lib/store/authStore';
-import { uploadFileToS3 } from '@/hooks/useUpload';
-import { useCategories, useSubcategories } from '@/hooks/useCategories';
+import { useCategories } from '@/hooks/useCategories';
 import { useActiveLegalDocuments } from '@/hooks/useLegalConsent';
 import RegionSelect, { type RegionValue } from '@/components/ui/RegionSelect';
-import PhotoPickerBox, { type PhotoPickerItem } from '@/components/mitra/PhotoPickerBox';
 import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
+import { INPUT_CLASS, LABEL_CLASS, SECTION_CLASS } from '@/components/ui/form';
 import { track } from '@/lib/analytics';
 
 const MapPicker = dynamic(() => import('@/components/MapPicker'), {
@@ -44,10 +45,7 @@ const MapPicker = dynamic(() => import('@/components/MapPicker'), {
   ),
 });
 
-const INPUT_CLASS =
-  'w-full rounded-md border border-brand-gray-100 bg-white px-3 py-2.5 sm:p-3 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red';
-const LABEL_CLASS = 'mb-2 block text-sm font-semibold text-brand-gray-900';
-const SECTION_CLASS = 'space-y-3 sm:space-y-4 rounded-2xl border border-brand-gray-100 bg-white p-4 sm:p-5 lg:p-6';
+
 /** Judul section: nomor urut + garis bawah, supaya tiap bagian terpisah tegas. */
 const SECTION_TITLE_CLASS = 'flex items-center gap-2 border-b border-brand-gray-100 pb-3 text-base font-bold text-brand-gray-900';
 
@@ -61,40 +59,10 @@ const ENTITY_FORMS = [
   { value: 'PERKUMPULAN', label: 'Perkumpulan' },
 ];
 
-const UNIT_OPTIONS = [
-  { value: 'per_service', label: 'Per jasa' },
-  { value: 'per_hour', label: 'Per jam' },
-  { value: 'per_unit', label: 'Per unit' },
-  { value: 'per_kg', label: 'Per kg' },
-];
-
 /** Kuota kategori utama per tipe . cermin aturan backend (000080): 1 perorangan, 3 vendor. */
 const quotaFor = (t: 'individual' | 'vendor') => (t === 'vendor' ? 3 : 1);
-const MAX_SERVICE_PHOTOS = 5;
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-type SubmitStage = 'idle' | 'account' | 'submit' | 'photos' | 'done';
-
-/**
- * Satu grup pilihan per kategori utama yang diklaim: kategori utamanya sendiri
- * (umum) + subkategorinya. Layanan memang seharusnya menempel ke SUBKATEGORI
- * bila ada . kategori utama saja terlalu lebar untuk etalase. Gate slot backend
- * (assertServiceCategoryAllowed) memeriksa induknya, jadi subkategori dari
- * kategori yang diklaim tetap sah.
- */
-function ServiceCategoryGroup({ mainId, label }: { mainId: string; label: string }) {
-  const { data: subs } = useSubcategories(mainId);
-  return (
-    <optgroup label={label}>
-      <option value={mainId}>{label} . Umum</option>
-      {(subs ?? []).map((s) => (
-        <option key={s.id} value={s.id}>
-          {s.name}
-        </option>
-      ))}
-    </optgroup>
-  );
-}
+type SubmitStage = 'idle' | 'account' | 'submit';
 
 export default function QuickRegisterPage() {
   const router = useRouter();
@@ -126,21 +94,13 @@ export default function QuickRegisterPage() {
   const [basecamp, setBasecamp] = useState({ lat: -6.2, lon: 106.816666 });
   const [basecampTouched, setBasecampTouched] = useState(false);
   // ── Keahlian: kategori utama (foto bukti alat menyusul saat KYC) ──
+  // Layanan pertama TIDAK diisi di sini (keputusan 2026-08-15): produk jasa
+  // didaftarkan di halaman asli /mitra/services/new setelah akun aktif.
   const [chosenCats, setChosenCats] = useState<string[]>([]);
-  // ── Layanan pertama ──
-  const [service, setService] = useState({
-    category_id: '', name: '', description: '', price: '',
-    unit: 'per_service', estimated_duration: '60', min_order: '1',
-    included_items: '', excluded_items: '',
-  });
-  // Foto produk jasa. Etalase tanpa foto nyaris tidak pernah dilirik pelanggan,
-  // jadi minimal 1 wajib . dilampirkan setelah layanan terbuat (butuh id-nya).
-  const [servicePhotos, setServicePhotos] = useState<File[]>([]);
   const [agreed, setAgreed] = useState(false);
 
   const [stage, setStage] = useState<SubmitStage>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [serviceWarning, setServiceWarning] = useState<string | null>(null);
 
   const viewed = useRef(false);
   useEffect(() => {
@@ -153,20 +113,6 @@ export default function QuickRegisterPage() {
   const needAccount = !isAuthenticated;
   const isVendor = partnerType === 'vendor';
   const quota = quotaFor(partnerType);
-
-  // Pratinjau foto layanan: URL objek dibangun sekali per perubahan daftar
-  // berkas (useMemo) dan dicabut saat diganti . membangunnya di badan render
-  // akan menumpuk blob URL baru pada tiap ketikan di form.
-  const servicePhotoItems = useMemo(
-    () => servicePhotos.map((f) => ({ key: `svc-${f.name}-${f.size}-${f.lastModified}`, src: URL.createObjectURL(f) })),
-    [servicePhotos],
-  );
-  useEffect(
-    () => () => {
-      for (const item of servicePhotoItems) URL.revokeObjectURL(item.src);
-    },
-    [servicePhotoItems],
-  );
 
   const toggleCat = (id: string) => {
     setChosenCats((prev) => {
@@ -192,12 +138,6 @@ export default function QuickRegisterPage() {
       return 'Provinsi, kota, dan kecamatan wajib dipilih';
     if (!basecampTouched) return 'Tandai lokasi basecamp di peta (geser pin ke lokasi kerjamu)';
     if (chosenCats.length === 0) return 'Pilih minimal 1 kategori jasa';
-    if (!service.category_id) return 'Pilih kategori untuk layanan pertamamu';
-    if (!service.name.trim()) return 'Nama layanan wajib diisi';
-    if (!(Number(service.price) > 0)) return 'Harga layanan harus lebih dari 0';
-    if (servicePhotos.length === 0) return 'Unggah minimal 1 foto produk jasamu';
-    if (!service.included_items.trim() || !service.excluded_items.trim())
-      return 'Isi minimal satu baris "harga termasuk" dan "tidak termasuk"';
     if (!agreed) return 'Centang persetujuan S&K terlebih dahulu';
     return null;
   };
@@ -210,7 +150,6 @@ export default function QuickRegisterPage() {
       return;
     }
     setError(null);
-    setServiceWarning(null);
 
     try {
       // 1. Akun (dilewati bila pengunjung sudah login).
@@ -231,8 +170,10 @@ export default function QuickRegisterPage() {
         login(res.data.user, res.data.access_token);
       }
 
-      // 2. Pendaftaran + layanan pertama dalam satu panggilan. Tanpa upload
-      // KYC/dokumen: paketnya menyusul di /mitra/kyc saat mau tarik dana.
+      // 2. Pendaftaran mitra. Tanpa upload KYC/dokumen (menyusul di /mitra/kyc)
+      // dan TANPA layanan pertama . field `service` sengaja tidak dikirim,
+      // backend memperlakukannya opsional; produk jasa didaftarkan setelah ini
+      // di /mitra/services/new.
       setStage('submit');
       // partner-terms IKUT disetujui di sini (model instan): mitra bisa
       // menerima order sejak detik pertama, jadi persetujuan kontrak mitranya
@@ -241,8 +182,7 @@ export default function QuickRegisterPage() {
         .filter((d) => d.slug === 'terms' || d.slug === 'privacy' || d.slug === 'partner-terms')
         .map((d) => d.id);
 
-      const lines = (s: string) => s.split('\n').map((l) => l.trim()).filter(Boolean);
-      const res = await fetchAPI<{ service_created: boolean; service_error?: string; service_id?: string }>(
+      const res = await fetchAPI(
         '/partners/onboarding/express',
         {
           method: 'POST',
@@ -274,24 +214,10 @@ export default function QuickRegisterPage() {
                   business_email: vendor.business_email.trim(),
                 }
               : {}),
-            service: {
-              category_id: service.category_id,
-              name: service.name.trim(),
-              description: service.description.trim(),
-              price: Number(service.price),
-              included_items: lines(service.included_items),
-              excluded_items: lines(service.excluded_items),
-              unit: service.unit,
-              estimated_duration: Number(service.estimated_duration) || 60,
-              min_order: Number(service.min_order) || 1,
-            },
           }),
         },
       );
       if (!res.success) throw new Error(getErrorMessage(res));
-      if (res.data && res.data.service_created === false) {
-        setServiceWarning(res.data.service_error || 'Layanan pertama gagal dibuat');
-      }
 
       // Token sesi dicetak SEBELUM baris mitra lahir, jadi belum memuat klaim
       // partner_id/role — tanpa refresh, seluruh endpoint mode mitra menolak
@@ -310,73 +236,19 @@ export default function QuickRegisterPage() {
       // sebelum daftar) — tanpa invalidasi, layout melempar mitra baru pulang.
       queryClient.invalidateQueries({ queryKey: ['partner', 'me', 'verification-status'] });
 
-      // 3. Foto layanan menyusul: butuh id layanan yang baru lahir. Kegagalan
-      // di sini tidak menggagalkan pendaftaran . fotonya bisa ditambah dari
-      // menu Layanan.
-      const svcId = res.data?.service_id;
-      if (res.data?.service_created && svcId && servicePhotos.length > 0) {
-        setStage('photos');
-        try {
-          for (const f of servicePhotos) {
-            const url = await uploadFileToS3(f, 'service');
-            const photoRes = await fetchAPI(`/partners/me/services/${svcId}/photos`, {
-              method: 'POST',
-              credentials: 'include',
-              body: JSON.stringify({ photo_url: url }),
-            });
-            if (!photoRes.success) throw new Error(getErrorMessage(photoRes));
-          }
-        } catch {
-          setServiceWarning('Layanan terbuat, tetapi fotonya gagal diunggah. Tambahkan dari menu Layanan.');
-        }
-      }
-
       track('partner_quick_register_submitted');
-      setStage('done');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // 3. Langsung ke halaman ASLI tambah layanan (keputusan 2026-08-15):
+      // etalase kosong belum bisa dipesan siapa pun, jadi langkah wajar
+      // berikutnya adalah mendaftarkan produk jasa . di halaman yang memang
+      // dibuat untuk itu, bukan di form pendaftaran. `replace`, bukan `push`:
+      // tombol back tidak boleh kembali ke form berisi data yang sudah terpakai.
+      router.replace('/mitra/services/new');
     } catch (e: any) {
       setError(e.message || 'Terjadi kesalahan. Coba lagi.');
       setStage('idle');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-
-  // ── Layar sukses ──
-  if (stage === 'done') {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-12">
-        <div className="rounded-2xl border border-brand-gray-100 bg-white p-6 text-center lg:p-10">
-          <CheckCircle2 className="mx-auto h-14 w-14 text-brand-success" />
-          <h1 className="mt-4 text-xl font-bold text-brand-gray-900">Selamat, Akun Mitramu Aktif!</h1>
-          <p className="mt-2 text-sm leading-relaxed text-brand-gray-700">
-            Layananmu <b>langsung tayang dan bisa dipesan sekarang</b>. Jam kerja sementara diset{' '}
-            <b>setiap hari 08.00–17.00</b> dan bisa kamu ubah kapan pun dari menu Jadwal. Untuk
-            mendapatkan badge <b>Terverifikasi</b> di profilmu dan bisa <b>menarik dana</b>, lengkapi
-            verifikasi identitas (KTP + rekening) kapan pun dari menu Verifikasi.
-          </p>
-          {serviceWarning && (
-            <p className="mt-3 rounded-lg border border-brand-warning-border bg-brand-warning-soft p-3 text-xs text-brand-gray-700">
-              Layanan pertama belum terbuat ({serviceWarning}). Tambahkan dari menu Layanan setelah masuk.
-            </p>
-          )}
-          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <button
-              onClick={() => router.push('/mitra/dashboard')}
-              className="rounded-md bg-brand-red px-6 py-3 text-sm font-bold text-white hover:bg-brand-red-dark"
-            >
-              Buka Dasbor Mitra
-            </button>
-            <button
-              onClick={() => router.push('/mitra/kyc')}
-              className="rounded-md border border-brand-gray-100 bg-white px-6 py-3 text-sm font-bold text-brand-gray-900 hover:border-brand-red hover:text-brand-red"
-            >
-              Verifikasi Identitas
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // ── Sakelar instan OFF: form ini pasti ditolak backend ──
   if (instantOff) {
@@ -417,8 +289,7 @@ export default function QuickRegisterPage() {
   const busy = stage !== 'idle';
   const busyLabel =
     stage === 'account' ? 'Membuat akun…'
-      : stage === 'submit' ? 'Mengirim pendaftaran…'
-        : stage === 'photos' ? 'Mengunggah foto layanan…' : '';
+      : stage === 'submit' ? 'Mengaktifkan akun mitramu…' : '';
 
   // Nomor section berurut. Bagian Akun hanya ada untuk pengunjung yang belum
   // login, jadi nomornya dihitung, bukan diketik tetap.
@@ -428,7 +299,6 @@ export default function QuickRegisterPage() {
     type: ++secNo,
     location: ++secNo,
     category: ++secNo,
-    service: ++secNo,
   };
 
   return (
@@ -437,8 +307,9 @@ export default function QuickRegisterPage() {
         <h1 className="text-2xl font-bold text-brand-gray-900">Daftar Jadi Mitra</h1>
         <p className="mt-1 text-sm leading-relaxed text-brand-gray-700">
           Satu formulir singkat . tanpa KTP, tanpa rekening. Begitu terkirim, akunmu{' '}
-          <b>langsung aktif dan layananmu bisa dipesan</b>. Verifikasi identitas menyusul saat kamu
-          mau menarik dana. Sudah punya akun?{' '}
+          <b>langsung aktif</b> dan kamu diarahkan untuk <b>mendaftarkan produk jasamu</b> supaya
+          bisa dipesan pelanggan. Verifikasi identitas menyusul saat kamu mau menarik dana. Sudah
+          punya akun?{' '}
           <Link href="/login?redirect=/jadi-mitra/daftar" className="font-semibold text-brand-red">
             Masuk dulu
           </Link>{' '}
@@ -503,7 +374,7 @@ export default function QuickRegisterPage() {
               <button
                 key={t}
                 type="button"
-                onClick={() => { setPartnerType(t); setChosenCats([]); setService({ ...service, category_id: '' }); }}
+                onClick={() => { setPartnerType(t); setChosenCats([]); }}
                 className={`flex-1 rounded-md border p-3 text-sm font-semibold transition-colors ${
                   partnerType === t
                     ? 'border-brand-red bg-brand-red-soft text-brand-red'
@@ -624,112 +495,6 @@ export default function QuickRegisterPage() {
               );
             })}
           </div>
-        </section>
-
-        {/* ── Layanan pertama ── */}
-        <section className={SECTION_CLASS}>
-          <h2 className={SECTION_TITLE_CLASS}>
-            <Wrench className="h-5 w-5 shrink-0 text-brand-red" />
-            {secNum.service}. Etalase Layanan Pertama
-          </h2>
-          <p className="text-xs text-brand-gray-450">
-            Inilah yang langsung dilihat pelanggan begitu kamu selesai mendaftar. Buatlah semenarik mungkin.
-          </p>
-          {/* Foto sengaja PALING ATAS: etalase tanpa foto nyaris tidak pernah
-              dilirik, jadi jangan sampai jadi isian terakhir yang diskip. */}
-          <div>
-            <span className={LABEL_CLASS}>Foto Hasil Kerja (Etalase) * (1–{MAX_SERVICE_PHOTOS} foto)</span>
-            <PhotoPickerBox
-              id="qr-svc-photos"
-              items={servicePhotoItems}
-              max={MAX_SERVICE_PHOTOS}
-              accept="image/jpeg,image/png,image/jpg,image/webp"
-              onPick={(picked) => {
-                if (!picked) return;
-                const files = Array.from(picked).filter((f) => f.size <= MAX_UPLOAD_BYTES);
-                setServicePhotos((prev) => [...prev, ...files].slice(0, MAX_SERVICE_PHOTOS));
-              }}
-              onRemove={(i) => setServicePhotos((prev) => prev.filter((_, idx) => idx !== i))}
-            />
-            <p className="mt-1 text-xs text-brand-gray-450">
-              Foto yang akan dilihat pelanggan pertama kali (misal: AC sebelum/sesudah dicuci, atau hasil akhir yang rapi).
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="qr-svc-cat" className={LABEL_CLASS}>Kategori layanan *</label>
-              <select id="qr-svc-cat" className={INPUT_CLASS} value={service.category_id}
-                onChange={(e) => setService({ ...service, category_id: e.target.value })}>
-                <option value="">{chosenCats.length === 0 ? 'Pilih kategori jasa dulu di atas' : 'Pilih kategori…'}</option>
-                {chosenCats.map((mainId) => (
-                  <ServiceCategoryGroup
-                    key={mainId}
-                    mainId={mainId}
-                    label={(categories ?? []).find((c) => c.id === mainId)?.name ?? 'Kategori'}
-                  />
-                ))}
-              </select>
-              <p className="mt-1 text-xs text-brand-gray-450">
-                Pilih subkategori yang paling spesifik bila ada . pelanggan mencari lewat itu.
-              </p>
-            </div>
-            <div>
-              <label htmlFor="qr-svc-name" className={LABEL_CLASS}>Nama layanan *</label>
-              <input id="qr-svc-name" className={INPUT_CLASS} value={service.name}
-                placeholder="Mis: Servis AC split 1 PK"
-                onChange={(e) => setService({ ...service, name: e.target.value })} />
-            </div>
-            <div>
-              <label htmlFor="qr-svc-price" className={LABEL_CLASS}>Harga (Rp) *</label>
-              <input id="qr-svc-price" className={INPUT_CLASS} inputMode="numeric" value={service.price}
-                placeholder="100000"
-                onChange={(e) => setService({ ...service, price: e.target.value.replace(/\D/g, '') })} />
-            </div>
-            <div>
-              <label htmlFor="qr-svc-unit" className={LABEL_CLASS}>Tarif Dihitung Per *</label>
-              <select id="qr-svc-unit" className={INPUT_CLASS} value={service.unit}
-                onChange={(e) => setService({ ...service, unit: e.target.value })}>
-                {UNIT_OPTIONS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="qr-svc-duration" className={LABEL_CLASS}>Estimasi durasi (menit)</label>
-              <input id="qr-svc-duration" className={INPUT_CLASS} inputMode="numeric"
-                value={service.estimated_duration}
-                onChange={(e) => setService({ ...service, estimated_duration: e.target.value.replace(/\D/g, '') })} />
-            </div>
-            <div>
-              <label htmlFor="qr-svc-min" className={LABEL_CLASS}>Minimal Pesanan *</label>
-              <input id="qr-svc-min" className={INPUT_CLASS} inputMode="numeric" value={service.min_order}
-                onChange={(e) => setService({ ...service, min_order: e.target.value.replace(/\D/g, '') })} />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="qr-svc-desc" className={LABEL_CLASS}>Deskripsi</label>
-            <textarea id="qr-svc-desc" className={INPUT_CLASS} rows={2} value={service.description}
-              onChange={(e) => setService({ ...service, description: e.target.value })} />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="qr-svc-inc" className={LABEL_CLASS}>Harga termasuk * (satu per baris)</label>
-              <textarea id="qr-svc-inc" className={INPUT_CLASS} rows={4} value={service.included_items}
-                placeholder={'Jasa pengerjaan\nPembersihan area setelah selesai\nGaransi pengerjaan 7 hari\nKonsultasi & pengecekan awal'}
-                onChange={(e) => setService({ ...service, included_items: e.target.value })} />
-            </div>
-            <div>
-              <label htmlFor="qr-svc-exc" className={LABEL_CLASS}>Tidak termasuk * (satu per baris)</label>
-              <textarea id="qr-svc-exc" className={INPUT_CLASS} rows={4} value={service.excluded_items}
-                placeholder={'Sparepart / suku cadang\nPembelian material & bahan\nPerbaikan kerusakan berat yang baru ditemukan di lokasi\nPekerjaan tambahan di luar kesepakatan awal'}
-                onChange={(e) => setService({ ...service, excluded_items: e.target.value })} />
-            </div>
-          </div>
-          <p className="text-xs leading-relaxed text-brand-gray-450">
-            Contoh <b>termasuk</b>: jasa pengerjaan, pembersihan ringan setelah selesai, garansi,
-            konsultasi awal, pengujian hasil kerja. Contoh <b>tidak termasuk</b>: sparepart,
-            material/bahan, pembongkaran besar, pekerjaan tambahan di luar kesepakatan. Semakin jelas
-            daftarnya, semakin kecil selisih ekspektasi dengan pelanggan . ongkos transport tidak perlu
-            ditulis di sini karena sudah dihitung otomatis oleh platform saat pemesanan.
-          </p>
         </section>
 
         {/* ── Legal + submit ── */}

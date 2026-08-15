@@ -167,7 +167,7 @@ export const PREP_ITEMS = [
   'Deskripsi singkat keahlian Anda',
   'Data badan usaha (khusus vendor/PT/CV . dokumennya menyusul saat verifikasi)',
   'Titik lokasi basecamp tempat Anda beroperasi',
-  'Foto hasil kerja untuk etalase layanan pertama',
+  'Foto hasil kerja . dipakai saat mendaftarkan produk jasa setelah akun aktif',
 ];
 
 /* ─────────── Early advantages ─────────── */

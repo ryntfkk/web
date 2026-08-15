@@ -39,11 +39,12 @@ interface CtaDaftarProps {
 }
 
 /**
- * Tombol daftar. Mengarah ke /jadi-mitra/daftar . formulir satu-atap (akun +
- * KYC + kategori + layanan pertama), menggantikan arah lama ke /mitra/register
- * yang mengharuskan calon mitra melewati 7 langkah dan dua verifikasi kontak
- * sebelum bisa menyiapkan etalase. /mitra/register tetap hidup untuk jalur
- * dalam aplikasi (pengguna yang sudah login).
+ * Tombol daftar. Mengarah ke /jadi-mitra/daftar . formulir instan (akun +
+ * lokasi + kategori; KYC & layanan pertama menyusul setelah akun aktif),
+ * menggantikan arah lama ke /mitra/register yang mengharuskan calon mitra
+ * melewati 7 langkah dan dua verifikasi kontak sebelum bisa menyiapkan
+ * etalase. /mitra/register tetap hidup untuk jalur dalam aplikasi
+ * (pengguna yang sudah login).
  *
  * Pengunjung anonim tidak buntu: halaman daftar membuat akun lewat
  * /auth/register/quick tanpa OTP, dan pengguna yang sudah login langsung
