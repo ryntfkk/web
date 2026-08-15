@@ -83,7 +83,7 @@ export default function BottomNav() {
     p.startsWith('/lengkapi-profil') ||
     p.startsWith('/profile/') || // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
     // Profil mitra publik (/[username]) punya bilah aksi fixed sendiri
-    // (Chat + Pesan Sekarang), konsisten dengan /services/ detail di atas.
+    // (Chat + Pesan), konsisten dengan /services/ detail di atas.
     isPartnerProfilePath(p);
   if (hideNav) return null;
 
