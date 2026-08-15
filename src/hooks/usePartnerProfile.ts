@@ -22,8 +22,9 @@ export interface PartnerProfileData {
   /**
    * Badge KYC (model mitra instan): true HANYA bila verifikasi identitas mitra
    * disetujui admin. Profil publik kini juga memuat mitra belum-KYC, jadi nilai
-   * false itu NYATA dan wajib dirender sebagai "Belum Terverifikasi" . jangan
-   * kembali mengasumsikan "selalu true".
+   * false itu NYATA . tapi di UI publik HANYA badge positif yang tampil:
+   * `false` TIDAK merender badge apa pun (badge "Belum Terverifikasi" dihapus,
+   * keputusan user 2026-08-15). Jangan kembali mengasumsikan "selalu true".
    */
   is_verified: boolean;
   /** Tanggal mitra DISETUJUI (bukan tanggal akun dibuat). Kosong untuk mitra lama. */

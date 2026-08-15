@@ -661,8 +661,11 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <p className="text-sm font-semibold text-brand-gray-900 truncate">{service.partner_name}</p>
-                      {/* Badge KYC dua arah (model mitra instan). Ketat ===:
-                          undefined (payload lama) tidak merender apa pun. */}
+                      {/* Badge KYC (model mitra instan): HANYA badge positif.
+                          Ketat === true; false/undefined tak merender apa pun.
+                          Badge "Belum Terverifikasi" DIHAPUS (keputusan user
+                          2026-08-15) . jangan tampilkan status negatif ke
+                          pelanggan. */}
                       {service.partner_is_verified === true && (
                         <span
                           title="Terverifikasi"
@@ -670,11 +673,6 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                           className="flex-shrink-0 inline-flex items-center justify-center rounded bg-brand-info-soft p-0.5 text-brand-info-dark"
                         >
                           <BadgeCheck className="w-3.5 h-3.5" aria-hidden="true" />
-                        </span>
-                      )}
-                      {service.partner_is_verified === false && (
-                        <span className="flex-shrink-0 inline-flex items-center rounded border border-brand-gray-100 bg-brand-gray-60 px-1.5 py-0.5 text-[10px] font-medium leading-none text-brand-gray-700">
-                          Belum Terverifikasi
                         </span>
                       )}
                     </div>
