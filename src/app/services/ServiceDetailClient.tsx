@@ -664,8 +664,12 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                       {/* Badge KYC dua arah (model mitra instan). Ketat ===:
                           undefined (payload lama) tidak merender apa pun. */}
                       {service.partner_is_verified === true && (
-                        <span className="flex-shrink-0 inline-flex items-center gap-0.5 rounded bg-brand-info-soft px-1.5 py-0.5 text-[10px] font-semibold leading-none text-brand-info-dark">
-                          <BadgeCheck className="w-3 h-3" /> Terverifikasi
+                        <span
+                          title="Terverifikasi"
+                          aria-label="Terverifikasi"
+                          className="flex-shrink-0 inline-flex items-center justify-center rounded bg-brand-info-soft p-0.5 text-brand-info-dark"
+                        >
+                          <BadgeCheck className="w-3.5 h-3.5" aria-hidden="true" />
                         </span>
                       )}
                       {service.partner_is_verified === false && (

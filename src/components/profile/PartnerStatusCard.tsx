@@ -39,9 +39,12 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
               </div>
               <div>
                 <p className="font-bold text-brand-gray-900 text-sm leading-none mb-1">Mitra Posko Jasa</p>
-                <div className="flex items-center gap-1 text-[11px] font-medium text-brand-success bg-brand-success-soft px-2 py-0.5 rounded-full w-max">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Terverifikasi
+                <div
+                  title="Terverifikasi"
+                  aria-label="Terverifikasi"
+                  className="inline-flex items-center justify-center text-brand-success bg-brand-success-soft p-1 rounded-full w-max"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
                 </div>
               </div>
             </div>

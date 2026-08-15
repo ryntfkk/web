@@ -91,11 +91,11 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
                 daripada tak ada badge. */}
             {service.partner_is_verified === true && (
               <span
-                title="Identitas mitra sudah diverifikasi (KYC)"
-                className="flex-shrink-0 inline-flex items-center gap-0.5 rounded bg-brand-info-soft px-1 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-none text-brand-info-dark"
+                title="Terverifikasi . identitas mitra sudah diverifikasi (KYC)"
+                aria-label="Terverifikasi"
+                className="flex-shrink-0 inline-flex items-center justify-center rounded bg-brand-info-soft p-0.5 text-brand-info-dark"
               >
-                <BadgeCheck className="w-2.5 h-2.5" />
-                Terverifikasi
+                <BadgeCheck className="w-3 h-3" aria-hidden="true" />
               </span>
             )}
             {isTrusted && (

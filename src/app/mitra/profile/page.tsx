@@ -105,12 +105,18 @@ export default function MitraProfilePage() {
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Mode Mitra
               </span>
               {verificationStatus !== null && (
-                <span className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${isVerified ? 'bg-brand-success-soft/90 backdrop-blur-sm text-brand-success-dark border-brand-success-light' :
+                <span
+                  title={isVerified ? 'Terverifikasi' : undefined}
+                  aria-label={isVerified ? 'Terverifikasi' : undefined}
+                  className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${isVerified ? 'bg-brand-success-soft/90 backdrop-blur-sm text-brand-success-dark border-brand-success-light' :
                     isPending ? 'bg-brand-orange-soft/90 backdrop-blur-sm text-brand-amber-dark border-brand-orange-light' :
                       'bg-white/90 backdrop-blur-sm text-brand-error-dark border-brand-error-light'
                   }`}>
-                  {isVerified && <CheckCircle className="w-3.5 h-3.5" />}
-                  {isVerified ? 'Terverifikasi' : isPending ? 'Menunggu Verifikasi' : 'Ditolak'}
+                  {isVerified ? (
+                    <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  ) : (
+                    isPending ? 'Menunggu Verifikasi' : 'Ditolak'
+                  )}
                 </span>
               )}
             </div>
