@@ -48,8 +48,7 @@ export default function EmailVerificationNotice() {
             ) : (
               <>
                 Kami belum bisa mengirim kabar ke <span className="break-all">{user.email}</span>{' '}
-                sampai alamatnya diverifikasi . termasuk status{' '}
-                <strong>pencairan dana</strong>.
+                sampai alamatnya diverifikasi .
               </>
             )}
           </p>
