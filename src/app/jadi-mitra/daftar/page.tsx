@@ -203,16 +203,16 @@ export default function QuickRegisterPage() {
             main_categories: chosenCats.map((catId) => ({ category_id: catId, evidence_urls: [] })),
             ...(isVendor
               ? {
-                  display_name: vendor.display_name.trim(),
-                  legal_entity_name: vendor.legal_entity_name.trim(),
-                  entity_form: vendor.entity_form,
-                  npwp: vendor.npwp.trim(),
-                  nib: vendor.nib.trim(),
-                  pic_name: vendor.pic_name.trim(),
-                  pic_position: vendor.pic_position.trim(),
-                  business_phone: vendor.business_phone.trim(),
-                  business_email: vendor.business_email.trim(),
-                }
+                display_name: vendor.display_name.trim(),
+                legal_entity_name: vendor.legal_entity_name.trim(),
+                entity_form: vendor.entity_form,
+                npwp: vendor.npwp.trim(),
+                nib: vendor.nib.trim(),
+                pic_name: vendor.pic_name.trim(),
+                pic_position: vendor.pic_position.trim(),
+                business_phone: vendor.business_phone.trim(),
+                business_email: vendor.business_email.trim(),
+              }
               : {}),
           }),
         },
@@ -308,8 +308,7 @@ export default function QuickRegisterPage() {
         <p className="mt-1 text-sm leading-relaxed text-brand-gray-700">
           Satu formulir singkat . tanpa KTP, tanpa rekening. Begitu terkirim, akunmu{' '}
           <b>langsung aktif</b> dan kamu diarahkan untuk <b>mendaftarkan produk jasamu</b> supaya
-          bisa dipesan pelanggan. Verifikasi identitas menyusul saat kamu mau menarik dana. Sudah
-          punya akun?{' '}
+          bisa dipesan pelanggan. Sudah punya akun?{' '}
           <Link href="/login?redirect=/jadi-mitra/daftar" className="font-semibold text-brand-red">
             Masuk dulu
           </Link>{' '}
@@ -375,11 +374,10 @@ export default function QuickRegisterPage() {
                 key={t}
                 type="button"
                 onClick={() => { setPartnerType(t); setChosenCats([]); }}
-                className={`flex-1 rounded-md border p-3 text-sm font-semibold transition-colors ${
-                  partnerType === t
-                    ? 'border-brand-red bg-brand-red-soft text-brand-red'
-                    : 'border-brand-gray-100 bg-white text-brand-gray-700 hover:border-brand-red'
-                }`}
+                className={`flex-1 rounded-md border p-3 text-sm font-semibold transition-colors ${partnerType === t
+                  ? 'border-brand-red bg-brand-red-soft text-brand-red'
+                  : 'border-brand-gray-100 bg-white text-brand-gray-700 hover:border-brand-red'
+                  }`}
               >
                 {t === 'individual' ? 'Perorangan' : 'Badan Usaha (PT/CV/dll)'}
               </button>
@@ -482,13 +480,12 @@ export default function QuickRegisterPage() {
                   type="button"
                   disabled={full}
                   onClick={() => toggleCat(c.id)}
-                  className={`w-fit rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-                    active
-                      ? 'border-brand-red bg-brand-red-soft text-brand-red'
-                      : full
-                        ? 'cursor-not-allowed border-brand-gray-100 bg-brand-gray-60 text-brand-gray-450'
-                        : 'border-brand-gray-100 bg-white text-brand-gray-900 hover:border-brand-red'
-                  }`}
+                  className={`w-fit rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${active
+                    ? 'border-brand-red bg-brand-red-soft text-brand-red'
+                    : full
+                      ? 'cursor-not-allowed border-brand-gray-100 bg-brand-gray-60 text-brand-gray-450'
+                      : 'border-brand-gray-100 bg-white text-brand-gray-900 hover:border-brand-red'
+                    }`}
                 >
                   {c.name}
                 </button>

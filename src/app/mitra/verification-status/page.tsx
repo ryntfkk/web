@@ -106,7 +106,7 @@ export default function MitraVerificationStatusPage() {
                     hanyalah badge & penarikan dana. */}
                 <p className="text-sm text-brand-gray-700 mb-6 leading-relaxed">
                   Akunmu <b>aktif dan bisa menerima pesanan</b>. Lengkapi verifikasi identitas
-                  (KTP + rekening) untuk badge Terverifikasi di profilmu dan untuk menarik dana.
+                  (KTP + rekening) untuk badge Terverifikasi di profilmu.
                   {verificationSla ? ` Peninjauan biasanya memakan waktu ${verificationSla}.` : ''}
                 </p>
                 <Button

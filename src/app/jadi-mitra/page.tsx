@@ -123,7 +123,7 @@ export default async function JadiMitraPage() {
         {/* Dynamic Glowing Background Effects */}
         <div className="pointer-events-none absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-brand-red/30 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-brand-red-dark/40 blur-[80px]" />
-        
+
         {/* Grid pattern overlay for tech/premium feel */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
@@ -153,7 +153,7 @@ export default async function JadiMitraPage() {
                 Lihat rincian biaya
               </Link>
             </div>
-            
+
             {/* ── Stat pills ── */}
             <div className="mt-10 grid grid-cols-3 gap-3 w-full sm:flex sm:flex-wrap sm:gap-4">
               {HERO_STATS.map((s) => (
@@ -198,7 +198,7 @@ export default async function JadiMitraPage() {
                       {row.aspek}
                     </p>
                   </div>
-                  
+
                   {/* Grid Perbandingan */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-brand-gray-100 flex-1">
                     <div className="flex items-start gap-3 p-4 sm:p-5 relative overflow-hidden group">
@@ -215,7 +215,7 @@ export default async function JadiMitraPage() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start gap-3 p-4 sm:p-5 bg-brand-success-soft/20 relative overflow-hidden group">
                       <div className="absolute top-0 right-0 p-2 opacity-5">
                         <Check className="h-20 w-20 text-brand-success" />
@@ -321,7 +321,7 @@ export default async function JadiMitraPage() {
         <section className="bg-brand-gray-900 py-12 sm:py-16 text-white sm:rounded-3xl sm:mx-4 md:mx-auto max-w-4xl relative overflow-hidden">
           {/* Subtle bg glow */}
           <div className="pointer-events-none absolute top-0 right-0 h-64 w-64 rounded-full bg-brand-red/20 blur-[80px]" />
-          
+
           <div className="mx-auto w-full max-w-3xl px-6 relative z-10">
             <div className="text-center mb-10">
               <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-red-light">
@@ -350,12 +350,12 @@ export default async function JadiMitraPage() {
                         {i < FLOW_STEPS.length - 1 && (
                           <div className="hidden sm:block absolute top-6 left-[60%] w-[80%] h-0.5 bg-white/10"></div>
                         )}
-                        
+
                         {/* Nomor/Ikon Bulat */}
                         <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-gray-800 text-brand-red-light ring-4 ring-brand-gray-900 transition-transform group-hover:scale-110 group-hover:bg-brand-red group-hover:text-white">
                           <Icon className="h-5 w-5" />
                         </div>
-                        
+
                         {/* Teks */}
                         <div className="pt-2 sm:pt-0">
                           <h3 className="text-[14px] font-bold leading-tight mb-1">{s.judul}</h3>
@@ -402,7 +402,7 @@ export default async function JadiMitraPage() {
               <p className="text-[11px] font-mono tracking-widest text-white/60 mb-1">STRUKTUR BIAYA</p>
               <p className="text-[16px] font-bold">Posko Jasa Partner</p>
             </div>
-            
+
             {/* Edge zigzag effect via pseudo elements (CSS trick simplified to borders) */}
             <div className="border-b-[3px] border-dashed border-brand-gray-200"></div>
 
@@ -426,10 +426,10 @@ export default async function JadiMitraPage() {
                   </div>
                 ))}
               </dl>
-              
+
               <div className="mt-8 rounded-xl bg-brand-success-soft/30 p-4 border border-brand-success/20">
                 <p className="text-center text-[12px] sm:text-[13px] font-semibold leading-relaxed text-brand-success-dark">
-                  Tidak ada pesanan = tidak ada biaya.<br/>Komisi {komisi} hanya dipotong dari pesanan yang sukses.
+                  Tidak ada pesanan = tidak ada biaya.<br />Komisi {komisi} hanya dipotong dari pesanan yang sukses.
                 </p>
               </div>
             </div>
@@ -451,7 +451,7 @@ export default async function JadiMitraPage() {
       <AnimateOnScroll>
         <section className="bg-brand-gray-900 py-12 sm:py-16 text-white sm:rounded-3xl sm:mx-4 md:mx-auto max-w-4xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-red-dark/40 via-transparent to-transparent opacity-60"></div>
-          
+
           <div className="mx-auto w-full max-w-3xl px-6 relative z-10">
             <div className="text-center sm:text-left mb-8">
               <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-brand-warning">
@@ -511,7 +511,7 @@ export default async function JadiMitraPage() {
           </div>
           <p className="mt-4 text-center sm:text-left text-[12px] leading-relaxed text-brand-gray-450 max-w-xl">
             Begitu formulir terkirim, akun Anda langsung aktif dan layanan Anda langsung bisa
-            dipesan. Verifikasi identitas (KTP + rekening) menyusul saat Anda ingin menarik dana.
+            dipesan.
           </p>
         </section>
       </AnimateOnScroll>
@@ -540,14 +540,14 @@ export default async function JadiMitraPage() {
               <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-white/90">
                 Pasang satu jasa yang paling sering Anda kerjakan, lihat bagaimana hasilnya, lalu tambah yang lain secara bertahap.
               </p>
-              
+
               <div className="mt-8 flex justify-center">
                 <CtaDaftar
                   position="penutup"
                   className="!bg-white !text-brand-red hover:!bg-brand-gray-50 hover:scale-105 transition-transform font-bold px-8 py-3.5 text-[15px] shadow-lg shadow-black/10"
                 />
               </div>
-              
+
               <p className="mt-5 text-[11px] text-white/70">
                 Dengan mendaftar, Anda menyetujui{' '}
                 <Link href="/terms" className="underline hover:text-white transition-colors">

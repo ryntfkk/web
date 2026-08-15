@@ -28,8 +28,8 @@ export default function PreparationNotice({
     <MitraPageContainer variant={variant} className="pt-4 pb-0">
       <div
         className={`flex items-start gap-2.5 rounded-lg border p-3 ${rejected
-            ? 'border-brand-error-border bg-brand-error-soft'
-            : 'border-brand-warning-border bg-brand-warning-soft'
+          ? 'border-brand-error-border bg-brand-error-soft'
+          : 'border-brand-warning-border bg-brand-warning-soft'
           }`}
       >
         <ClipboardCheck
@@ -41,8 +41,7 @@ export default function PreparationNotice({
           </p>
           <p className="mt-0.5 text-xs leading-snug text-brand-gray-700">
             Layananmu <strong>sudah tayang dan bisa dipesan</strong>. Lengkapi
-            verifikasi identitas untuk badge Terverifikasi di profilmu dan untuk
-            bisa menarik dana.
+            verifikasi identitas untuk badge Terverifikasi di profilmu.
           </p>
           <Link
             href={rejected ? '/mitra/verification-status' : '/mitra/kyc'}
