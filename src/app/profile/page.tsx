@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent, CreditCard, Trash2, AtSign } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent, CreditCard, Trash2, AtSign, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
@@ -19,7 +19,6 @@ import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import PartnerStatusCard, { type PartnerProfile } from '@/components/profile/PartnerStatusCard';
 import ProfileCompletionBanner from '@/components/profile/ProfileCompletionBanner';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
-import UsernameChangeModal from '@/components/profile/UsernameChangeModal';
 
 
 interface OrderItem {
@@ -59,7 +58,6 @@ export default function ProfilePage() {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
   const [showSwitchModal, setShowSwitchModal] = useState(false);
-  const [showUsernameModal, setShowUsernameModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -108,10 +106,6 @@ export default function ProfilePage() {
 
   if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized || !user) return null;
-
-  // Mitra punya URL profil publik `/{username}` yang ikut berpindah saat username
-  // berubah . modal memberi peringatan hanya untuk mereka.
-  const isPartner = !!user.partner_id || (Array.isArray(user.roles) && user.roles.includes('partner'));
 
   const tabs = [
     { key: 'profile' as ActiveTab, label: 'Profil', icon: User },
@@ -219,7 +213,7 @@ export default function ProfilePage() {
         {partnerCard}
 
         <MenuCard title="Akun">
-          <MenuListItem icon={User} label="Informasi Akun" subtitle="Nama, nomor HP, email" href="/profile/account" />
+          <MenuListItem icon={User} label="Informasi Akun" subtitle="Username, nama, nomor HP, email" href="/profile/account" />
           <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
           <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
         </MenuCard>
@@ -302,25 +296,16 @@ export default function ProfilePage() {
                   </div>
                 )}
 
-                {/* Account Settings */}
+                {/* Account Settings . baris di bawah READ-ONLY; seluruh penyuntingan
+                    (username, nama, email, foto) lewat "Kelola Informasi Akun" →
+                    /profile/account, sama seperti jalur mobile. */}
                 <MenuCard title="Informasi Akun">
-                  {/* Username + Ubah harus ada di sini juga: layout desktop TIDAK
-                      menaut ke /profile/account (tempat tombol Ubah versi mobile),
-                      jadi tanpa baris ini pengguna desktop tak punya jalan mengganti
-                      username sama sekali. */}
                   <div className="w-full flex items-center p-4 text-left">
                     <AtSign className="w-5 h-5 text-brand-gray-400 mr-3" />
                     <div className="flex-1">
                       <span className="text-brand-gray-800 font-medium block text-sm">Username</span>
                       <span className="text-xs text-brand-gray-400">@{user.username}</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowUsernameModal(true)}
-                      className="text-xs font-semibold text-brand-red hover:underline"
-                    >
-                      Ubah
-                    </button>
                   </div>
                   <div className="w-full flex items-center p-4 text-left">
                     <User className="w-5 h-5 text-brand-gray-400 mr-3" />
@@ -348,6 +333,7 @@ export default function ProfilePage() {
                       <span className="text-xs text-brand-gray-400">{user.email || 'Belum diisi'}</span>
                     </div>
                   </div>
+                  <MenuListItem icon={Pencil} label="Kelola Informasi Akun" subtitle="Ubah username, nama, email & foto profil" href="/profile/account" />
                   <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
                   <MenuListItem icon={MapPin} label="Buku Alamat" subtitle="Kelola alamat pengiriman" href="/profile/addresses" />
                   <MenuListItem icon={Wallet} label="Dompet" subtitle="Saldo, tarik dana & riwayat refund" href="/profile/wallet" />
@@ -503,7 +489,7 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 {/* Account Settings */}
                 <MenuCard title="Pengaturan Akun">
-                  <MenuListItem icon={Settings} label="Pengaturan Keamanan" subtitle="Password, PIN, autentikasi" href="/profile/security" />
+                  <MenuListItem icon={ShieldCheck} label="Keamanan Akun" subtitle="Ubah kata sandi & keamanan" href="/profile/security" />
                   <MenuListItem icon={Heart} label="Favorit" subtitle="Mitra & layanan tersimpan" href="/profile/favorites" />
                   <MenuListItem icon={Mail} label="Notifikasi" subtitle="Email, push notification" href="/profile/notifications" />
                   <MenuListItem icon={Phone} label="Hubungi Kami" subtitle="FAQ, bantuan" href="/help" />
@@ -522,14 +508,6 @@ export default function ProfilePage() {
       </div>
 
       <SwitchRoleModal isOpen={showSwitchModal} onClose={() => setShowSwitchModal(false)} />
-
-      <UsernameChangeModal
-        isOpen={showUsernameModal}
-        onClose={() => setShowUsernameModal(false)}
-        currentUsername={user.username}
-        hasPassword={user.has_password !== false}
-        isPartner={isPartner}
-      />
     </div>
   );
 }
