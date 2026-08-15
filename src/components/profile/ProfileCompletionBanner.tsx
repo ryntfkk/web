@@ -21,7 +21,7 @@ export default function ProfileCompletionBanner({ onVerify }: ProfileCompletionB
         <div>
           <p className="text-[13px] font-bold text-brand-gray-900">Profil belum lengkap</p>
           <p className="mt-0.5 text-[11px] leading-snug text-brand-gray-700">
-            Verifikasi nomor WhatsApp kamu supaya bisa memesan jasa dan dihubungi mitra.
+            Verifikasi nomor WhatsApp kamu supaya bisa memesan layanan dan dihubungi mitra.
           </p>
         </div>
       </div>

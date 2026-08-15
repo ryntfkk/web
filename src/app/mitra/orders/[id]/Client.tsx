@@ -530,7 +530,7 @@ export default function MitraOrderDetailClient() {
     <Section title="Rincian Pendapatan" icon={Wallet}>
       {order.total_service_price !== undefined && (
         <div className="flex justify-between text-sm text-brand-gray-700">
-          <span>Nilai Jasa (dasar komisi)</span>
+          <span>Nilai Layanan (dasar komisi)</span>
           <span className="text-brand-gray-900">{formatPrice(order.total_service_price + paidServiceFee)}</span>
         </div>
       )}
@@ -864,7 +864,7 @@ export default function MitraOrderDetailClient() {
                           <span className="ml-1 text-xs font-normal">({fee.quantity}× {formatPrice(fee.price)})</span>
                         </p>
                         <p className="text-xs text-brand-gray-450">
-                          {fee.type === 'material' ? 'Material' : 'Jasa'} · {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
+                          {fee.type === 'material' ? 'Material' : 'Layanan'} · {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
                         </p>
                       </div>
                       <span className={`font-medium shrink-0 ${fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
@@ -877,7 +877,7 @@ export default function MitraOrderDetailClient() {
                 </div>
                 {pendingFees.length > 0 && (
                   <p className="mt-3 pt-3 border-t border-brand-gray-100 text-xs text-brand-orange">
-                    {pendingFees.length} tagihan menunggu keputusan pelanggan. Biaya jasa tambahan kena komisi {formatFeeRate(platformConfig.platform_fee_rate)}; material dibayar penuh ke kamu.
+                    {pendingFees.length} tagihan menunggu keputusan pelanggan. Biaya layanan tambahan kena komisi {formatFeeRate(platformConfig.platform_fee_rate)}; material dibayar penuh ke kamu.
                   </p>
                 )}
               </Section>
@@ -888,7 +888,7 @@ export default function MitraOrderDetailClient() {
               <div className="space-y-1.5 text-sm">
                 {order.total_service_price !== undefined && (
                   <div className="flex justify-between text-brand-gray-700">
-                    <span>Subtotal Jasa</span>
+                    <span>Subtotal Layanan</span>
                     <span className="text-brand-gray-900">{formatPrice(order.total_service_price)}</span>
                   </div>
                 )}

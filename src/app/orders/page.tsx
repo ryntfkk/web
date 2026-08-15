@@ -335,12 +335,12 @@ function OrdersPageInner() {
                   {searchQuery
                     ? `Maaf, kami tidak menemukan pesanan yang cocok dengan "${search}".`
                     : activeFilter === 'all'
-                      ? 'Tampaknya Anda belum pernah memesan jasa. Yuk, temukan layanan yang Anda butuhkan sekarang!'
+                      ? 'Tampaknya Anda belum pernah memesan layanan. Yuk, temukan layanan yang Anda butuhkan sekarang!'
                       : 'Belum ada riwayat pesanan untuk status ini.'}
                 </p>
                 {activeFilter === 'all' && !searchQuery && (
                   <Button onClick={() => router.push('/')} className="rounded-xl px-8 py-6 font-bold shadow-[0_4px_12px_rgba(181,24,34,0.2)]">
-                    Mulai Cari Jasa
+                    Mulai Cari Layanan
                   </Button>
                 )}
               </div>

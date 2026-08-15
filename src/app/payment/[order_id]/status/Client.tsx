@@ -278,7 +278,7 @@ export default function PaymentStatusClient() {
           )}
           <div className="space-y-3">
             <Button className="w-full bg-brand-red hover:bg-brand-red-dark rounded" onClick={() => router.push('/')}>
-              Cari Jasa Lain
+              Cari Layanan Lain
             </Button>
             <Button variant="outline" className="w-full rounded border-brand-gray-100" onClick={() => router.replace(`/orders/${orderId}`)}>
               Lihat Detail Pesanan

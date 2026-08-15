@@ -67,8 +67,8 @@ describe('CategoryPicker', () => {
 
     // Tanpa slot, apa pun yang dipilih akan ditolak backend
     // (CATEGORY_NOT_ALLOWED). Dropdown kosong membuat mitra menebak-nebak.
-    expect(await screen.findByText('Kamu belum punya kategori jasa')).toBeTruthy();
-    const cta = screen.getByRole('link', { name: /atur kategori jasa/i });
+    expect(await screen.findByText('Kamu belum punya kategori layanan')).toBeTruthy();
+    const cta = screen.getByRole('link', { name: /atur kategori layanan/i });
     expect(cta.getAttribute('href')).toBe('/mitra/profile#kategori');
     expect(screen.queryByRole('combobox')).toBeNull();
   });

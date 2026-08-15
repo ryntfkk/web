@@ -31,7 +31,7 @@ export default function ProductsSection() {
     <section className="mb-6 md:mb-8">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-brand-gray-900">
-          Jasa Terdekat
+          Layanan Terdekat
         </h2>
         <Link
           href="/services"

@@ -78,15 +78,15 @@ export default function CategoryPicker({
         <div className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-brand-warning" aria-hidden />
           <div className="text-sm text-brand-gray-900">
-            <p className="font-semibold">Kamu belum punya kategori jasa</p>
+            <p className="font-semibold">Kamu belum punya kategori layanan</p>
             <p className="mt-0.5 text-xs text-brand-gray-700">
-              Kategori menentukan jasa apa yang boleh kamu jual. Atur dulu sebelum membuat layanan.
+              Kategori menentukan layanan apa yang boleh kamu jual. Atur dulu sebelum membuat layanan.
             </p>
             <Link
               href="/mitra/profile#kategori"
               className="mt-2 inline-block text-xs font-bold text-brand-red underline"
             >
-              Atur kategori jasa
+              Atur kategori layanan
             </Link>
           </div>
         </div>

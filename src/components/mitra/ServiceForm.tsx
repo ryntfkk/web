@@ -303,7 +303,7 @@ export default function ServiceForm({
             }}
             className={`${INPUT_CLASS} bg-white`}
           >
-            <option value="per_service">Per Jasa (borongan)</option>
+            <option value="per_service">Per Layanan (borongan)</option>
             <option value="per_hour">Per Jam</option>
             <option value="per_unit">Per Unit</option>
             <option value="per_kg">Per Kg</option>

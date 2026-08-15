@@ -86,7 +86,7 @@ export default function TopPartnersSection() {
                 rating={partner.avg_rating}
                 reviewCount={partner.total_reviews}
                 price={partner.starting_price}
-                unit="Jasa"
+                unit="Layanan"
                 imageUrl={partner.avatar_url || PLACEHOLDER_IMG}
                 city={partner.city ?? undefined}
                 distance={formatDistance(partner.distance_meters)}

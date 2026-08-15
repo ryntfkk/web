@@ -107,7 +107,7 @@ export default function CitySelector() {
               <div>
                 <h3 className="text-[16px] sm:text-[18px] font-bold text-brand-gray-900 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-brand-red" />
-                  Pilih Lokasi Jasa
+                  Pilih Lokasi Layanan
                 </h3>
                 <p className="text-[12px] text-brand-gray-400 mt-0.5">
                   Tampilkan mitra &amp; layanan terdekat di kota Anda

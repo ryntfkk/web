@@ -148,7 +148,7 @@ const STEP_LABELS: Record<StepKey, string> = {
  * terasa panjang tanpa menambah informasi apa pun . dokumen kini menempel pada
  * langkah data yang bersangkutan.
  *
- * `expertise` (kategori jasa + foto alat & bahan) TETAP berdiri sendiri, dan itu
+ * `expertise` (kategori layanan + foto alat & bahan) TETAP berdiri sendiri, dan itu
  * tidak bertentangan dengan aturan di atas: isinya bukan satu field melainkan
  * pilihan kategori beserta sampai 5 foto per kategori (vendor: sampai 3
  * kategori). Menempelkannya ke langkah Profil akan membuat satu layar berisi
@@ -355,7 +355,7 @@ function MitraRegisterForm() {
   const [partnerType, setPartnerType] = useState<PartnerType>('individual');
 
   /**
-   * Kategori jasa yang diklaim + bukti alatnya (000080).
+   * Kategori layanan yang diklaim + bukti alatnya (000080).
    *
    * Bukti melekat PER KATEGORI, bukan satu set untuk seluruh pengajuan: foto
    * kompresor AC tidak membuktikan apa pun tentang klaim "Wedding Organizer".
@@ -937,7 +937,7 @@ function MitraRegisterForm() {
         bank_account_number: formData.bank_account_number,
         bank_account_name: formData.bank_account_name,
         legal_document_ids: legalDocumentIds,
-        // Kategori jasa + buktinya (000080). Ditulis server dalam transaksi yang
+        // Kategori layanan + buktinya (000080). Ditulis server dalam transaksi yang
         // SAMA dengan pembuatan mitra . mitra yang lahir tanpa kategorinya akan
         // tertahan di gerbang verifikasi tanpa cara memperbaikinya sendiri.
         //
@@ -1543,9 +1543,9 @@ function MitraRegisterForm() {
 
           {currentStep === 'expertise' && (
             <div className="space-y-4 animate-in fade-in">
-              <h2 className={STEP_TITLE_CLASS}>Keahlian &amp; Bidang Jasa</h2>
+              <h2 className={STEP_TITLE_CLASS}>Keahlian &amp; Bidang Layanan</h2>
               <p className="text-sm text-brand-gray-700">
-                Kategori menentukan jasa apa yang boleh kamu jual. Foto alat &amp; bahan dipakai admin
+                Kategori menentukan layanan apa yang boleh kamu jual. Foto alat &amp; bahan dipakai admin
                 untuk memastikan kamu memang bisa mengerjakannya. Mengganti atau menambah kategori
                 nanti perlu persetujuan admin.
               </p>
@@ -1638,7 +1638,7 @@ function MitraRegisterForm() {
                   className="w-full"
                   onClick={() => setExpertise((prev) => [...prev, { category_id: '', files: [] }])}
                 >
-                  {expertise.length === 0 ? 'Pilih Kategori Jasa' : 'Tambah Kategori'}
+                  {expertise.length === 0 ? 'Pilih Kategori Layanan' : 'Tambah Kategori'}
                 </Button>
               )}
 

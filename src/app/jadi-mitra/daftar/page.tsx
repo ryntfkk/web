@@ -13,7 +13,7 @@
  *   2. POST /partners/onboarding/express . mitra langsung AKTIF + jam kerja
  *      default + kategori (payload `service` SENGAJA tidak dikirim . backend
  *      memperlakukannya opsional)
- *   3. Redirect ke /mitra/services/new . produk jasa didaftarkan di HALAMAN
+ *   3. Redirect ke /mitra/services/new . produk layanan didaftarkan di HALAMAN
  *      ASLI tambah layanan mitra, bukan di form pendaftaran. KYC menyusul via
  *      /mitra/kyc saat mau tarik dana.
  *
@@ -94,7 +94,7 @@ export default function QuickRegisterPage() {
   const [basecamp, setBasecamp] = useState({ lat: -6.2, lon: 106.816666 });
   const [basecampTouched, setBasecampTouched] = useState(false);
   // ── Keahlian: kategori utama (foto bukti alat menyusul saat KYC) ──
-  // Layanan pertama TIDAK diisi di sini (keputusan 2026-08-15): produk jasa
+  // Layanan pertama TIDAK diisi di sini (keputusan 2026-08-15): produk layanan
   // didaftarkan di halaman asli /mitra/services/new setelah akun aktif.
   const [chosenCats, setChosenCats] = useState<string[]>([]);
   const [agreed, setAgreed] = useState(false);
@@ -137,7 +137,7 @@ export default function QuickRegisterPage() {
     if (!region.province || !region.city || !region.district)
       return 'Provinsi, kota, dan kecamatan wajib dipilih';
     if (!basecampTouched) return 'Tandai lokasi basecamp di peta (geser pin ke lokasi kerjamu)';
-    if (chosenCats.length === 0) return 'Pilih minimal 1 kategori jasa';
+    if (chosenCats.length === 0) return 'Pilih minimal 1 kategori layanan';
     if (!agreed) return 'Centang persetujuan S&K terlebih dahulu';
     return null;
   };
@@ -172,7 +172,7 @@ export default function QuickRegisterPage() {
 
       // 2. Pendaftaran mitra. Tanpa upload KYC/dokumen (menyusul di /mitra/kyc)
       // dan TANPA layanan pertama . field `service` sengaja tidak dikirim,
-      // backend memperlakukannya opsional; produk jasa didaftarkan setelah ini
+      // backend memperlakukannya opsional; produk layanan didaftarkan setelah ini
       // di /mitra/services/new.
       setStage('submit');
       // partner-terms IKUT disetujui di sini (model instan): mitra bisa
@@ -239,7 +239,7 @@ export default function QuickRegisterPage() {
       track('partner_quick_register_submitted');
       // 3. Langsung ke halaman ASLI tambah layanan (keputusan 2026-08-15):
       // etalase kosong belum bisa dipesan siapa pun, jadi langkah wajar
-      // berikutnya adalah mendaftarkan produk jasa . di halaman yang memang
+      // berikutnya adalah mendaftarkan produk layanan . di halaman yang memang
       // dibuat untuk itu, bukan di form pendaftaran. `replace`, bukan `push`:
       // tombol back tidak boleh kembali ke form berisi data yang sudah terpakai.
       router.replace('/mitra/services/new');
@@ -307,7 +307,7 @@ export default function QuickRegisterPage() {
         <h1 className="text-2xl font-bold text-brand-gray-900">Daftar Jadi Mitra</h1>
         <p className="mt-1 text-sm leading-relaxed text-brand-gray-700">
           Satu formulir singkat . tanpa KTP, tanpa rekening. Begitu terkirim, akunmu{' '}
-          <b>langsung aktif</b> dan kamu diarahkan untuk <b>mendaftarkan produk jasamu</b> supaya
+          <b>langsung aktif</b> dan kamu diarahkan untuk <b>mendaftarkan produk layananmu</b> supaya
           bisa dipesan pelanggan. Sudah punya akun?{' '}
           <Link href="/login?redirect=/jadi-mitra/daftar" className="font-semibold text-brand-red">
             Masuk dulu
@@ -432,7 +432,7 @@ export default function QuickRegisterPage() {
         <section className={SECTION_CLASS}>
           <h2 className={SECTION_TITLE_CLASS}>
             <MapPin className="h-5 w-5 shrink-0 text-brand-red" />
-            {secNum.location}. Lokasi Jasa & Basecamp
+            {secNum.location}. Lokasi Layanan & Basecamp
           </h2>
           <RegionSelect value={region} onChange={setRegion} />
           <div>

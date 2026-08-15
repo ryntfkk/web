@@ -159,7 +159,7 @@ export default function CartPage() {
             <EmptyState
               icon={ShoppingCart}
               title="Keranjang Kosong"
-              description="Belum ada layanan di keranjang Anda. Yuk, cari jasa yang Anda butuhkan!"
+              description="Belum ada layanan di keranjang Anda. Yuk, cari layanan yang Anda butuhkan!"
               action={
                 <Button className="bg-brand-red hover:bg-brand-red-dark rounded-md px-6" onClick={() => router.push('/services')}>
                   Jelajahi Layanan

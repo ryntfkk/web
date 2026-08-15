@@ -142,7 +142,7 @@ export default function MitraProfilePage() {
         <CategorySlots />
 
         <MenuCard title="Mode">
-          <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan jasa sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />
+          <MenuListItem icon={RefreshCw} label="Beralih ke Mode Pelanggan" subtitle="Pesan layanan sebagai pelanggan" onClick={() => setShowSwitchModal(true)} />
         </MenuCard>
 
         {/* Mitra tidak punya cara melihat dirinya sebagaimana dilihat pelanggan

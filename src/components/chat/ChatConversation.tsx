@@ -365,7 +365,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                 {activeOrder.order_number}
               </span>
               <span className="text-xs text-brand-gray-700 truncate">
-                {activeOrder.items?.[0]?.service_name || activeOrder.items?.[0]?.name || 'Layanan Jasa'}
+                {activeOrder.items?.[0]?.service_name || activeOrder.items?.[0]?.name || 'Layanan'}
                 {activeOrder.items?.length > 1 && ` +${activeOrder.items.length - 1} lainnya`}
               </span>
             </div>

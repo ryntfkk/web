@@ -17,7 +17,7 @@ import MitraModal from '@/components/mitra/MitraModal';
 import PhotoPickerBox from '@/components/mitra/PhotoPickerBox';
 
 /**
- * Slot kategori jasa mitra (backend 000080).
+ * Slot kategori layanan mitra (backend 000080).
  *
  * Aturan yang harus TERBACA dari layar ini, bukan hanya ditegakkan server:
  *
@@ -74,17 +74,17 @@ export default function CategorySlots() {
         <div className="min-w-0">
           <h2 className="flex items-center gap-2 text-sm font-bold text-brand-gray-900">
             <Layers className="h-4 w-4 text-brand-red" aria-hidden />
-            Kategori Jasa
+            Kategori Layanan
           </h2>
           <p className="mt-0.5 text-xs text-brand-gray-450">
-            Menentukan jasa apa yang boleh kamu jual. Terpakai {data.used} dari {data.quota} slot.
+            Menentukan layanan apa yang boleh kamu jual. Terpakai {data.used} dari {data.quota} slot.
           </p>
         </div>
       </header>
 
       {data.categories.length === 0 && (
         <div className="mb-3 rounded-md border border-brand-warning-border bg-brand-warning-soft p-3 text-xs text-brand-gray-900">
-          <p className="font-semibold">Kamu belum punya kategori jasa.</p>
+          <p className="font-semibold">Kamu belum punya kategori layanan.</p>
           <p className="mt-0.5 text-brand-gray-700">
             Tanpa kategori, layanan tidak bisa dibuat. Ajukan kategori beserta foto alat &amp; bahan di bawah.
           </p>
@@ -300,8 +300,8 @@ function CategoryRequestForm({
       open
       onClose={onClose}
       size="lg"
-      title={replaces ? `Ganti kategori ${replaces.category_name}` : 'Tambah kategori jasa'}
-      description="Admin meninjau permintaan ini. Foto alat & bahan dipakai untuk memastikan kamu memang bisa mengerjakan jasa di kategori tersebut."
+      title={replaces ? `Ganti kategori ${replaces.category_name}` : 'Tambah kategori layanan'}
+      description="Admin meninjau permintaan ini. Foto alat & bahan dipakai untuk memastikan kamu memang bisa mengerjakan layanan di kategori tersebut."
       footer={
         <div className="flex w-full gap-2">
           <Button variant="outline" className="flex-1" onClick={onClose} disabled={create.isPending}>

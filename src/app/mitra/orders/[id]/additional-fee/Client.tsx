@@ -133,7 +133,7 @@ export default function AdditionalFeeFormClient() {
             <div className="grid grid-cols-2 gap-3">
               <label className={`block p-3 rounded-lg border text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue text-sm font-semibold ${form.type === 'extra_service' ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 bg-white text-brand-gray-700'}`}>
                 <input type="radio" name="type" className="sr-only" checked={form.type === 'extra_service'} onChange={() => setForm({ ...form, type: 'extra_service' })} />
-                Jasa Ekstra
+                Layanan
               </label>
               <label className={`block p-3 rounded-lg border text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue text-sm font-semibold ${form.type === 'material' ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 bg-white text-brand-gray-700'}`}>
                 <input type="radio" name="type" className="sr-only" checked={form.type === 'material'} onChange={() => setForm({ ...form, type: 'material' })} />
@@ -143,7 +143,7 @@ export default function AdditionalFeeFormClient() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Nama Item / Jasa</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Nama Item / Layanan</label>
             <input
               type="text"
               placeholder="Contoh: Kabel 5 meter, Freon..."

@@ -862,7 +862,7 @@ export default function OrderDetailClient() {
                       <div className="min-w-0">
                         <p className="text-brand-gray-900 truncate">{fee.item_name}</p>
                         <p className="text-xs text-brand-gray-450">
-                          {fee.type === 'material' ? 'Material' : 'Jasa'} · {fee.quantity}x {formatPrice(fee.price)}
+                          {fee.type === 'material' ? 'Material' : 'Layanan'} · {fee.quantity}x {formatPrice(fee.price)}
                         </p>
                       </div>
                       <div className="text-right shrink-0">

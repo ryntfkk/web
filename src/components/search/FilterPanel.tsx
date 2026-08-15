@@ -30,7 +30,7 @@ interface FilterPanelProps {
  */
 const PARTNER_TYPE_OPTIONS = [
   { label: 'Semua mitra', value: '', hint: '' },
-  { label: 'Perorangan', value: 'individual', hint: 'Dikerjakan langsung oleh pemilik jasa' },
+  { label: 'Perorangan', value: 'individual', hint: 'Dikerjakan langsung oleh pemilik layanan' },
   { label: 'Badan usaha', value: 'vendor', hint: 'PT/CV dengan tim & penanggung jawab' },
 ];
 

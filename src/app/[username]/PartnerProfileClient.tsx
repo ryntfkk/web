@@ -245,7 +245,7 @@ export default function PartnerProfileClient({ username }: { username: string })
                 <div>
                   <p className="text-xs font-semibold text-brand-info-dark mb-0.5">Pembayaran Dilindungi Escrow</p>
                   <p className="text-xs text-brand-gray-700 leading-snug">
-                    Harga yang tertera adalah biaya jasa dasar. Biaya material atau peralatan tambahan, jika dibutuhkan, akan diajukan secara terpisah oleh mitra dan <strong>harus kamu setujui sebelum dibayar</strong>.
+                    Harga yang tertera adalah biaya layanan dasar. Biaya material atau peralatan tambahan, jika dibutuhkan, akan diajukan secara terpisah oleh mitra dan <strong>harus kamu setujui sebelum dibayar</strong>.
                   </p>
                 </div>
               </div>

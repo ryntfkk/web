@@ -414,7 +414,7 @@ export default function ProfilePage() {
                       </p>
                       {activeFilter === 'all' && (
                         <Button onClick={() => router.push('/')}>
-                          Cari Jasa
+                          Cari Layanan
                         </Button>
                       )}
                     </div>

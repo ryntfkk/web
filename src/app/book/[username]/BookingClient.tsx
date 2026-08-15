@@ -690,7 +690,7 @@ export default function BookingClient() {
           </div>
           <div className="flex items-start gap-2 text-sm">
             <span className="text-brand-success font-bold shrink-0 mt-0.5">✓</span>
-            <span className="text-brand-gray-700"><strong>Mitra membatalkan / tidak datang (no-show)</strong> → Refund 100% biaya jasa + transport ke dompetmu</span>
+            <span className="text-brand-gray-700"><strong>Mitra membatalkan / tidak datang (no-show)</strong> → Refund 100% biaya layanan + transport ke dompetmu</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
             <span className="text-brand-red font-bold shrink-0 mt-0.5">✗</span>
@@ -803,7 +803,7 @@ export default function BookingClient() {
 
       <div className="space-y-1.5 text-sm pt-2.5 border-t border-brand-gray-100">
         <div className="flex justify-between text-brand-gray-700">
-          <span>Subtotal Jasa</span>
+          <span>Subtotal Layanan</span>
           <span>{formatPrice(previewQuote ? previewQuote.total_service_price : subtotal)}</span>
         </div>
         {previewQuote && (

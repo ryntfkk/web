@@ -8,7 +8,7 @@ import { useInfinitePublicServices } from '@/hooks/useInfinitePublicServices';
 import { useUserLocation } from '@/hooks/useUserLocation';
 
 /**
- * "Semua Jasa" . katalog panjang di bagian bawah Home. Halaman berikutnya
+ * "Semua Layanan" . katalog panjang di bagian bawah Home. Halaman berikutnya
  * dimuat otomatis saat sentinel masuk viewport (gulir ke bawah), tanpa tombol.
  */
 export default function AllServicesSection() {
@@ -56,7 +56,7 @@ export default function AllServicesSection() {
     <section className="mb-6 md:mb-8">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h2 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold leading-[1.35] text-brand-gray-900">
-          Semua Jasa
+          Semua Layanan
         </h2>
       </div>
 
@@ -94,7 +94,7 @@ export default function AllServicesSection() {
 
           {!hasNextPage && services.length > 0 && (
             <p className="text-center text-[12px] sm:text-[13px] text-brand-gray-400 py-6">
-              Semua jasa sudah ditampilkan.
+              Semua layanan sudah ditampilkan.
             </p>
           )}
         </>
