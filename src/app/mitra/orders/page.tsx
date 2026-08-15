@@ -337,15 +337,15 @@ export default function MitraOrdersPage() {
         skeleton={
           <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 h-28 animate-pulse" />
+              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-3 h-24 animate-pulse" />
             ))}
           </div>
         }
       >
         <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
           {filteredOrders.map(order => (
-            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-brand-gray-100 rounded-lg p-4 hover:border-brand-red transition-colors">
-              <div className="flex justify-between items-start mb-3">
+            <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block bg-white border border-brand-gray-100 rounded-lg p-3 hover:border-brand-red transition-colors">
+              <div className="flex justify-between items-start mb-2.5">
                 <div>
                   <p className="text-xs text-brand-gray-450 font-medium mb-0.5">No. {order.order_number}</p>
                   <p className="font-bold text-brand-gray-900">{customerName(order)}</p>
@@ -353,7 +353,7 @@ export default function MitraOrdersPage() {
                 <StatusBadge status={order.status} size="sm" />
               </div>
 
-              <div className="flex justify-between items-end border-t border-brand-gray-100 pt-3">
+              <div className="flex justify-between items-end border-t border-brand-gray-100 pt-2.5">
                 <div className="flex items-center gap-1.5 text-sm text-brand-gray-700">
                   <Calendar className="w-4 h-4 text-brand-gray-450" />
                   <span>{formatTime(order.scheduled_at)}</span>

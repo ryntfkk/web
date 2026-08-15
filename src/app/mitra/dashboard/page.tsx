@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Bell, Settings, LayoutDashboard, Wrench, Wallet, Calendar,
-  ChevronRight, Star, TrendingUp, Package, Power, Clock
+  Bell, Settings, Wrench, Wallet, Calendar,
+  ChevronRight, Star, Power, Clock, ArrowUpRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
@@ -19,6 +19,8 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import DataState from '@/components/mitra/DataState';
 import EmailVerificationNotice from '@/components/mitra/EmailVerificationNotice';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
+import MitraStatStrip from '@/components/mitra/MitraStatStrip';
 import Image from 'next/image';
 
 
@@ -156,8 +158,8 @@ export default function MitraDashboardPage() {
 
       {/* Header . z-10 di bawah konten (z-20) agar card overlap tampil di atas background merah */}
       <div className="bg-brand-red text-white rounded-b-2xl shadow-sm relative z-10">
-        <MitraPageContainer variant="dashboard" className="pt-4 pb-12">
-          <div className="flex items-center justify-between mb-6">
+        <MitraPageContainer variant="dashboard" className="pt-4 pb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white text-brand-red flex items-center justify-center font-bold overflow-hidden shrink-0">
                 {user?.avatar_url
@@ -182,92 +184,100 @@ export default function MitraDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-4 text-brand-gray-900 flex items-center justify-between shadow-sm">
-            <div>
-              <p className="text-xs font-semibold text-brand-gray-700 mb-1">Status Toko</p>
-              <div className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${data?.status === 'ACTIVE' ? 'bg-brand-success' : 'bg-brand-error'}`} />
-                <span className="font-bold">{data?.status === 'ACTIVE' ? 'Aktif Menerima Pesanan' : 'Tutup Sementara'}</span>
-              </div>
+          {/* Saldo dompet = angka utama; hero yang dulu hanya salam + status kini
+              produktif. Tombol Tarik pintasan ke /mitra/wallet (audit E11). */}
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="mb-0.5 flex items-center gap-1.5 text-xs text-white/80">
+                <Wallet className="h-3.5 w-3.5" /> Saldo Dompet
+              </p>
+              {loading && !data ? (
+                <span className="inline-block h-8 w-36 animate-pulse rounded-md bg-white/20" />
+              ) : (
+                <p className="truncate text-2xl font-bold tracking-tight">{formatPrice(data?.stats.balance ?? 0)}</p>
+              )}
+            </div>
+            <Link
+              href="/mitra/wallet"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-white px-3 py-2 text-sm font-bold text-brand-red shadow-sm transition-colors hover:bg-brand-gray-60"
+            >
+              <ArrowUpRight className="h-4 w-4" /> Tarik
+            </Link>
+          </div>
+
+          {/* Status toko . chip ringkas menggantikan kartu putih tebal. */}
+          <div className="mt-3 flex items-center justify-between rounded-md bg-white/10 px-3 py-2">
+            <div className="flex min-w-0 items-center gap-2 text-sm">
+              <span className={`h-2 w-2 shrink-0 rounded-full ${data?.status === 'ACTIVE' ? 'bg-brand-success' : 'bg-white/50'}`} />
+              <span className="truncate font-semibold">
+                {data?.status === 'ACTIVE' ? 'Aktif menerima pesanan' : 'Tutup sementara'}
+              </span>
             </div>
             <button
               onClick={toggleStatus}
               disabled={togglingStatus || loading}
-              className={`p-2.5 rounded-full transition-colors ${data?.status === 'ACTIVE' ? 'bg-brand-error-soft text-brand-error hover:bg-brand-error-border' : 'bg-brand-success-soft text-brand-success hover:bg-brand-success-border'}`}
+              className="ml-2 shrink-0 rounded-full bg-white/15 p-1.5 transition-colors hover:bg-white/25 disabled:opacity-60"
               aria-label="Ubah status toko"
             >
-              <Power className="w-5 h-5" />
+              <Power className="h-4 w-4 text-white" />
             </button>
           </div>
         </MitraPageContainer>
       </div>
 
-      <MitraPageContainer variant="dashboard" className="py-0 -mt-6 relative z-20 space-y-4">
+      <MitraPageContainer variant="dashboard" className="py-4 space-y-4">
         {/* Diam sendiri bila email sudah terverifikasi . lihat komponennya. */}
         <EmailVerificationNotice />
 
         {/* Pita gagal-memuat: angka di bawahnya fallback nol, jadi tanpa pita
             ini kegagalan jaringan tampak seperti dompet kosong. */}
         {error && !loading && (
-          <div role="alert" className="flex items-center justify-between gap-3 rounded-md border border-brand-error-border bg-brand-error-soft px-4 py-3">
-            <p className="text-sm font-medium text-brand-error">
-              Gagal memuat data dashboard - angka di bawah mungkin belum lengkap.
-            </p>
-            <Button variant="outline" size="sm" className="shrink-0 rounded-md" onClick={() => fetchData()}>
-              Coba lagi
-            </Button>
-          </div>
+          <MitraInfoBanner
+            variant="error"
+            role="alert"
+            action={
+              <Button variant="outline" size="sm" className="rounded-md" onClick={() => fetchData()}>
+                Coba lagi
+              </Button>
+            }
+          >
+            Gagal memuat data dashboard - angka di bawah mungkin belum lengkap.
+          </MitraInfoBanner>
         )}
 
-        {/* Stats */}
+        {/* Metrik ringkas. Saldo dipindah ke hero; sisanya jadi satu baris
+            bersekat (dulu grid 2×2 yang memakan dua baris penuh di mobile).
+            Field-jujur & fallback dipertahankan (audit E11). */}
         {loading ? (
-          /* Bentuknya harus SAMA dengan grid aslinya . dua kartu placeholder
-             untuk grid berisi tiga membuat isinya melompat saat data tiba. */
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 animate-pulse">
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 h-20" />
-          </div>
+          <div className="h-14 animate-pulse rounded-lg border border-brand-gray-100 bg-white" />
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-            {/* Saldo dompet . tautan ke /mitra/wallet tempat penarikan (audit E11). */}
-            <Link href="/mitra/wallet" className="bg-white rounded-md border border-brand-gray-100 p-4 flex flex-col justify-center hover:bg-brand-gray-60 transition-colors">
-              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><Wallet className="w-3.5 h-3.5" /> Saldo Dompet</p>
-              <p className="text-lg font-bold text-brand-gray-900">{formatPrice(data?.stats.balance ?? 0)}</p>
-            </Link>
-            {/* Pendapatan bulan berjalan dari ledger EARNING; minggu ini sebagai
-                sub-baris. Dulu kartu ini berlabel "Hari Ini" padahal menampilkan
-                total SEPANJANG MASA (audit E11). */}
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 flex flex-col justify-center">
-              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><TrendingUp className="w-3.5 h-3.5" /> Pendapatan Bulan Ini</p>
-              <p className="text-lg font-bold text-brand-success">{formatPrice(data?.stats.month_income ?? 0)}</p>
-              <p className="text-[11px] text-brand-gray-450 mt-0.5">Minggu ini: {formatPrice(data?.stats.week_income ?? 0)}</p>
-            </div>
-            {/* "Pesanan Aktif" . jujur; dulu berlabel "Hari Ini" padahal ini
-                jumlah pesanan yang sedang berjalan, bukan yang masuk hari ini. */}
-            <div className="bg-white rounded-md border border-brand-gray-100 p-4 flex flex-col justify-center">
-              <p className="text-xs text-brand-gray-700 flex items-center gap-1 mb-1"><Package className="w-3.5 h-3.5" /> Pesanan Aktif</p>
-              <p className="text-xl font-bold text-brand-gray-900">{data?.stats.active_orders ?? data?.stats.today_orders ?? 0}</p>
-            </div>
-            {/* Kartu rating jadi tautan ke halaman ulasan . di sanalah mitra
-                membalas ulasan pelanggan (batas balas 7 hari). */}
-            <Link
-              href="/mitra/reviews"
-              className="bg-white rounded-md border border-brand-gray-100 p-4 flex items-center justify-between hover:bg-brand-gray-60 transition-colors"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 shrink-0 rounded-md bg-brand-orange-soft flex items-center justify-center">
-                  <Star className="w-4 h-4 text-brand-warning fill-brand-warning" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-brand-gray-900">Rating {data?.stats.rating?.toFixed(1) || '0.0'}</p>
-                  <p className="text-xs text-brand-gray-700 truncate">{data?.stats.total_reviews || 0} Ulasan</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 shrink-0 text-brand-gray-400" />
-            </Link>
-          </div>
+          <MitraStatStrip
+            items={[
+              {
+                label: 'Pendapatan bln ini',
+                value: formatPrice(data?.stats.month_income ?? 0),
+                sub: `Mgg ini ${formatPrice(data?.stats.week_income ?? 0)}`,
+                href: '/mitra/wallet',
+                valueClassName: 'text-brand-success',
+              },
+              {
+                label: 'Pesanan Aktif',
+                value: data?.stats.active_orders ?? data?.stats.today_orders ?? 0,
+                href: '/mitra/orders',
+              },
+              {
+                label: 'Rating',
+                value: (
+                  <span className="inline-flex items-center gap-1">
+                    {data?.stats.rating?.toFixed(1) || '0.0'}
+                    <Star className="h-3.5 w-3.5 fill-brand-warning text-brand-warning" />
+                  </span>
+                ),
+                sub: `${data?.stats.total_reviews || 0} ulasan`,
+                href: '/mitra/reviews',
+              },
+            ]}
+          />
         )}
 
         {/* Quick Menu.

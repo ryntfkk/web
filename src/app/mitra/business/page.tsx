@@ -7,6 +7,7 @@ import { Building2, Loader2 } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import MitraSection from '@/components/mitra/MitraSection';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import { VerifiedLockNotice } from '@/components/mitra/VerifiedLockBadge';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -193,7 +194,7 @@ export default function MitraBusinessPage() {
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Identitas Usaha' }]}
       />
 
-      <MitraPageContainer variant="profile" className="space-y-5">
+      <MitraPageContainer variant="profile" className="space-y-4">
         <form onSubmit={handleSave}>
           <MitraSection
             title="Bisa kamu ubah sendiri"
@@ -211,7 +212,7 @@ export default function MitraBusinessPage() {
                   value={form.display_name}
                   onChange={(e) => setForm({ ...form, display_name: e.target.value })}
                   maxLength={255}
-                  className="w-full rounded border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+                  className="w-full rounded-md border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
                 />
                 <p className="mt-1 text-xs text-brand-gray-450">
                   Harus unik antar mitra. Mengubahnya mengubah nama di seluruh etalase dan pesanan
@@ -230,7 +231,7 @@ export default function MitraBusinessPage() {
                   onChange={(e) => setForm({ ...form, pic_position: e.target.value })}
                   maxLength={100}
                   placeholder="Contoh: Direktur Operasional"
-                  className="w-full rounded border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+                  className="w-full rounded-md border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
                 />
               </div>
 
@@ -245,7 +246,7 @@ export default function MitraBusinessPage() {
                   value={form.business_phone}
                   onChange={(e) => setForm({ ...form, business_phone: e.target.value })}
                   placeholder="08xxxxxxxxxx"
-                  className="w-full rounded border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+                  className="w-full rounded-md border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
                 />
                 <p className="mt-1 text-xs text-brand-gray-450">
                   Nomor kantor. Berbeda dari nomor HP pribadimu, yang dipakai login dan OTP.
@@ -263,17 +264,14 @@ export default function MitraBusinessPage() {
                   value={form.business_email}
                   onChange={(e) => setForm({ ...form, business_email: e.target.value })}
                   placeholder="Opsional"
-                  className="w-full rounded border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
+                  className="w-full rounded-md border border-brand-gray-100 p-3 text-sm text-brand-gray-900 focus:border-brand-red focus:outline-none"
                 />
               </div>
 
               {error && (
-                <div
-                  role="alert"
-                  className="rounded-lg border border-brand-error-border bg-brand-error-soft p-3 text-sm text-brand-error"
-                >
+                <MitraInfoBanner variant="error" role="alert">
                   {error}
-                </div>
+                </MitraInfoBanner>
               )}
 
               <div className="flex gap-3 pt-1">

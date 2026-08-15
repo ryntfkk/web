@@ -139,7 +139,7 @@ export default function MitraReviewsPage() {
         >
           <>
             {summary && summary.total_reviews > 0 && (
-              <div className="bg-white rounded-lg border border-brand-gray-100 p-4 mb-4 flex items-center gap-4">
+              <div className="bg-white rounded-lg border border-brand-gray-100 p-3 mb-3 flex items-center gap-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-brand-gray-900">{summary.avg_rating.toFixed(1)}</div>
                   <div className="flex gap-0.5 justify-center mt-1">
@@ -178,7 +178,7 @@ export default function MitraReviewsPage() {
                   })).filter((a) => a.value !== null);
 
                   return (
-                    <div key={review.id} className="bg-white rounded-lg border border-brand-gray-100 p-4">
+                    <div key={review.id} className="bg-white rounded-lg border border-brand-gray-100 p-3">
                       <div className="flex gap-3">
                         <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 bg-brand-gray-100 flex items-center justify-center text-sm font-medium text-brand-gray-700">
                           {review.customer_avatar ? (

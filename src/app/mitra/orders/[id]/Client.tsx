@@ -211,7 +211,7 @@ function Section({ title, icon: Icon, children, className = '' }: {
   className?: string;
 }) {
   return (
-    <section className={`bg-white rounded-lg border border-brand-gray-100 p-4 sm:p-5 ${className}`}>
+    <section className={`bg-white rounded-lg border border-brand-gray-100 p-3 sm:p-5 ${className}`}>
       {title && (
         <h2 className="flex items-center gap-2 text-sm font-semibold text-brand-gray-900 mb-3">
           {Icon && <Icon className="w-4 h-4 text-brand-red" />}
@@ -354,7 +354,7 @@ export default function MitraOrderDetailClient() {
         <MitraPageContainer variant="detail" className="space-y-4">
           <div className="h-28 bg-brand-gray-100 rounded-lg animate-pulse" />
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 animate-pulse">
+            <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-3 animate-pulse">
               <div className="h-4 w-3/4 bg-brand-gray-100 rounded-md mb-3" />
               <div className="h-4 w-1/2 bg-brand-gray-100 rounded-md" />
             </div>
@@ -600,7 +600,7 @@ export default function MitraOrderDetailClient() {
 
       <MitraPageContainer variant="detail">
         {/* ── Status hero ─────────────────────────────────────────── */}
-        <div className={`rounded-lg bg-gradient-to-br ${hero.tone} text-white p-5 sm:p-6 mb-4`}>
+        <div className={`rounded-lg bg-gradient-to-br ${hero.tone} text-white p-4 sm:p-5 mb-3`}>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="min-w-0 flex-1">
               <StatusBadge status={status} size="sm" className="bg-white/20 border-white/30 text-white mb-2" />

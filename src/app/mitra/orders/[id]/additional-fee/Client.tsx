@@ -11,6 +11,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 
 export default function AdditionalFeeFormClient() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -122,16 +123,13 @@ export default function AdditionalFeeFormClient() {
       />
 
       <MitraPageContainer variant="form">
-        <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-4 flex gap-3 items-start mb-6">
-          <AlertCircle className="w-5 h-5 text-brand-error shrink-0 mt-0.5" />
-          <p className="text-sm text-brand-error font-medium leading-relaxed">
-            Ajukan biaya tambahan jika ada pergantian sparepart, material ekstra, atau layanan di luar kesepakatan awal.
-          </p>
-        </div>
+        <MitraInfoBanner variant="error" icon={<AlertCircle className="h-4 w-4" aria-hidden />} className="mb-4">
+          Ajukan biaya tambahan jika ada pergantian sparepart, material ekstra, atau layanan di luar kesepakatan awal.
+        </MitraInfoBanner>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-brand-gray-100 p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-4 lg:p-5">
           <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Tipe Biaya</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Tipe Biaya</label>
             <div className="grid grid-cols-2 gap-3">
               <label className={`block p-3 rounded-lg border text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-blue text-sm font-semibold ${form.type === 'extra_service' ? 'border-brand-red bg-brand-error-soft text-brand-red' : 'border-brand-gray-100 bg-white text-brand-gray-700'}`}>
                 <input type="radio" name="type" className="sr-only" checked={form.type === 'extra_service'} onChange={() => setForm({ ...form, type: 'extra_service' })} />
@@ -145,7 +143,7 @@ export default function AdditionalFeeFormClient() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Item / Jasa</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Nama Item / Jasa</label>
             <input
               type="text"
               placeholder="Contoh: Kabel 5 meter, Freon..."
@@ -157,7 +155,7 @@ export default function AdditionalFeeFormClient() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Harga Satuan</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Harga Satuan</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray-900 font-bold text-sm">Rp</span>
                 <input
@@ -170,7 +168,7 @@ export default function AdditionalFeeFormClient() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Kuantitas</label>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Kuantitas</label>
               <input
                 type="number"
                 min="1"
@@ -202,7 +200,7 @@ export default function AdditionalFeeFormClient() {
             <span className="text-xl font-bold text-brand-orange">{formatPrice(totalAmount)}</span>
           </div>
 
-          {error && <div className="bg-brand-error-soft text-brand-error text-sm p-3 rounded-lg border border-brand-error-border">{error}</div>}
+          {error && <MitraInfoBanner variant="error" role="alert">{error}</MitraInfoBanner>}
 
           <div className="pt-4">
             <Button

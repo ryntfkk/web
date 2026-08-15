@@ -77,7 +77,7 @@ export default function MitraProfilePage() {
   return (
     <div className="pb-6">
       {/* Header . hero premium */}
-      <div className="bg-gradient-to-br from-brand-red via-brand-red-accent to-brand-red text-white py-6 md:py-10 relative overflow-hidden shadow-md">
+      <div className="bg-gradient-to-br from-brand-red via-brand-red-accent to-brand-red text-white py-5 md:py-10 relative overflow-hidden shadow-md">
         {/* Decorative background shapes */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
@@ -210,7 +210,7 @@ export default function MitraProfilePage() {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 bg-white py-4 rounded-md border border-brand-red text-brand-red font-semibold hover:bg-brand-red-soft transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-white py-3 rounded-md border border-brand-red text-brand-red font-semibold hover:bg-brand-red-soft transition-colors"
         >
           <LogOut className="w-5 h-5" /> Keluar dari Akun
         </button>

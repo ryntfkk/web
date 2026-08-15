@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/toast';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, Pencil, Trash2, Plus, Wrench } from 'lucide-react';
+import { Pencil, Trash2, Plus, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
@@ -14,6 +14,7 @@ import DataState from '@/components/mitra/DataState';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import MitraModal from '@/components/mitra/MitraModal';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import { useLiveRegion } from '@/components/mitra/useLiveRegion';
 
 
@@ -169,7 +170,7 @@ export default function MitraServicesPage() {
         {/* Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu (§6.1). */}
         <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {services.map(s => (
-            <div key={s.id} className={`bg-white rounded-lg border p-4 transition-colors ${s.is_active ? 'border-brand-gray-100' : 'border-brand-gray-100 opacity-70 bg-brand-gray-60'}`}>
+            <div key={s.id} className={`bg-white rounded-lg border p-3 transition-colors ${s.is_active ? 'border-brand-gray-100' : 'border-brand-gray-100 opacity-70 bg-brand-gray-60'}`}>
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h3 className="font-bold text-brand-gray-900">{s.name}</h3>
@@ -181,20 +182,17 @@ export default function MitraServicesPage() {
               </div>
 
               {s.category_visible === false && (
-                <p className="mb-2 flex items-start gap-1.5 rounded-md border border-brand-warning-border bg-brand-warning-soft px-2 py-1.5 text-xs text-brand-warning-dark">
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <span>
-                    Kategori{s.category_name ? ` ${s.category_name}` : ''} sedang dinonaktifkan admin —
-                    layanan ini belum tampil untuk pelanggan.
-                  </span>
-                </p>
+                <MitraInfoBanner variant="warning" className="mb-2">
+                  Kategori{s.category_name ? ` ${s.category_name}` : ''} sedang dinonaktifkan admin —
+                  layanan ini belum tampil untuk pelanggan.
+                </MitraInfoBanner>
               )}
 
               {s.description && (
-                <p className="text-sm text-brand-gray-700 mb-3 line-clamp-2">{s.description}</p>
+                <p className="text-sm text-brand-gray-700 mb-2.5 line-clamp-2">{s.description}</p>
               )}
 
-              <div className="flex justify-between items-center mt-3 pt-3 border-t border-brand-gray-100">
+              <div className="flex justify-between items-center mt-2.5 pt-2.5 border-t border-brand-gray-100">
                 <label className={`flex items-center gap-2 ${togglingId ? 'cursor-wait opacity-60' : 'cursor-pointer'}`}>
                   <input
                     type="checkbox"

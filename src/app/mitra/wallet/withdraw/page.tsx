@@ -71,7 +71,7 @@ export default function WithdrawPage() {
             trackEvent="partner_withdrawal_submitted"
           />
         ) : (
-          <div className="rounded-2xl border border-brand-gray-100 bg-white p-5 text-center">
+          <div className="rounded-lg border border-brand-gray-100 bg-white p-5 text-center">
             <ShieldCheck className="mx-auto h-10 w-10 text-brand-warning-dark" />
             <h2 className="mt-3 text-base font-bold text-brand-gray-900">
               {verification === 'REJECTED' ? 'Verifikasi Identitasmu Ditolak' : 'Verifikasi Dulu untuk Tarik Dana'}

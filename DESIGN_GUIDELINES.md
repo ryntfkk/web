@@ -238,6 +238,15 @@ Di `globals.css` sudah ada style khusus untuk mobile:
 | Form group margin | 14px | 16px |
 | Section spacing | 24px | 32px |
 
+### 4.5 Densitas mode mitra (compact)
+
+Halaman mode mitra (`/mitra/*`) dipakai dari HP dan memakai **skala compact**
+sebagai default (kartu `p-3 lg:p-4/5`, antar-field `space-y-3`, label `mb-1.5`,
+list-item `p-3` + ikon `w-9 h-9`, banner via `MitraInfoBanner`). Metrik dashboard
+memakai `MitraStatStrip`, bukan grid kartu. **Sumber kebenaran & alasannya ada di
+`DEVELOPER_NOTES.md` §7a » "Densitas mobile (skala compact)"** . dokumen itu lebih
+baru dan menang bila berbeda dari tabel di atas. Font input mobile tetap 16px.
+
 ---
 
 ## 5. Responsive Breakpoints

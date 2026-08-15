@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, MapPin, AlertCircle } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
@@ -127,19 +128,16 @@ export default function MitraBasecampPage() {
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Alamat Basecamp' }]}
       />
 
-      <MitraPageContainer variant="form" className="space-y-6">
+      <MitraPageContainer variant="form" className="space-y-4">
         {isVerified && (
           <VerifiedLockNotice
             title="Koordinat & wilayah terkunci"
             message="Titik lokasi & wilayah layanan sudah diverifikasi admin. Detail alamat & deskripsi tetap bisa diubah. Hubungi admin untuk mengubah koordinat (cabut verifikasi)."
           />
         )}
-        <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-3 flex gap-3">
-          <AlertCircle className="w-5 h-5 text-brand-error shrink-0" />
-          <p className="text-xs text-brand-error-dark leading-relaxed">
-            Perubahan basecamp hanya memengaruhi perhitungan jarak & biaya transport pada pesanan <strong>BARU</strong>.
-          </p>
-        </div>
+        <MitraInfoBanner variant="error" icon={<AlertCircle className="h-4 w-4" aria-hidden />}>
+          Perubahan basecamp hanya memengaruhi perhitungan jarak & biaya transport pada pesanan <strong>BARU</strong>.
+        </MitraInfoBanner>
 
         <div className="bg-white rounded-lg border border-brand-gray-100 p-4 space-y-4">
           <div>
@@ -161,7 +159,7 @@ export default function MitraBasecampPage() {
             disabled={isVerified}
           />
           <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Deskripsi Diri</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Deskripsi Diri</label>
             <textarea
               className={inputCls}
               placeholder="Ceritakan pengalaman & keahlianmu (min. 20 karakter untuk skor kelengkapan)"
@@ -175,13 +173,13 @@ export default function MitraBasecampPage() {
             </p>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Detail Alamat (opsional)</label>
+            <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Detail Alamat (opsional)</label>
             <input className={inputCls} placeholder="Nama jalan, patokan, dsb." value={detail} onChange={(e) => setDetail(e.target.value)} />
           </div>
 
           {error && <div className="text-sm text-brand-error">{error}</div>}
 
-          <Button className="w-full bg-brand-red hover:bg-brand-red-dark text-white py-6" onClick={handleSave} disabled={submitting}>
+          <Button className="w-full bg-brand-red hover:bg-brand-red-dark text-white h-12" onClick={handleSave} disabled={submitting}>
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Simpan Basecamp'}
           </Button>
         </div>

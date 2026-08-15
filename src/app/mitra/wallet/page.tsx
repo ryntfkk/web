@@ -11,6 +11,7 @@ import { formatPrice } from '@/lib/format';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import MitraSection from '@/components/mitra/MitraSection';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import DataState from '@/components/mitra/DataState';
 
 interface WalletTransaction {
@@ -156,8 +157,8 @@ export default function MitraWalletPage() {
           dashboard memang sudah `relative` . z-10 hanya supaya baris tombol
           (z-20) yang menimpanya lewat `-mt-4` tetap tampil di atas. */}
       <div className="bg-brand-red text-white rounded-b-xl shadow-sm relative z-10">
-        <MitraPageContainer variant="detail" className="pt-4 pb-8">
-          <div className="flex items-center gap-3 mb-6">
+        <MitraPageContainer variant="detail" className="pt-4 pb-6">
+          <div className="flex items-center gap-3 mb-4">
             <button onClick={() => router.push('/mitra/dashboard')} className="p-2 -ml-2 hover:bg-white/10 rounded-md" aria-label="Kembali">
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -205,24 +206,18 @@ export default function MitraWalletPage() {
           "info & ringkasan → riwayat"; di `lg` grid menempatkannya di kanan. */}
       <MitraPageContainer variant="detail" className="pt-4 lg:grid lg:grid-cols-[1fr_360px] lg:gap-5 lg:items-start space-y-6 lg:space-y-0">
         <div className="space-y-4 lg:col-start-2 lg:row-start-1">
-          <div className="bg-brand-error-soft border border-brand-error-border rounded-lg px-4 py-3 flex items-start gap-2.5">
-            <Clock className="w-4 h-4 text-brand-red mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs font-semibold text-brand-red mb-0.5">Info Penarikan Dana</p>
-              <p className="text-xs text-brand-red leading-snug">
-                {/* Batas & SLA dari DB (platform_settings + platform_profile) .
-                    tidak ada angka maupun janji waktu yang diketik di sini. */}
-                Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>{platformConfig.profile?.withdrawal_sla || '1-2 hari kerja'}</strong>.
-              </p>
-            </div>
-          </div>
+          {/* Batas & SLA dari DB (platform_settings + platform_profile) .
+              tidak ada angka maupun janji waktu yang diketik di sini. */}
+          <MitraInfoBanner variant="error" icon={<Clock className="h-4 w-4" aria-hidden />} title="Info Penarikan Dana">
+            Batas penarikan: <strong>{formatPrice(platformConfig.max_withdrawal)} per pengajuan</strong>. Dana masuk ke rekening dalam <strong>{platformConfig.profile?.withdrawal_sla || '1-2 hari kerja'}</strong>.
+          </MitraInfoBanner>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-lg border border-brand-gray-100 p-3 shadow-sm flex flex-col items-center text-center">
               <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Pemasukan</p>
               <p className="font-bold text-brand-success text-lg">{formatPrice(summary.total_earnings)}</p>
             </div>
-            <div className="bg-white rounded-lg border border-brand-gray-100 p-4 shadow-sm flex flex-col items-center text-center">
+            <div className="bg-white rounded-lg border border-brand-gray-100 p-3 shadow-sm flex flex-col items-center text-center">
               <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Penarikan</p>
               <p className="font-bold text-brand-gray-900 text-lg">{formatPrice(summary.total_withdrawals)}</p>
             </div>
@@ -284,8 +279,8 @@ export default function MitraWalletPage() {
           skeleton={
             <div className="space-y-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center gap-4 animate-pulse">
-                  <div className="w-10 h-10 rounded-full bg-brand-gray-100" />
+                <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-3 flex items-center gap-3 animate-pulse">
+                  <div className="w-9 h-9 rounded-full bg-brand-gray-100" />
                   <div className="flex-1 space-y-2">
                     <div className="h-4 bg-brand-gray-100 rounded-md w-1/2" />
                     <div className="h-3 bg-brand-gray-100 rounded-md w-1/3" />
@@ -297,9 +292,9 @@ export default function MitraWalletPage() {
         >
           <div className="space-y-3">
             {filtered.map(t => (
-              <div key={t.id} className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-center justify-between gap-3">
+              <div key={t.id} className="bg-white rounded-lg border border-brand-gray-100 p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-brand-success-soft' : 'bg-brand-error-soft'}`}>
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-brand-success-soft' : 'bg-brand-error-soft'}`}>
                     {getTransactionIcon(t.type)}
                   </div>
                   <div className="min-w-0">

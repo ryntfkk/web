@@ -6,6 +6,7 @@ import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import DataState from '@/components/mitra/DataState';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
@@ -241,9 +242,9 @@ export default function MitraPortfolioPage() {
 
       <MitraPageContainer variant="list" className="space-y-4">
         {error && (
-          <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded-md text-sm">
+          <MitraInfoBanner variant="error" role="alert">
             {error}
-          </div>
+          </MitraInfoBanner>
         )}
 
         {/* isEmpty sengaja TIDAK dipakai: galeri kosong tetap harus menampilkan

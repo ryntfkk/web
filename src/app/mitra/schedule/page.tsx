@@ -9,6 +9,7 @@ import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
 import MitraSection from '@/components/mitra/MitraSection';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import DataState from '@/components/mitra/DataState';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
@@ -406,20 +407,14 @@ export default function MitraSchedulePage() {
       />
 
       <MitraPageContainer variant="form" className="space-y-4">
-        <div className="bg-brand-error-soft border border-brand-error-border rounded-lg p-4 flex gap-3 items-start mb-2">
-          <Clock className="w-5 h-5 text-brand-error shrink-0 mt-0.5" />
-          <p className="text-sm text-brand-error font-medium leading-relaxed">
-            Tentukan hari dan jam Anda bersedia menerima pesanan. Pelanggan hanya bisa memesan pada jam operasional yang aktif.
-          </p>
-        </div>
+        <MitraInfoBanner variant="error" icon={<Clock className="h-4 w-4" aria-hidden />} className="mb-2">
+          Tentukan hari dan jam Anda bersedia menerima pesanan. Pelanggan hanya bisa memesan pada jam operasional yang aktif.
+        </MitraInfoBanner>
 
         {!loading && !scheduleError && !hasSavedSchedule && (
-          <div className="bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4 flex gap-3 items-start mb-2">
-            <Clock className="w-5 h-5 text-brand-warning-dark shrink-0 mt-0.5" />
-            <p className="text-sm text-brand-warning-dark font-semibold leading-relaxed">
-              Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh - pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
-            </p>
-          </div>
+          <MitraInfoBanner variant="warning" icon={<Clock className="h-4 w-4" aria-hidden />} className="mb-2">
+            Jadwal Anda belum tersimpan. Jam di bawah ini hanyalah contoh - pelanggan belum bisa memesan sampai Anda menekan &quot;Simpan Jadwal&quot;.
+          </MitraInfoBanner>
         )}
 
         {/* Aksi cepat. Tanpa ini menyetel seminggu berarti mengisi 14 input jam
@@ -458,7 +453,7 @@ export default function MitraSchedulePage() {
               const hasBreak = Boolean(dayData.break_start && dayData.break_end);
               const fullDay = isFullDay(dayData);
               return (
-                <div key={day.id} className={`p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${index < DAYS.length - 1 ? 'border-b border-brand-gray-100' : ''}`}>
+                <div key={day.id} className={`p-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between ${index < DAYS.length - 1 ? 'border-b border-brand-gray-100' : ''}`}>
                   <label className="flex items-center gap-3 cursor-pointer min-w-[120px]">
                     <input
                       type="checkbox"
@@ -604,7 +599,7 @@ export default function MitraSchedulePage() {
               {timeOff.map(t => (
                 <li
                   key={t.id}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-brand-gray-100 bg-white p-4"
+                  className="flex items-start justify-between gap-3 rounded-lg border border-brand-gray-100 bg-white p-3"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-brand-gray-900">
@@ -636,13 +631,10 @@ export default function MitraSchedulePage() {
           </DataState>
         </MitraSection>
 
-        <div className="pt-6">
-          <div className="bg-brand-warning-soft border border-brand-warning-border rounded-md p-3 mb-4 flex gap-2 items-start">
-            <Clock className="w-4 h-4 text-brand-warning-dark shrink-0 mt-0.5" />
-            <p className="text-xs text-brand-warning-dark font-medium leading-relaxed">
-              Catatan: Perubahan jam operasional hanya akan berlaku pada pesanan yang baru masuk. Pesanan yang sudah terjadwal tidak akan terpengaruh.
-            </p>
-          </div>
+        <div className="pt-4">
+          <MitraInfoBanner variant="warning" icon={<Clock className="h-4 w-4" aria-hidden />}>
+            Catatan: Perubahan jam operasional hanya akan berlaku pada pesanan yang baru masuk. Pesanan yang sudah terjadwal tidak akan terpengaruh.
+          </MitraInfoBanner>
         </div>
       </MitraPageContainer>
 

@@ -6,6 +6,7 @@ import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import { Modal } from '@/components/ui/modal';
 import { Badge } from '@/components/ui/badge';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -255,9 +256,9 @@ export default function MitraDocumentsPage() {
 
       <MitraPageContainer variant="form" className="space-y-4">
         {error && (
-          <div className="bg-brand-error-soft border border-brand-error-border text-brand-error p-3 rounded-md text-sm">
+          <MitraInfoBanner variant="error" role="alert">
             {error}
-          </div>
+          </MitraInfoBanner>
         )}
 
         <div className="flex justify-end">
@@ -274,7 +275,7 @@ export default function MitraDocumentsPage() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-lg p-4 h-24 animate-pulse" />
+              <div key={i} className="bg-white rounded-lg p-3 h-24 animate-pulse" />
             ))}
           </div>
         ) : documents.length === 0 ? (
@@ -290,9 +291,9 @@ export default function MitraDocumentsPage() {
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-white rounded-lg border border-brand-gray-100 p-4 flex items-start gap-3"
+                className="bg-white rounded-lg border border-brand-gray-100 p-3 flex items-start gap-3"
               >
-                <div className="w-10 h-10 rounded-lg bg-brand-gray-60 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-lg bg-brand-gray-60 flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5 text-brand-gray-700" />
                 </div>
                 <div className="flex-1 min-w-0">

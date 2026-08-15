@@ -247,18 +247,18 @@ export default function ServiceForm({
   const shownError = validationError || externalError;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* 1. Informasi Dasar */}
-      <div className="space-y-4 rounded-xl border border-brand-gray-100 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)]">
-        <div className="mb-4 flex items-center gap-2 border-b border-brand-gray-50 pb-3">
-          <Info className="h-5 w-5 text-brand-red" />
-          <h2 className="text-base font-bold text-brand-gray-900">Informasi Dasar</h2>
+      <div className="space-y-3 rounded-lg border border-brand-gray-100 bg-white p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <Info className="h-4 w-4 text-brand-red" />
+          <h2 className="text-sm font-bold text-brand-gray-900 lg:text-base">Informasi Dasar</h2>
         </div>
 
         {photoSection}
 
         <div>
-          <label htmlFor="service-name" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+          <label htmlFor="service-name" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
             Nama Layanan
           </label>
           <input
@@ -279,14 +279,14 @@ export default function ServiceForm({
       </div>
 
       {/* 2. Harga & Durasi */}
-      <div className="space-y-4 rounded-xl border border-brand-gray-100 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)]">
-        <div className="mb-4 flex items-center gap-2 border-b border-brand-gray-50 pb-3">
-          <Tag className="h-5 w-5 text-brand-red" />
-          <h2 className="text-base font-bold text-brand-gray-900">Harga & Durasi</h2>
+      <div className="space-y-3 rounded-lg border border-brand-gray-100 bg-white p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <Tag className="h-4 w-4 text-brand-red" />
+          <h2 className="text-sm font-bold text-brand-gray-900 lg:text-base">Harga & Durasi</h2>
         </div>
 
         <div>
-          <label htmlFor="service-unit" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+          <label htmlFor="service-unit" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
             Satuan Harga
           </label>
           <select
@@ -318,7 +318,7 @@ export default function ServiceForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="service-price" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+            <label htmlFor="service-price" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
               Harga
             </label>
             {variations.length === 0 ? (
@@ -346,7 +346,7 @@ export default function ServiceForm({
             )}
           </div>
           <div>
-            <label htmlFor="service-min-order" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+            <label htmlFor="service-min-order" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
               Minimal Order
             </label>
             <input
@@ -365,7 +365,7 @@ export default function ServiceForm({
         </div>
 
         <div>
-          <label htmlFor="service-duration" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+          <label htmlFor="service-duration" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
             Estimasi Durasi (Menit)
           </label>
           <input
@@ -385,10 +385,10 @@ export default function ServiceForm({
       </div>
 
       {/* 3. Detail & Syarat */}
-      <div className="space-y-4 rounded-xl border border-brand-gray-100 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)]">
-        <div className="mb-4 flex items-center gap-2 border-b border-brand-gray-50 pb-3">
-          <ListChecks className="h-5 w-5 text-brand-red" />
-          <h2 className="text-base font-bold text-brand-gray-900">Detail & Syarat Khusus</h2>
+      <div className="space-y-3 rounded-lg border border-brand-gray-100 bg-white p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] lg:p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <ListChecks className="h-4 w-4 text-brand-red" />
+          <h2 className="text-sm font-bold text-brand-gray-900 lg:text-base">Detail & Syarat Khusus</h2>
         </div>
 
         <DynamicStringList
@@ -420,7 +420,7 @@ export default function ServiceForm({
         />
 
         <div>
-          <label htmlFor="service-description" className="mb-2 block text-sm font-semibold text-brand-gray-900">
+          <label htmlFor="service-description" className="mb-1.5 block text-sm font-semibold text-brand-gray-900">
             Deskripsi <span className="font-normal text-brand-gray-450">(opsional)</span>
           </label>
           <textarea
@@ -445,7 +445,7 @@ export default function ServiceForm({
 
       <Button
         type="submit"
-        className="mt-6 h-12 w-full rounded-xl bg-brand-red text-base font-bold shadow-md transition-all hover:bg-brand-red-dark hover:shadow-lg disabled:opacity-70 disabled:shadow-none"
+        className="mt-2 h-12 w-full rounded-md bg-brand-red text-base font-bold shadow-md transition-all hover:bg-brand-red-dark hover:shadow-lg disabled:opacity-70 disabled:shadow-none"
         disabled={submitting}
       >
         {submitting ? progressLabel || 'Menyimpan...' : submitLabel}

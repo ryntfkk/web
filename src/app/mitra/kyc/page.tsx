@@ -30,6 +30,7 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { uploadFileToS3 } from '@/hooks/useUpload';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import PhotoPickerBox, { type PhotoPickerItem } from '@/components/mitra/PhotoPickerBox';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -37,8 +38,8 @@ import { track } from '@/lib/analytics';
 
 const INPUT_CLASS =
   'w-full rounded-md border border-brand-gray-100 bg-white px-3 py-2.5 text-sm text-brand-gray-900 placeholder:text-brand-gray-450 focus:outline-none focus:border-brand-red';
-const LABEL_CLASS = 'mb-2 block text-sm font-semibold text-brand-gray-900';
-const SECTION_CLASS = 'space-y-3 rounded-2xl border border-brand-gray-100 bg-white p-4 sm:p-5';
+const LABEL_CLASS = 'mb-1.5 block text-sm font-semibold text-brand-gray-900';
+const SECTION_CLASS = 'space-y-3 rounded-lg border border-brand-gray-100 bg-white p-4 sm:p-5';
 const FILE_INPUT_CLASS =
   'w-full text-xs text-brand-gray-700 file:mr-2 file:rounded-md file:border-0 file:bg-brand-gray-60 file:px-3 file:py-2 file:text-xs file:font-semibold hover:file:bg-brand-gray-100';
 
@@ -239,7 +240,7 @@ export default function KYCPage() {
       <div className="pb-6">
         {header}
         <MitraPageContainer variant="form">
-          <div className="rounded-2xl border border-brand-gray-100 bg-white p-6 text-center">
+          <div className="rounded-lg border border-brand-gray-100 bg-white p-6 text-center">
             <h2 className="text-base font-bold text-brand-gray-900">Kamu Belum Terdaftar sebagai Mitra</h2>
             <p className="mt-2 text-sm text-brand-gray-700">
               Verifikasi identitas hanya untuk akun mitra. Daftar dulu . prosesnya singkat dan akunmu
@@ -262,7 +263,7 @@ export default function KYCPage() {
       <div className="pb-6">
         {header}
         <MitraPageContainer variant="form">
-          <div className="rounded-2xl border border-brand-error-border bg-brand-error-soft p-5 text-center">
+          <div className="rounded-lg border border-brand-error-border bg-brand-error-soft p-5 text-center">
             <p className="text-sm font-semibold text-brand-gray-900">Gagal memuat status verifikasi</p>
             {statusError && <p className="mt-1 text-xs text-brand-gray-700">{statusError}</p>}
             <button
@@ -284,7 +285,7 @@ export default function KYCPage() {
       <div className="pb-6">
         {header}
         <MitraPageContainer variant="form">
-          <div className="rounded-2xl border border-brand-gray-100 bg-white p-6 text-center">
+          <div className="rounded-lg border border-brand-gray-100 bg-white p-6 text-center">
             <BadgeCheck className="mx-auto h-12 w-12 text-brand-success" />
             <h2 className="mt-3 text-lg font-bold text-brand-gray-900">Akunmu Sudah Terverifikasi</h2>
             <p className="mt-2 text-sm text-brand-gray-700">
@@ -309,7 +310,7 @@ export default function KYCPage() {
       <div className="pb-6">
         {header}
         <MitraPageContainer variant="form">
-          <div className="rounded-2xl border border-brand-error-border bg-brand-error-soft p-5">
+          <div className="rounded-lg border border-brand-error-border bg-brand-error-soft p-5">
             <h2 className="text-base font-bold text-brand-gray-900">Verifikasi Sebelumnya Ditolak</h2>
             {status.rejection_reason && (
               <p className="mt-2 text-sm text-brand-gray-700">Alasan: {status.rejection_reason}</p>
@@ -339,7 +340,7 @@ export default function KYCPage() {
       <div className="pb-6">
         {header}
         <MitraPageContainer variant="form">
-          <div className="rounded-2xl border border-brand-gray-100 bg-white p-6 text-center">
+          <div className="rounded-lg border border-brand-gray-100 bg-white p-6 text-center">
             <ShieldCheck className="mx-auto h-12 w-12 text-brand-warning-dark" />
             <h2 className="mt-3 text-lg font-bold text-brand-gray-900">Verifikasi Sedang Ditinjau</h2>
             <p className="mt-2 text-sm leading-relaxed text-brand-gray-700">
@@ -369,16 +370,16 @@ export default function KYCPage() {
         </p>
 
         {error && (
-          <div className="mb-4 rounded-lg border border-brand-error-border bg-brand-error-soft p-3 text-sm text-brand-error">
+          <MitraInfoBanner variant="error" role="alert" className="mb-4">
             {error}
-          </div>
+          </MitraInfoBanner>
         )}
 
         <div className="space-y-4">
           {/* ── 1. Nomor HP ── */}
           <section className={SECTION_CLASS}>
             <h2 className="flex items-center gap-2 text-base font-bold text-brand-gray-900">
-              <Phone className="h-5 w-5 shrink-0 text-brand-red" /> 1. Nomor HP Terverifikasi
+              <Phone className="h-4 w-4 shrink-0 text-brand-red" /> 1. Nomor HP Terverifikasi
             </h2>
             {phoneVerified ? (
               <p className="text-sm text-brand-success">✓ Nomor HP-mu sudah terverifikasi.</p>
@@ -401,7 +402,7 @@ export default function KYCPage() {
           {/* ── 2. Identitas ── */}
           <section className={SECTION_CLASS}>
             <h2 className="flex items-center gap-2 text-base font-bold text-brand-gray-900">
-              <IdCard className="h-5 w-5 shrink-0 text-brand-red" /> 2. Identitas {isVendor ? 'PIC ' : ''}(KTP)
+              <IdCard className="h-4 w-4 shrink-0 text-brand-red" /> 2. Identitas {isVendor ? 'PIC ' : ''}(KTP)
             </h2>
             <div>
               <label htmlFor="kyc-nik" className={LABEL_CLASS}>NIK KTP *</label>
@@ -429,7 +430,7 @@ export default function KYCPage() {
           {isVendor && missingVendorDocs.length > 0 && (
             <section className={SECTION_CLASS}>
               <h2 className="flex items-center gap-2 text-base font-bold text-brand-gray-900">
-                <ShieldCheck className="h-5 w-5 shrink-0 text-brand-red" /> 3. Dokumen Badan Usaha
+                <ShieldCheck className="h-4 w-4 shrink-0 text-brand-red" /> 3. Dokumen Badan Usaha
               </h2>
               <div className="grid gap-3 sm:grid-cols-3">
                 {missingVendorDocs.map((field) => (
@@ -459,7 +460,7 @@ export default function KYCPage() {
           {missingEvidenceCats.length > 0 && (
             <section className={SECTION_CLASS}>
               <h2 className="flex items-center gap-2 text-base font-bold text-brand-gray-900">
-                <ShieldCheck className="h-5 w-5 shrink-0 text-brand-red" /> Bukti Keahlian per Kategori
+                <ShieldCheck className="h-4 w-4 shrink-0 text-brand-red" /> Bukti Keahlian per Kategori
               </h2>
               {missingEvidenceCats.map((cat) => (
                 <div key={cat.category_id}>
@@ -492,13 +493,13 @@ export default function KYCPage() {
           {/* ── Rekening pencairan ── */}
           <section className={SECTION_CLASS}>
             <h2 className="flex items-center gap-2 text-base font-bold text-brand-gray-900">
-              <Wallet className="h-5 w-5 shrink-0 text-brand-red" /> Rekening Pencairan
+              <Wallet className="h-4 w-4 shrink-0 text-brand-red" /> Rekening Pencairan
             </h2>
             {isVendor && (
-              <p className="rounded-lg border border-brand-warning-border bg-brand-warning-soft p-3 text-xs text-brand-gray-700">
+              <MitraInfoBanner variant="warning">
                 Rekening wajib <b>atas nama badan usaha</b>, bukan rekening pribadi PIC. Nama yang
                 tidak cocok akan ditolak.
-              </p>
+              </MitraInfoBanner>
             )}
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
