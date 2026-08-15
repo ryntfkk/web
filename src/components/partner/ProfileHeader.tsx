@@ -243,7 +243,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                   className="flex-1 sm:flex-none hidden lg:inline-flex"
                   onClick={() => router.push(`/book/${profile.username}`)}
                 >
-                  Pesan Sekarang
+                  Pesan
                 </Button>
               </>
             )}

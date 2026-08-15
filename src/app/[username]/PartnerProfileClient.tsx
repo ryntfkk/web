@@ -189,8 +189,8 @@ export default function PartnerProfileClient({ username }: { username: string })
                     aria-controls={`panel-${tab.key}`}
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue ${activeTab === tab.key
-                        ? 'border-brand-red text-brand-red'
-                        : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
+                      ? 'border-brand-red text-brand-red'
+                      : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
                       }`}
                   >
                     {tab.label}
@@ -294,7 +294,7 @@ export default function PartnerProfileClient({ username }: { username: string })
           {/* Tanpa track di sini: funnel booking sudah dicatat BookingClient
               (public_partner_booking_started) begitu halamannya terbuka. */}
           <Button className="flex-1" onClick={() => router.push(`/book/${username}`)}>
-            Pesan Sekarang
+            Pesan
           </Button>
         </StickyActionBar>
       )}

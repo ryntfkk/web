@@ -18,7 +18,8 @@ const MAX_PHOTOS = 5;
 /**
  * Seluruh field & validasinya hidup di `ServiceForm` . dipakai bersama halaman
  * edit (P2). Yang tersisa di sini hanya yang memang khas "buat baru": foto
- * dikumpulkan dulu di klien, lalu diunggah SETELAH layanan punya id.
+ * (wajib min. 1) dikumpulkan di klien, diunggah LEBIH DULU, lalu URL-nya dikirim
+ * bersama payload create . backend menyimpan layanan + foto dalam satu transaksi.
  */
 export default function NewMitraServicePage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
@@ -29,15 +30,6 @@ export default function NewMitraServicePage() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState('');
   const [error, setError] = useState('');
-  /**
-   * Id layanan yang SUDAH terbuat pada percobaan sebelumnya (F-23). Selama ini
-   * terisi, submit berikutnya melanjutkan unggahan foto alih-alih membuat
-   * layanan baru. `uploadedCount` adalah ref, bukan state: nilainya dibaca di
-   * dalam loop yang sedang berjalan, dan render ulang di tengah loop akan
-   * membacanya basi.
-   */
-  const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);
-  const uploadedCount = useRef(0);
 
   useEffect(() => {
     // Bersihkan object URL saat unmount.
@@ -59,13 +51,6 @@ export default function NewMitraServicePage() {
   };
 
   const handleRemovePhoto = (idx: number) => {
-    // Foto yang sudah TERPASANG di server tidak bisa dicabut dari sini . yang
-    // menghapusnya adalah halaman edit layanan. Membiarkannya hilang dari daftar
-    // ini hanya membuat mitra mengira fotonya batal terunggah, padahal masih ada.
-    if (idx < uploadedCount.current) {
-      setError('Foto ini sudah terunggah. Hapus lewat halaman edit layanan setelah selesai.');
-      return;
-    }
     setPhotos((prev) => {
       URL.revokeObjectURL(prev[idx].preview);
       return prev.filter((_, i) => i !== idx);
@@ -94,55 +79,44 @@ export default function NewMitraServicePage() {
   };
 
   const handleSubmit = async (payload: ServiceSubmitPayload) => {
+    // Minimal 1 foto WAJIB (ditegakkan juga di backend, POST /partners/me/services).
+    // Digate di sini supaya mitra tidak menunggu unggahan sia-sia lalu ditolak.
+    if (photos.length === 0) {
+      setError('Minimal 1 foto layanan wajib diunggah.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      // F-23: layanan dibuat SEKALI. Kalau langkah unggah foto gagal (sinyal
-      // putus, S3 menolak), layanannya SUDAH ADA . menekan "Simpan" lagi dulu
-      // membuat layanan KEDUA yang identik, dan mitra harus menghapusnya sendiri
-      // tanpa pernah diberi tahu itu terjadi. Menyimpan id-nya membuat percobaan
-      // berikutnya melanjutkan dari langkah foto, bukan mengulang dari awal.
-      let serviceId = createdServiceId;
-      if (!serviceId) {
-        setProgress('Menyimpan layanan...');
-        const res = await fetchAPI<{ id: string }>('/partners/me/services', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.success || !res.data) {
-          setError(getErrorMessage(res));
-          setLoading(false);
-          setProgress('');
-          return;
-        }
-        serviceId = res.data.id;
-        setCreatedServiceId(serviceId);
-        track('partner_service_created', { service_id: serviceId, unit: payload.unit });
-      }
-
-      // Foto yang SUDAH terpasang tidak diunggah ulang . percobaan kedua hanya
-      // meneruskan sisanya, bukan menggandakan yang sudah berhasil.
-      for (let i = uploadedCount.current; i < photos.length; i++) {
+      // Foto diunggah LEBIH DULU supaya URL-nya ikut di payload create . backend
+      // menyimpan layanan + fotonya dalam satu transaksi. Create adalah langkah
+      // TERAKHIR, jadi bila unggah gagal di tengah belum ada layanan yang terbuat
+      // (tak ada duplikat) . tekan Simpan lagi mengulang bersih dari awal. Inilah
+      // alasan mesin resume F-23 lama tidak lagi diperlukan.
+      const photoURLs: string[] = [];
+      for (let i = 0; i < photos.length; i++) {
         setProgress(`Mengunggah foto ${i + 1}/${photos.length}...`);
-        const url = await uploadPhoto(photos[i].file);
-        const attach = await fetchAPI(`/partners/me/services/${serviceId}/photos`, {
-          method: 'POST',
-          body: JSON.stringify({ photo_url: url }),
-        });
-        if (!attach.success) throw new Error(getErrorMessage(attach));
-        uploadedCount.current = i + 1;
+        photoURLs.push(await uploadPhoto(photos[i].file));
       }
+
+      setProgress('Menyimpan layanan...');
+      const res = await fetchAPI<{ id: string }>('/partners/me/services', {
+        method: 'POST',
+        body: JSON.stringify({ ...payload, photo_urls: photoURLs }),
+      });
+      if (!res.success || !res.data) {
+        setError(getErrorMessage(res));
+        setLoading(false);
+        setProgress('');
+        return;
+      }
+      track('partner_service_created', { service_id: res.data.id, unit: payload.unit });
 
       router.push('/mitra/services');
     } catch (err) {
-      setError(
-        (err instanceof Error ? err.message : 'Gagal menambahkan layanan') +
-          (createdServiceId
-            ? ' . layanannya sudah tersimpan, tekan Simpan lagi untuk melanjutkan unggahan foto.'
-            : ''),
-      );
+      setError(err instanceof Error ? err.message : 'Gagal menambahkan layanan');
       setLoading(false);
       setProgress('');
     }
@@ -168,7 +142,7 @@ export default function NewMitraServicePage() {
             <div>
               <span className="mb-2 block text-sm font-semibold text-brand-gray-900">
                 Foto Layanan{' '}
-                <span className="font-normal text-brand-gray-450">(opsional, maks {MAX_PHOTOS})</span>
+                <span className="font-normal text-brand-gray-450">(wajib, min. 1 · maks {MAX_PHOTOS})</span>
               </span>
               <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6">
                 {photos.map((p, idx) => (
