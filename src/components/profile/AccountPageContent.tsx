@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from 'react';
 import Image from 'next/image';
-import { User, Phone, Mail, Loader2, Camera } from 'lucide-react';
+import { User, Phone, Mail, Loader2, Camera, AtSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { fetchAPI } from '@/lib/api';
@@ -10,6 +10,7 @@ import { getInitial } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store/authStore';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
 import EmailVerificationModal from '@/components/ui/EmailVerificationModal';
+import UsernameChangeModal from '@/components/profile/UsernameChangeModal';
 import ProfileCompletionBanner from '@/components/profile/ProfileCompletionBanner';
 
 interface AccountPageContentProps {
@@ -25,7 +26,12 @@ export default function AccountPageContent({ user }: AccountPageContentProps) {
   const [error, setError] = useState('');
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
   const { showToast } = useToast();
+
+  // Mitra punya URL profil publik `/{username}` yang ikut berpindah saat username
+  // berubah . modal memberi peringatan hanya untuk mereka.
+  const isPartner = !!user?.partner_id || (Array.isArray(user?.roles) && user.roles.includes('partner'));
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -126,6 +132,7 @@ export default function AccountPageContent({ user }: AccountPageContentProps) {
           />
         </div>
         <p className="text-sm font-medium text-brand-gray-900">{user.name}</p>
+        {user.username && <p className="text-xs text-brand-gray-450">@{user.username}</p>}
         <p className="text-xs text-brand-gray-400">{user.phone || 'Nomor HP belum diisi'}</p>
       </div>
 
@@ -214,6 +221,20 @@ export default function AccountPageContent({ user }: AccountPageContentProps) {
         ) : (
           <div className="divide-y divide-brand-gray-100">
             <div className="w-full flex items-center p-4 text-left">
+              <AtSign className="w-5 h-5 text-brand-gray-400 mr-3" />
+              <div className="flex-1">
+                <span className="text-brand-gray-800 font-medium block text-sm">Username</span>
+                <span className="text-sm text-brand-gray-400">@{user.username}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowUsernameModal(true)}
+                className="text-xs font-semibold text-brand-red hover:underline"
+              >
+                Ubah
+              </button>
+            </div>
+            <div className="w-full flex items-center p-4 text-left">
               <User className="w-5 h-5 text-brand-gray-400 mr-3" />
               <div className="flex-1">
                 <span className="text-brand-gray-800 font-medium block text-sm">Nama Lengkap</span>
@@ -268,6 +289,14 @@ export default function AccountPageContent({ user }: AccountPageContentProps) {
         isOpen={showPhoneModal}
         onClose={() => setShowPhoneModal(false)}
         onSuccess={() => showToast('Nomor HP berhasil diverifikasi')}
+      />
+
+      <UsernameChangeModal
+        isOpen={showUsernameModal}
+        onClose={() => setShowUsernameModal(false)}
+        currentUsername={user.username}
+        hasPassword={user.has_password !== false}
+        isPartner={isPartner}
       />
     </>
   );

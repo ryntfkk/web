@@ -162,6 +162,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <h1 className="text-xl md:text-3xl font-extrabold tracking-tight drop-shadow-sm">{user.name}</h1>
+              {user.username && <p className="text-white/80 text-xs md:text-sm font-medium mt-0.5 drop-shadow-sm">@{user.username}</p>}
               <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user.phone || 'Nomor HP belum diisi'}</p>
               <div className="mt-2 md:mt-3 inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
