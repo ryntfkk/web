@@ -560,8 +560,8 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     disabled={favBusy}
                     aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
                     className={`p-1.5 rounded-full transition-colors disabled:opacity-50 ${isFav
-                        ? 'text-brand-red bg-brand-red-light'
-                        : 'text-brand-gray-700 hover:text-brand-red hover:bg-brand-red-light'
+                      ? 'text-brand-red bg-brand-red-light'
+                      : 'text-brand-gray-700 hover:text-brand-red hover:bg-brand-red-light'
                       }`}
                   >
                     <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
@@ -608,8 +608,8 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                           type="button"
                           onClick={() => setSelectedVariationId(active ? '' : v.id)}
                           className={`px-3 py-2 rounded-md border text-sm text-left transition-colors ${active
-                              ? 'border-brand-red bg-brand-red-light text-brand-red'
-                              : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
+                            ? 'border-brand-red bg-brand-red-light text-brand-red'
+                            : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
                             }`}
                         >
                           <span className="font-medium">{v.name}</span>
@@ -713,7 +713,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                   onClick={handleOrderNow}
                 >
                   <Zap className="w-4 h-4 mr-1.5" />
-                  Pesan Sekarang
+                  Pesan
                 </Button>
               </div>
             </div>
@@ -849,8 +849,8 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     >
                       <span
                         className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
-                            ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
-                            : 'bg-brand-gray-50 text-brand-gray-450'
+                          ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
+                          : 'bg-brand-gray-50 text-brand-gray-450'
                           }`}
                       >
                         {r.is_mandatory ? 'Wajib' : 'Disarankan'}
@@ -1071,8 +1071,8 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                     type="button"
                     onClick={() => handleVariationPick(v.id)}
                     className={`px-3 py-3 rounded-md border text-left transition-colors ${active
-                        ? 'border-brand-red bg-brand-red-light text-brand-red'
-                        : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
+                      ? 'border-brand-red bg-brand-red-light text-brand-red'
+                      : 'border-brand-gray-100 text-brand-gray-900 hover:border-brand-red/50'
                       }`}
                   >
                     <span className="block font-medium text-sm">{v.name}</span>
