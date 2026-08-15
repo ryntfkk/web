@@ -195,12 +195,12 @@ export default function ProfilePage() {
             </div>
             <div className="grid grid-cols-4 gap-2">
               {([
-                { count: filterCounts.pending, label: 'Menunggu' },
-                { count: filterCounts.processing, label: 'Berjalan' },
-                { count: filterCounts.completed, label: 'Selesai' },
-                { count: filterCounts.cancelled, label: 'Batal' },
+                { count: filterCounts.pending, label: 'Menunggu', status: 'pending' },
+                { count: filterCounts.processing, label: 'Berjalan', status: 'processing' },
+                { count: filterCounts.completed, label: 'Selesai', status: 'completed' },
+                { count: filterCounts.cancelled, label: 'Batal', status: 'cancelled' },
               ]).map(s => (
-                <Link key={s.label} href="/orders" className="flex flex-col items-center gap-0.5">
+                <Link key={s.label} href={`/orders?status=${s.status}`} className="flex flex-col items-center gap-0.5">
                   <span className="text-xl font-bold text-brand-gray-900 leading-none">{s.count}</span>
                   <span className="text-[11px] text-brand-gray-400 leading-none">{s.label}</span>
                 </Link>

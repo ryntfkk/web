@@ -5,7 +5,6 @@ import LocationPicker from '@/components/home/LocationPicker';
 import TopPartnersSection from '@/components/home/TopPartnersSection';
 import ProductsSection from '@/components/home/ProductsSection';
 import AllServicesSection from '@/components/home/AllServicesSection';
-import RecentlyViewedSection from '@/components/home/RecentlyViewedSection';
 import PopularCitiesSection from '@/components/home/PopularCitiesSection';
 import SecondaryBannerCarousel from '@/components/ui/secondary-banner-carousel';
 import PartnerRedirectGate from './PartnerRedirectGate';
@@ -100,13 +99,15 @@ export default async function Home() {
         </div>
 
         {/* Main Content Area - Better mobile padding */}
-        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 sm:px-6 lg:px-6 pt-0 pb-4 sm:pt-0 sm:pb-6 lg:py-6 flex-1">
+        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 lg:px-6 pt-0 pb-4 sm:pt-0 sm:pb-6 lg:py-6 flex-1">
           
           {/* Top Layout: Hero (Left, 70%) & Categories (Right, 30%) on Desktop */}
           <div className="flex flex-col lg:flex-row lg:gap-6 lg:mb-8">
             
-            {/* Hero Carousel Wrapper */}
-            <div className="w-auto lg:w-[70%] xl:w-[72%] -mx-3 sm:-mx-4 md:-mx-6 lg:mx-0">
+            {/* Hero Carousel Wrapper . negative margin WAJIB cermin gutter
+                kontainer di atas (px-3 sm:px-4 lg:px-6); di lg hero berhenti
+                full-bleed, jadi mx-0. */}
+            <div className="w-auto lg:w-[70%] xl:w-[72%] -mx-3 sm:-mx-4 lg:mx-0">
               <HeroCarousel />
             </div>
 
@@ -117,7 +118,6 @@ export default async function Home() {
 
           </div>
 
-          {/* <RecentlyViewedSection /> */}
           <ProductsSection />
           <div className="my-8">
             <SecondaryBannerCarousel />

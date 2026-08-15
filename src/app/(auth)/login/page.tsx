@@ -9,6 +9,8 @@ import { Suspense } from 'react';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { safeRedirect } from '@/lib/utils';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import { Button } from '@/components/ui/button';
+import { INPUT_CLASS } from '@/components/ui/form';
 
 function LoginContent() {
   const { login, loginWithGoogle, loading, error, isAuthenticated, user } = useAuth();
@@ -53,7 +55,7 @@ function LoginContent() {
   return (
     // Mobile: rata atas dengan padding ringkas agar form langsung terlihat tanpa scroll.
     // Desktop (sm+): tetap terpusat vertikal; 4rem = tinggi TopNavbar (h-16).
-    <div className="min-h-[calc(100dvh-4rem)] bg-brand-gray-60 flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
+    <div className="relative min-h-[calc(100dvh-4rem)] bg-brand-gray-60 flex flex-col justify-start pt-5 pb-8 px-4 sm:justify-center sm:px-6 sm:py-12 lg:px-8">
       {/* Back button khusus mobile . di mobile TopNavbar disembunyikan di halaman login. */}
       <Link
         href="/"
@@ -89,7 +91,7 @@ function LoginContent() {
       </div>
 
       <div className="mt-6 sm:mt-8 mx-auto w-full max-w-md">
-        <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
+        <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
           <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
 
             {error && (
@@ -111,7 +113,7 @@ function LoginContent() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3.5 text-base sm:text-sm bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all"
+                  className={INPUT_CLASS}
                   placeholder="08123456789 atau email Anda"
                 />
               </div>
@@ -130,7 +132,7 @@ function LoginContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3.5 text-base sm:text-sm bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white transition-all pr-12"
+                  className={`${INPUT_CLASS} pr-12`}
                 />
                 <button
                   type="button"
@@ -169,17 +171,14 @@ function LoginContent() {
             </div>
 
             <div>
-              <button
+              <Button
                 type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
+                size="lg"
+                isLoading={loading}
+                className="w-full rounded-full shadow-brand-red"
               >
-                {loading ? (
-                  <Loader2 className="animate-spin h-5 w-5" />
-                ) : (
-                  'Masuk'
-                )}
-              </button>
+                Masuk
+              </Button>
             </div>
 
             <div className="relative my-4">

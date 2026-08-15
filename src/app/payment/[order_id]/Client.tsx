@@ -26,6 +26,7 @@ export default function PaymentClient() {
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [error, setError] = useState<string>('');
+  const [checking, setChecking] = useState(false);
 
   const fetchBalance = useCallback(async () => {
     const res = await fetchAPI<any>('/wallet/balance');
@@ -37,8 +38,8 @@ export default function PaymentClient() {
     }
   }, [user?.balance]);
 
-  const fetchOrder = useCallback(async () => {
-    setLoading(true);
+  const fetchOrder = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     const res = await fetchAPI<any>(`/orders/${orderId}`);
     if (res.success && res.data) {
       const data = res.data;
@@ -49,8 +50,17 @@ export default function PaymentClient() {
         router.replace(`/orders/${orderId}`);
       }
     }
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [orderId, router]);
+
+  // "Cek Status" manual . silent agar halaman tidak diganti skeleton penuh;
+  // spinner cukup di tombolnya sendiri.
+  const handleCheckStatus = async () => {
+    if (checking) return;
+    setChecking(true);
+    await fetchOrder({ silent: true });
+    setChecking(false);
+  };
 
   useEffect(() => {
     if (isAuthorized) {
@@ -58,6 +68,15 @@ export default function PaymentClient() {
       fetchBalance();
     }
   }, [isAuthorized, fetchOrder, fetchBalance]);
+
+  // Saldo dompet mencukupi → pra-pilih metode dompet, HANYA bila pengguna
+  // belum memilih apa pun (functional update menjaga pilihan manual).
+  useEffect(() => {
+    const amount = order?.agreed_price || order?.total_amount || 0;
+    if (amount > 0 && walletBalance >= amount) {
+      setSelectedMethod((prev) => prev || 'wallet');
+    }
+  }, [order, walletBalance]);
 
   const handlePay = async () => {
     if (!selectedMethod || processing) return;
@@ -288,9 +307,14 @@ export default function PaymentClient() {
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={fetchOrder} // Check status manual
+                onClick={handleCheckStatus}
+                disabled={checking}
               >
-                Cek Status
+                {checking ? (
+                  <><Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> Memeriksa…</>
+                ) : (
+                  'Cek Status'
+                )}
               </Button>
               <Button
                 className="flex-[2]"

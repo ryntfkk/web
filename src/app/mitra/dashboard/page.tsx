@@ -17,6 +17,7 @@ import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useToast } from '@/components/ui/toast';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import DataState from '@/components/mitra/DataState';
 import EmailVerificationNotice from '@/components/mitra/EmailVerificationNotice';
 import Image from 'next/image';
 
@@ -58,6 +59,9 @@ export default function MitraDashboardPage() {
 
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  // Gagal memuat TIDAK boleh tampil sebagai "Rp 0 + belum ada pesanan" (P1-11):
+  // mitra akan mengira saldonya hilang padahal request-nya yang gagal.
+  const [error, setError] = useState<string | null>(null);
   const [togglingStatus, setTogglingStatus] = useState(false);
   // Satu sumber dengan lonceng TopNavbar . dulu dashboard ini menembak
   // `/notifications/unread-count` sendiri di dalam fetchData, sementara sisi
@@ -94,6 +98,10 @@ export default function MitraDashboardPage() {
       // Go mengirim `null` untuk slice kosong; normalkan ke array agar
       // pengecekan `.length === 0` (empty state) tetap jalan.
       setData({ ...res.data, status, active_orders: res.data.active_orders ?? [] });
+      setError(null);
+    } else if (!silent) {
+      // Polling senyap yang gagal tidak menimpa data yang sudah tampil.
+      setError(res.message || 'Gagal memuat data dashboard');
     }
     setLoading(false);
   };
@@ -198,6 +206,19 @@ export default function MitraDashboardPage() {
         {/* Diam sendiri bila email sudah terverifikasi . lihat komponennya. */}
         <EmailVerificationNotice />
 
+        {/* Pita gagal-memuat: angka di bawahnya fallback nol, jadi tanpa pita
+            ini kegagalan jaringan tampak seperti dompet kosong. */}
+        {error && !loading && (
+          <div role="alert" className="flex items-center justify-between gap-3 rounded-md border border-brand-error-border bg-brand-error-soft px-4 py-3">
+            <p className="text-sm font-medium text-brand-error">
+              Gagal memuat data dashboard - angka di bawah mungkin belum lengkap.
+            </p>
+            <Button variant="outline" size="sm" className="shrink-0 rounded-md" onClick={() => fetchData()}>
+              Coba lagi
+            </Button>
+          </div>
+        )}
+
         {/* Stats */}
         {loading ? (
           /* Bentuknya harus SAMA dengan grid aslinya . dua kartu placeholder
@@ -279,15 +300,16 @@ export default function MitraDashboardPage() {
             <Calendar className="w-5 h-5 text-brand-red" />
           </div>
 
-          <div className="space-y-3">
-            {loading ? (
-              <div className="h-16 bg-brand-gray-100 rounded-md animate-pulse" />
-            ) : upcomingOrders.length === 0 ? (
-              <div className="text-center py-4 bg-brand-gray-60 rounded-md border border-brand-gray-100">
-                <p className="text-sm text-brand-gray-700">Tidak ada jadwal pesanan terkonfirmasi.</p>
-              </div>
-            ) : (
-              upcomingOrders.map(order => {
+          <DataState
+            isLoading={loading}
+            error={error}
+            onRetry={() => fetchData()}
+            isEmpty={upcomingOrders.length === 0}
+            emptyTitle="Tidak ada jadwal pesanan terkonfirmasi."
+            skeleton={<div className="h-16 bg-brand-gray-100 rounded-md animate-pulse" />}
+          >
+            <div className="space-y-3">
+              {upcomingOrders.map(order => {
                 const date = new Date(order.scheduled_at);
                 const isToday = new Date().toDateString() === date.toDateString();
                 return (
@@ -305,9 +327,9 @@ export default function MitraDashboardPage() {
                     <ChevronRight className="w-4 h-4 text-brand-gray-450" />
                   </Link>
                 );
-              })
-            )}
-          </div>
+              })}
+            </div>
+          </DataState>
         </div>
 
         {/* Active Orders */}
@@ -317,15 +339,16 @@ export default function MitraDashboardPage() {
             <Link href="/mitra/orders" className="text-xs font-semibold text-brand-red hover:underline">Lihat Semua</Link>
           </div>
 
-          <div className="space-y-3">
-            {loading ? (
-              <div className="h-20 bg-brand-gray-100 rounded-md animate-pulse" />
-            ) : activeOrders.length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-sm text-brand-gray-700">Belum ada pesanan aktif saat ini.</p>
-              </div>
-            ) : (
-              activeOrders.map(order => (
+          <DataState
+            isLoading={loading}
+            error={error}
+            onRetry={() => fetchData()}
+            isEmpty={activeOrders.length === 0}
+            emptyTitle="Belum ada pesanan aktif saat ini."
+            skeleton={<div className="h-20 bg-brand-gray-100 rounded-md animate-pulse" />}
+          >
+            <div className="space-y-3">
+              {activeOrders.map(order => (
                 <Link key={order.id} href={`/mitra/orders/${order.id}`} className="block border border-brand-gray-100 rounded-md p-3 hover:border-brand-red transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <p className="text-xs font-bold text-brand-gray-900">{order.customer_name}</p>
@@ -343,9 +366,9 @@ export default function MitraDashboardPage() {
                     </p>
                   </div>
                 </Link>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          </DataState>
         </div>
         </div>
       </MitraPageContainer>

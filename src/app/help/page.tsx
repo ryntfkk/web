@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { MessageCircle, LifeBuoy, Flag, Scale, Store } from 'lucide-react';
 import FaqAccordion from '@/components/help/FaqAccordion';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import JsonLd from '@/components/seo/JsonLd';
 import { faqJsonLd } from '@/lib/seo';
 import { getFaqsRendered, flattenFaq } from '@/lib/faq-server';
@@ -31,6 +32,9 @@ export default async function HelpPage() {
       {/* Rich result FAQ. Jawaban sudah diinterpolasi di server . kalau tidak,
           mesin pencari membaca "{{platform_fee_rate}}" mentah. */}
       {faqList.length > 0 && <JsonLd data={faqJsonLd(faqList)} />}
+      {/* /help masuk MOBILE_HIDE_PATHS (TopNavbar mundur di mobile), jadi header
+          ini satu-satunya tombol kembali. titleAs="p": H1 halaman ada di hero. */}
+      <MobilePageHeader title="Bantuan & Dukungan" titleAs="p" backHref="/" maxWidthClass="max-w-3xl" />
       {/* Hero + search */}
       <div className="bg-brand-red text-white">
         <div className="max-w-3xl mx-auto px-4 py-8 text-center">
@@ -68,11 +72,11 @@ export default async function HelpPage() {
             <p className="text-sm font-semibold text-brand-gray-900">Sengketa Pesanan</p>
             <p className="text-xs text-brand-gray-700 mt-1 leading-snug">Mitra tak datang, hasil tak sesuai, atau soal dana. Buka <strong>Pesanan → detail → Ajukan Sengketa</strong> (dana ditahan sampai CS memutuskan).</p>
           </Link>
-          <div className="bg-white rounded-lg border border-brand-gray-100 p-4">
+          <Link href="/services" className="bg-white rounded-lg border border-brand-gray-100 p-4 hover:border-brand-red/40 transition-colors">
             <Flag className="w-6 h-6 text-brand-red mb-2" />
             <p className="text-sm font-semibold text-brand-gray-900">Laporkan Mitra/Layanan</p>
             <p className="text-xs text-brand-gray-700 mt-1 leading-snug">Konten tak pantas atau pelanggaran. Buka halaman mitra/layanan lalu tekan tombol <strong>&quot;Laporkan&quot;</strong>.</p>
-          </div>
+          </Link>
         </div>
       </div>
 

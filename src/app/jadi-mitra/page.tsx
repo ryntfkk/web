@@ -144,7 +144,7 @@ export default async function JadiMitraPage() {
             <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <CtaDaftar
                 position="hero"
-                className="w-full !bg-brand-red !text-white hover:!bg-brand-red-dark shadow-[0_0_20px_rgba(220,38,38,0.4)] sm:w-auto py-3.5 text-base"
+                className="w-full !bg-brand-red !text-white hover:!bg-brand-red-dark shadow-brand-red sm:w-auto py-3.5 text-base"
               />
               <Link
                 href="#biaya"

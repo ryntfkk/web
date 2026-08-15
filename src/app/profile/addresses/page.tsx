@@ -33,8 +33,11 @@ export default function AddressesPage() {
 
 
   useEffect(() => {
-    
-    fetchAddresses();
+    // Tunggu auth selesai (silent refresh) sebelum fetch . tanpa gate ini
+    // request pertama terkirim tanpa token dan gagal 401.
+    if (isAuthenticated) {
+      fetchAddresses();
+    }
   }, [isAuthenticated]);
 
   async function fetchAddresses() {
@@ -80,12 +83,17 @@ export default function AddressesPage() {
 
       {/* titleAs="p": H1 halaman ada di badan konten . tanpa ini HTML memuat DUA H1 sekaligus (audit A6). */}
       <MobilePageHeader
-        titleAs="p" title="Buku Alamat" maxWidthClass="max-w-2xl" />
+        titleAs="p" title={loading ? 'Buku Alamat' : `Buku Alamat (${addresses.length}/5)`} maxWidthClass="max-w-2xl" />
 
       {/* max-w-2xl: seragam dgn sub-halaman /profile lain, dan sejajar dgn
           bar aksi di bawah (B2). */}
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900">Buku Alamat</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-brand-gray-900">
+          Buku Alamat
+          {/* Kuota 5 alamat ditampilkan di muka . jangan biarkan pengguna kaget
+              saat tombol tambah tiba-tiba nonaktif. */}
+          {!loading && <span className="ml-2 text-base font-normal text-brand-gray-450">{addresses.length}/5</span>}
+        </h1>
         {loading ? (
           [1, 2].map(i => (
             <div key={i} className="bg-white rounded-xl border border-brand-gray-100 p-4 space-y-3 animate-pulse">

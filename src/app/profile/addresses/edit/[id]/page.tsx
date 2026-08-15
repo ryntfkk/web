@@ -31,6 +31,25 @@ interface Address {
   lat?: number;
 }
 
+/**
+ * Halaman `new` menyusun address_detail sebagai `Penerima: NAMA (HP)`.
+ * Agar nama/HP penerima bisa DIEDIT (bukan jadi teks bebas yang gampang rusak),
+ * prefix itu diurai ke dua field terpisah saat load, dan disusun ulang dengan
+ * format yang sama saat simpan. Alamat lama tanpa prefix: field kosong,
+ * detail apa adanya.
+ */
+function parseAddressDetail(detail: string): { name: string; phone: string; rest: string } {
+  const m = detail.match(/^Penerima:\s*([^(]+?)\s*\(([^)]+)\)\s*(?:-\s*)?(.*)$/);
+  if (!m) return { name: '', phone: '', rest: detail };
+  return { name: m[1], phone: m[2], rest: m[3] };
+}
+
+function composeAddressDetail(name: string, phone: string, rest: string): string {
+  if (!name.trim() || !phone.trim()) return rest;
+  const prefix = `Penerima: ${name.trim()} (${phone.trim()})`;
+  return rest.trim() ? `${prefix} - ${rest.trim()}` : prefix;
+}
+
 export default function EditAddressPage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
@@ -40,6 +59,8 @@ export default function EditAddressPage() {
   const [form, setForm] = useState({
     label: '',
     address: '',
+    recipient_name: '',
+    recipient_phone: '',
     address_detail: '',
     province: '',
     city: '',
@@ -65,10 +86,13 @@ export default function EditAddressPage() {
         const list = (res.data as Address[]);
         const a = Array.isArray(list) ? list.find((x) => x.id === id) : undefined;
         if (a) {
+          const parsed = parseAddressDetail(a.address_detail || '');
           setForm({
             label: a.label || '',
             address: a.address || '',
-            address_detail: a.address_detail || '',
+            recipient_name: parsed.name,
+            recipient_phone: parsed.phone,
+            address_detail: parsed.rest,
             province: a.province || '',
             city: a.city || '',
             district: a.district || '',
@@ -102,6 +126,18 @@ export default function EditAddressPage() {
       setError('Kode pos harus 5 digit angka');
       return;
     }
+    // Nama & HP penerima harus diisi berpasangan (format sama dengan halaman tambah).
+    if (Boolean(form.recipient_name.trim()) !== Boolean(form.recipient_phone.trim())) {
+      setError('Nama dan nomor HP penerima harus diisi keduanya');
+      return;
+    }
+    if (form.recipient_phone.trim()) {
+      const phoneDigits = form.recipient_phone.replace(/\D/g, '');
+      if (!/^(0|62)\d{8,13}$/.test(phoneDigits)) {
+        setError('Nomor HP penerima tidak valid (contoh: 08123456789)');
+        return;
+      }
+    }
     if (!hasCoords) {
       setError('Tandai titik lokasi alamat pada peta terlebih dahulu');
       return;
@@ -113,7 +149,7 @@ export default function EditAddressPage() {
       body: JSON.stringify({
         label: form.label,
         address: form.address,
-        address_detail: form.address_detail,
+        address_detail: composeAddressDetail(form.recipient_name, form.recipient_phone, form.address_detail),
         province: form.province,
         city: form.city,
         district: form.district,
@@ -153,6 +189,29 @@ export default function EditAddressPage() {
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nama Penerima</label>
+              <input
+                type="text"
+                placeholder="Nama lengkap"
+                value={form.recipient_name}
+                onChange={e => setForm({ ...form, recipient_name: e.target.value })}
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Nomor HP</label>
+              <input
+                type="tel"
+                placeholder="08123456789"
+                value={form.recipient_phone}
+                onChange={e => setForm({ ...form, recipient_phone: e.target.value })}
+                className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Alamat Lengkap</label>
             <textarea
@@ -186,7 +245,7 @@ export default function EditAddressPage() {
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">Detail / Catatan (opsional)</label>
             <input
               type="text"
-              placeholder="Penerima, patokan, dsb."
+              placeholder="Patokan, catatan, dsb."
               value={form.address_detail}
               onChange={e => setForm({ ...form, address_detail: e.target.value })}
               className="w-full p-3 border border-brand-gray-100 rounded text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"

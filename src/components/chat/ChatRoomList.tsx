@@ -102,7 +102,9 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Search */}
+      {/* Search . disembunyikan saat percakapan masih sedikit (< 6): filter
+          untuk 2-3 baris hanya menambah kebisingan visual. */}
+      {!loading && chats.length >= 6 && (
       <div className={`${compact ? 'px-3 pt-3' : 'px-4 pt-2'} pb-2 shrink-0`}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray-450" />
@@ -115,6 +117,7 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
           />
         </div>
       </div>
+      )}
 
       {/* List */}
       <div className="flex-1 overflow-y-auto min-h-0">

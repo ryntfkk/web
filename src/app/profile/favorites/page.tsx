@@ -22,7 +22,7 @@ export default function FavoritesPage() {
   const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const { data: services, isLoading: sLoading } = useFavoriteServices();
   const { data: partners, isLoading: pLoading } = useFavoritePartners();
-  const { removeService, removePartner } = useFavoritesActions();
+  const { removeService, removePartner, addService, addPartner } = useFavoritesActions();
   const { showToast } = useToast();
   const [tab, setTab] = useState<'all' | 'services' | 'partners'>('all');
 
@@ -32,14 +32,30 @@ export default function FavoritesPage() {
     return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   }
 
+  // Penghapusan instan + toast "Urungkan" . menambahkan kembali lewat API
+  // favorit yang sama, jadi salah ketuk tidak permanen.
   const handleRemoveService = async (id: string) => {
     const res = await removeService(id);
-    if (!res.success) showToast(res.message || 'Gagal menghapus favorit', 'error');
+    if (!res.success) {
+      showToast(res.message || 'Gagal menghapus favorit', 'error');
+      return;
+    }
+    showToast('Favorit dihapus', 'info', 5000, {
+      label: 'Urungkan',
+      onClick: () => { addService(id); },
+    });
   };
 
   const handleRemovePartner = async (id: string) => {
     const res = await removePartner(id);
-    if (!res.success) showToast(res.message || 'Gagal menghapus favorit', 'error');
+    if (!res.success) {
+      showToast(res.message || 'Gagal menghapus favorit', 'error');
+      return;
+    }
+    showToast('Favorit dihapus', 'info', 5000, {
+      label: 'Urungkan',
+      onClick: () => { addPartner(id); },
+    });
   };
 
   const loading = sLoading || pLoading;

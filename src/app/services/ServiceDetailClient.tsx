@@ -506,6 +506,19 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
             <div className="flex-1 p-3 sm:p-4 sm:pl-0">
               {/* Title & Location */}
               <div className="mb-3">
+                {/* Breadcrumb penuh di atas hanya `hidden sm:flex` . di mobile
+                    halaman ini tadinya tanpa jalan naik ke kategorinya sama
+                    sekali. Tautan ringkas ini penggantinya (sm ke atas kembali
+                    memakai breadcrumb penuh). */}
+                {categorySlug && service.category_name && (
+                  <Link
+                    href={`/kategori/${categorySlug}`}
+                    className="sm:hidden inline-flex items-center gap-1 text-xs font-medium text-brand-gray-700 hover:text-brand-red mb-1.5"
+                  >
+                    <span aria-hidden="true">&lsaquo;</span>
+                    {service.category_name}
+                  </Link>
+                )}
                 <h1 className="text-lg sm:text-xl font-semibold text-brand-gray-900 leading-tight mb-2">
                   {service.name}
                 </h1>

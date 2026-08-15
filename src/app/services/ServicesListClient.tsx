@@ -52,8 +52,8 @@ export default function ServicesListClient({
           <Link
             href="/services"
             className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${!activeCategory
-                ? 'bg-brand-blue text-white border-brand-blue'
-                : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-blue'
+                ? 'bg-brand-red text-white border-brand-red'
+                : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-red'
               }`}
           >
             Semua
@@ -63,8 +63,8 @@ export default function ServicesListClient({
               key={cat.id}
               href={`/services?category=${cat.id}`}
               className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${activeCategory === cat.id
-                  ? 'bg-brand-blue text-white border-brand-blue'
-                  : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-blue'
+                  ? 'bg-brand-red text-white border-brand-red'
+                  : 'bg-white text-brand-gray-900 border-brand-gray-100 hover:border-brand-red'
                 }`}
             >
               {cat.name}

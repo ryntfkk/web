@@ -39,6 +39,9 @@ interface BalanceResponse {
   pending_withdrawal?: number;
 }
 
+/** Sama dengan default per_page backend (wallet/handler.go). */
+const PAGE_SIZE = 20;
+
 export default function MitraWalletPage() {
   const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
   const router = useRouter();
@@ -47,6 +50,12 @@ export default function MitraWalletPage() {
   const [filterType, setFilterType] = useState<'ALL' | 'IN' | 'OUT'>('ALL');
   const [timeFilter, setTimeFilter] = useState<'THIS_MONTH' | 'LAST_3_MONTHS' | 'ALL'>('ALL');
   const [loading, setLoading] = useState(true);
+  // Paginasi server (page/per_page didukung wallet/handler.go). Dulu hanya
+  // halaman pertama yang pernah termuat . mutasi ke-21 dan seterusnya tak
+  // terjangkau dari UI mana pun.
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Tiga angka berbeda, dan mitra berhak tahu bedanya (P1-04): yang bisa
   // ditarik sekarang, yang sedang diproses penarikannya, dan total buku.
@@ -55,24 +64,26 @@ export default function MitraWalletPage() {
   const platformConfig = usePlatformConfig();
 
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    let query = '';
+  /** `append` = tombol "Muat lebih banyak"; tanpa itu daftar diganti. */
+  const fetchData = useCallback(async (opts: { pageToLoad?: number; append?: boolean } = {}) => {
+    const { pageToLoad = 1, append = false } = opts;
+    if (append) setLoadingMore(true);
+    else setLoading(true);
+
+    const params = new URLSearchParams({ page: String(pageToLoad), per_page: String(PAGE_SIZE) });
     if (timeFilter === 'THIS_MONTH') {
       const d = new Date();
-      const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
-      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
-      query = `?start_date=${start}&end_date=${end}`;
+      params.set('start_date', new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]);
+      params.set('end_date', new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0]);
     } else if (timeFilter === 'LAST_3_MONTHS') {
       const d = new Date();
-      const start = new Date(d.getFullYear(), d.getMonth() - 2, 1).toISOString().split('T')[0];
-      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
-      query = `?start_date=${start}&end_date=${end}`;
+      params.set('start_date', new Date(d.getFullYear(), d.getMonth() - 2, 1).toISOString().split('T')[0]);
+      params.set('end_date', new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0]);
     }
 
     try {
       const [txRes, balRes] = await Promise.all([
-        fetchAPI<TransactionsResponse>(`/wallet/transactions${query}`),
+        fetchAPI<TransactionsResponse>(`/wallet/transactions?${params.toString()}`),
         fetchAPI<BalanceResponse>('/wallet/balance')
       ]);
 
@@ -84,7 +95,11 @@ export default function MitraWalletPage() {
         setError(null);
       }
       if (txRes.success && txRes.data) {
-        setTransactions(txRes.data.data || []);
+        const list = txRes.data.data || [];
+        setTransactions(prev => (append ? [...prev, ...list] : list));
+        // Total dari server, bukan panjang array . dasar tombol muat-lagi.
+        setTotal(txRes.pagination?.total ?? list.length);
+        setPage(pageToLoad);
         if (txRes.data.summary) {
           setSummary({
             total_earnings: txRes.data.summary.total_earnings || 0,
@@ -107,6 +122,7 @@ export default function MitraWalletPage() {
       setError('Tidak dapat memuat data dompet. Periksa koneksi lalu coba lagi.');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [timeFilter]);
 
@@ -306,6 +322,22 @@ export default function MitraWalletPage() {
               </div>
             ))}
           </div>
+
+          {transactions.length < total && (
+            <div className="pt-4 text-center">
+              <Button
+                variant="outline"
+                className="w-full"
+                isLoading={loadingMore}
+                onClick={() => fetchData({ pageToLoad: page + 1, append: true })}
+              >
+                Muat lebih banyak
+              </Button>
+              <p className="mt-2 text-xs text-brand-gray-450">
+                Menampilkan {transactions.length} dari {total} transaksi
+              </p>
+            </div>
+          )}
         </DataState>
         </MitraSection>
       </MitraPageContainer>

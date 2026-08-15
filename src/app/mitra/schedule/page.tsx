@@ -117,6 +117,9 @@ export default function MitraSchedulePage() {
   const [deletingTimeOff, setDeletingTimeOff] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
+  // Gagal memuat jam mingguan TIDAK boleh tampil sebagai default 08:00-17:00
+  // seolah itu jadwal tersimpan (P1-11) . cermin dari timeOffError di bawah.
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
   const [activeOrderCount, setActiveOrderCount] = useState(0);
@@ -138,6 +141,11 @@ export default function MitraSchedulePage() {
         fetchAPI<TimeOff[]>('/partners/me/time-off'),
       ]);
 
+      if (!schedRes.success) {
+        setScheduleError(schedRes.message || 'Gagal memuat jam operasional');
+      } else {
+        setScheduleError(null);
+      }
       if (schedRes.success && schedRes.data) {
         const schedData = (schedRes.data as WorkingHourRow[]);
         if (Array.isArray(schedData)) {
@@ -405,7 +413,7 @@ export default function MitraSchedulePage() {
           </p>
         </div>
 
-        {!loading && !hasSavedSchedule && (
+        {!loading && !scheduleError && !hasSavedSchedule && (
           <div className="bg-brand-warning-soft border border-brand-warning-border rounded-lg p-4 flex gap-3 items-start mb-2">
             <Clock className="w-5 h-5 text-brand-warning-dark shrink-0 mt-0.5" />
             <p className="text-sm text-brand-warning-dark font-semibold leading-relaxed">
@@ -417,7 +425,7 @@ export default function MitraSchedulePage() {
         {/* Aksi cepat. Tanpa ini menyetel seminggu berarti mengisi 14 input jam
             satu per satu . dan pola yang paling sering dipakai (buka terus,
             atau jam kantor) justru yang paling melelahkan diketik. */}
-        {!loading && (
+        {!loading && !scheduleError && (
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-brand-gray-700">Terapkan cepat:</span>
             <Button variant="outline" size="sm" className="rounded-md" onClick={applyAllFullDay}>
@@ -432,13 +440,18 @@ export default function MitraSchedulePage() {
           </div>
         )}
 
-        {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5, 6, 7].map(i => (
-              <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 h-16 animate-pulse" />
-            ))}
-          </div>
-        ) : (
+        <DataState
+          isLoading={loading}
+          error={scheduleError}
+          onRetry={fetchSchedule}
+          skeleton={
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5, 6, 7].map(i => (
+                <div key={i} className="bg-white rounded-lg border border-brand-gray-100 p-4 h-16 animate-pulse" />
+              ))}
+            </div>
+          }
+        >
           <div className="bg-white rounded-lg border border-brand-gray-100 overflow-hidden">
             {DAYS.map((day, index) => {
               const dayData = schedule[day.id];
@@ -552,7 +565,7 @@ export default function MitraSchedulePage() {
               );
             })}
           </div>
-        )}
+        </DataState>
 
         {/* ── Cuti / libur ──────────────────────────────────────────
             Terpisah dari pola mingguan karena memang beda sifatnya: pola
@@ -642,7 +655,9 @@ export default function MitraSchedulePage() {
         <Button
           className="w-full bg-brand-red hover:bg-brand-red-dark text-white rounded-md h-12 text-sm font-bold shadow-sm"
           onClick={confirmSave}
-          disabled={loading || saving}
+          // scheduleError ikut mengunci: menyimpan saat jadwal gagal dimuat
+          // berarti menimpa jadwal tersimpan dengan default UI.
+          disabled={loading || saving || !!scheduleError}
         >
           {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Simpan Jadwal'}
         </Button>

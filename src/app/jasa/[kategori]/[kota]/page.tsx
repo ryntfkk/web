@@ -163,6 +163,7 @@ export default async function LocalCategoryPage({ params }: PageProps) {
         titleAs="p"
         backHref={`/kategori/${cat.slug}`}
         maxWidthClass="max-w-[1200px]"
+        gutterClass="px-3 sm:px-4 lg:px-6"
       />
 
       <div className="container mx-auto max-w-[1200px] w-full px-3 sm:px-4 lg:px-6 py-3 sm:py-5 lg:py-6">

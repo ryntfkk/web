@@ -117,7 +117,9 @@ export default function MitraBasecampPage() {
   const inputCls = "w-full p-3 border border-brand-gray-100 rounded-md text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red";
 
   return (
-    <div className="pb-28">
+    // pb-6 saja: tombol simpan inline (bukan action bar fixed) dan bottom nav
+    // kini tampil lagi di halaman ini . ruang nav sudah disediakan <body>.
+    <div className="pb-6">
       <MitraPageHeader
         title="Alamat Basecamp"
         variant="form"

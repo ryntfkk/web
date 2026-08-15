@@ -147,6 +147,9 @@ export default function EditMitraServicePage() {
 
     track('partner_service_updated', { service_id: serviceId, unit: payload.unit });
 
+    // Foto yang gagal diunggah TIDAK dibuang diam-diam: halaman dulu langsung
+    // navigasi ke daftar layanan sehingga mitra mengira fotonya tersimpan.
+    const failedPhotos: File[] = [];
     for (const file of newPhotos) {
       try {
         const presigned = await fetchAPI<{ upload_url: string; file_url: string }>(
@@ -157,22 +160,41 @@ export default function EditMitraServicePage() {
             body: JSON.stringify({ filename: file.name, content_type: file.type, file_size: file.size }),
           },
         );
-        if (presigned.success && presigned.data) {
-          const upload = await fetch(presigned.data.upload_url, {
-            method: 'PUT',
-            body: file,
-            headers: { 'Content-Type': file.type },
-          });
-          if (upload.ok) {
-            await fetchAPI(`/partners/me/services/${serviceId}/photos`, {
-              method: 'POST',
-              body: JSON.stringify({ photo_url: presigned.data.file_url }),
-            });
-          }
+        if (!presigned.success || !presigned.data) {
+          failedPhotos.push(file);
+          continue;
         }
-      } catch (e) {
-        console.error('failed upload', e);
+        const upload = await fetch(presigned.data.upload_url, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': file.type },
+        });
+        if (!upload.ok) {
+          failedPhotos.push(file);
+          continue;
+        }
+        const saveRes = await fetchAPI(`/partners/me/services/${serviceId}/photos`, {
+          method: 'POST',
+          body: JSON.stringify({ photo_url: presigned.data.file_url }),
+        });
+        if (!saveRes.success) failedPhotos.push(file);
+      } catch {
+        failedPhotos.push(file);
       }
+    }
+
+    if (failedPhotos.length > 0) {
+      // Tetap di halaman: hanya foto yang gagal yang tersisa di antrean unggah,
+      // dan galeri tersimpan disegarkan supaya yang berhasil ikut terlihat.
+      setNewPhotos(failedPhotos);
+      const photosRes = await fetchAPI<ServicePhoto[]>(`/partners/me/services/${serviceId}/photos`);
+      if (photosRes.success && photosRes.data) setExistingPhotos(photosRes.data);
+      setError(
+        `Perubahan layanan tersimpan, tetapi ${failedPhotos.length} foto gagal diunggah. Coba kirim ulang foto tersebut.`,
+      );
+      setLoading(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
 
     router.push('/mitra/services');

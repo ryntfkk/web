@@ -165,6 +165,7 @@ export default async function CategoryPage({ params }: PageProps) {
         titleAs="p"
         backHref={parent?.slug ? `/kategori/${parent.slug}` : '/categories'}
         maxWidthClass="max-w-[1200px]"
+        gutterClass="px-3 sm:px-4 lg:px-6"
       />
 
       <div className="container mx-auto max-w-[1200px] w-full px-3 sm:px-4 lg:px-6 py-3 sm:py-5 lg:py-6">

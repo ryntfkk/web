@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CheckCircle, Clock, XCircle, FileText, AlertCircle } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import DataState from '@/components/mitra/DataState';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
@@ -19,6 +20,9 @@ export default function MitraVerificationStatusPage() {
   const [status, setStatus] = useState<'PENDING' | 'VERIFIED' | 'REJECTED' | null>(null);
   const [reason, setReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // Gagal memuat TIDAK boleh tampil sebagai kartu putih kosong (P1-11):
+  // status === null karena request gagal bukanlah "tidak berstatus".
+  const [error, setError] = useState<string | null>(null);
   // Kosong = platform belum menetapkan SLA; UI TIDAK boleh mengarang tenggat.
   const verificationSla = usePlatformConfig().profile?.verification_sla?.trim();
 
@@ -38,6 +42,9 @@ export default function MitraVerificationStatusPage() {
       const mapped = raw === 'APPROVED' ? 'VERIFIED' : raw === 'REJECTED' ? 'REJECTED' : raw === 'PENDING' ? 'PENDING' : (raw as 'PENDING' | 'VERIFIED' | 'REJECTED');
       setStatus(mapped);
       setReason(res.data.rejection_reason || null);
+      setError(null);
+    } else {
+      setError(res.message || 'Gagal memuat status verifikasi');
     }
     setLoading(false);
   };
@@ -51,13 +58,20 @@ export default function MitraVerificationStatusPage() {
       <MitraPageHeader title="Status Verifikasi" variant="form" backHref="/mitra/profile" />
 
       <MitraPageContainer variant="form">
-        {loading ? (
-          <div className="bg-white rounded-lg border border-brand-gray-100 p-6 h-64 animate-pulse flex flex-col items-center justify-center gap-4">
-            <div className="w-16 h-16 bg-brand-gray-100 rounded-full" />
-            <div className="h-6 w-1/2 bg-brand-gray-100 rounded-md" />
-            <div className="h-4 w-3/4 bg-brand-gray-100 rounded-md" />
-          </div>
-        ) : (
+        <DataState
+          isLoading={loading}
+          error={error}
+          onRetry={fetchStatus}
+          isEmpty={status === null}
+          emptyTitle="Status verifikasi tidak ditemukan."
+          skeleton={
+            <div className="bg-white rounded-lg border border-brand-gray-100 p-6 h-64 animate-pulse flex flex-col items-center justify-center gap-4">
+              <div className="w-16 h-16 bg-brand-gray-100 rounded-full" />
+              <div className="h-6 w-1/2 bg-brand-gray-100 rounded-md" />
+              <div className="h-4 w-3/4 bg-brand-gray-100 rounded-md" />
+            </div>
+          }
+        >
           <div className="bg-white rounded-lg border border-brand-gray-100 p-6 text-center shadow-sm">
 
             {status === 'VERIFIED' && (
@@ -139,7 +153,7 @@ export default function MitraVerificationStatusPage() {
             )}
 
           </div>
-        )}
+        </DataState>
       </MitraPageContainer>
     </div>
   );

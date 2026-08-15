@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell, FileText, CheckCircle, CreditCard, AlertTriangle, DollarSign } from 'lucide-react';
-import { notificationSpec } from '@/lib/notification-types';
+import { notificationSpec, KNOWN_NOTIFICATION_TYPES } from '@/lib/notification-types';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRefreshUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -28,6 +28,23 @@ interface Notification {
 
 const PER_PAGE = 20;
 
+/**
+ * Filter tab dieksekusi SERVER-SIDE: kirim daftar tipe milik kategori sebagai
+ * `?types=a,b,c` (backend: `type = ANY(types)`). Dulu filter hanya menyaring
+ * halaman yang SUDAH termuat — tab "Transaksi" bisa menampilkan 0 padahal
+ * halaman berikutnya berisi item transaksi. Pemetaan tipe→kategori tetap satu
+ * sumber kebenaran di lib/notification-types (server tidak menduplikasinya).
+ * Catatan jujur: tipe BARU yang belum terdaftar di SPEC tidak ikut tab mana pun
+ * (tetap tampil di "Semua") — test KNOWN_NOTIFICATION_TYPES menandainya.
+ */
+function typesParamFor(filter: string): string {
+  if (filter !== 'transaction' && filter !== 'system') return '';
+  const types = KNOWN_NOTIFICATION_TYPES.filter(
+    (t) => notificationSpec(t).category === filter,
+  );
+  return `&types=${encodeURIComponent(types.join(','))}`;
+}
+
 export default function NotificationsPage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const router = useRouter();
@@ -44,7 +61,11 @@ export default function NotificationsPage() {
   const refreshUnreadBadge = useRefreshUnreadNotifications();
 
   useEffect(() => {
-    fetchNotifications(1);
+    // Tunggu auth selesai (silent refresh) sebelum fetch . tanpa gate ini
+    // request pertama terkirim tanpa token dan gagal 401.
+    if (isAuthenticated) {
+      fetchNotifications(1);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
@@ -54,12 +75,12 @@ export default function NotificationsPage() {
    * tanpa parameter apa pun dan tidak punya tombol muat-lagi. Notifikasi lama
    * jadi tak terjangkau begitu melewati batas bawaan (audit E8).
    */
-  async function fetchNotifications(targetPage: number) {
+  async function fetchNotifications(targetPage: number, filter: string = activeFilter) {
     const append = targetPage > 1;
     if (append) setLoadingMore(true);
     else setLoading(true);
 
-    const res = await fetchAPI<any>(`/notifications?page=${targetPage}&per_page=${PER_PAGE}`);
+    const res = await fetchAPI<any>(`/notifications?page=${targetPage}&per_page=${PER_PAGE}${typesParamFor(filter)}`);
     if (res.success && res.data) {
       const list: Notification[] = Array.isArray(res.data)
         ? res.data
@@ -146,6 +167,9 @@ export default function NotificationsPage() {
   if (authLoading) return <div className="page-h bg-brand-gray-60"><ListItemSkeleton count={8} /></div>;
   if (!isAuthorized) return null;
 
+  // Filter dieksekusi server-side saat fetch (lihat typesParamFor); saringan
+  // klien di bawah dipertahankan sebagai lapis kedua agar ganti-tab terasa
+  // instan atas data yang sudah termuat sebelum hasil server datang.
   const filteredNotifications = notifications.filter(n => {
     if (activeFilter === 'all') return true;
     // A09-T2: dulu `includes('order') || includes('payment')` . sehingga
@@ -155,6 +179,12 @@ export default function NotificationsPage() {
     if (activeFilter === 'system') return notificationSpec(n.type).category === 'system';
     return true;
   });
+
+  function changeFilter(filter: string) {
+    if (filter === activeFilter) return;
+    setActiveFilter(filter);
+    fetchNotifications(1, filter); // reset ke halaman 1 dengan filter server-side baru
+  }
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
@@ -241,20 +271,20 @@ export default function NotificationsPage() {
             globals.css adalah yang pertama . nama lama tidak pernah cocok
             dengan apa pun, jadi scrollbar-nya tetap tampil (audit C3). */}
         <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
-          <button 
-            onClick={() => setActiveFilter('all')}
+          <button
+            onClick={() => changeFilter('all')}
             className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'all' ? 'bg-brand-red text-white' : 'bg-white border border-brand-gray-100 text-brand-gray-700 hover:bg-brand-gray-60'}`}
           >
             Semua
           </button>
-          <button 
-            onClick={() => setActiveFilter('transaction')}
+          <button
+            onClick={() => changeFilter('transaction')}
             className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'transaction' ? 'bg-brand-red text-white' : 'bg-white border border-brand-gray-100 text-brand-gray-700 hover:bg-brand-gray-60'}`}
           >
             Transaksi
           </button>
-          <button 
-            onClick={() => setActiveFilter('system')}
+          <button
+            onClick={() => changeFilter('system')}
             className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeFilter === 'system' ? 'bg-brand-red text-white' : 'bg-white border border-brand-gray-100 text-brand-gray-700 hover:bg-brand-gray-60'}`}
           >
             Sistem

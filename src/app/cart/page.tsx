@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatRupiah } from '@/lib/format';
 import { useCartStore, lineQty, lineTotal, cartTotal, minOrderOf, type CartItem } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useToast } from '@/components/ui/toast';
 
 interface PartnerGroup {
   partner_username: string;
@@ -28,8 +29,29 @@ interface PartnerGroup {
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeItem, clearCart, setQuantity } = useCartStore();
+  const { items, removeItem, clearCart, setQuantity, addItem } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { showToast } = useToast();
+
+  // Hapus item/kosongkan keranjang bisa DIURUNGKAN: snapshot diambil sebelum
+  // aksi, lalu dikembalikan ke store via addItem saat "Urungkan" diketuk.
+  const handleRemoveItem = (item: CartItem) => {
+    const snapshot = { ...item };
+    removeItem(item.service_id, item.variation_id);
+    showToast(`${item.service_name} dihapus dari keranjang`, 'info', 5000, {
+      label: 'Urungkan',
+      onClick: () => { addItem(snapshot); },
+    });
+  };
+
+  const handleClearCart = () => {
+    const snapshot = items.map((i) => ({ ...i }));
+    clearCart();
+    showToast('Keranjang dikosongkan', 'info', 5000, {
+      label: 'Urungkan',
+      onClick: () => { snapshot.forEach((i) => addItem(i)); },
+    });
+  };
 
   // Hindari hydration mismatch: store dipersist di localStorage,
   // render isi keranjang hanya setelah mount di client.
@@ -110,7 +132,7 @@ export default function CartPage() {
         maxWidthClass="max-w-3xl"
         right={
           items.length > 0 ? (
-            <button onClick={clearCart} className="text-xs text-brand-error font-medium hover:underline">
+            <button onClick={handleClearCart} className="text-xs text-brand-error font-medium hover:underline">
               Kosongkan
             </button>
           ) : undefined
@@ -124,7 +146,7 @@ export default function CartPage() {
             Keranjang {items.length > 0 && <span className="text-brand-gray-450 font-normal text-lg">({items.length})</span>}
           </h1>
           {items.length > 0 && (
-            <button onClick={clearCart} className="text-sm text-brand-error font-medium hover:underline">
+            <button onClick={handleClearCart} className="text-sm text-brand-error font-medium hover:underline">
               Kosongkan
             </button>
           )}
@@ -176,7 +198,7 @@ export default function CartPage() {
                           photoUrl={item.photo_url || undefined}
                           action={
                             <button
-                              onClick={() => removeItem(item.service_id, item.variation_id)}
+                              onClick={() => handleRemoveItem(item)}
                               className="p-2 text-brand-gray-450 hover:text-brand-error hover:bg-brand-error-soft rounded-lg shrink-0 transition-colors"
                               aria-label={`Hapus ${item.service_name}`}
                             >

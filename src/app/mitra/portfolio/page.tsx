@@ -6,6 +6,7 @@ import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import { Button } from '@/components/ui/button';
 import MitraModal from '@/components/mitra/MitraModal';
+import DataState from '@/components/mitra/DataState';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -33,6 +34,9 @@ export default function MitraPortfolioPage() {
 
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(true);
+  // Gagal MEMUAT dibedakan dari error aksi (`error`): kegagalan jaringan tidak
+  // boleh tampil sebagai galeri kosong (P1-11).
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -61,8 +65,11 @@ export default function MitraPortfolioPage() {
   async function fetchPortfolios() {
     setLoading(true);
     const res = await fetchAPI<Portfolio[]>('/partners/me/portfolios');
-    if (res.success && res.data) {
-      setPortfolios(res.data);
+    if (res.success) {
+      setPortfolios(res.data ?? []);
+      setFetchError(null);
+    } else {
+      setFetchError(getErrorMessage(res) || 'Gagal memuat portofolio');
     }
     setLoading(false);
   };
@@ -239,10 +246,20 @@ export default function MitraPortfolioPage() {
           </div>
         )}
 
+        {/* isEmpty sengaja TIDAK dipakai: galeri kosong tetap harus menampilkan
+            kotak "Tambah Foto" di grid, jadi keadaan kosongnya digambar sendiri
+            di bawah. DataState di sini khusus memuat & gagal-memuat. */}
+        <DataState
+          isLoading={loading}
+          error={fetchError}
+          onRetry={fetchPortfolios}
+          skeleton={
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {[1, 2].map(i => <div key={i} className="aspect-square bg-brand-gray-100 rounded-lg animate-pulse" />)}
+            </div>
+          }
+        >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {loading ? (
-            [1, 2].map(i => <div key={i} className="aspect-square bg-brand-gray-100 rounded-lg animate-pulse" />)
-          ) : (
             <>
               {portfolios.map((item, index) => (
                 <div key={item.id} className="overflow-hidden rounded-lg border border-brand-gray-100 bg-white">
@@ -351,16 +368,16 @@ export default function MitraPortfolioPage() {
                 </div>
               )}
             </>
-          )}
         </div>
 
-        {!loading && portfolios.length === 0 && (
+        {portfolios.length === 0 && (
           <div className="text-center py-10">
             <ImageIcon className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />
             <p className="text-sm text-brand-gray-700">Belum ada foto portofolio.</p>
             <p className="text-xs text-brand-gray-450 mt-1">Tambahkan foto hasil kerja Anda untuk menarik lebih banyak pelanggan.</p>
           </div>
         )}
+        </DataState>
 
         <MitraModal
           open={!!editingId}

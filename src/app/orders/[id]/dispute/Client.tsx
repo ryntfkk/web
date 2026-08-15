@@ -9,8 +9,19 @@ import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton, Skeleton } from '@/components/ui/skeleton';
-import { Loader2 } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { useToast } from '@/components/ui/toast';
+
+// Nilai = enum `dispute_type` di DB (migrasi 000001 + 000069). Handler backend
+// meng-uppercase input apa adanya tanpa menjalankan validator DTO, jadi HANYA
+// nilai enum DB yang aman dikirim. NO_SHOW_CUSTOMER sengaja tidak ditawarkan .
+// pelapor di halaman ini adalah pelanggan.
+const DISPUTE_TYPES = [
+  { value: 'OTHER', label: 'Lainnya' },
+  { value: 'QUALITY', label: 'Kualitas pekerjaan tidak sesuai' },
+  { value: 'NO_SHOW_PARTNER', label: 'Mitra tidak datang' },
+  { value: 'ADDITIONAL_FEE_DISPUTE', label: 'Masalah biaya tambahan' },
+] as const;
 
 
 // Harus SAMA dengan validStatuses di backend disputes/service.go CreateDispute.
@@ -38,7 +49,9 @@ export default function DisputeClient() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [disputeType, setDisputeType] = useState<string>('OTHER');
   const [reason, setReason] = useState('');
+  const { showToast } = useToast();
   const [photos, setPhotos] = useState<File[]>([]);
   const [error, setError] = useState('');
 
@@ -100,7 +113,7 @@ export default function DisputeClient() {
         method: 'POST',
         body: JSON.stringify({
           order_id: orderId,
-          dispute_type: 'OTHER',
+          dispute_type: disputeType,
           reason: reason.trim(),
           evidence_urls: photoUrls
         }),
@@ -109,6 +122,7 @@ export default function DisputeClient() {
       if (res.success) {
         // Sengketa tercatat & admin ternotifikasi. Untuk berbalas dgn CS,
         // pengguna dapat memakai tombol "Hubungi CS" (chat) di halaman pesanan.
+        showToast('Laporan sengketa terkirim. Tim CS akan meninjau dalam 1x24 jam.');
         router.push(`/orders/${orderId}`);
       } else {
         const raw = getErrorMessage(res);
@@ -163,6 +177,22 @@ export default function DisputeClient() {
         </div>
 
         <div className="bg-white rounded-lg border border-brand-gray-100 p-6 space-y-6">
+          <div>
+            <label htmlFor="dispute-type" className="block text-sm font-semibold text-brand-gray-900 mb-2">
+              Jenis Masalah *
+            </label>
+            <select
+              id="dispute-type"
+              value={disputeType}
+              onChange={e => setDisputeType(e.target.value)}
+              className="w-full border border-brand-gray-100 rounded-md p-3 text-sm text-brand-gray-900 bg-white focus:outline-none focus:border-brand-red"
+            >
+              {DISPUTE_TYPES.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-2">
               Ceritakan Detail Masalah *

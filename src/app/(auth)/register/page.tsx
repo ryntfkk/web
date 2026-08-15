@@ -11,6 +11,8 @@ import { PasswordStrength } from '@/components/ui/password-strength';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import LegalConsentCheckbox from '@/components/auth/LegalConsentCheckbox';
 import { useActiveLegalDocuments, recordLegalConsent } from '@/hooks/useLegalConsent';
+import { Button } from '@/components/ui/button';
+import { INPUT_CLASS } from '@/components/ui/form';
 
 function RegisterContent() {
   const { sendOTP, verifyOTPAndRegister, loginWithGoogle, loading, error, isAuthenticated } = useAuth();
@@ -72,7 +74,17 @@ function RegisterContent() {
   };
 
   return (
-    <div className="page-h bg-brand-gray-60 flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
+    <div className="relative page-h bg-brand-gray-60 flex flex-col sm:justify-center py-12 sm:px-6 lg:px-8">
+      {/* Back button khusus mobile . pola yang sama dengan /login: di mobile
+          TopNavbar disembunyikan di halaman auth, jadi tanpa ini tidak ada
+          jalan kembali ke beranda selain tombol back browser. */}
+      <Link
+        href="/"
+        aria-label="Kembali ke beranda"
+        className="lg:hidden absolute top-4 left-4 p-2 -ml-1 rounded hover:bg-black/5 text-brand-gray-700"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </Link>
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         <Stepper steps={['Nomor HP', 'Verifikasi', 'Profil']} current={step} className="mb-6 max-w-xs mx-auto" />
         <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-brand-gray-900">
@@ -96,7 +108,7 @@ function RegisterContent() {
       </div>
 
       <div className="mt-8 sm:mt-10 mx-auto w-full max-w-md px-4 sm:px-0">
-        <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
+        <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
           {error && (
             <div className="mb-6 p-3 bg-brand-error-soft text-brand-error rounded-md text-sm border border-brand-error-border">
               {error}
@@ -117,20 +129,16 @@ function RegisterContent() {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
+                    className={INPUT_CLASS}
                     placeholder="081234567890"
                   />
                 </div>
               </div>
 
               <div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
-                >
-                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Kirim OTP'}
-                </button>
+                <Button type="submit" size="lg" isLoading={loading} className="w-full rounded-full shadow-brand-red">
+                  Kirim OTP
+                </Button>
               </div>
 
               <div className="relative my-4">
@@ -187,22 +195,20 @@ function RegisterContent() {
               </div>
 
               <div className="flex flex-col space-y-4">
-                <button
-                  type="submit"
-                  disabled={otp.length < 6}
-                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
-                >
+                <Button type="submit" size="lg" disabled={otp.length < 6} className="w-full rounded-full shadow-brand-red">
                   Selanjutnya
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="lg"
                   onClick={() => setStep(1)}
-                  className="w-full flex justify-center items-center py-4 px-4 border border-brand-gray-100 rounded-full shadow-sm text-sm font-bold text-brand-gray-900 bg-white hover:bg-brand-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-300 transform active:scale-[0.98]"
+                  className="w-full rounded-full bg-white"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Ganti Nomor HP
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -221,7 +227,7 @@ function RegisterContent() {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
+                    className={INPUT_CLASS}
                     placeholder="username123"
                   />
                 </div>
@@ -239,7 +245,7 @@ function RegisterContent() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all"
+                    className={INPUT_CLASS}
                     placeholder="Budi Santoso"
                   />
                 </div>
@@ -258,7 +264,7 @@ function RegisterContent() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3.5 bg-brand-gray-50/50 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:bg-white sm:text-sm transition-all pr-12"
+                    className={`${INPUT_CLASS} pr-12`}
                     placeholder="Minimal 8 karakter"
                   />
                   <button
@@ -279,22 +285,26 @@ function RegisterContent() {
               <LegalConsentCheckbox checked={agreed} onChange={setAgreed} />
 
               <div className="flex flex-col space-y-4">
-                <button
+                <Button
                   type="submit"
-                  disabled={loading || !agreed}
-                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-[0_8px_20px_rgba(220,38,38,0.25)] text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-300 transform active:scale-[0.98]"
+                  size="lg"
+                  disabled={!agreed}
+                  isLoading={loading}
+                  className="w-full rounded-full shadow-brand-red"
                 >
-                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Selesai & Daftar'}
-                </button>
+                  Selesai &amp; Daftar
+                </Button>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="lg"
                   onClick={() => setStep(2)}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-900 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-200"
+                  className="w-full rounded-full bg-white"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Kembali
-                </button>
+                </Button>
               </div>
             </form>
           )}

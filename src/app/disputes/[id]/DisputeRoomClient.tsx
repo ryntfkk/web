@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Send, Scale, ShieldCheck, Loader2 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -74,6 +75,13 @@ export default function DisputeRoomClient() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // BottomNav disembunyikan di ruang sengketa (BottomNav.tsx) — hapus padding
+  // bawah body agar kolom ketik menempel di dasar layar, sama seperti /chat/{id}.
+  useEffect(() => {
+    document.body.classList.add('chat-room');
+    return () => document.body.classList.remove('chat-room');
+  }, []);
+
   const isOpen = dispute ? OPEN_STATUSES.includes(dispute.status) : true;
 
   const send = async () => {
@@ -109,12 +117,20 @@ export default function DisputeRoomClient() {
           <div className="w-9 h-9 rounded-full bg-brand-error-soft flex items-center justify-center shrink-0">
             <Scale className="w-5 h-5 text-brand-red" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="text-sm font-bold text-brand-gray-900 leading-tight">Ruang Sengketa</h1>
             <p className="text-xs text-brand-gray-450">
               {dispute ? (isOpen ? 'Sedang ditinjau tim CS' : 'Sengketa ditutup') : 'Memuat…'}
             </p>
           </div>
+          {dispute?.order_id && (
+            <Link
+              href={`/orders/${dispute.order_id}`}
+              className="shrink-0 text-xs font-semibold text-brand-red hover:text-brand-red-dark whitespace-nowrap"
+            >
+              Lihat Pesanan
+            </Link>
+          )}
         </div>
       </div>
 

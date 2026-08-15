@@ -190,9 +190,16 @@ export default function ReviewClient() {
           </div>
           <Button
             className="w-full bg-brand-red hover:bg-brand-red-dark rounded"
+            onClick={() => router.push(`/orders/${orderId}`)}
+          >
+            Kembali ke Pesanan
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full mt-3 text-brand-gray-700"
             onClick={() => router.push('/')}
           >
-            Kembali ke Beranda
+            Ke Beranda
           </Button>
         </div>
       </div>
@@ -317,7 +324,10 @@ export default function ReviewClient() {
               className="w-full border border-brand-gray-100 rounded p-3 text-sm text-brand-gray-900 placeholder-brand-gray-450 focus:outline-none focus:border-brand-red resize-none"
               placeholder="Tuliskan pengalaman Anda..."
             />
-            <p className="text-xs text-brand-gray-450 text-right mt-1">{comment.length}/300</p>
+            <div className="flex justify-between items-center mt-1">
+              <p className="text-xs text-brand-gray-450">Minimal 10 karakter</p>
+              <p className="text-xs text-brand-gray-450">{comment.length}/300</p>
+            </div>
           </div>
 
           {error && (

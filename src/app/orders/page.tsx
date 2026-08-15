@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Package, Calendar, MapPin, ChevronRight, MessageSquare, Loader2, Search, RotateCcw, Store, Clock, AlertCircle, XCircle } from 'lucide-react';
@@ -73,14 +73,41 @@ interface Order {
   cancelled_by?: string;
 }
 
+const VALID_FILTERS: FilterStatus[] = ['all', 'pending', 'processing', 'completed', 'cancelled'];
+
+// useSearchParams wajib berada di bawah <Suspense> (aturan Next App Router
+// saat prerender) . karena itu isi halaman dipisah ke komponen dalam.
 export default function OrdersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="page-h bg-brand-gray-60 pb-20 md:pb-10">
+          <div className="max-w-6xl mx-auto px-4 py-6 space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => <OrderCardSkeleton key={i} />)}
+          </div>
+        </div>
+      }
+    >
+      <OrdersPageInner />
+    </Suspense>
+  );
+}
+
+function OrdersPageInner() {
   // useRequireAuth menunggu isInitializing (silent refresh) selesai sebelum
   // redirect ke /login . mencegah hard-load mental ke login saat sesi masih ada.
   const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Tab awal dibaca dari ?status= . kartu ringkasan di /profile menaut ke sini
+  // dengan status spesifik, dan refresh/back harus mempertahankan tab aktif.
+  const statusParam = searchParams.get('status');
+  const urlFilter: FilterStatus = VALID_FILTERS.includes(statusParam as FilterStatus)
+    ? (statusParam as FilterStatus)
+    : 'all';
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
+  const [activeFilter, setActiveFilter] = useState<FilterStatus>(urlFilter);
   const [search, setSearch] = useState('');
   const [reorderingId, setReorderingId] = useState<string | null>(null);
   const { addItem } = useCartStore();
@@ -91,6 +118,18 @@ export default function OrdersPage() {
       fetchOrders();
     }
   }, [isAuthenticated]);
+
+  // Sinkron dengan tombol back/forward browser (URL berubah tanpa remount).
+  useEffect(() => {
+    setActiveFilter(urlFilter);
+  }, [urlFilter]);
+
+  function changeFilter(filter: FilterStatus) {
+    setActiveFilter(filter);
+    // URL ikut berubah agar back/refresh mempertahankan tab; replace (bukan
+    // push) supaya gonta-ganti tab tidak menumpuk riwayat browser.
+    router.replace(filter === 'all' ? '/orders' : `/orders?status=${filter}`, { scroll: false });
+  }
 
   async function fetchOrders() {
     setLoading(true);
@@ -219,7 +258,7 @@ export default function OrdersPage() {
                 ].map(filter => (
                   <button
                     key={filter.key}
-                    onClick={() => setActiveFilter(filter.key)}
+                    onClick={() => changeFilter(filter.key)}
                     className={`shrink-0 lg:w-full flex items-center justify-between p-4 hover:bg-brand-gray-60 transition-colors text-left outline-none ${activeFilter === filter.key ? 'bg-brand-red-light' : ''
                       }`}
                   >
@@ -250,27 +289,23 @@ export default function OrdersPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari no. pesanan, mitra, atau layanan…"
-                className="w-full pl-9 pr-3 py-2.5 rounded-md text-sm bg-white border border-brand-gray-100 text-brand-gray-900 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red"
+                className="w-full pl-9 pr-9 py-2.5 rounded-md text-sm bg-white border border-brand-gray-100 text-brand-gray-900 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red"
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  aria-label="Hapus pencarian"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-brand-gray-450 hover:text-brand-gray-700 rounded transition-colors"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             {loading ? (
               <>
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-white rounded-md border border-brand-gray-100 p-4 animate-pulse">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="h-4 w-32 bg-brand-gray-100 rounded-md mb-2"></div>
-                        <div className="h-3 w-24 bg-brand-gray-100 rounded-md"></div>
-                      </div>
-                      <div className="h-6 w-20 bg-brand-gray-100 rounded-md"></div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="h-3 w-full bg-brand-gray-100 rounded-md"></div>
-                      <div className="h-3 w-3/4 bg-brand-gray-100 rounded-md"></div>
-                    </div>
-                  </div>
-                ))}
+                {[1, 2, 3].map(i => <OrderCardSkeleton key={i} />)}
               </>
             ) : filteredOrders.length === 0 ? (
               <div className="bg-white rounded-xl border border-brand-gray-100 p-10 text-center flex flex-col items-center justify-center min-h-[300px] shadow-sm">

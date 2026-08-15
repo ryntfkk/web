@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/toast';
 import { formatPrice } from '@/lib/format';
 
 export default function PromosClient() {
-  const { data: promos, isLoading } = useAvailablePromos();
+  const { data: promos, isLoading, isError, refetch } = useAvailablePromos();
   const { showToast } = useToast();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -59,6 +59,11 @@ export default function PromosClient() {
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-32 w-full rounded-md" />
             ))}
+          </div>
+        ) : isError ? (
+          <div className="text-center py-10">
+            <p className="text-sm text-brand-error mb-4">Gagal memuat promo. Periksa koneksi Anda.</p>
+            <Button variant="outline" onClick={() => refetch()}>Coba Lagi</Button>
           </div>
         ) : !promos || promos.length === 0 ? (
           <EmptyState

@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { getErrorMessage } from '@/types/api';
+import { Button } from '@/components/ui/button';
+import { INPUT_CLASS } from '@/components/ui/form';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -83,7 +85,9 @@ export default function ForgotPasswordPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="py-6 px-1 sm:px-2">
+        {/* A17: kartu putih ber-elevasi yang sama dengan /login & /register .
+            sebelumnya form ini telanjang di atas latar abu-abu. */}
+        <div className="bg-white/90 backdrop-blur-xl py-8 px-6 sm:px-10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
           
           {error && (
             <div className="mb-6 p-3 bg-brand-error-soft text-brand-error rounded-md text-sm border border-brand-error-border">
@@ -111,24 +115,28 @@ export default function ForgotPasswordPage() {
                     required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm"
+                    className={INPUT_CLASS}
                     placeholder="08123456789 atau email Anda"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col space-y-4">
-                <button
+                <Button
                   type="submit"
-                  disabled={loading || !identifier}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
+                  size="lg"
+                  disabled={!identifier}
+                  isLoading={loading}
+                  className="w-full rounded-full shadow-brand-red"
                 >
-                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Kirim Kode Pemulihan'}
-                </button>
-                
+                  Kirim Kode Pemulihan
+                </Button>
+
+                {/* Navigasi (bukan aksi form) . tetap <Link>, kulitnya disamakan
+                    dengan Button variant outline ukuran lg. */}
                 <Link
                   href="/login"
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-200"
+                  className="w-full h-[48px] inline-flex justify-center items-center px-6 border border-brand-gray-100 rounded-full text-[14px] leading-none font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 transition-all duration-200"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Kembali ke Login
@@ -152,7 +160,7 @@ export default function ForgotPasswordPage() {
                     maxLength={6}
                     value={token}
                     onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm tracking-widest text-center"
+                    className={`${INPUT_CLASS} tracking-widest text-center`}
                     placeholder="Masukkan kode 6 digit dari email/SMS"
                   />
                 </div>
@@ -171,7 +179,7 @@ export default function ForgotPasswordPage() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-brand-gray-100 rounded-md shadow-sm placeholder-brand-gray-400 focus:outline-none focus:ring-brand-red focus:border-brand-red sm:text-sm pr-10"
+                    className={`${INPUT_CLASS} pr-10`}
                     placeholder="Minimal 8 karakter"
                   />
                   <button
@@ -189,26 +197,30 @@ export default function ForgotPasswordPage() {
               </div>
 
               <div className="flex flex-col space-y-4">
-                <button
+                <Button
                   type="submit"
-                  disabled={loading || !token || password.length < 8}
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-brand-red hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red disabled:opacity-70 transition-all duration-200"
+                  size="lg"
+                  disabled={!token || password.length < 8}
+                  isLoading={loading}
+                  className="w-full rounded-full shadow-brand-red"
                 >
-                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Ubah Password'}
-                </button>
+                  Ubah Password
+                </Button>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="lg"
                   onClick={() => {
                     setStep(1);
                     setSuccess('');
                     setError('');
                   }}
-                  className="w-full flex justify-center items-center py-2.5 px-4 border border-brand-gray-100 rounded-md shadow-sm text-sm font-bold text-brand-gray-700 bg-white hover:bg-brand-gray-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red transition-all duration-200"
+                  className="w-full rounded-full bg-white"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Ganti Identitas
-                </button>
+                </Button>
               </div>
             </form>
           )}

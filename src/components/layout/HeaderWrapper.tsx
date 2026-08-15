@@ -26,6 +26,9 @@ const MOBILE_HIDE_PATHS = [
   "/help",
   "/jasa",
   "/kategori",
+  // Daftar layanan merender MobilePageHeader sendiri; tanpa entri ini TopNavbar
+  // ikut tampil = dua header sticky bertumpuk di mobile.
+  "/services",
 ];
 
 /**
@@ -38,7 +41,7 @@ const MOBILE_HIDE_PATHS = [
  * WAJIB diperbarui bila ada folder baru di src/app/. Bila terlewat, rute baru
  * itu akan dikira profil mitra dan TopNavbar-nya hilang di mobile.
  */
-const RESERVED_ROOT_SEGMENTS = new Set([
+export const RESERVED_ROOT_SEGMENTS = new Set([
   "about",
   "bantuan",
   "book",
@@ -83,7 +86,7 @@ const RESERVED_ROOT_SEGMENTS = new Set([
  * Profil mitra publik: segmen tunggal yang bukan halaman terpesan.
  * `/budi` → true, `/promos` → false, `/orders/123` → false.
  */
-function isPartnerProfilePath(pathname: string): boolean {
+export function isPartnerProfilePath(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
   return segments.length === 1 && !RESERVED_ROOT_SEGMENTS.has(segments[0]);
 }
@@ -114,6 +117,8 @@ function shouldHideHeaderOnMobile(pathname: string): boolean {
   if (pathname.startsWith("/login")) return true;
   if (pathname.startsWith("/register")) return true;
   if (pathname.startsWith("/forgot-password")) return true;
+  // Interstisial pasca-login-Google: satu keluarga dengan 3 halaman auth di atas.
+  if (pathname.startsWith("/lengkapi-profil")) return true;
 
   // Mitra flow pages . semua sub-halaman mitra punya header sendiri
   if (pathname.startsWith("/mitra/")) return true;

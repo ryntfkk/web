@@ -16,13 +16,23 @@ import { usePartnerWorkingHours } from '@/hooks/useServiceDetail';
 import { Button } from '@/components/ui/button';
 import { ProfileSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
+import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { WifiOff, RefreshCw, ShieldCheck, AlertTriangle, Zap, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { track } from '@/lib/analytics';
+import { fetchAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { useChatUiStore } from '@/lib/store/chatUiStore';
+import { useToast } from '@/components/ui/toast';
 
 export default function PartnerProfileClient({ username }: { username: string }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'services' | 'portfolio'>('services');
+  const { showToast } = useToast();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const currentUser = useAuthStore((s) => s.user);
+  const openPanel = useChatUiStore((s) => s.openPanel);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   const { data: profile, isLoading: isProfileLoading, isError: isProfileError, error: profileError } = usePartnerProfile(username);
   const { data: services, isLoading: isServicesLoading } = usePartnerServices(username);
@@ -92,8 +102,53 @@ export default function PartnerProfileClient({ username }: { username: string })
     );
   }
 
+  // Mitra yang membuka profilnya sendiri tidak boleh chat/pesan ke diri sendiri
+  // (backend menolak SELF_ORDER / cannot chat with yourself) . bilah aksi
+  // sticky di bawah disembunyikan untuknya, sama seperti tombol di ProfileHeader.
+  const isOwnProfile = !!currentUser?.id && currentUser.id === profile.user_id;
+
+  // Perilaku SAMA dengan handleChat di ProfileHeader: butuh login, buka panel
+  // chat di desktop, pindah halaman room di mobile.
+  const handleChat = async () => {
+    if (!isAuthenticated) {
+      showToast('Silakan login terlebih dahulu untuk memulai chat.', 'info');
+      router.push('/login');
+      return;
+    }
+    setIsChatLoading(true);
+    try {
+      const res = await fetchAPI<{ room_id: string }>('/chat/rooms', {
+        method: 'POST',
+        body: JSON.stringify({ partner_id: profile.user_id }),
+      });
+      if (res.success && res.data?.room_id) {
+        track('public_partner_chat_started', { partner_username: profile.username ?? null });
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+          openPanel(res.data.room_id);
+        } else {
+          router.push(`/chat/${res.data.room_id}`);
+        }
+      } else {
+        showToast('Gagal memulai obrolan', 'error');
+      }
+    } catch {
+      showToast('Terjadi kesalahan saat memulai obrolan', 'error');
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
   return (
-    <div className="page-h bg-brand-gray-60 pb-20 sm:pb-12">
+    // pb-28 di bawah lg = ruang untuk bilah aksi sticky (FEATURE #11);
+    // StickyActionBar default lg:hidden, jadi lg kembali ke padding biasa.
+    // Profil sendiri tidak punya bilahnya . padding lamanya dipertahankan.
+    <div
+      className={
+        isOwnProfile
+          ? 'page-h bg-brand-gray-60 pb-20 sm:pb-12'
+          : 'page-h bg-brand-gray-60 pb-28 lg:pb-12'
+      }
+    >
       {/* Header kontekstual . `MobilePageHeader` bersama, bukan tulis tangan.
           `backHref` (bukan `router.back()`) DISENGAJA: ini halaman PUBLIK yang
           ter-index Google, jadi sebagian besar pembukanya tiba tanpa riwayat
@@ -220,6 +275,29 @@ export default function PartnerProfileClient({ username }: { username: string })
           </div>
         </div>
       </div>
+
+      {/* FEATURE #11: bilah aksi sticky mobile (< lg). BottomNav sudah
+          disembunyikan di profil mitra (isPartnerProfilePath di BottomNav),
+          jadi bilah ini tidak bertumpuk dengannya . konsisten dengan pola
+          detail /services/. */}
+      {!isOwnProfile && (
+        <StickyActionBar contentClassName="max-w-4xl">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={handleChat}
+            isLoading={isChatLoading}
+          >
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Chat
+          </Button>
+          {/* Tanpa track di sini: funnel booking sudah dicatat BookingClient
+              (public_partner_booking_started) begitu halamannya terbuka. */}
+          <Button className="flex-1" onClick={() => router.push(`/book/${username}`)}>
+            Pesan Sekarang
+          </Button>
+        </StickyActionBar>
+      )}
     </div>
   );
 }

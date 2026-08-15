@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useUnreadChatCount } from '@/hooks/useChatRooms';
 import MitraBottomNav from './MitraBottomNav';
+import { isPartnerProfilePath } from './HeaderWrapper';
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -33,7 +34,11 @@ export default function BottomNav() {
       p.startsWith('/payment') ||
       p.startsWith('/orders/') ||
       p.startsWith('/services/') ||
-      p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
+      p.startsWith('/disputes/') || // ruang sengketa = layar penuh dengan kolom ketik di dasar
+      p.startsWith('/profile/') || // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
+      // Profil mitra publik punya bilah aksi fixed sendiri (Chat + Pesan),
+      // sama seperti /services/ detail . nav akan menindihnya.
+      isPartnerProfilePath(p);
     if (hideForPartner) return null;
     // `lg:hidden`, sama seperti nav pelanggan di bawah . dan ambang itulah yang
     // benar, bukan `md`.
@@ -65,7 +70,21 @@ export default function BottomNav() {
     // kehilangan bottom nav padahal ia halaman jelajah tanpa bilah aksi.
     p.startsWith('/services/') ||
     p.startsWith('/cart') ||
-    p.startsWith('/profile/'); // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
+    // Ruang sengketa: sama seperti /chat/{id} & /bantuan/{id} — kolom ketik di
+    // dasar layar; tanpa baris ini nav z-50 menindih input pesan.
+    p.startsWith('/disputes/') ||
+    // Landing akuisisi mitra punya sticky CTA fixed bottom sendiri (<640px).
+    p.startsWith('/jadi-mitra') ||
+    // Halaman auth: flow fokus tanpa navigasi global (TopNavbar juga sudah
+    // disembunyikan di HeaderWrapper untuk rute-rute ini).
+    p.startsWith('/login') ||
+    p.startsWith('/register') ||
+    p.startsWith('/forgot-password') ||
+    p.startsWith('/lengkapi-profil') ||
+    p.startsWith('/profile/') || // sub-halaman profil = drill-down (back header); /profile exact tetap tampil
+    // Profil mitra publik (/[username]) punya bilah aksi fixed sendiri
+    // (Chat + Pesan Sekarang), konsisten dengan /services/ detail di atas.
+    isPartnerProfilePath(p);
   if (hideNav) return null;
 
   const navItems = [

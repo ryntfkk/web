@@ -103,7 +103,8 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
     '/mitra/kyc',
     '/mitra/services/new',
     '/mitra/wallet/withdraw',
-    '/mitra/basecamp',
+    // '/mitra/basecamp' TIDAK dikecualikan: tombol simpannya inline di badan
+    // form, bukan action bar fixed . bottom nav tidak menutupi apa pun.
     // Form dengan action bar fixed di bawah . sembunyikan bottom nav agar tombol tidak tertutup.
     '/mitra/schedule',
   ];

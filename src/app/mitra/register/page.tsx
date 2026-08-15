@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -109,6 +109,14 @@ const STEP_TITLE_CLASS = 'text-base font-bold text-brand-gray-900 lg:text-lg';
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 /** Batas foto bukti per kategori . sama dengan yang ditegakkan backend (000080). */
 const MAX_EVIDENCE_PHOTOS = 5;
+
+/**
+ * Draf TEKS wizard di sessionStorage . satu kunci JSON. Berkas (KTP, selfie,
+ * dokumen, bukti kategori) sengaja TIDAK ikut: File tidak bisa diserialisasi,
+ * dan sessionStorage hilang saat tab ditutup sehingga drafnya tidak menetap.
+ * Dibersihkan saat submit sukses dan saat keluar lewat konfirmasi.
+ */
+const DRAFT_KEY = 'mitra-register-draft-v1';
 
 /** Kunci tiap langkah. Urutannya ditentukan `stepsFor()`, bukan angka mentah. */
 type StepKey = StepKeyName;
@@ -443,6 +451,10 @@ function MitraRegisterForm() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [maskedHints, setMaskedHints] = useState({ ktp: '', bank: '', npwp: '' });
 
+  // Gerbang draf: efek penyimpan menunggu draf lama dipulihkan dulu, supaya
+  // state awal yang masih kosong tidak menimpa draf sebelum sempat terbaca.
+  const draftReady = useRef(false);
+
   const steps = stepsFor(partnerType, !!isReverify);
   const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
   const isLastStep = stepIndex >= steps.length - 1;
@@ -465,10 +477,66 @@ function MitraRegisterForm() {
   // Prefill dari endpoint draft khusus (P0-05). Dulu membaca /partners/me dan
   // mengharapkan `ktp_number` + data rekening ada di sana . dua-duanya tidak
   // pernah ada di DTO itu, jadi form selalu kosong tanpa penjelasan.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (!isReverify) return;
+    // Pemulihan draf teks dari sessionStorage. Pada mode reverify dijalankan
+    // SETELAH prefill server: draf memuat suntingan terakhir pengguna, jadi ia
+    // menang atas nilai yang tersimpan di server.
+    const applyDraft = () => {
+      try {
+        const raw = sessionStorage.getItem(DRAFT_KEY);
+        if (raw) {
+          const draft = JSON.parse(raw) as {
+            mode?: string;
+            partnerType?: PartnerType;
+            displayName?: string;
+            formData?: Record<string, unknown>;
+            vendor?: Record<string, unknown>;
+          };
+          // Draf mode lain dibiarkan . pendaftaran baru dan verifikasi ulang
+          // mengisi field yang berbeda maknanya.
+          if (draft.mode === (isReverify ? 'reverify' : 'new')) {
+            if (!isReverify && (draft.partnerType === 'individual' || draft.partnerType === 'vendor')) {
+              setPartnerType(draft.partnerType);
+            }
+            if (typeof draft.displayName === 'string' && draft.displayName) {
+              setDisplayName(draft.displayName);
+            }
+            if (draft.formData) {
+              setFormData((prev) => ({
+                ...prev,
+                ...(draft.formData as Partial<typeof prev>),
+                // Berkas tidak pernah ikut draf . pertahankan yang di memori.
+                ktp_photo: prev.ktp_photo,
+                selfie_ktp: prev.selfie_ktp,
+              }));
+            }
+            if (draft.vendor) {
+              setVendor((prev) => ({
+                ...prev,
+                ...(draft.vendor as Partial<typeof prev>),
+                akta: prev.akta,
+                npwp_doc: prev.npwp_doc,
+                nib_doc: prev.nib_doc,
+              }));
+            }
+          }
+        }
+      } catch {
+        // Draf korup dibuang diam-diam . ini kenyamanan, bukan data utama.
+      }
+      draftReady.current = true;
+    };
+
+    if (!isReverify) {
+      applyDraft();
+      return;
+    }
     fetchAPI<ResubmissionDraft>('/partners/me/resubmission').then((res) => {
-      if (!res.success || !res.data) return;
+      if (!res.success || !res.data) {
+        applyDraft();
+        return;
+      }
       const d = res.data;
       // Tipe mitra datang dari SERVER pada verifikasi ulang; pemohon tidak
       // memilihnya lagi.
@@ -514,8 +582,55 @@ function MitraRegisterForm() {
         bank: d.bank_account_number_masked || '',
         npwp: d.npwp_masked || '',
       });
+      applyDraft();
     });
   }, [isReverify]);
+
+  // Simpan draf TEKS tiap perubahan (debounce 500ms). Menunggu draftReady:
+  // sebelum draf lama terbaca, state awal yang kosong tidak boleh menimpanya.
+  useEffect(() => {
+    if (!draftReady.current) return;
+    const t = setTimeout(() => {
+      try {
+        sessionStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({
+            mode: isReverify ? 'reverify' : 'new',
+            partnerType,
+            displayName,
+            formData: {
+              ktp_number: formData.ktp_number,
+              bio: formData.bio,
+              province: formData.province,
+              city: formData.city,
+              district: formData.district,
+              address_detail: formData.address_detail,
+              basecamp_lat: formData.basecamp_lat,
+              basecamp_lon: formData.basecamp_lon,
+              bank_code: formData.bank_code,
+              bank_account_number: formData.bank_account_number,
+              bank_account_name: formData.bank_account_name,
+            },
+            vendor: {
+              display_name: vendor.display_name,
+              legal_entity_name: vendor.legal_entity_name,
+              entity_form: vendor.entity_form,
+              npwp: vendor.npwp,
+              nib: vendor.nib,
+              pic_name: vendor.pic_name,
+              pic_position: vendor.pic_position,
+              business_phone: vendor.business_phone,
+              business_email: vendor.business_email,
+            },
+          }),
+        );
+      } catch {
+        // Storage penuh / dimatikan . drafnya saja yang hilang, bukan form.
+      }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [isReverify, partnerType, displayName, formData, vendor]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   /**
    * Penjaga ukuran & jenis berkas di sisi klien.
@@ -874,6 +989,8 @@ function MitraRegisterForm() {
       // staleTime 60 detik, dan halaman mana pun di /mitra/* akan melemparnya
       // pulang persis setelah pendaftaran berhasil.
       await queryClient.invalidateQueries({ queryKey: ['partner', 'me', 'verification-status'] });
+      // Pengajuan terkirim . draf teksnya tidak dibutuhkan lagi.
+      try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* abaikan */ }
       router.push('/mitra/verification-status');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal mengirim form');
@@ -1719,7 +1836,16 @@ function MitraRegisterForm() {
             <Button variant="outline" className="flex-1" onClick={() => setShowExitConfirm(false)}>
               Lanjut Mengisi
             </Button>
-            <Button variant="danger" className="flex-1" onClick={() => router.back()}>
+            <Button
+              variant="danger"
+              className="flex-1"
+              onClick={() => {
+                // Keluar yang DIKONFIRMASI membuang draf . sesuai janji teks
+                // modal bahwa isian harus diulang dari awal.
+                try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* abaikan */ }
+                router.back();
+              }}
+            >
               Keluar
             </Button>
           </>

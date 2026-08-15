@@ -6,9 +6,9 @@ import Image from 'next/image';
 import { Star, MessageSquare } from 'lucide-react';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
+import DataState from '@/components/mitra/DataState';
 import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/components/ui/toast';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -62,7 +62,7 @@ export default function MitraReviewsPage() {
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, dataUpdatedAt, refetch } = useQuery({
+  const { data, isLoading, error: queryError, dataUpdatedAt, refetch } = useQuery({
     queryKey: ['mitraReviews', page],
     queryFn: async () => {
       // Endpoint ulasan publik menerima id ATAU username; ambil id mitra sendiri
@@ -124,9 +124,19 @@ export default function MitraReviewsPage() {
       />
 
       <MitraPageContainer variant="list">
-        {isLoading ? (
-          <PageSkeleton />
-        ) : (
+        {/* Gagal memuat dibedakan dari "belum ada ulasan" (P1-11): dulu error
+            useQuery tidak pernah dirender, jadi kegagalan jaringan tampil
+            sebagai empty state dan mitra mengira ulasannya hilang. */}
+        <DataState
+          isLoading={isLoading}
+          error={queryError ? (queryError instanceof Error ? queryError.message : 'Gagal memuat ulasan') : null}
+          onRetry={() => refetch()}
+          isEmpty={reviews.length === 0}
+          emptyIcon={<MessageSquare className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />}
+          emptyTitle="Belum ada ulasan"
+          emptyDescription="Ulasan dari pelanggan akan muncul di sini setelah pesanan selesai."
+          skeleton={<PageSkeleton />}
+        >
           <>
             {summary && summary.total_reviews > 0 && (
               <div className="bg-white rounded-lg border border-brand-gray-100 p-4 mb-4 flex items-center gap-4">
@@ -153,15 +163,9 @@ export default function MitraReviewsPage() {
               </div>
             )}
 
-            {reviews.length === 0 ? (
-              <EmptyState
-                icon={MessageSquare}
-                title="Belum ada ulasan"
-                description="Ulasan dari pelanggan akan muncul di sini setelah pesanan selesai."
-              />
-            ) : (
-              // Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu.
-              <div className="grid gap-3 lg:grid-cols-2 items-start">
+            {/* Keadaan kosong ditangani DataState di atas. */}
+            {/* Ruang desktop dipakai untuk KOLOM, bukan meregangkan kartu. */}
+            <div className="grid gap-3 lg:grid-cols-2 items-start">
                 {reviews.map((review) => {
                   const createdMs = Date.parse(review.created_at);
                   const bisaBalas =
@@ -303,9 +307,8 @@ export default function MitraReviewsPage() {
                   );
                 })}
               </div>
-            )}
           </>
-        )}
+        </DataState>
         {totalPages > 1 && (
           <div className="flex items-center justify-between gap-3 pt-4">
             <Button

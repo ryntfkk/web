@@ -334,12 +334,23 @@ export default function MitraOrderDetailClient() {
   }
   if (!isAuthorized) return null;
 
+  // Header nyata untuk cabang memuat & tidak-ditemukan (pola dari
+  // mitra/kyc/page.tsx): tombol kembali langsung berfungsi, bukan bilah palsu.
+  // Nomor pesanan belum ada di kedua cabang itu, jadi subtitle & remah roti
+  // memakai label netral.
+  const header = (
+    <MitraPageHeader
+      title="Detail Pesanan"
+      variant="detail"
+      backHref="/mitra/orders"
+      breadcrumbs={[{ label: 'Pesanan', href: '/mitra/orders' }, { label: 'Detail' }]}
+    />
+  );
+
   if (loading) {
     return (
       <div className="pb-20">
-        <div className="bg-white border-b border-brand-gray-100 px-4 py-4">
-          <div className="h-6 w-40 bg-brand-gray-100 rounded-md animate-pulse" />
-        </div>
+        {header}
         <MitraPageContainer variant="detail" className="space-y-4">
           <div className="h-28 bg-brand-gray-100 rounded-lg animate-pulse" />
           {[1, 2, 3].map(i => (
@@ -355,11 +366,14 @@ export default function MitraOrderDetailClient() {
 
   if (!order) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <p className="text-brand-gray-700 mb-4">Pesanan tidak ditemukan.</p>
-          <Button onClick={() => router.push('/mitra/orders')}>Kembali ke Daftar</Button>
-        </div>
+      <div className="pb-20">
+        {header}
+        <MitraPageContainer variant="detail">
+          <div className="rounded-lg border border-brand-gray-100 bg-white py-10 text-center">
+            <p className="text-brand-gray-700 mb-4">Pesanan tidak ditemukan.</p>
+            <Button onClick={() => router.push('/mitra/orders')}>Kembali ke Daftar</Button>
+          </div>
+        </MitraPageContainer>
       </div>
     );
   }
