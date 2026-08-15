@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent, CreditCard, Trash2 } from 'lucide-react';
+import { User, LogOut, FileText, Settings, ShieldCheck, MapPin, ChevronRight, Phone, Mail, Package, Calendar, Heart, Wallet, TicketPercent, CreditCard, Trash2, AtSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
@@ -19,6 +19,7 @@ import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import PartnerStatusCard, { type PartnerProfile } from '@/components/profile/PartnerStatusCard';
 import ProfileCompletionBanner from '@/components/profile/ProfileCompletionBanner';
 import PhoneVerificationModal from '@/components/ui/PhoneVerificationModal';
+import UsernameChangeModal from '@/components/profile/UsernameChangeModal';
 
 
 interface OrderItem {
@@ -58,6 +59,7 @@ export default function ProfilePage() {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
   const [showSwitchModal, setShowSwitchModal] = useState(false);
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -106,6 +108,10 @@ export default function ProfilePage() {
 
   if (authLoading) return <div className="page-h bg-brand-gray-60"><ProfileSkeleton /></div>;
   if (!isAuthorized || !user) return null;
+
+  // Mitra punya URL profil publik `/{username}` yang ikut berpindah saat username
+  // berubah . modal memberi peringatan hanya untuk mereka.
+  const isPartner = !!user.partner_id || (Array.isArray(user.roles) && user.roles.includes('partner'));
 
   const tabs = [
     { key: 'profile' as ActiveTab, label: 'Profil', icon: User },
@@ -298,6 +304,24 @@ export default function ProfilePage() {
 
                 {/* Account Settings */}
                 <MenuCard title="Informasi Akun">
+                  {/* Username + Ubah harus ada di sini juga: layout desktop TIDAK
+                      menaut ke /profile/account (tempat tombol Ubah versi mobile),
+                      jadi tanpa baris ini pengguna desktop tak punya jalan mengganti
+                      username sama sekali. */}
+                  <div className="w-full flex items-center p-4 text-left">
+                    <AtSign className="w-5 h-5 text-brand-gray-400 mr-3" />
+                    <div className="flex-1">
+                      <span className="text-brand-gray-800 font-medium block text-sm">Username</span>
+                      <span className="text-xs text-brand-gray-400">@{user.username}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowUsernameModal(true)}
+                      className="text-xs font-semibold text-brand-red hover:underline"
+                    >
+                      Ubah
+                    </button>
+                  </div>
                   <div className="w-full flex items-center p-4 text-left">
                     <User className="w-5 h-5 text-brand-gray-400 mr-3" />
                     <div className="flex-1">
@@ -498,6 +522,14 @@ export default function ProfilePage() {
       </div>
 
       <SwitchRoleModal isOpen={showSwitchModal} onClose={() => setShowSwitchModal(false)} />
+
+      <UsernameChangeModal
+        isOpen={showUsernameModal}
+        onClose={() => setShowUsernameModal(false)}
+        currentUsername={user.username}
+        hasPassword={user.has_password !== false}
+        isPartner={isPartner}
+      />
     </div>
   );
 }
