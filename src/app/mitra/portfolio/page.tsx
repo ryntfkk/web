@@ -238,6 +238,8 @@ export default function MitraPortfolioPage() {
         variant="list"
         backHref="/mitra/profile"
         breadcrumbs={[{ label: 'Profil', href: '/mitra/profile' }, { label: 'Galeri Portofolio' }]}
+        // Bebas ajakan verifikasi (permintaan pemilik).
+        hidePreparationNotice
       />
 
       <MitraPageContainer variant="list" className="space-y-4">

@@ -404,6 +404,8 @@ export default function MitraSchedulePage() {
         variant="form"
         backHref="/mitra/dashboard"
         breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Jadwal Operasional' }]}
+        // Bebas ajakan verifikasi (permintaan pemilik).
+        hidePreparationNotice
       />
 
       <MitraPageContainer variant="form" className="space-y-4">
