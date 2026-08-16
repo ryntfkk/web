@@ -82,7 +82,9 @@ export default async function Home() {
   await Promise.all([
     queryClient.prefetchQuery({ queryKey: ['categories'], queryFn: getCategories }),
     queryClient.prefetchQuery({ queryKey: ['banners', 'hero'], queryFn: () => getBanners('hero') }),
-    queryClient.prefetchQuery({ queryKey: ['banners', 'secondary'], queryFn: () => getBanners('secondary') })
+    queryClient.prefetchQuery({ queryKey: ['banners', 'secondary'], queryFn: () => getBanners('secondary') }),
+    // home_inline = ubin promo sisipan di feed "Layanan Terdekat" (ProductsSection).
+    queryClient.prefetchQuery({ queryKey: ['banners', 'home_inline'], queryFn: () => getBanners('home_inline') })
   ]);
 
   return (

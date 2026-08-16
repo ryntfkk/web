@@ -8,9 +8,14 @@ import { useInfinitePublicServices } from '@/hooks/useInfinitePublicServices';
 import { useUserLocation } from '@/hooks/useUserLocation';
 
 /**
- * "Semua Layanan" . katalog panjang di bagian bawah Home. Halaman berikutnya
- * dimuat otomatis saat sentinel masuk viewport (gulir ke bawah), tanpa tombol.
+ * "Semua Layanan" . katalog panjang di bagian bawah Home. Halaman awal dimuat
+ * otomatis saat sentinel masuk viewport (gulir ke bawah). Setelah AUTO_PAGES
+ * halaman, auto-fetch BERHENTI dan berganti tombol "Muat lebih banyak": tanpa
+ * batas ini DOM tumbuh tak terbatas (kartu tak pernah di-unmount) sehingga tiap
+ * frame scroll makin berat . inilah gejala "makin ke bawah makin lelet".
  */
+const AUTO_PAGES = 4;
+
 export default function AllServicesSection() {
   const { latitude, longitude, hasLocation } = useUserLocation();
   const {
@@ -37,20 +42,25 @@ export default function AllServicesSection() {
     });
   }, [data]);
 
+  const pageCount = data?.pages.length ?? 0;
+  // Auto-fetch hanya sampai AUTO_PAGES halaman; sesudahnya pakai tombol manual.
+  const autoLoad = hasNextPage && pageCount < AUTO_PAGES;
+
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = sentinelRef.current;
-    if (!el || !hasNextPage) return;
+    if (!el || !autoLoad) return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting && !isFetchingNextPage) fetchNextPage();
       },
-      // Mulai memuat sebelum sentinel benar-benar terlihat agar terasa mulus.
-      { rootMargin: '400px 0px' },
+      // Mulai memuat sebelum sentinel terlihat agar mulus (200px, bukan 400px:
+      // 400px terlalu agresif → pre-fetch berlebihan menumpuk DOM lebih cepat).
+      { rootMargin: '200px 0px' },
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [autoLoad, isFetchingNextPage, fetchNextPage]);
 
   return (
     <section className="mb-6 md:mb-8">
@@ -75,7 +85,11 @@ export default function AllServicesSection() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+          {/* P: content-visibility:auto membuat browser melewati layout/paint
+              kartu di luar viewport → biaya per-frame scroll tetap ringan walau
+              list panjang. contain-intrinsic-size ~ tinggi kartu agar scrollbar
+              tidak melompat saat subtree off-screen di-skip. */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 [&>*]:[content-visibility:auto] [&>*]:[contain-intrinsic-size:0_300px]">
             {services.map((service) => (
               <ServiceProductCard key={service.id} service={service} />
             ))}
@@ -89,8 +103,22 @@ export default function AllServicesSection() {
             <div className="text-center text-brand-gray-450 py-8">Belum ada layanan tersedia.</div>
           )}
 
-          {/* Sentinel gulir . memicu halaman berikutnya */}
+          {/* Sentinel gulir . memicu halaman berikutnya (hanya sampai AUTO_PAGES) */}
           <div ref={sentinelRef} aria-hidden className="h-px" />
+
+          {/* Setelah batas auto-load, lanjut manual agar DOM tak tumbuh tanpa henti. */}
+          {hasNextPage && !autoLoad && (
+            <div className="mt-6 flex justify-center">
+              <Button
+                variant="outline"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="text-[13px] px-5"
+              >
+                {isFetchingNextPage ? 'Memuat…' : 'Muat lebih banyak'}
+              </Button>
+            </div>
+          )}
 
           {!hasNextPage && services.length > 0 && (
             <p className="text-center text-[12px] sm:text-[13px] text-brand-gray-400 py-6">

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { getInitial } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -19,7 +20,13 @@ const TRUSTED_MIN_RATING = 4.7;
 
 // Kartu satu produk jasa (dipakai di Home "Produk & Layanan" dan hasil pencarian).
 // Menautkan ke detail jasa /services/<id> (route SSR).
-export function ServiceProductCard({ service }: { service: PublicService }) {
+//
+// P1: dibungkus React.memo. Dipakai di list infinite (AllServicesSection) yang
+// tumbuh & me-render ulang seluruh list tiap halaman baru; objek `service` dari
+// cache React Query stabil referensinya (structural sharing), jadi memo shallow
+// melewati kartu lama → hanya kartu baru yang render. Kartu murni turunan props
+// (tanpa state), jadi aman di-memo.
+export const ServiceProductCard = memo(function ServiceProductCard({ service }: { service: PublicService }) {
   const distance = formatDistanceMeters(service.distance_meters);
   const orderCount = service.total_orders ?? 0;
   const isTrusted =
@@ -50,7 +57,7 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
 
           {/* Distance Badge - bottom right */}
           {distance && (
-            <div className="absolute bottom-1.5 right-1.5 bg-white/95 backdrop-blur-sm text-brand-gray-900 px-1.5 py-1 sm:px-2 rounded border border-brand-gray-100 shadow-sm flex items-center gap-0.5 sm:gap-1">
+            <div className="absolute bottom-1.5 right-1.5 bg-white text-brand-gray-900 px-1.5 py-1 sm:px-2 rounded border border-brand-gray-100 shadow-sm flex items-center gap-0.5 sm:gap-1">
               <MapPin className="w-3 h-3 text-brand-red shrink-0" />
               <span className="text-[10px] sm:text-[11px] font-bold leading-none">{distance}</span>
             </div>
@@ -152,4 +159,4 @@ export function ServiceProductCard({ service }: { service: PublicService }) {
       </div>
     </Link>
   );
-}
+});

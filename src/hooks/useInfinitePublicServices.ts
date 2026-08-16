@@ -35,5 +35,9 @@ export function useInfinitePublicServices({ limit = 12, latitude, longitude }: P
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length < limit ? undefined : allPages.reduce((n, p) => n + p.length, 0),
     staleTime: 5 * 60 * 1000,
+    // P: saat lokasi GPS baru resolve di tengah scroll, queryKey berubah (lat/lon
+    // masuk) → tanpa ini list unmount total & balik ke page 1 (hitch + loncatan
+    // scroll). Pertahankan kartu lama sampai data query baru tiba.
+    placeholderData: (prev) => prev,
   });
 }

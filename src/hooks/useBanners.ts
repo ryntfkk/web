@@ -12,7 +12,7 @@ export interface Banner {
   is_active: boolean;
 }
 
-export function useBanners(placement: 'hero' | 'secondary' = 'hero') {
+export function useBanners(placement: 'hero' | 'secondary' | 'home_inline' = 'hero') {
   return useQuery({
     queryKey: ['banners', placement],
     queryFn: async () => {
