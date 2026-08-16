@@ -129,6 +129,9 @@ export default function NewMitraServicePage() {
         variant="form"
         backHref="/mitra/services"
         breadcrumbs={[{ label: 'Layanan', href: '/mitra/services' }, { label: 'Tambah Layanan' }]}
+        // Form tambah layanan tidak boleh diselingi ajakan verifikasi (permintaan
+        // pemilik) . model mitra instan: layanan langsung tayang tanpa KYC.
+        hidePreparationNotice
       />
 
       <MitraPageContainer variant="form">

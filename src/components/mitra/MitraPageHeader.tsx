@@ -31,6 +31,13 @@ interface MitraPageHeaderProps {
    * baris tanpa menambah informasi.
    */
   breadcrumbs?: MitraBreadcrumb[];
+  /**
+   * Sembunyikan spanduk "menunggu verifikasi" (`PreparationNotice`) di halaman
+   * ini meski tergolong `prepare`. Dipakai di "Tambah Layanan": form buat
+   * layanan tidak boleh diselingi ajakan verifikasi (model mitra instan .
+   * layanan langsung tayang tanpa KYC), sesuai permintaan pemilik.
+   */
+  hidePreparationNotice?: boolean;
 }
 
 /**
@@ -48,6 +55,7 @@ export default function MitraPageHeader({
   right,
   variant = 'list',
   breadcrumbs,
+  hidePreparationNotice = false,
 }: MitraPageHeaderProps) {
   const width = containerWidthClass(variant);
   const pathname = usePathname();
@@ -63,6 +71,7 @@ export default function MitraPageHeader({
   // `variant` yang sama juga membuat lebarnya otomatis sejajar header & konten.
   const { data: verification } = usePartnerVerificationStatus();
   const showPreparationNotice =
+    !hidePreparationNotice &&
     accessLevelFor(pathname) === 'prepare' && !!verification && verification !== 'APPROVED' && verification !== 'NONE';
 
   return (
