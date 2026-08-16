@@ -74,16 +74,15 @@ function ServiceFeed({ services, banner }: { services: PublicService[]; banner?:
   const left = mobileCards.filter((_, i) => i % 2 === 0);   // c0, c2, c4
   const right = mobileCards.filter((_, i) => i % 2 === 1);   // c1, c3, c5
 
-  // Desktop grid: 8 kartu + Masukan (setelah 4 kartu) + banner (akhir) = 10 ubin
-  // → 2 baris penuh di grid 5 kolom (gapless).
+  // Desktop grid 5 kolom: 8 kartu DULU (baris 1 = 5 kartu produk penuh), lalu
+  // Masukan + banner di akhir → baris 2 = 3 kartu + Masukan + banner. 10 ubin =
+  // 2 baris penuh, gapless, dan baris teratas menampilkan 5 kartu produk.
   const desktopCards = services.slice(0, DESKTOP_CARDS);
-  const gridTiles: React.ReactNode[] = [];
-  desktopCards.forEach((s, i) => {
-    if (i === 4) gridTiles.push(<FeedbackCard key="fb-grid" />);
-    gridTiles.push(<ServiceProductCard key={s.id} service={s} />);
-  });
-  if (desktopCards.length <= 4) gridTiles.push(<FeedbackCard key="fb-grid" />);
-  gridTiles.push(<InlineBannerTile key="bnr-grid" banner={banner} />);
+  const gridTiles: React.ReactNode[] = [
+    ...desktopCards.map((s) => <ServiceProductCard key={s.id} service={s} />),
+    <FeedbackCard key="fb-grid" />,
+    <InlineBannerTile key="bnr-grid" banner={banner} />,
+  ];
 
   return (
     <>
