@@ -165,7 +165,7 @@ const HERO: Record<OrderStatus, { tone: string; title: string; desc: string }> =
   DISPUTED: {
     tone: 'from-brand-error to-brand-error-dark',
     title: 'Pesanan dalam sengketa',
-    desc: 'Dana escrow dibekukan hingga Tim CS menyelesaikan sengketa (maks. 3×24 jam).',
+    desc: 'Dana pembayaran ditahan Posko hingga Tim CS menyelesaikan sengketa (maks. 3×24 jam).',
   },
 };
 

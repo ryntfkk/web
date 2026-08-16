@@ -48,21 +48,32 @@ function formatRange(open: string, close: string): string {
 interface ScheduleViewProps {
   workingHours: WorkingHour[] | undefined;
   isLoading: boolean;
+  /**
+   * Mode "telanjang": tanpa kartu berbingkai & tanpa judul internal. Dipakai saat
+   * komponen dimuat di dalam Modal yang SUDAH punya judul ("Jam Operasional"),
+   * supaya judulnya tidak ganda ("Jam Operasional" + "Jadwal Mitra").
+   */
+  bare?: boolean;
 }
 
 export default function ScheduleView({
   workingHours,
   isLoading,
+  bare = false,
 }: ScheduleViewProps) {
+  const shellClass = bare ? '' : 'rounded-xs border border-brand-gray-100 bg-white p-4';
+
   if (isLoading) {
     return (
-      <div className="rounded-xs border border-brand-gray-100 bg-white p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Clock className="w-4 h-4 text-brand-gray-700" />
-          <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
-            Jadwal Mitra
-          </h3>
-        </div>
+      <div className={shellClass}>
+        {!bare && (
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="w-4 h-4 text-brand-gray-700" />
+            <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
+              Jadwal Mitra
+            </h3>
+          </div>
+        )}
         <div className="space-y-2">
           {Array.from({ length: 7 }).map((_, i) => (
             <div
@@ -77,16 +88,21 @@ export default function ScheduleView({
 
   if (!workingHours || workingHours.length === 0) {
     return (
-      <div className="rounded-xs border border-brand-gray-100 bg-white p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <CalendarOff className="w-4 h-4 text-brand-gray-400" />
-          <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
-            Jadwal Mitra
-          </h3>
+      <div className={shellClass}>
+        {!bare && (
+          <div className="flex items-center gap-2 mb-2">
+            <CalendarOff className="w-4 h-4 text-brand-gray-400" />
+            <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
+              Jadwal Mitra
+            </h3>
+          </div>
+        )}
+        <div className="flex flex-col items-center gap-1.5 py-4 text-center">
+          <CalendarOff className="w-6 h-6 text-brand-gray-400" />
+          <p className="text-[12px] sm:text-[13px] text-brand-gray-450">
+            Jam kerja belum ditentukan.
+          </p>
         </div>
-        <p className="text-[12px] sm:text-[13px] text-brand-gray-400">
-          Jam kerja belum ditentukan.
-        </p>
       </div>
     );
   }
@@ -97,13 +113,15 @@ export default function ScheduleView({
   );
 
   return (
-    <div className="rounded-xs border border-brand-gray-100 bg-white p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Clock className="w-4 h-4 text-brand-gray-700" />
-        <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
-          Jadwal Mitra
-        </h3>
-      </div>
+    <div className={shellClass}>
+      {!bare && (
+        <div className="flex items-center gap-2 mb-3">
+          <Clock className="w-4 h-4 text-brand-gray-700" />
+          <h3 className="text-[14px] sm:text-[15px] font-semibold text-brand-gray-900">
+            Jadwal Mitra
+          </h3>
+        </div>
+      )}
 
       <div className="divide-y divide-brand-gray-100">
         {sorted.map((wh) => (

@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ProfileSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
+import { Modal } from '@/components/ui/modal';
 import { WifiOff, RefreshCw, ShieldCheck, AlertTriangle, Zap, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { track } from '@/lib/analytics';
@@ -33,6 +34,9 @@ export default function PartnerProfileClient({ username }: { username: string })
   const currentUser = useAuthStore((s) => s.user);
   const openPanel = useChatUiStore((s) => s.openPanel);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  // Jadwal pindah dari kartu inline yang selalu terbuka → tombol "Jam
+  // Operasional" di header yang membuka modal (pola sama dgn detail layanan).
+  const [showSchedule, setShowSchedule] = useState(false);
 
   const { data: profile, isLoading: isProfileLoading, isError: isProfileError, error: profileError } = usePartnerProfile(username);
   const { data: services, isLoading: isServicesLoading } = usePartnerServices(username);
@@ -164,43 +168,61 @@ export default function PartnerProfileClient({ username }: { username: string })
         gutterClass="px-4 sm:px-6"
       />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-8">
-        <ProfileHeader profile={profile} />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-3 sm:pt-8">
+        <ProfileHeader
+          profile={profile}
+          onOpenSchedule={workingHours && workingHours.length > 0 ? () => setShowSchedule(true) : undefined}
+        />
 
-        <div className="mt-4 sm:mt-6">
+        <div className="mt-3 sm:mt-6">
           {/* Main Content (Full Width) */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Tabs: Layanan / Portofolio */}
-            <div id="services-tabs" className="bg-white rounded-md shadow-sm mb-4 sm:mb-6">
-              {/* Semantik tab yang sebenarnya (audit D8): tanpa `role`/
-                  `aria-selected`, pembaca layar hanya mengumumkan "tombol
-                  Layanan", "tombol Portofolio" . tidak ada petunjuk bahwa
-                  keduanya sekumpulan dan salah satunya sedang aktif. */}
-              <div className="flex border-b border-brand-gray-100" role="tablist" aria-label="Konten mitra">
-                {([
-                  { key: 'services' as const, label: 'Layanan' },
-                  { key: 'portfolio' as const, label: 'Portofolio' },
-                ]).map((tab) => (
-                  <button
-                    key={tab.key}
-                    role="tab"
-                    id={`tab-${tab.key}`}
-                    aria-selected={activeTab === tab.key}
-                    aria-controls={`panel-${tab.key}`}
-                    onClick={() => setActiveTab(tab.key)}
-                    className={`flex-1 sm:flex-none sm:px-6 py-3 text-sm font-semibold text-center transition-colors border-b-2 -mb-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue ${activeTab === tab.key
-                      ? 'border-brand-red text-brand-red'
-                      : 'border-transparent text-brand-gray-400 hover:text-brand-gray-900'
-                      }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+          <div className="space-y-3 sm:space-y-6">
+            {/* Tabs: Layanan / Portofolio . kontrol segmented ringkas dengan
+                jumlah item, menggantikan tab garis-bawah polos yang terasa
+                mentah di mobile. Semantik tab dipertahankan (audit D8):
+                role/aria-selected supaya pembaca layar tahu keduanya satu grup
+                dan mana yang aktif. */}
+            <div id="services-tabs" className="bg-white rounded-md shadow-sm">
+              <div className="p-2.5 sm:p-3 border-b border-brand-gray-100">
+                <div
+                  className="grid grid-cols-2 gap-1 rounded-lg bg-brand-gray-60 p-1"
+                  role="tablist"
+                  aria-label="Konten mitra"
+                >
+                  {([
+                    { key: 'services' as const, label: 'Layanan', count: isServicesLoading ? null : (services?.length ?? 0) },
+                    { key: 'portfolio' as const, label: 'Portofolio', count: isPortfoliosLoading ? null : (portfolios?.length ?? 0) },
+                  ]).map((tab) => {
+                    const active = activeTab === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        role="tab"
+                        id={`tab-${tab.key}`}
+                        aria-selected={active}
+                        aria-controls="partner-tabpanel"
+                        onClick={() => setActiveTab(tab.key)}
+                        className={`flex items-center justify-center gap-1.5 rounded-md py-2 text-[13px] sm:text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red ${active
+                          ? 'bg-white text-brand-gray-900 shadow-sm'
+                          : 'text-brand-gray-450 hover:text-brand-gray-900'
+                          }`}
+                      >
+                        {tab.label}
+                        {tab.count !== null && tab.count > 0 && (
+                          <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold ${active ? 'bg-brand-red-light text-brand-red' : 'bg-brand-gray-100 text-brand-gray-450'}`}>
+                            {tab.count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div
-                className="p-4 sm:p-6"
+                className="p-3 sm:p-6"
                 role="tabpanel"
-                id={`panel-${activeTab}`}
+                id="partner-tabpanel"
                 aria-labelledby={`tab-${activeTab}`}
               >
                 {activeTab === 'services' ? (
@@ -232,18 +254,15 @@ export default function PartnerProfileClient({ username }: { username: string })
               </div>
             )}
 
-            {/* Jam operasional mitra */}
-            <div className="bg-white rounded-md shadow-sm p-4 sm:p-5">
-              <h2 className="text-base sm:text-lg font-semibold text-brand-gray-900 mb-3">Jam Operasional</h2>
-              <ScheduleView workingHours={workingHours} isLoading={isHoursLoading} />
-            </div>
-
-            {/* Trust signals . pricing transparency + off-platform warning */}
+            {/* Trust signals . transparansi harga + peringatan bayar di luar
+                platform. Jadwal DIPINDAH ke tombol "Jam Operasional" di header
+                (modal), jadi tak ada lagi kartu jadwal 7-baris yang memenuhi
+                halaman. */}
             <div className="bg-white rounded-md shadow-sm p-4 sm:p-5 space-y-3">
               <div className="flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-brand-info mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-brand-info-dark mb-0.5">Pembayaran Dilindungi Escrow</p>
+                  <p className="text-xs font-semibold text-brand-info-dark mb-0.5">Harga Transparan</p>
                   <p className="text-xs text-brand-gray-700 leading-snug">
                     Harga yang tertera adalah biaya layanan dasar. Biaya material atau peralatan tambahan, jika dibutuhkan, akan diajukan secara terpisah oleh mitra dan <strong>harus kamu setujui sebelum dibayar</strong>.
                   </p>
@@ -252,7 +271,7 @@ export default function PartnerProfileClient({ username }: { username: string })
               <div className="flex items-start gap-2.5 pt-3 border-t border-brand-gray-100">
                 <AlertTriangle className="w-4 h-4 text-brand-warning mt-0.5 shrink-0" />
                 <p className="text-xs text-brand-warning-dark leading-snug">
-                  <strong>Jangan bayar di luar platform.</strong> Semua transaksi harus melalui Posko Jasa untuk mendapat perlindungan escrow dan garansi layanan.
+                  <strong>Jangan bayar di luar platform.</strong> Semua transaksi harus melalui Posko Jasa agar dananya dilindungi Posko dan bergaransi layanan.
                 </p>
               </div>
             </div>
@@ -298,6 +317,12 @@ export default function PartnerProfileClient({ username }: { username: string })
           </Button>
         </StickyActionBar>
       )}
+
+      {/* Modal jam operasional . dipicu chip "Jam Operasional" di ProfileHeader.
+          `bare` supaya judul tidak ganda dengan judul modal. */}
+      <Modal open={showSchedule} onClose={() => setShowSchedule(false)} title="Jam Operasional">
+        <ScheduleView workingHours={workingHours} isLoading={isHoursLoading} bare />
+      </Modal>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Image from 'next/image';
-import { MapPin, Star, Clock, CheckCircle, BadgeCheck, Loader2, Heart } from 'lucide-react';
+import { MapPin, Star, Clock, BadgeCheck, Loader2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatCompactNumber } from '@/lib/format';
 import { PartnerProfileData } from '@/hooks/usePartnerProfile';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -15,9 +16,11 @@ import { PLACEHOLDER_AVATAR as DEFAULT_AVATAR } from '@/lib/images';
 
 interface ProfileHeaderProps {
   profile: PartnerProfileData;
+  /** Buka modal jam operasional (dipicu chip "Jam Operasional" di kartu ini). */
+  onOpenSchedule?: () => void;
 }
 
-export default function ProfileHeader({ profile }: ProfileHeaderProps) {
+export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeaderProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
@@ -94,168 +97,198 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     }
   };
 
+  const locationLabel =
+    profile.service_area ||
+    [profile.district, profile.city].filter(Boolean).join(', ') ||
+    '';
+
+  const ratingValue = Number(profile.avg_rating);
+  const hasRating = ratingValue > 0;
+
   return (
-    <div className="bg-white rounded-md p-4 sm:p-6 shadow-sm mb-4 sm:mb-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-      <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0">
-        <Image
-          src={avatarUrl}
-          alt={`${profile.name}${profile.service_area ? ` - mitra jasa di ${profile.service_area}` : ''}`}
-          fill
-          className="object-cover rounded-full border-4 border-white shadow-md"
-          sizes="(max-width: 640px) 80px, 96px"
-        />
-        {profile.is_online && (
-          <div className="absolute bottom-1 right-1 w-4 h-4 bg-brand-success rounded-full border-2 border-white" />
-        )}
-      </div>
-
-      <div className="flex-1 w-full">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold text-brand-gray-900">{profile.name}</h1>
-              {/* Badge KYC (model mitra instan): HANYA badge positif. `=== true`
-                  tampil "Terverifikasi"; `false`/`undefined` tidak merender
-                  apa-apa . badge "Belum Terverifikasi" DIHAPUS atas keputusan
-                  user (2026-08-15): mitra instan sah tanpa KYC, jangan permalukan
-                  di depan pelanggan. Jangan mengarang badge dari ketiadaan data. */}
-              {profile.is_verified === true && (
-                <span className="bg-brand-info-soft text-brand-info-dark text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
-                  <BadgeCheck className="w-3.5 h-3.5" /> Terverifikasi
-                </span>
-              )}
-              {profile.is_online && (
-                <span className="bg-brand-success-soft text-brand-success text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-brand-success rounded-full" /> Online
-                </span>
-              )}
-              {/* Tanpa "+": angkanya pasti, dan "3+ Pesanan" adalah pembulatan
-                  palsu yang melebih-lebihkan pengalaman mitra. */}
-              {profile.total_orders > 0 && (
-                <span className="bg-brand-red-light text-brand-red text-xs px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" /> {profile.total_orders} Pesanan Selesai
-                </span>
-              )}
-            </div>
-
-            {/* Identitas badan usaha: yang menerima pembayaran bukan nama merek. */}
-            {profile.partner_type === 'vendor' && profile.legal_name && (
-              <p className="text-xs text-brand-gray-450 mb-2">
-                Badan usaha: <span className="font-medium text-brand-gray-700">{profile.legal_name}</span>
-              </p>
-            )}
-
-            {/* Bio . inline di bawah nama */}
-            {typeof profile.bio === 'string' && profile.bio.trim().length > 0 && (
-              <p className="text-sm text-brand-gray-700 leading-relaxed whitespace-pre-line mb-3 mt-1">
-                {profile.bio}
-              </p>
-            )}
-
-            <div className="flex items-center flex-wrap text-sm text-brand-gray-400 mb-3 gap-x-4 gap-y-1">
-              <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
-                {profile.service_area || [profile.district, profile.city].filter(Boolean).join(', ') || 'Tidak ada area'}
-              </span>
-              {memberSince && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  Bergabung {memberSince}
-                </span>
-              )}
-            </div>
-
-            {/* Spesialisasi diturunkan dari kategori layanan aktif . bukan klaim
-                bebas yang diketik mitra. */}
-            {!!profile.categories?.length && (
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {profile.categories.map((c) => (
-                  <span key={c} className="text-xs px-2 py-0.5 rounded-md bg-brand-gray-60 text-brand-gray-700 border border-brand-gray-100">
-                    {c}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <div className="flex items-center gap-4 text-sm mb-4">
-              <div className="flex flex-col">
-                {/* "0.0" berbintang emas terbaca "dinilai sangat buruk", bukan
-                    "belum dinilai" (audit E6). */}
-                {Number(profile.avg_rating) > 0 ? (
-                  <>
-                    <div className="flex items-center gap-1 text-brand-warning font-medium">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span>{Number(profile.avg_rating).toFixed(1)}</span>
-                    </div>
-                    <span className="text-brand-gray-400 text-xs">{profile.total_reviews} Ulasan</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="font-medium text-brand-gray-900">Baru</span>
-                    <span className="text-brand-gray-400 text-xs">Belum ada ulasan</span>
-                  </>
-                )}
-              </div>
-              {/* Kolom "Pesanan" DIHAPUS: angkanya sudah jadi badge di baris nama
-                  ("{n} Pesanan Selesai"), jadi blok ini cuma mengulanginya (E9). */}
-              <div className="w-px h-8 bg-brand-gray-100" />
-              <div className="flex flex-col">
-                <span className="font-medium text-brand-gray-900">{profile.is_online ? 'Online' : 'Offline'}</span>
-                <span className="text-brand-gray-400 text-xs">Status</span>
-              </div>
-            </div>
-
-          </div>
-
-          <div className="flex gap-2 w-full sm:w-auto sm:shrink-0">
-            {isOwnProfile ? (
-              <Button
-                variant="secondary"
-                className="flex-1 sm:flex-none bg-brand-red-light text-brand-gray-700 hover:bg-brand-gray-100"
-                onClick={() => router.push('/mitra/dashboard')}
-              >
-                Kelola Profil
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="secondary"
-                  aria-label={isFav ? 'Hapus dari favorit' : 'Simpan ke favorit'}
-                  onClick={handleFavToggle}
-                  disabled={favBusy}
-                  className={`flex-none px-3 ${isFav ? 'bg-brand-error-soft text-brand-red border border-brand-red hover:bg-brand-red-soft' : 'bg-brand-red-light text-brand-gray-700 hover:bg-brand-gray-100'}`}
-                >
-                  <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
-                  <span className="ml-1.5 sm:hidden">{isFav ? 'Tersimpan' : 'Favorit'}</span>
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="flex-1 sm:flex-none bg-brand-red-light text-brand-gray-700 hover:bg-brand-gray-100"
-                  onClick={handleChat}
-                  disabled={isChatLoading}
-                >
-                  {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
-                </Button>
-                {/* Desktop tak punya StickyActionBar (lg:hidden), jadi tanpa tombol
-                    ini pengguna desktop tak bisa memesan dari profil mitra. Mobile
-                    memakai sticky bar . karena itu tombol ini lg-only. */}
-                <Button
-                  className="flex-1 sm:flex-none hidden lg:inline-flex"
-                  onClick={() => router.push(`/book/${profile.username}`)}
-                >
-                  Pesan
-                </Button>
-              </>
-            )}
-          </div>
+    <div className="bg-white rounded-md p-4 sm:p-6 shadow-sm mb-3 sm:mb-6">
+      {/* Baris atas ala Instagram: avatar + tiga statistik (Pesanan/Ulasan/
+          Rating). Statistik yang dulu terselip di baris terpisah kini jadi
+          ringkasan sekilas di sebelah avatar. */}
+      <div className="flex items-center gap-4 sm:gap-6">
+        <div className="relative w-[72px] h-[72px] sm:w-24 sm:h-24 shrink-0">
+          <Image
+            src={avatarUrl}
+            alt={`${profile.name}${profile.service_area ? ` - mitra jasa di ${profile.service_area}` : ''}`}
+            fill
+            className="object-cover rounded-full border-2 sm:border-4 border-white shadow-md ring-1 ring-brand-gray-100"
+            sizes="(max-width: 640px) 72px, 96px"
+          />
+          {profile.is_online && (
+            <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-brand-success rounded-full border-2 border-white" />
+          )}
         </div>
 
-        {!isOwnProfile && (
-          <div className="mt-3 flex justify-end">
-            <ReportDialog targetType="partner" targetId={profile.id} />
+        <div className="flex-1 grid grid-cols-3 text-center">
+          <div>
+            <div className="text-[17px] sm:text-xl font-bold text-brand-gray-900 leading-none tabular-nums">
+              {formatCompactNumber(profile.total_orders)}
+            </div>
+            <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Pesanan</div>
+          </div>
+          <div>
+            <div className="text-[17px] sm:text-xl font-bold text-brand-gray-900 leading-none tabular-nums">
+              {formatCompactNumber(profile.total_reviews)}
+            </div>
+            <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Ulasan</div>
+          </div>
+          <div>
+            {/* "0.0" berbintang emas terbaca "dinilai buruk", bukan "belum
+                dinilai" (audit E6) . mitra tanpa rating tampil "–". */}
+            <div className="flex items-center justify-center gap-1 text-[17px] sm:text-xl font-bold text-brand-gray-900 leading-none tabular-nums">
+              {hasRating && <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-brand-warning text-brand-warning" />}
+              {hasRating ? ratingValue.toFixed(1) : '–'}
+            </div>
+            <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Rating</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Identitas: nama + centang biru (ikon saja di mobile) + handle. */}
+      <div className="mt-3.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <h1 className="text-[15px] sm:text-lg font-bold text-brand-gray-900 leading-tight break-words min-w-0">{profile.name}</h1>
+          {/* Badge KYC (model mitra instan): HANYA badge positif. `=== true`
+              tampil centang; `false`/`undefined` tidak merender apa-apa . badge
+              "Belum Terverifikasi" DIHAPUS atas keputusan user (2026-08-15).
+              Di mobile: ikon segel biru saja (tanpa tulisan, ala Instagram);
+              teks "Terverifikasi" hanya muncul sejak sm. */}
+          {profile.is_verified === true && (
+            <span className="inline-flex items-center gap-1 shrink-0" title="Terverifikasi">
+              <BadgeCheck className="w-[18px] h-[18px] fill-brand-info text-white" aria-label="Terverifikasi" />
+              <span className="hidden sm:inline text-[12px] font-medium text-brand-info-dark">Terverifikasi</span>
+            </span>
+          )}
+        </div>
+
+        {/* Handle publik mitra. URL profil = /{username}, jadi handle ini yang
+            dikenali & dibagikan pelanggan . dulu tidak pernah tampil. */}
+        {profile.username && (
+          <p className="text-[12px] sm:text-[13px] text-brand-gray-450 mt-0.5 truncate">
+            @{profile.username}
+          </p>
+        )}
+
+        {/* Identitas badan usaha: yang menerima pembayaran bukan nama merek. */}
+        {profile.partner_type === 'vendor' && profile.legal_name && (
+          <p className="text-[11px] sm:text-xs text-brand-gray-450 mt-1">
+            Badan usaha: <span className="font-medium text-brand-gray-700">{profile.legal_name}</span>
+          </p>
+        )}
+
+        {/* Bio . lebar penuh (ala caption profil IG). */}
+        {typeof profile.bio === 'string' && profile.bio.trim().length > 0 && (
+          <p className="text-[13px] sm:text-sm text-brand-gray-700 leading-relaxed whitespace-pre-line mt-2">
+            {profile.bio}
+          </p>
+        )}
+
+        {/* Spesialisasi diturunkan dari kategori layanan aktif . bukan klaim
+            bebas yang diketik mitra. */}
+        {!!profile.categories?.length && (
+          <div className="flex flex-wrap gap-1.5 mt-2.5">
+            {profile.categories.map((c) => (
+              <span key={c} className="text-[11px] px-2 py-0.5 rounded-md bg-brand-gray-60 text-brand-gray-700 border border-brand-gray-100">
+                {c}
+              </span>
+            ))}
           </div>
         )}
+
+        {/* Meta sekunder: lokasi · bergabung · status (rating/pesanan sudah di
+            baris statistik atas, jadi tak diulang di sini). */}
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-brand-gray-450">
+          {locationLabel && (
+            <span className="flex items-center gap-1 min-w-0">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{locationLabel}</span>
+            </span>
+          )}
+          {memberSince && (
+            <span className="flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" />
+              Sejak {memberSince}
+            </span>
+          )}
+          <span className="flex items-center gap-1">
+            <span className={`w-1.5 h-1.5 rounded-full ${profile.is_online ? 'bg-brand-success' : 'bg-brand-gray-400'}`} />
+            {profile.is_online ? 'Online' : 'Offline'}
+          </span>
+        </div>
       </div>
+
+      {/* Baris tombol ala IG: lebar penuh di mobile. Favorit + Jam Operasional
+          selalu; Chat/Pesan hanya desktop (lg) . di bawah lg ada
+          StickyActionBar. */}
+      <div className="mt-4 flex items-center gap-2">
+        {isOwnProfile ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 lg:flex-none"
+            onClick={() => router.push('/mitra/dashboard')}
+          >
+            Kelola Profil
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              aria-pressed={isFav}
+              className="flex-1 lg:flex-none"
+              onClick={handleFavToggle}
+              disabled={favBusy}
+            >
+              <Heart className={`w-4 h-4 mr-1.5 ${isFav ? 'fill-brand-red text-brand-red' : ''}`} />
+              {isFav ? 'Tersimpan' : 'Favorit'}
+            </Button>
+            {/* Jam Operasional hanya dirender bila mitra PUNYA jam kerja
+                (parent mengoper onOpenSchedule hanya saat begitu) . tanpa itu
+                tombolnya buntu ke modal "belum ditentukan". */}
+            {onOpenSchedule && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 lg:flex-none"
+                onClick={onOpenSchedule}
+              >
+                <Clock className="w-4 h-4 mr-1.5 text-brand-red" />
+                Jam Operasional
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden lg:inline-flex"
+              onClick={handleChat}
+              disabled={isChatLoading}
+            >
+              {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chat'}
+            </Button>
+            {/* Desktop tak punya StickyActionBar (lg:hidden), jadi tanpa tombol
+                ini pengguna desktop tak bisa memesan dari profil mitra. */}
+            <Button
+              size="sm"
+              className="hidden lg:inline-flex"
+              onClick={() => router.push(`/book/${profile.username}`)}
+            >
+              Pesan
+            </Button>
+          </>
+        )}
+      </div>
+
+      {!isOwnProfile && (
+        <div className="mt-2 flex justify-end">
+          <ReportDialog targetType="partner" targetId={profile.id} />
+        </div>
+      )}
     </div>
   );
 }
