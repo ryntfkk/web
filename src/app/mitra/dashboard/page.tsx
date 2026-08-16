@@ -19,7 +19,6 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import DataState from '@/components/mitra/DataState';
 import EmailVerificationNotice from '@/components/mitra/EmailVerificationNotice';
-import PartnerKycReminder from '@/components/mitra/PartnerKycReminder';
 import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import MitraStatStrip from '@/components/mitra/MitraStatStrip';
 import Image from 'next/image';
@@ -229,11 +228,6 @@ export default function MitraDashboardPage() {
       <MitraPageContainer variant="dashboard" className="py-4 space-y-4">
         {/* Diam sendiri bila email sudah terverifikasi . lihat komponennya. */}
         <EmailVerificationNotice />
-
-        {/* Pengingat verifikasi (KYC) . rumah barunya di dashboard setelah
-            PreparationNotice dilepas dari halaman kelola layanan; menutup celah
-            mobile (di desktop sidebar sudah mengingatkan). Diam bila APPROVED. */}
-        <PartnerKycReminder />
 
         {/* Pita gagal-memuat: angka di bawahnya fallback nol, jadi tanpa pita
             ini kegagalan jaringan tampak seperti dompet kosong. */}
