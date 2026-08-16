@@ -8,17 +8,19 @@ import { useBanners, type Banner } from '@/hooks/useBanners';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import { FeedbackCard } from '@/components/home/FeedbackCard';
 
-// Feed "Layanan Terdekat" (maks 6 kartu):
-//   MOBILE  = masonry 2 kolom staggered (gaya Shopee). Kartu berselang ke dua
-//             kolom; kartu "Masukan" di PUNCAK kolom kanan & ubin banner di
-//             DASAR kolom kiri, keduanya bertinggi sama (FILLER_H) → kedua kolom
-//             rata di bawah (tanpa gap) tapi tetap selang-seling karena filler
-//             lebih pendek dari kartu.
-//   DESKTOP = grid rapi 4 kolom, 8 ubin (6 kartu + Masukan + banner) diselang-
-//             seling → 2 baris penuh, gapless.
+// Feed "Layanan Terdekat":
+//   MOBILE  = masonry 2 kolom staggered (gaya Shopee), maks 6 kartu. Kartu
+//             berselang ke dua kolom; "Masukan" di PUNCAK kolom kanan & ubin
+//             banner di DASAR kolom kiri, keduanya bertinggi sama (FILLER_H) →
+//             dua kolom rata di bawah (tanpa gap) tapi tetap staggered karena
+//             filler lebih pendek dari kartu.
+//   DESKTOP = grid rapi 5 kolom, 10 ubin = 8 kartu + Masukan + banner diselang-
+//             seling → 2 baris penuh (5 kartu/baris), gapless.
 // Banner = placement admin `home_inline`; bila belum ada → fallback CTA supaya
 // slot tak pernah kosong.
-const MAX_CARDS = 6;
+const FETCH_LIMIT = 8;   // ambil cukup untuk mengisi 2 baris desktop
+const MOBILE_CARDS = 6;  // mobile sengaja lebih padat/pendek
+const DESKTOP_CARDS = 8; // 8 + Masukan + banner = 10 ubin = 2 baris x 5
 // Tinggi kedua filler (Masukan & banner) di mobile. Disamakan agar dua kolom
 // masonry berakhir di ketinggian yang sama; sengaja < tinggi kartu (~280) supaya
 // efek staggered tetap ada.
@@ -29,7 +31,7 @@ export default function ProductsSection() {
   // dari home agar mitra kota-sebelah yang lebih dekat tak tersembunyi.
   const { latitude, longitude, hasLocation } = useUserLocation();
   const { data: services, isLoading, isError } = usePublicServices({
-    limit: MAX_CARDS,
+    limit: FETCH_LIMIT,
     latitude: hasLocation ? latitude ?? undefined : undefined,
     longitude: hasLocation ? longitude ?? undefined : undefined,
   });
@@ -58,7 +60,7 @@ export default function ProductsSection() {
       ) : isError ? (
         <div className="text-sm text-brand-error">Gagal memuat layanan.</div>
       ) : services && services.length > 0 ? (
-        <ServiceFeed services={services.slice(0, MAX_CARDS)} banner={inlineBanner} />
+        <ServiceFeed services={services.slice(0, FETCH_LIMIT)} banner={inlineBanner} />
       ) : (
         <div className="text-center text-brand-gray-450 py-8">Belum ada layanan tersedia.</div>
       )}
@@ -67,19 +69,20 @@ export default function ProductsSection() {
 }
 
 function ServiceFeed({ services, banner }: { services: PublicService[]; banner?: Banner }) {
-  // Mobile masonry: kartu berselang (kiri = indeks genap, kanan = ganjil) agar
-  // urutan baca tetap kiri→kanan (terdekat dulu). Tiap kolom menumpuk sendiri.
-  const left = services.filter((_, i) => i % 2 === 0);   // c0, c2, c4
-  const right = services.filter((_, i) => i % 2 === 1);   // c1, c3, c5
+  // Mobile masonry: maks 6 kartu, berselang (kiri = indeks genap, kanan = ganjil).
+  const mobileCards = services.slice(0, MOBILE_CARDS);
+  const left = mobileCards.filter((_, i) => i % 2 === 0);   // c0, c2, c4
+  const right = mobileCards.filter((_, i) => i % 2 === 1);   // c1, c3, c5
 
-  // Desktop grid: sisipkan Masukan setelah 3 kartu, banner di akhir → 2 baris
-  // penuh di grid 4 kolom (gapless).
+  // Desktop grid: 8 kartu + Masukan (setelah 4 kartu) + banner (akhir) = 10 ubin
+  // → 2 baris penuh di grid 5 kolom (gapless).
+  const desktopCards = services.slice(0, DESKTOP_CARDS);
   const gridTiles: React.ReactNode[] = [];
-  services.forEach((s, i) => {
-    if (i === 3) gridTiles.push(<FeedbackCard key="fb-grid" />);
+  desktopCards.forEach((s, i) => {
+    if (i === 4) gridTiles.push(<FeedbackCard key="fb-grid" />);
     gridTiles.push(<ServiceProductCard key={s.id} service={s} />);
   });
-  if (services.length < 4) gridTiles.push(<FeedbackCard key="fb-grid" />);
+  if (desktopCards.length <= 4) gridTiles.push(<FeedbackCard key="fb-grid" />);
   gridTiles.push(<InlineBannerTile key="bnr-grid" banner={banner} />);
 
   return (
@@ -104,8 +107,8 @@ function ServiceFeed({ services, banner }: { services: PublicService[]; banner?:
         </div>
       </div>
 
-      {/* Desktop: grid rapi 4 kolom, 8 ubin (gapless). */}
-      <div className="hidden md:grid md:grid-cols-4 gap-4">
+      {/* Desktop: grid rapi 5 kolom, 10 ubin (gapless). */}
+      <div className="hidden md:grid md:grid-cols-5 gap-4">
         {gridTiles}
       </div>
     </>
@@ -156,7 +159,7 @@ function InlineCtaTile() {
 }
 
 function FeedSkeleton() {
-  // Cermin layout nyata: mobile masonry (filler lebih pendek), desktop grid.
+  // Cermin layout nyata: mobile masonry (filler lebih pendek), desktop grid 5 kolom.
   return (
     <>
       <div className="flex gap-3 md:hidden">
@@ -173,8 +176,8 @@ function FeedSkeleton() {
           ))}
         </div>
       </div>
-      <div className="hidden md:grid md:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="hidden md:grid md:grid-cols-5 gap-4">
+        {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
         ))}
       </div>
