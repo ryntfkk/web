@@ -116,7 +116,10 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
 
           // Try to fetch active order context
           try {
-            const endpoint = iAmPartner ? '/mitra/orders' : '/orders';
+            // Mitra: daftar pesanan ada di /orders?role=partner (BUKAN /mitra/orders,
+            // yang tak pernah ada . fetch-nya gagal diam-diam sehingga cuplikan
+            // pesanan aktif tak pernah muncul di sisi mitra). Pelanggan: /orders.
+            const endpoint = iAmPartner ? '/orders?role=partner' : '/orders';
             const ordersRes = await fetchAPI<any>(endpoint);
             if (ordersRes.success && ordersRes.data) {
               const orders = (ordersRes.data as any[]);
@@ -127,7 +130,10 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                   if (!isActiveStatus) return false;
 
                   if (iAmPartner) {
-                    return o.user?.id === currentRoom.customer_id || o.user_id === currentRoom.customer_id;
+                    // Order mitra memakai customer_id / customer_info.id (bukan
+                    // user / user_id, yang tak ada di OrderDetailDTO . itulah sebab
+                    // kecocokan selalu gagal & cuplikan tak muncul).
+                    return o.customer_id === currentRoom.customer_id || o.customer_info?.id === currentRoom.customer_id;
                   } else {
                     return o.partner?.id === currentRoom.partner_id || o.partner?.user_id === currentRoom.partner_id || o.partner_id === currentRoom.partner_id;
                   }

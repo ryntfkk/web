@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Calendar, Package, Search, SlidersHorizontal, X } from 'lucide-react';
 import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,11 @@ interface Order {
   // Backend mengirim nama pelanggan di dalam customer_info, bukan customer_name.
   customer_info?: { id?: string; name?: string; phone?: string };
   customer_name?: string; // fallback bila API lama
+  // Ringkasan layanan yang dipesan. `/orders?role=partner` mengirim OrderDetailDTO
+  // lengkap (list.go memanggil GetOrderDetail per baris), jadi `items` selalu ada
+  // di respons . kartu mitra dulu tak menampilkannya, padahal riwayat pesanan
+  // pelanggan menampilkan preview produk (konsistensi UI).
+  items?: { id: string; service_name: string; quantity: number; price: number; photo_url?: string }[];
 }
 
 type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'cancelled';
@@ -213,9 +219,9 @@ export default function MitraOrdersPage() {
         breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Pesanan' }]}
       />
 
-      <MitraPageContainer variant="list" className="py-4 space-y-4">
+      <MitraPageContainer variant="list" className="py-3 sm:py-4 space-y-3 sm:space-y-4">
         <div className="rounded-lg border border-brand-gray-100 bg-white">
-          <div className="p-3 flex gap-2">
+          <div className="p-2.5 sm:p-3 flex gap-2">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-brand-gray-450 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -223,7 +229,7 @@ export default function MitraOrdersPage() {
                 placeholder="Cari pesanan..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full bg-brand-gray-60 border border-brand-gray-100 rounded-md p-2.5 pl-9 text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
+                className="w-full bg-brand-gray-60 border border-brand-gray-100 rounded-md py-2 sm:py-2.5 pl-9 pr-3 text-sm text-brand-gray-900 focus:outline-none focus:border-brand-red"
               />
             </div>
             <button
@@ -245,8 +251,8 @@ export default function MitraOrdersPage() {
           </div>
 
           {showFilters && (
-            <div id="order-extra-filters" className="border-t border-brand-gray-100 p-3">
-              <div className="grid gap-3 sm:grid-cols-3">
+            <div id="order-extra-filters" className="border-t border-brand-gray-100 p-2.5 sm:p-3">
+              <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-3">
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-semibold text-brand-gray-700">Jadwal dari</span>
                   <input
@@ -293,14 +299,14 @@ export default function MitraOrdersPage() {
             </div>
           )}
 
-          <div className="flex gap-2 p-3 overflow-x-auto scrollbar-hide border-t border-brand-gray-100">
+          <div className="flex gap-1.5 sm:gap-2 p-2.5 sm:p-3 overflow-x-auto scrollbar-hide border-t border-brand-gray-100">
             {FILTERS.map(f => (
               <button
                 key={f.key}
                 type="button"
                 aria-pressed={activeFilter === f.key}
                 onClick={() => setActiveFilter(f.key)}
-                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${activeFilter === f.key ? 'bg-brand-red text-white border-brand-red' : 'bg-white text-brand-gray-700 border-brand-gray-100'}`}
+                className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-semibold transition-colors border ${activeFilter === f.key ? 'bg-brand-red text-white border-brand-red' : 'bg-white text-brand-gray-700 border-brand-gray-100'}`}
               >
                 {f.label}
                 {showCounts && (
@@ -352,6 +358,30 @@ export default function MitraOrdersPage() {
                 </div>
                 <StatusBadge status={order.status} size="sm" />
               </div>
+
+              {/* Preview layanan dipesan . `items` sudah dikirim penuh oleh
+                  /orders?role=partner; kartu mitra dulu tak menampilkannya
+                  padahal riwayat pesanan pelanggan menampilkannya. */}
+              {order.items && order.items.length > 0 && (
+                <div className="flex items-center gap-2.5 border-t border-brand-gray-100 pt-2.5 mb-2.5">
+                  <div className="relative w-11 h-11 shrink-0 rounded-md bg-brand-gray-60 border border-brand-gray-100 overflow-hidden flex items-center justify-center">
+                    {order.items[0].photo_url ? (
+                      <Image src={order.items[0].photo_url} alt={order.items[0].service_name || 'Layanan'} fill sizes="44px" className="object-cover" />
+                    ) : (
+                      <Package className="w-4 h-4 text-brand-gray-400" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-brand-gray-900 leading-snug line-clamp-1">
+                      {order.items[0].service_name}
+                    </p>
+                    <p className="text-xs text-brand-gray-450 mt-0.5">
+                      {order.items[0].quantity}x
+                      {order.items.length > 1 && ` · +${order.items.length - 1} layanan lain`}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-between items-end border-t border-brand-gray-100 pt-2.5">
                 <div className="flex items-center gap-1.5 text-sm text-brand-gray-700">

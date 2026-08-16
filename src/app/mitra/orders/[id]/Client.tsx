@@ -14,6 +14,7 @@ import { CountdownTimer } from '@/components/ui/countdown-timer';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useChatRooms } from '@/hooks/useChatRooms';
 
 import { PageSkeleton } from '@/components/ui/skeleton';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
@@ -235,6 +236,8 @@ export default function MitraOrderDetailClient() {
   const platformConfig = usePlatformConfig();
   const { showToast } = useToast();
   const [isChatLoading, setIsChatLoading] = useState(false);
+  // Pesan belum dibaca dari pelanggan pesanan ini (realtime lewat ChatProvider).
+  const { data: chatRooms } = useChatRooms();
 
   const [copied, setCopied] = useState(false);
 
@@ -382,6 +385,12 @@ export default function MitraOrderDetailClient() {
   const hero = HERO[status] ?? HERO.WAITING_CONFIRMATION;
   const step = currentStep(status);
   const offTrack = status === 'CANCELLED' || status === 'DISPUTED';
+
+  // chat_rooms.customer_id = USER id pelanggan; cocokkan dengan customer_info.id.
+  const customerUserId = order.customer_info?.id;
+  const chatUnread = customerUserId
+    ? (chatRooms?.find((r) => r.customer_id === customerUserId)?.unread_count ?? 0)
+    : 0;
 
   // Pendapatan mitra dihitung defensif: bila backend tidak mengirim
   // platform_fee / partner_amount, nilainya diestimasi dengan rumus yang sama
@@ -713,12 +722,17 @@ export default function MitraOrderDetailClient() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1 text-xs border-brand-gray-100 text-brand-gray-700 rounded-lg shrink-0"
+                    className="relative gap-1 text-xs border-brand-gray-100 text-brand-gray-700 rounded-lg shrink-0"
                     onClick={handleChat}
                     disabled={isChatLoading}
                   >
                     {isChatLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MessageSquare className="w-3.5 h-3.5" />}
                     Chat
+                    {chatUnread > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center justify-center leading-none border-2 border-white">
+                        {chatUnread > 99 ? '99+' : chatUnread}
+                      </span>
+                    )}
                   </Button>
                 </div>
               </Section>
