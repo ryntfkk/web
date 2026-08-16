@@ -8,17 +8,21 @@ import { useBanners, type Banner } from '@/hooks/useBanners';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import { FeedbackCard } from '@/components/home/FeedbackCard';
 
-// Feed "Layanan Terdekat": SATU grid responsif (2 kolom mobile / 4 kolom
-// desktop) berisi 8 ubin = 6 kartu layanan + kartu "Masukan" + 1 ubin banner.
-// Urutan diselang-seling agar TIAP baris penuh di kedua breakpoint → tidak ada
-// sel kosong / gap di dasar (permintaan: maks 6 kartu, tanpa gap, isi banner):
-//   mobile cols-2 : (c0,c1)(c2,Masukan)(c3,c4)(c5,Banner)  = 4 baris penuh
-//   desktop cols-4: (c0,c1,c2,Masukan)(c3,c4,c5,Banner)     = 2 baris penuh
-// Semua ubin adalah item grid → tinggi tiap baris seragam (stretch), jadi kartu
-// "Masukan" & banner ikut setinggi kartu layanan. Banner = placement `home_inline`
-// (dikelola admin). Bila belum ada banner aktif → ubin CTA "Jadi Mitra" mengisi
-// slot supaya slot tak pernah kosong.
+// Feed "Layanan Terdekat" (maks 6 kartu):
+//   MOBILE  = masonry 2 kolom staggered (gaya Shopee). Kartu berselang ke dua
+//             kolom; kartu "Masukan" di PUNCAK kolom kanan & ubin banner di
+//             DASAR kolom kiri, keduanya bertinggi sama (FILLER_H) → kedua kolom
+//             rata di bawah (tanpa gap) tapi tetap selang-seling karena filler
+//             lebih pendek dari kartu.
+//   DESKTOP = grid rapi 4 kolom, 8 ubin (6 kartu + Masukan + banner) diselang-
+//             seling → 2 baris penuh, gapless.
+// Banner = placement admin `home_inline`; bila belum ada → fallback CTA supaya
+// slot tak pernah kosong.
 const MAX_CARDS = 6;
+// Tinggi kedua filler (Masukan & banner) di mobile. Disamakan agar dua kolom
+// masonry berakhir di ketinggian yang sama; sengaja < tinggi kartu (~280) supaya
+// efek staggered tetap ada.
+const FILLER_H = 'h-[216px]';
 
 export default function ProductsSection() {
   // Lokasi (bukan kota) = acuan jarak & urutan terdekat. Filter kota dihapus
@@ -63,27 +67,53 @@ export default function ProductsSection() {
 }
 
 function ServiceFeed({ services, banner }: { services: PublicService[]; banner?: Banner }) {
-  // Sisipkan kartu "Masukan" setelah 3 kartu pertama, dan banner di paling
-  // akhir. Dengan 6 kartu, urutan ini mengisi 2 baris penuh (cols-4) & 4 baris
-  // penuh (cols-2) tanpa sel kosong.
-  const tiles: React.ReactNode[] = [];
+  // Mobile masonry: kartu berselang (kiri = indeks genap, kanan = ganjil) agar
+  // urutan baca tetap kiri→kanan (terdekat dulu). Tiap kolom menumpuk sendiri.
+  const left = services.filter((_, i) => i % 2 === 0);   // c0, c2, c4
+  const right = services.filter((_, i) => i % 2 === 1);   // c1, c3, c5
+
+  // Desktop grid: sisipkan Masukan setelah 3 kartu, banner di akhir → 2 baris
+  // penuh di grid 4 kolom (gapless).
+  const gridTiles: React.ReactNode[] = [];
   services.forEach((s, i) => {
-    if (i === 3) tiles.push(<FeedbackCard key="feedback" />);
-    tiles.push(<ServiceProductCard key={s.id} service={s} />);
+    if (i === 3) gridTiles.push(<FeedbackCard key="fb-grid" />);
+    gridTiles.push(<ServiceProductCard key={s.id} service={s} />);
   });
-  // Bila kartu < 4, "Masukan" belum sempat disisipkan di loop → taruh sebelum banner.
-  if (services.length < 4) tiles.push(<FeedbackCard key="feedback" />);
-  tiles.push(<InlineBannerTile key="inline-banner" banner={banner} />);
+  if (services.length < 4) gridTiles.push(<FeedbackCard key="fb-grid" />);
+  gridTiles.push(<InlineBannerTile key="bnr-grid" banner={banner} />);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-      {tiles}
-    </div>
+    <>
+      {/* Mobile: masonry 2 kolom, kedua filler bertinggi FILLER_H → dasar rata. */}
+      <div className="flex gap-3 md:hidden">
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          {left.map((s) => (
+            <ServiceProductCard key={s.id} service={s} />
+          ))}
+          <div className={FILLER_H}>
+            <InlineBannerTile banner={banner} />
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <div className={FILLER_H}>
+            <FeedbackCard />
+          </div>
+          {right.map((s) => (
+            <ServiceProductCard key={s.id} service={s} />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: grid rapi 4 kolom, 8 ubin (gapless). */}
+      <div className="hidden md:grid md:grid-cols-4 gap-4">
+        {gridTiles}
+      </div>
+    </>
   );
 }
 
-// Ubin banner sisipan. Mengisi sel grid setinggi kartu (h-full). Bila belum ada
-// banner aktif dari admin → tampilkan CTA agar slot tak pernah kosong (tanpa gap).
+// Ubin banner sisipan. Mengisi tinggi wadahnya (h-full). Bila belum ada banner
+// aktif dari admin → CTA agar slot tak pernah kosong (tanpa gap).
 function InlineBannerTile({ banner }: { banner?: Banner }) {
   if (!banner) return <InlineCtaTile />;
 
@@ -126,12 +156,28 @@ function InlineCtaTile() {
 }
 
 function FeedSkeleton() {
-  // Cermin layout nyata: grid seragam 2/4 kolom, 8 ubin.
+  // Cermin layout nyata: mobile masonry (filler lebih pendek), desktop grid.
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
-      ))}
-    </div>
+    <>
+      <div className="flex gap-3 md:hidden">
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
+          ))}
+          <div className="h-[216px] bg-brand-gray-100 animate-pulse rounded-lg" />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <div className="h-[216px] bg-brand-gray-100 animate-pulse rounded-lg" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
+          ))}
+        </div>
+      </div>
+      <div className="hidden md:grid md:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
+        ))}
+      </div>
+    </>
   );
 }
