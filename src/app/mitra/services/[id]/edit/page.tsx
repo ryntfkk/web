@@ -222,6 +222,8 @@ export default function EditMitraServicePage() {
         variant="form"
         backHref="/mitra/services"
         breadcrumbs={[{ label: 'Layanan', href: '/mitra/services' }, { label: 'Edit Layanan' }]}
+        // Halaman kelola layanan bebas ajakan verifikasi (permintaan pemilik).
+        hidePreparationNotice
       />
 
       <MitraPageContainer variant="form">

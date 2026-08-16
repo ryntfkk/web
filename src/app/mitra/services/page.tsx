@@ -133,6 +133,8 @@ export default function MitraServicesPage() {
         variant="list"
         backHref="/mitra/dashboard"
         breadcrumbs={[{ label: 'Dashboard', href: '/mitra/dashboard' }, { label: 'Layanan' }]}
+        // Halaman kelola layanan bebas ajakan verifikasi (permintaan pemilik).
+        hidePreparationNotice
         right={
           <Link
             href="/mitra/services/new"
