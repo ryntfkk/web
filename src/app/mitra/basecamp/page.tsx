@@ -10,8 +10,6 @@ import { Button } from '@/components/ui/button';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { useIsPartnerVerified } from '@/hooks/usePartnerVerificationStatus';
-import { VerifiedLockNotice } from '@/components/mitra/VerifiedLockBadge';
 import RegionSelect from '@/components/ui/RegionSelect';
 import dynamic from 'next/dynamic';
 import { getErrorMessage } from '@/types/api';
@@ -20,7 +18,6 @@ const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false, 
 
 export default function MitraBasecampPage() {
   const { isAuthorized, isLoading: authLoading } = useRequireAuth();
-  const isVerified = useIsPartnerVerified(isAuthorized);
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -77,25 +74,19 @@ export default function MitraBasecampPage() {
     setSubmitting(true);
     setError(null);
     try {
-      // Mitra approved: jangan kirim field terkunci (basecamp_lat/lon, service_area).
-      // Guard F1 backend membandingkan nilai kiriman vs tersimpan, bukan "apakah
-      // user mengetik" . service_area direkonstruksi dan basecamp punya default
-      // Jakarta, keduanya bisa memicu false-positive `DATA_VERIFIED_LOCKED`.
-      // Backend cabang approved sudah menulis ulang nilai lama, jadi aman dipangkas.
+      // Basecamp & wilayah kini bebas diubah semua mitra (lock verifikasi
+      // dicabut 2026-08-17). Kirim koordinat + service_area apa adanya.
+      const areaLabel = [kecamatan, kota].filter(Boolean).join(', ');
       const body: Record<string, unknown> = {
         bio,
         province: provinsi,
         city: kota,
         district: kecamatan,
         address_detail: detail,
+        service_area: areaLabel ? [areaLabel] : undefined,
+        basecamp_lat: basecamp.lat,
+        basecamp_lon: basecamp.lon,
       };
-      if (!isVerified) {
-        const areaLabel = [kecamatan, kota].filter(Boolean).join(', ');
-        // service_area tetap dikirim agar profil tampil benar sebelum kolom baru dideploy.
-        body.service_area = areaLabel ? [areaLabel] : undefined;
-        body.basecamp_lat = basecamp.lat;
-        body.basecamp_lon = basecamp.lon;
-      }
       const res = await fetchAPI('/partners/me', {
         method: 'PATCH',
         body: JSON.stringify(body),
@@ -129,12 +120,6 @@ export default function MitraBasecampPage() {
       />
 
       <MitraPageContainer variant="form" className="space-y-4">
-        {isVerified && (
-          <VerifiedLockNotice
-            title="Koordinat & wilayah terkunci"
-            message="Titik lokasi & wilayah layanan sudah diverifikasi admin. Detail alamat & deskripsi tetap bisa diubah. Hubungi admin untuk mengubah koordinat (cabut verifikasi)."
-          />
-        )}
         <MitraInfoBanner variant="error" icon={<AlertCircle className="h-4 w-4" aria-hidden />}>
           Perubahan basecamp hanya memengaruhi perhitungan jarak & biaya transport pada pesanan <strong>BARU</strong>.
         </MitraInfoBanner>
@@ -143,11 +128,7 @@ export default function MitraBasecampPage() {
           <div>
             <h3 className="font-bold text-brand-gray-900 mb-1">Titik Lokasi Basecamp</h3>
             <p className="text-xs text-brand-gray-400 mb-3">Ketuk/geser pin, atau tekan tombol “Lokasi saya” untuk memakai GPS.</p>
-            <div
-              className={`h-64 rounded-lg overflow-hidden border border-brand-gray-100 ${isVerified ? 'pointer-events-none opacity-60' : ''
-                }`}
-              aria-disabled={isVerified || undefined}
-            >
+            <div className="h-64 rounded-lg overflow-hidden border border-brand-gray-100">
               <MapPicker lat={basecamp.lat} lng={basecamp.lon} onChange={(lat, lng) => setBasecamp({ lat, lon: lng })} />
             </div>
           </div>
@@ -156,7 +137,6 @@ export default function MitraBasecampPage() {
             value={{ province: provinsi, city: kota, district: kecamatan }}
             onChange={(v) => { setProvinsi(v.province); setKota(v.city); setKecamatan(v.district); }}
             selectClassName={inputCls + ' bg-white'}
-            disabled={isVerified}
           />
           <div>
             <label className="block text-sm font-semibold text-brand-gray-900 mb-1.5">Deskripsi Diri</label>
