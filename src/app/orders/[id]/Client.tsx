@@ -2,7 +2,7 @@
 import { useToast } from '@/components/ui/toast';
 
 import { getInitial } from '@/lib/utils';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -24,6 +24,7 @@ import OrderHelpModal from '@/components/order/OrderHelpModal';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useChatRooms } from '@/hooks/useChatRooms';
+import { useOrderDetail } from '@/hooks/useOrders';
 import { useChatUiStore } from '@/lib/store/chatUiStore';
 import dynamic from 'next/dynamic';
 
@@ -218,8 +219,9 @@ export default function OrderDetailClient() {
   const params = useParams();
   const orderId = params?.id as string;
 
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Detail pesanan via React Query (key ['order', id]) . di-invalidate realtime
+  // oleh ChatProvider saat event WS 'order_status' masuk → UI menyegar tanpa reload.
+  const { data: order = null, isLoading: loading, refetch } = useOrderDetail<OrderDetail>(orderId);
   const [actionLoading, setActionLoading] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -235,23 +237,6 @@ export default function OrderDetailClient() {
 
   const isSubmittingRef = React.useRef(false);
 
-
-  const fetchOrder = useCallback(async () => {
-    // Beberapa endpoint membungkus payload dua kali ({ data: { data } }),
-    // jadi buka satu lapis bila ada.
-    const res = await fetchAPI<OrderDetail | { data: OrderDetail }>(`/orders/${orderId}`);
-    if (res.success && res.data) {
-      const payload = res.data;
-      const unwrapped = 'data' in payload && payload.data ? payload.data : (payload as OrderDetail);
-      setOrder(unwrapped);
-    }
-    setLoading(false);
-  }, [orderId]);
-
-  useEffect(() => {
-    if (!isAuthorized || !orderId) return;
-    void fetchOrder();
-  }, [isAuthorized, orderId, fetchOrder]);
 
   async function handleChat() {
     if (!order?.partner?.user_id) return;
@@ -288,7 +273,7 @@ export default function OrderDetailClient() {
       });
       if (res.success) {
         showToast('Berhasil!');
-        await fetchOrder();
+        await refetch();
       } else {
         showToast(getErrorMessage(res), 'error');
       }
@@ -653,7 +638,7 @@ export default function OrderDetailClient() {
                   targetDate={order.payment_expired_at}
                   format="mm:ss"
                   criticalThresholdSeconds={300}
-                  onExpire={fetchOrder}
+                  onExpire={() => { void refetch(); }}
                   className="!text-white text-base sm:text-lg"
                 />
               </div>
@@ -665,7 +650,7 @@ export default function OrderDetailClient() {
                   targetDate={order.confirmation_expired_at}
                   format="mm:ss"
                   criticalThresholdSeconds={300}
-                  onExpire={fetchOrder}
+                  onExpire={() => { void refetch(); }}
                   className="!text-white text-base sm:text-lg"
                 />
               </div>
@@ -678,7 +663,7 @@ export default function OrderDetailClient() {
                   format="hh:mm:ss"
                   criticalThresholdSeconds={7200}
                   warningThresholdSeconds={43200}
-                  onExpire={fetchOrder}
+                  onExpire={() => { void refetch(); }}
                   className="!text-white text-base sm:text-lg"
                 />
               </div>

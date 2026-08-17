@@ -10,6 +10,7 @@ import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Button } from '@/components/ui/button';
 import { OrderCardSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
+import { useCustomerOrders } from '@/hooks/useOrders';
 import { FilterStatus, matchesFilter } from '@/lib/order-utils';
 import { formatRupiah as formatPrice, formatDateOnly as formatDate } from '@/lib/format';
 import { StatusBadge, type OrderStatus } from '@/components/ui/status-badge';
@@ -96,7 +97,7 @@ export default function OrdersPage() {
 function OrdersPageInner() {
   // useRequireAuth menunggu isInitializing (silent refresh) selesai sebelum
   // redirect ke /login . mencegah hard-load mental ke login saat sesi masih ada.
-  const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   // Tab awal dibaca dari ?status= . kartu ringkasan di /profile menaut ke sini
@@ -105,19 +106,14 @@ function OrdersPageInner() {
   const urlFilter: FilterStatus = VALID_FILTERS.includes(statusParam as FilterStatus)
     ? (statusParam as FilterStatus)
     : 'all';
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Pesanan via React Query (key ['orders','customer']) . di-invalidate realtime
+  // oleh ChatProvider saat event WS 'order_status' masuk → UI menyegar tanpa reload.
+  const { data: orders = [], isLoading: loading } = useCustomerOrders<Order>();
   const [activeFilter, setActiveFilter] = useState<FilterStatus>(urlFilter);
   const [search, setSearch] = useState('');
   const [reorderingId, setReorderingId] = useState<string | null>(null);
   const { addItem } = useCartStore();
   const { showToast } = useToast();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchOrders();
-    }
-  }, [isAuthenticated]);
 
   // Sinkron dengan tombol back/forward browser (URL berubah tanpa remount).
   useEffect(() => {
@@ -130,24 +126,6 @@ function OrdersPageInner() {
     // push) supaya gonta-ganti tab tidak menumpuk riwayat browser.
     router.replace(filter === 'all' ? '/orders' : `/orders?status=${filter}`, { scroll: false });
   }
-
-  async function fetchOrders() {
-    setLoading(true);
-    try {
-      const res = await fetchAPI<unknown>('/orders', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (res.success && res.data) {
-        const unwrapped = (res.data as unknown);
-        if (Array.isArray(unwrapped)) {
-          setOrders(unwrapped as Order[]);
-        }
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   async function handleReorder(orderId: string) {
     setReorderingId(orderId);

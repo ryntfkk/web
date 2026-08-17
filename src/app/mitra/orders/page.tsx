@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,6 +9,7 @@ import { StatusBadge, OrderStatus } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { usePartnerOrders, usePartnerOrderCounts, type PartnerOrderFilters } from '@/hooks/useOrders';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import DataState from '@/components/mitra/DataState';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
@@ -65,90 +66,46 @@ function customerName(o: Order): string {
 }
 
 export default function MitraOrdersPage() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
   const router = useRouter();
 
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
-  // Paginasi & hitungan datang dari SERVER (P1-01). Sebelumnya seluruhnya
-  // dihitung dari 10 baris pertama, jadi filter, pencarian, dan badge tab
-  // semuanya hanya mewakili halaman pertama.
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [counts, setCounts] = useState({ all: 0, pending: 0, processing: 0, completed: 0, cancelled: 0 });
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ExtraFilters>(EMPTY_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const [services, setServices] = useState<ServiceOption[]>([]);
 
-  const PAGE_SIZE = 20;
+  // Pesanan mitra via React Query infinite (key ['orders','partner', filters]).
+  // Di-invalidate realtime oleh ChatProvider saat event WS 'order_status' masuk →
+  // order baru & perubahan status muncul tanpa reload (menggantikan polling 45s).
+  const partnerFilters: PartnerOrderFilters = {
+    statusGroup: activeFilter,
+    startDate: filters.startDate || undefined,
+    endDate: filters.endDate || undefined,
+    serviceId: filters.serviceId || undefined,
+  };
+  const {
+    data,
+    isLoading: loading,
+    isError,
+    error: queryError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = usePartnerOrders<Order>(partnerFilters);
+  const orders = data?.pages.flatMap((p) => p.items) ?? [];
+  const total = data?.pages[data.pages.length - 1]?.total ?? 0;
+  const error = isError ? ((queryError as Error)?.message || 'Gagal memuat pesanan') : null;
 
-  /** `append` = tombol "Muat lebih banyak"; tanpa itu halaman diganti. */
-  const fetchOrders = useCallback(async (opts: { silent?: boolean; pageToLoad?: number; append?: boolean } = {}) => {
-    const { silent = false, pageToLoad = 1, append = false } = opts;
-    if (!silent && !append) setLoading(true);
-    if (append) setLoadingMore(true);
-
-    const params = new URLSearchParams({
-      role: 'partner',
-      page: String(pageToLoad),
-      limit: String(PAGE_SIZE),
-    });
-    if (activeFilter !== 'all') params.set('status_group', activeFilter);
-    if (filters.startDate) params.set('start_date', filters.startDate);
-    if (filters.endDate) params.set('end_date', filters.endDate);
-    if (filters.serviceId) params.set('service_id', filters.serviceId);
-
-    const res = await fetchAPI<Order[]>(
-      `/orders?${params.toString()}`,
-      { method: 'GET', credentials: 'include' },
-    );
-
-    if (res.success) {
-      const list = Array.isArray(res.data) ? res.data : [];
-      setOrders(prev => (append ? [...prev, ...list] : list));
-      setTotal(res.pagination?.total ?? list.length);
-      setPage(pageToLoad);
-      setError(null);
-    } else if (!silent) {
-      // Gagal memuat BUKAN "tidak punya pesanan" (P1-11). Menyamakan keduanya
-      // membuat mitra mengira pesanannya hilang.
-      setError(res.message || 'Gagal memuat pesanan');
-    }
-
-    setLoading(false);
-    setLoadingMore(false);
-  }, [activeFilter, filters]);
-
-  /** Badge tab dihitung server atas SELURUH pesanan, bukan halaman yang termuat. */
-  const fetchCounts = useCallback(async () => {
-    const res = await fetchAPI<{ total: number; pending: number; processing: number; completed: number; cancelled: number }>(
-      '/orders/summary',
-    );
-    if (res.success && res.data) {
-      setCounts({
-        all: res.data.total,
-        pending: res.data.pending,
-        processing: res.data.processing,
-        completed: res.data.completed,
-        cancelled: res.data.cancelled,
-      });
-    }
-  }, []);
-
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    fetchOrders({ pageToLoad: 1 });
-    fetchCounts();
-  }, [isAuthenticated, user?.active_role, fetchOrders, fetchCounts]);
+  // Badge tab: hitungan server atas SELURUH pesanan (bukan hanya yang termuat).
+  // Key ['orders','partner','counts'] ikut ter-invalidate realtime bersama daftar.
+  const { data: countsData } = usePartnerOrderCounts();
 
   // Daftar layanan untuk dropdown filter. Diambil sekali; kegagalannya tidak
   // ditampilkan sebagai error halaman . filter layanan cuma tak tersedia,
   // sedangkan daftar pesanannya sendiri tetap berguna.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!isAuthenticated) return;
     fetchAPI<ServiceOption[]>('/partners/me/services').then((res) => {
@@ -156,20 +113,6 @@ export default function MitraOrdersPage() {
     });
   }, [isAuthenticated]);
   /* eslint-enable react-hooks/set-state-in-effect */
-
-  // K1-interim: polling senyap 45s agar order baru/perubahan status muncul tanpa
-  // reload manual (belum ada push/WS real-time). Hanya saat tab terlihat.
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const id = setInterval(() => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-        fetchOrders({ silent: true, pageToLoad: 1 });
-        fetchCounts();
-      }
-    }, 45000);
-    return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
 
   const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
   const formatTime = (t: string) => t ? new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-';
@@ -186,8 +129,14 @@ export default function MitraOrdersPage() {
 
   const hasExtraFilters = Boolean(filters.startDate || filters.endDate || filters.serviceId);
   const activeExtraCount = [filters.startDate || filters.endDate, filters.serviceId].filter(Boolean).length;
-  const filterCounts = counts;
-  const hasMore = orders.length < total;
+  const filterCounts = {
+    all: countsData?.total ?? 0,
+    pending: countsData?.pending ?? 0,
+    processing: countsData?.processing ?? 0,
+    completed: countsData?.completed ?? 0,
+    cancelled: countsData?.cancelled ?? 0,
+  };
+  const hasMore = !!hasNextPage;
 
   // Badge tab dihitung dari SELURUH pesanan tanpa memandang filter tanggal/
   // layanan (endpoint ringkasan memang begitu). Menampilkannya berdampingan
@@ -327,7 +276,7 @@ export default function MitraOrdersPage() {
       <DataState
         isLoading={loading}
         error={error}
-        onRetry={() => fetchOrders({ pageToLoad: 1 })}
+        onRetry={() => { void refetch(); }}
         isEmpty={filteredOrders.length === 0}
         emptyIcon={<Package className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />}
         emptyTitle={
@@ -407,8 +356,8 @@ export default function MitraOrdersPage() {
             <Button
               variant="outline"
               className="w-full"
-              isLoading={loadingMore}
-              onClick={() => fetchOrders({ pageToLoad: page + 1, append: true })}
+              isLoading={isFetchingNextPage}
+              onClick={() => { void fetchNextPage(); }}
             >
               Muat lebih banyak
             </Button>

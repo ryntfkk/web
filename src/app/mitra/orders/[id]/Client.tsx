@@ -2,7 +2,7 @@
 import { useToast } from '@/components/ui/toast';
 
 import { getInitial } from '@/lib/utils';
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   MessageSquare, MapPin, Calendar, Clock, Loader2,
@@ -15,6 +15,7 @@ import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useChatRooms } from '@/hooks/useChatRooms';
+import { useOrderDetail } from '@/hooks/useOrders';
 
 import { PageSkeleton } from '@/components/ui/skeleton';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
@@ -225,13 +226,14 @@ function Section({ title, icon: Icon, children, className = '' }: {
 }
 
 export default function MitraOrderDetailClient() {
-  const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
+  const { isLoading: authLoading, isAuthorized } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const orderId = params?.id as string;
 
-  const [order, setOrder] = useState<MitraOrderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Detail pesanan via React Query (key ['order', id]) . di-invalidate realtime
+  // oleh ChatProvider saat event WS 'order_status' masuk → UI menyegar tanpa reload.
+  const { data: order = null, isLoading: loading, refetch } = useOrderDetail<MitraOrderDetail>(orderId);
   const [actionLoading, setActionLoading] = useState(false);
   const platformConfig = usePlatformConfig();
   const { showToast } = useToast();
@@ -252,20 +254,6 @@ export default function MitraOrderDetailClient() {
   const [cancelReason, setCancelReason] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
 
-
-  const fetchOrder = useCallback(async () => {
-    const res = await fetchAPI<MitraOrderDetail | { data: MitraOrderDetail }>(`/orders/${orderId}`);
-    if (res.success && res.data) {
-      const payload = res.data;
-      setOrder('data' in payload && payload.data ? payload.data : (payload as MitraOrderDetail));
-    }
-    setLoading(false);
-  }, [orderId]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !orderId) return;
-    void fetchOrder();
-  }, [isAuthenticated, user?.active_role, orderId, fetchOrder]);
 
   const handleChat = async () => {
     if (!order?.customer_info?.id) return;
@@ -311,7 +299,7 @@ export default function MitraOrderDetailClient() {
       if (action === 'reject') setShowRejectModal(false);
       if (action === 'cancel') setShowCancelModal(false);
       if (action === 'dispute') setShowDisputeModal(false);
-      await fetchOrder();
+      await refetch();
     } else {
       // `code` dari backend, BUKAN pesan yang sudah diterjemahkan . pesan
       // berubah kapan saja, kode tidak, dan hanya kode yang bisa dikelompokkan.
@@ -624,7 +612,7 @@ export default function MitraOrderDetailClient() {
                   targetDate={order.confirmation_expired_at}
                   format="mm:ss"
                   criticalThresholdSeconds={300}
-                  onExpire={fetchOrder}
+                  onExpire={() => { void refetch(); }}
                   className="!text-white text-lg"
                 />
               </div>
@@ -636,7 +624,7 @@ export default function MitraOrderDetailClient() {
                   targetDate={order.payment_expired_at}
                   format="mm:ss"
                   criticalThresholdSeconds={300}
-                  onExpire={fetchOrder}
+                  onExpire={() => { void refetch(); }}
                   className="!text-white text-lg"
                 />
               </div>
@@ -649,7 +637,7 @@ export default function MitraOrderDetailClient() {
                   format="hh:mm:ss"
                   criticalThresholdSeconds={7200}
                   warningThresholdSeconds={43200}
-                  onExpire={fetchOrder}
+                  onExpire={() => { void refetch(); }}
                   className="!text-white text-lg"
                 />
               </div>

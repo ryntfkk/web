@@ -14,6 +14,7 @@ import { ProfileSkeleton } from '@/components/ui/skeleton';
 import { formatDateOnly, formatPrice } from '@/lib/format';
 import { fetchAPI } from '@/lib/api';
 import { FilterStatus, matchesFilter } from '@/lib/order-utils';
+import { useCustomerOrders } from '@/hooks/useOrders';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
 import PartnerStatusCard, { type PartnerProfile } from '@/components/profile/PartnerStatusCard';
@@ -54,15 +55,15 @@ export default function ProfilePage() {
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [partnerStatus, setPartnerStatus] = useState<PartnerProfile | null>(null);
   const [statusLoading, setStatusLoading] = useState(true);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
+  // Pesanan via React Query (key ['orders','customer'], berbagi cache dgn /orders)
+  // . di-invalidate realtime oleh ChatProvider saat event WS 'order_status' masuk.
+  const { data: orders = [], isLoading: ordersLoading } = useCustomerOrders<Order>();
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
   const [showSwitchModal, setShowSwitchModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
       checkPartnerStatus();
-      fetchOrders();
     }
   }, [isAuthenticated]);
 
@@ -76,22 +77,6 @@ export default function ProfilePage() {
       setPartnerStatus((res.data as PartnerProfile));
     }
     setStatusLoading(false);
-  };
-
-  async function fetchOrders() {
-    setOrdersLoading(true);
-    try {
-      const res = await fetchAPI<Order[]>('/orders', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (res.success && res.data) {
-        const unwrapped = (res.data as unknown);
-        setOrders(Array.isArray(unwrapped) ? unwrapped as Order[] : []);
-      }
-    } finally {
-      setOrdersLoading(false);
-    }
   };
 
   const filteredOrders = orders.filter(order => matchesFilter(order.status, activeFilter));
