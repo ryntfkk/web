@@ -149,7 +149,7 @@ export default function HeaderWrapper() {
   // sticky". Pembungkus ini flex-child dari <body> yang tinggi penuh, jadi
   // sticky-nya menempel sepanjang halaman digulir.
   return (
-    <div className={`sticky top-0 z-50${hideOnMobile ? " hidden lg:block" : ""}`}>
+    <div className={`sticky top-0 z-50 ${hideOnMobile ? "hidden lg:block" : ""}`}>
       <TopNavbar />
     </div>
   );
