@@ -26,6 +26,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Modal } from '@/components/ui/modal';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { fetchAPI } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
 import { useServiceDetail, usePartnerWorkingHours, useServiceReviews } from '@/hooks/useServiceDetail';
@@ -318,6 +319,9 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
   if (isLoading) {
     return (
       <div className="page-h bg-brand-gray-50">
+        {/* Tombol kembali (mobile). Di /services TopNavbar disembunyikan, jadi
+            tanpa ini halaman detail tak punya jalan kembali sama sekali. */}
+        <MobilePageHeader title="Detail Layanan" titleAs="p" />
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2">
@@ -388,6 +392,9 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 sm:pb-4">
+      {/* Tombol kembali (mobile). /services menyembunyikan TopNavbar di mobile,
+          jadi header ini satu-satunya jalan kembali dari halaman produk. */}
+      <MobilePageHeader title="Detail Layanan" titleAs="p" />
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-3">
         {/* Breadcrumb */}
         <div className="hidden sm:flex items-center gap-2 text-xs text-brand-gray-700 mb-3 px-4 py-2 flex-wrap">

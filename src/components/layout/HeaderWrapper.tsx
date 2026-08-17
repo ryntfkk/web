@@ -142,8 +142,14 @@ export default function HeaderWrapper() {
   // milik halaman (dua header berkedip) sampai hydration selesai.
   const hideOnMobile = shouldHideHeaderOnMobile(pathname);
 
+  // `sticky` HARUS di sini, bukan hanya di <header> dalam TopNavbar: elemen
+  // sticky dibatasi oleh containing block-nya. Kalau pembungkusnya hanya
+  // setinggi header (64px), begitu di-scroll 64px containing block-nya keluar
+  // layar dan header ikut hilang . itulah kenapa di mobile header "tidak
+  // sticky". Pembungkus ini flex-child dari <body> yang tinggi penuh, jadi
+  // sticky-nya menempel sepanjang halaman digulir.
   return (
-    <div className={hideOnMobile ? "hidden lg:block" : undefined}>
+    <div className={`sticky top-0 z-50${hideOnMobile ? " hidden lg:block" : ""}`}>
       <TopNavbar />
     </div>
   );

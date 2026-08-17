@@ -8,4 +8,10 @@ export interface Category {
   slug: string | null;
   parent_id: string | null;
   sort_order: number;
+  /**
+   * Hanya diisi untuk SUBkategori (endpoint /categories/{id}/subcategories):
+   * true bila ada minimal satu layanan yang bisa dipesan (mitra aktif) di
+   * subkategori itu. undefined untuk kategori utama / respons lama backend.
+   */
+  has_services?: boolean;
 }

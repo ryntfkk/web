@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronRight } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCategories, useSubcategories } from '@/hooks/useCategories';
@@ -21,7 +21,12 @@ export default function CategoriesClient() {
       {/* titleAs="p": H1 halaman ada di badan konten (baris di bawah). */}
       <MobilePageHeader title="Semua Kategori" titleAs="p" backHref="/" maxWidthClass="max-w-6xl" gutterClass="px-4 sm:px-6 md:px-8" />
       <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 md:p-8">
-        <h1 className="text-xl lg:text-2xl font-bold text-brand-gray-900 mb-8">Semua Kategori</h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-brand-gray-900 mb-2">Semua Kategori</h1>
+        {/* Legenda indikator ketersediaan mitra (titik pada subkategori). */}
+        <p className="text-[13px] text-brand-gray-450 mb-8 inline-flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-brand-success inline-block shrink-0" aria-hidden="true" />
+          Titik hijau menandai subkategori yang sudah ada mitranya.
+        </p>
 
         {isLoading ? (
           <div className="space-y-8">
@@ -59,46 +64,76 @@ export default function CategoriesClient() {
 }
 
 function MainCategoryBlock({ main }: { main: Category }) {
-  const { data: subs, isLoading } = useSubcategories(main.id);
+  // Default TERTUTUP: semua kategori utama harus terlihat sekilas tanpa dibanjiri
+  // subkategori. Subkategori baru diambil saat dibuka (hook enabled bila id ada).
+  const [expanded, setExpanded] = React.useState(false);
+  const { data: subs, isLoading } = useSubcategories(expanded ? main.id : null);
 
   return (
     <section>
-      {/* Header kategori utama */}
-      <Link
-        href={categoryHref(main)}
-        className="group flex items-center gap-3 mb-4"
-      >
-        <div className="w-11 h-11 relative rounded-xl overflow-hidden bg-brand-gray-50 border border-brand-gray-100 shrink-0">
-          <Image src={main.icon_url || '/icons/default.svg'} alt={main.name} fill className="object-cover" />
-        </div>
-        <h2 className="text-[16px] sm:text-[18px] font-bold text-brand-gray-900 group-hover:text-brand-red transition-colors">
-          {main.name}
-        </h2>
-        <ChevronRight className="w-4 h-4 text-brand-gray-400 group-hover:text-brand-red transition-colors" />
-      </Link>
+      {/* Header kategori utama. Nama+ikon menuju halaman kategori; tombol chevron
+          memunculkan/menyembunyikan subkategori (terpisah dari tautan kategori). */}
+      <div className="flex items-center gap-3 mb-3">
+        <Link href={categoryHref(main)} className="group flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 relative rounded-xl overflow-hidden bg-brand-gray-50 border border-brand-gray-100 shrink-0">
+            <Image src={main.icon_url || '/icons/default.svg'} alt={main.name} fill className="object-cover" />
+          </div>
+          <h2 className="text-[16px] sm:text-[18px] font-bold text-brand-gray-900 group-hover:text-brand-red transition-colors truncate">
+            {main.name}
+          </h2>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          className="ml-auto shrink-0 inline-flex items-center gap-1 rounded-full border border-brand-gray-100 bg-white px-3 py-1.5 text-[12px] font-medium text-brand-gray-700 hover:border-brand-red hover:text-brand-red transition-colors"
+        >
+          {expanded ? 'Sembunyikan' : 'Lihat subkategori'}
+          <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
+        </button>
+      </div>
 
       {/* Subkategori . teks/chip saja, bukan ikon. Ikon hanya untuk kategori
-          utama agar hierarki visual jelas dan halaman tidak berisik. */}
-      {isLoading ? (
-        <div className="flex flex-wrap gap-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-8 w-24 rounded-full" />
-          ))}
-        </div>
-      ) : !subs || subs.length === 0 ? (
-        <p className="text-[13px] text-brand-gray-400 pl-1">Belum ada subkategori.</p>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {subs.map((sub) => (
-            <Link
-              key={sub.id}
-              href={categoryHref(sub)}
-              className="inline-flex items-center px-3 py-2 rounded-full border border-brand-gray-100 bg-white text-[13px] font-medium text-brand-gray-900 hover:border-brand-red hover:text-brand-red transition-colors"
-            >
-              {sub.name}
-            </Link>
-          ))}
-        </div>
+          utama agar hierarki visual jelas dan halaman tidak berisik. Titik pada
+          chip = indikator ketersediaan mitra (has_services dari backend). */}
+      {expanded && (
+        isLoading ? (
+          <div className="flex flex-wrap gap-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-24 rounded-full" />
+            ))}
+          </div>
+        ) : !subs || subs.length === 0 ? (
+          <p className="text-[13px] text-brand-gray-400 pl-1">Belum ada subkategori.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {subs.map((sub) => {
+              // boolean dari backend; undefined = respons lama (belum deploy) →
+              // jangan tampilkan indikator agar tidak menyesatkan.
+              const hasMitra = sub.has_services;
+              return (
+                <Link
+                  key={sub.id}
+                  href={categoryHref(sub)}
+                  title={hasMitra === false ? 'Belum ada mitra' : hasMitra === true ? 'Sudah ada mitra' : undefined}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full border text-[13px] font-medium transition-colors ${
+                    hasMitra === false
+                      ? 'border-brand-gray-100 bg-white text-brand-gray-400 hover:border-brand-gray-300'
+                      : 'border-brand-gray-100 bg-white text-brand-gray-900 hover:border-brand-red hover:text-brand-red'
+                  }`}
+                >
+                  {hasMitra !== undefined && (
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${hasMitra ? 'bg-brand-success' : 'bg-brand-gray-300'}`}
+                      aria-hidden="true"
+                    />
+                  )}
+                  {sub.name}
+                </Link>
+              );
+            })}
+          </div>
+        )
       )}
     </section>
   );

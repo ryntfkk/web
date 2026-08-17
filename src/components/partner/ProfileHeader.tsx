@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { MapPin, Star, Clock, BadgeCheck, Loader2, Heart } from 'lucide-react';
+import { MapPin, Star, Clock, BadgeCheck, Loader2, UserPlus, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCompactNumber } from '@/lib/format';
 import { PartnerProfileData } from '@/hooks/usePartnerProfile';
@@ -48,7 +48,7 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
       const res = isFav
         ? await removePartner(profile.id)
         : await addPartner(profile.id);
-      if (!res.success) showToast(res.message || 'Gagal mengubah favorit', 'error');
+      if (!res.success) showToast(res.message || 'Gagal memperbarui status ikuti', 'error');
     } finally {
       setFavBusy(false);
     }
@@ -222,7 +222,7 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
         </div>
       </div>
 
-      {/* Baris tombol ala IG: lebar penuh di mobile. Favorit + Jam Operasional
+      {/* Baris tombol ala IG: lebar penuh di mobile. Ikuti + Jam Operasional
           selalu; Chat/Pesan hanya desktop (lg) . di bawah lg ada
           StickyActionBar. */}
       <div className="mt-4 flex items-center gap-2">
@@ -245,8 +245,12 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
               onClick={handleFavToggle}
               disabled={favBusy}
             >
-              <Heart className={`w-4 h-4 mr-1.5 ${isFav ? 'fill-brand-red text-brand-red' : ''}`} />
-              {isFav ? 'Tersimpan' : 'Favorit'}
+              {isFav ? (
+                <UserCheck className="w-4 h-4 mr-1.5 text-brand-red" />
+              ) : (
+                <UserPlus className="w-4 h-4 mr-1.5" />
+              )}
+              {isFav ? 'Mengikuti' : 'Ikuti'}
             </Button>
             {/* Jam Operasional hanya dirender bila mitra PUNYA jam kerja
                 (parent mengoper onOpenSchedule hanya saat begitu) . tanpa itu
