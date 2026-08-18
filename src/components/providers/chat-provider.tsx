@@ -10,7 +10,6 @@ interface ChatContextType {
   sendTypingIndicator: (roomId: string, isTyping: boolean) => void;
   subscribeToMessages: (roomId: string, callback: (msg: any) => void) => () => void;
   subscribeToTyping: (roomId: string, callback: (msg: any) => void) => () => void;
-  subscribeToOrders: (callback: (msg: any) => void) => () => void;
 }
 
 const ChatContext = createContext<ChatContextType | null>(null);
@@ -25,8 +24,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const messageListeners = useRef<Set<{ roomId: string; cb: (msg: any) => void }>>(new Set());
   const typingListeners = useRef<Set<{ roomId: string; cb: (msg: any) => void }>>(new Set());
-  // Order events tidak ber-room; satu set listener global cukup.
-  const orderListeners = useRef<Set<{ cb: (msg: any) => void }>>(new Set());
 
   const accessToken = useAuthStore((s) => s.accessToken);
   const queryClient = useQueryClient();
@@ -74,13 +71,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             }
           });
         } else if (msg.type === 'order_status' && msg.data) {
-          // Event order realtime (dikirim backend notify.ToUser). Invalidate cache
-          // pesanan → React Query refetch → UI menyegar tanpa reload.
+          // Event order realtime (dikirim backend notify.ToUser, termasuk event dari
+          // worker via wsbridge). Invalidate cache pesanan → React Query refetch →
+          // UI menyegar tanpa reload.
           const orderId = msg.data.order_id;
           queryClient.invalidateQueries({ queryKey: ['orders'] });
           if (orderId) queryClient.invalidateQueries({ queryKey: ['order', orderId] });
           queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
-          orderListeners.current.forEach((listener) => listener.cb(msg.data));
         }
       } catch (e) {
         console.error('Failed to parse WS message', e);
@@ -151,19 +148,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // subscribeToOrders: dipanggil halaman pesanan yang butuh reaksi imperatif atas
-  // event order (mis. toast / refetch list bermanfaat), selain invalidasi cache
-  // yang sudah otomatis di onmessage. Mengembalikan fungsi unsubscribe.
-  const subscribeToOrders = useCallback((callback: (msg: any) => void) => {
-    const listener = { cb: callback };
-    orderListeners.current.add(listener);
-    return () => {
-      orderListeners.current.delete(listener);
-    };
-  }, []);
-
   return (
-    <ChatContext.Provider value={{ isConnected, sendTypingIndicator, subscribeToMessages, subscribeToTyping, subscribeToOrders }}>
+    <ChatContext.Provider value={{ isConnected, sendTypingIndicator, subscribeToMessages, subscribeToTyping }}>
       {children}
     </ChatContext.Provider>
   );
