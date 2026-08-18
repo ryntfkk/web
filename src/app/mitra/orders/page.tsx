@@ -65,6 +65,23 @@ function customerName(o: Order): string {
   return o.customer_info?.name || o.customer_name || 'Pelanggan';
 }
 
+// Datar-kan halaman infinite-query sambil membuang id ganda. Paginasi OFFSET di
+// bawah update realtime rapuh: bila order baru masuk saat React Query me-refetch
+// halaman satu per satu, batas halaman bergeser sehingga satu id bisa muncul di
+// dua halaman → duplicate React `key` (list pakai key={order.id}). Dedupe di sini
+// (kemunculan PERTAMA menang; halaman 1 = terbaru & paling mutakhir) menjaga key
+// unik tanpa perlu keyset-pagination di backend (berlebihan untuk volume MVP).
+function dedupeById<T extends { id: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const it of items) {
+    if (seen.has(it.id)) continue;
+    seen.add(it.id);
+    out.push(it);
+  }
+  return out;
+}
+
 export default function MitraOrdersPage() {
   const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
   const router = useRouter();
@@ -94,7 +111,7 @@ export default function MitraOrdersPage() {
     isFetchingNextPage,
     refetch,
   } = usePartnerOrders<Order>(partnerFilters);
-  const orders = data?.pages.flatMap((p) => p.items) ?? [];
+  const orders = dedupeById(data?.pages.flatMap((p) => p.items) ?? []);
   const total = data?.pages[data.pages.length - 1]?.total ?? 0;
   const error = isError ? ((queryError as Error)?.message || 'Gagal memuat pesanan') : null;
 
