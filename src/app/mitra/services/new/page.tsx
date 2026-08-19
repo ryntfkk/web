@@ -58,7 +58,7 @@ export default function NewMitraServicePage() {
   };
 
   const uploadPhoto = async (file: File): Promise<string> => {
-    const { success, data } = await fetchAPI<{ upload_url: string; file_url: string }>(
+    const res = await fetchAPI<{ upload_url: string; file_url: string }>(
       '/partners/upload/presigned-url',
       {
         method: 'POST',
@@ -67,15 +67,17 @@ export default function NewMitraServicePage() {
         credentials: 'include',
       },
     );
-    if (!success || !data) throw new Error('Gagal mendapatkan URL upload');
+    // Tampilkan pesan asli backend (mis. "Format file tidak didukung...") . pesan
+    // generik dulu menyembunyikan penyebab nyata seperti format webp/heic ditolak.
+    if (!res.success || !res.data) throw new Error(getErrorMessage(res) || 'Gagal mendapatkan URL upload');
 
-    const uploadRes = await fetch(data.upload_url, {
+    const uploadRes = await fetch(res.data.upload_url, {
       method: 'PUT',
       body: file,
       headers: { 'Content-Type': file.type },
     });
     if (!uploadRes.ok) throw new Error('Gagal mengunggah foto');
-    return data.file_url;
+    return res.data.file_url;
   };
 
   const handleSubmit = async (payload: ServiceSubmitPayload) => {

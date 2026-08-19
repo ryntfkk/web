@@ -187,16 +187,17 @@ export default function MitraPortfolioPage() {
 
     try {
       // 1. Get Presigned URL
-      const { success, data } = await fetchAPI<{ upload_url: string, file_url: string }>('/partners/upload/presigned-url', {
+      const res = await fetchAPI<{ upload_url: string, file_url: string }>('/partners/upload/presigned-url', {
         method: 'POST',
         // file_size WAJIB: ikut ditandatangani ke presigned URL, ditolak bila 0.
         body: JSON.stringify({ filename: file.name, content_type: file.type, file_size: file.size }),
       });
 
-      if (!success || !data) throw new Error('Gagal mendapatkan URL upload');
+      // Surface pesan asli backend (format ditolak dll.), bukan pesan generik.
+      if (!res.success || !res.data) throw new Error(getErrorMessage(res) || 'Gagal mendapatkan URL upload');
 
       // 2. Upload to S3
-      const uploadRes = await fetch(data.upload_url, {
+      const uploadRes = await fetch(res.data.upload_url, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type }
@@ -207,7 +208,7 @@ export default function MitraPortfolioPage() {
       // 3. Save to backend
       const saveRes = await fetchAPI<Portfolio>('/partners/me/portfolios', {
         method: 'POST',
-        body: JSON.stringify({ photo_url: data.file_url, caption: '' })
+        body: JSON.stringify({ photo_url: res.data.file_url, caption: '' })
       });
 
       if (saveRes.success && saveRes.data) {
