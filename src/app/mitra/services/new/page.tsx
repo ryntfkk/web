@@ -9,6 +9,7 @@ import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import ServiceForm, { type ServiceSubmitPayload } from '@/components/mitra/ServiceForm';
 import { fetchAPI } from '@/lib/api';
+import { ensureUploadableImage } from '@/lib/image-upload';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
@@ -28,6 +29,7 @@ export default function NewMitraServicePage() {
 
   const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState('');
   const [error, setError] = useState('');
 
@@ -40,14 +42,31 @@ export default function NewMitraServicePage() {
   if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
-  const handleAddPhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
+    e.target.value = '';
     if (!files.length) return;
     const room = MAX_PHOTOS - photos.length;
-    const accepted = files.slice(0, room).map((file) => ({ file, preview: URL.createObjectURL(file) }));
-    setPhotos((prev) => [...prev, ...accepted]);
+    const picked = files.slice(0, room);
     if (files.length > room) setError(`Maksimal ${MAX_PHOTOS} foto layanan`);
-    e.target.value = '';
+
+    // Foto HEIC (kamera default iPhone) dikonversi ke JPEG di sini . browser tak
+    // bisa menampilkan pratinjau HEIC dan backend menolaknya. File lain lewat
+    // tanpa perubahan.
+    setProcessing(true);
+    try {
+      const prepared = await Promise.all(
+        picked.map(async (file) => {
+          const normalized = await ensureUploadableImage(file);
+          return { file: normalized, preview: URL.createObjectURL(normalized) };
+        }),
+      );
+      setPhotos((prev) => [...prev, ...prepared]);
+    } catch {
+      setError('Gagal memproses foto (format HEIC tidak dapat dikonversi). Coba foto lain.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleRemovePhoto = (idx: number) => {
@@ -139,8 +158,8 @@ export default function NewMitraServicePage() {
       <MitraPageContainer variant="form">
         <ServiceForm
           submitLabel="Simpan Layanan"
-          submitting={loading}
-          progressLabel={progress}
+          submitting={loading || processing}
+          progressLabel={processing ? 'Memproses foto…' : progress}
           error={error}
           onSubmit={handleSubmit}
           photoSection={
@@ -177,15 +196,18 @@ export default function NewMitraServicePage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-brand-gray-200 bg-brand-gray-50 text-brand-gray-450 transition-all duration-200 hover:border-brand-red hover:bg-brand-red/5 hover:text-brand-red"
+                    disabled={processing}
+                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-brand-gray-200 bg-brand-gray-50 text-brand-gray-450 transition-all duration-200 hover:border-brand-red hover:bg-brand-red/5 hover:text-brand-red disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <ImagePlus className="h-6 w-6" />
-                    <span className="text-[11px] font-medium leading-none">Tambah</span>
+                    <span className="text-[11px] font-medium leading-none">
+                      {processing ? 'Memproses…' : 'Tambah'}
+                    </span>
                   </button>
                 )}
               </div>
               <p className="mt-2 text-xs text-brand-gray-450">
-                Format: JPG, PNG. Maks. 5MB per foto.
+                Format: JPG, PNG, WebP, HEIC. Maks. 5MB per foto.
               </p>
               <input
                 ref={fileInputRef}

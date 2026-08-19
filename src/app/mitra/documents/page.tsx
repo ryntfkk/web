@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/modal';
 import { Badge } from '@/components/ui/badge';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
+import { ensureUploadableImage } from '@/lib/image-upload';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useIsPartnerVerified } from '@/hooks/usePartnerVerificationStatus';
 import { VerifiedLockBadge } from '@/components/mitra/VerifiedLockBadge';
@@ -131,9 +132,22 @@ export default function MitraDocumentsPage() {
   }, [isAuthorized, fetchDocuments]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const original = e.target.files?.[0];
+    if (!original) return;
+
+    setError('');
+
+    // HEIC (kamera default iPhone) dikonversi ke JPEG di klien; PDF & gambar
+    // lain lewat apa adanya.
+    let file: File;
+    try {
+      file = await ensureUploadableImage(original);
+    } catch {
+      setError('Gagal memproses file HEIC. Coba foto lain atau format JPG/PNG.');
+      setSelectedFile(null);
+      return;
+    }
 
     if (file.size > 5 * 1024 * 1024) {
       setError('Ukuran maksimal file 5MB');
@@ -141,13 +155,12 @@ export default function MitraDocumentsPage() {
       return;
     }
 
-    if (!file.type.match(/^(image\/jpeg|image\/png|image\/jpg|application\/pdf)$/)) {
-      setError('Format file harus JPG, PNG, atau PDF');
+    if (!file.type.match(/^(image\/jpeg|image\/png|image\/jpg|image\/webp|application\/pdf)$/)) {
+      setError('Format file harus JPG, PNG, WebP, atau PDF');
       setSelectedFile(null);
       return;
     }
 
-    setError('');
     setSelectedFile(file);
   };
 
@@ -417,13 +430,13 @@ export default function MitraDocumentsPage() {
             >
               <FileText className="w-6 h-6 text-brand-gray-400 mx-auto mb-2" />
               <span className="text-sm text-brand-gray-400">
-                {selectedFile ? selectedFile.name : 'Pilih file JPG, PNG, atau PDF'}
+                {selectedFile ? selectedFile.name : 'Pilih file JPG, PNG, WebP, atau PDF'}
               </span>
               <input
                 ref={fileInputRef}
                 type="file"
                 className="hidden"
-                accept="image/jpeg,image/png,image/jpg,application/pdf"
+                accept="image/jpeg,image/png,image/jpg,image/webp,image/heic,image/heif,application/pdf"
                 onChange={handleFileSelect}
               />
             </div>

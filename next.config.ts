@@ -140,7 +140,11 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://*.cloudfront.net https://*.s3.ap-southeast-3.amazonaws.com https://*.googleusercontent.com https://maps.gstatic.com https://*.googleapis.com; " +
               // accounts.google.com = skrip Google Identity Services (tombol
               // "Masuk dengan Google").
-              "script-src 'self' 'unsafe-inline' " + (isDev ? "'unsafe-eval' " : "") + "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com https://maps.googleapis.com; " +
+              // 'wasm-unsafe-eval' = libheif (via heic2any) meng-compile WASM
+              // untuk mengonversi foto HEIC iPhone → JPEG di sisi klien. Tanpa
+              // ini, konversi gagal begitu CSP di-enforce (izin sempit: hanya
+              // WASM, bukan eval() umum).
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' " + (isDev ? "'unsafe-eval' " : "") + "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com https://apis.google.com https://maps.googleapis.com; " +
               // maps.googleapis.com juga dipanggil lewat XHR/RPC oleh Maps JS.
               "connect-src 'self' https://api.poskojasa.com wss://api.poskojasa.com https://accounts.google.com https://maps.googleapis.com; " +
               // GIS merender tombol & dialog persetujuannya di dalam iframe.

@@ -10,6 +10,7 @@ import MitraInfoBanner from '@/components/mitra/MitraInfoBanner';
 import DataState from '@/components/mitra/DataState';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { fetchAPI } from '@/lib/api';
+import { ensureUploadableImage } from '@/lib/image-upload';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { getErrorMessage } from '@/types/api';
 import Image from 'next/image';
@@ -164,21 +165,11 @@ export default function MitraPortfolioPage() {
   };
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const original = e.target.files?.[0];
+    if (!original) return;
 
     if (portfolios.length >= 5) {
       setError('Maksimal 5 foto portofolio');
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      setError('Format file harus berupa gambar');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Ukuran maksimal file 5MB');
       return;
     }
 
@@ -186,6 +177,21 @@ export default function MitraPortfolioPage() {
     setUploading(true);
 
     try {
+      // HEIC (kamera default iPhone) dikonversi ke JPEG di klien sebelum
+      // divalidasi & diunggah . browser tak bisa menampilkannya dan backend
+      // menolaknya. File lain lewat apa adanya.
+      const file = await ensureUploadableImage(original);
+
+      if (!file.type.startsWith('image/')) {
+        setError('Format file harus berupa gambar');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Ukuran maksimal file 5MB');
+        return;
+      }
+
       // 1. Get Presigned URL
       const res = await fetchAPI<{ upload_url: string, file_url: string }>('/partners/upload/presigned-url', {
         method: 'POST',
