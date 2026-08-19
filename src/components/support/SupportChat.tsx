@@ -64,6 +64,12 @@ export default function SupportChat({
   reportId,
   backHref,
   /**
+   * Tujuan "kembali ke daftar percakapan" saat thread ditutup. Terpisah dari
+   * `backHref`: panah kembali bisa balik ke asal (mis. detail pesanan) sedang
+   * tombol daftar tetap ke kotak masuk. Default = `backHref`.
+   */
+  inboxHref,
+  /**
    * Sisi pelanggan memakai TopNavbar 4rem mulai `lg` (HeaderWrapper), jadi
    * layarnya harus dikurangi setinggi itu. Mode mitra tidak . lihat
    * MitraLayoutClient.
@@ -72,8 +78,10 @@ export default function SupportChat({
 }: {
   reportId: string;
   backHref: string;
+  inboxHref?: string;
   heightClass?: string;
 }) {
+  const listHref = inboxHref ?? backHref;
   const { isAuthorized } = useRequireAuth();
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [thread, setThread] = useState<SupportThread | null>(null);
@@ -223,7 +231,7 @@ export default function SupportChat({
               Masih ada yang perlu dibantu? Mulai percakapan baru.
             </p>
             <Link
-              href={backHref}
+              href={listHref}
               className="inline-flex items-center justify-center rounded-lg bg-brand-red px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-red-dark"
             >
               Kembali ke Daftar Percakapan

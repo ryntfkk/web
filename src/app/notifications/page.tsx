@@ -108,7 +108,14 @@ export default function NotificationsPage() {
       refreshUnreadBadge();
     }
     
-    const ref = n.reference_id || n.metadata?.order_id;
+    // Notifikasi non-order (mis. `support_reply`) dikirim dengan orderID = Nil,
+    // dan `notify.ToUser` menuliskannya ke metadata sebagai UUID nol
+    // ("0000…0000") . string yang truthy. Tanpa saringan ini, klik notifikasi
+    // "Admin membalas laporan Anda" mendarat di `/bantuan/0000…` (thread hampa),
+    // bukan di kotak masuk. Perlakukan UUID nol sebagai "tanpa referensi".
+    const NIL_UUID = '00000000-0000-0000-0000-000000000000';
+    const rawRef = n.reference_id || n.metadata?.order_id;
+    const ref = rawRef && rawRef !== NIL_UUID ? rawRef : undefined;
 
     // A09-T2: tujuan dibaca dari pemetaan eksplisit, bukan substring `type`.
     // Versi lama memeriksa `t === 'withdrawal'` padahal tipe sebenarnya

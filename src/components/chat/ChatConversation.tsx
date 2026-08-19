@@ -301,6 +301,11 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
 
   const isMitra = user?.active_role === ROLE_PARTNER;
 
+  // Balasan cepat: mitra & pelanggan punya set frasa yang berbeda peran.
+  const quickReplies = isMitra
+    ? ['Halo, ada yang bisa dibantu?', 'Saya segera menuju lokasi.', 'Baik, pesanan sudah saya terima.', 'Mohon ditunggu sebentar ya.']
+    : ['Halo, mohon dibantu ya 🙏', 'Baik, terima kasih', 'Oke, saya tunggu ya', 'Sudah sampai mana ya?', 'Berapa lama lagi kira-kira?'];
+
   return (
     <div className="flex flex-col h-full bg-brand-gray-60">
       {/* Header */}
@@ -476,21 +481,19 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
           </div>
         ) : (
           <div className={`flex flex-col w-full ${embedded ? '' : 'max-w-lg mx-auto'}`}>
-            {/* Quick Replies for Mitra */}
-            {isMitra && (
-              <div className="flex gap-2 overflow-x-auto px-3 pt-3 pb-1 scrollbar-hide touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {["Halo, ada yang bisa dibantu?", "Saya segera menuju lokasi.", "Baik, pesanan sudah saya terima.", "Mohon ditunggu sebentar ya."].map((reply, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setInput(reply)}
-                    className="shrink-0 bg-brand-gray-60 hover:bg-brand-red-light border border-brand-gray-100 text-brand-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium"
-                  >
-                    {reply}
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Balasan cepat . mitra & pelanggan (frasa per peran di `quickReplies`) */}
+            <div className="flex gap-2 overflow-x-auto px-3 pt-3 pb-1 scrollbar-hide touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' }}>
+              {quickReplies.map((reply, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setInput(reply)}
+                  className="shrink-0 bg-brand-gray-60 hover:bg-brand-red-light border border-brand-gray-100 text-brand-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium"
+                >
+                  {reply}
+                </button>
+              ))}
+            </div>
             <form onSubmit={handleSend} className="p-3 flex flex-col gap-2 w-full">
               {sendError && (
                 <div className="text-xs text-brand-error px-2 font-medium bg-brand-error-soft py-1.5 rounded-lg border border-brand-error-border">

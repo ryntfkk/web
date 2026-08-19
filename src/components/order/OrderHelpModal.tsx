@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { HeadphonesIcon, Loader2 } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { createSupportThread, supportBasePath } from '@/lib/support';
@@ -24,6 +24,7 @@ export default function OrderHelpModal({
   isMitra?: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -40,7 +41,11 @@ export default function OrderHelpModal({
       setMessage('');
       onClose();
       // `isMitra` sudah dioper pemanggil . pakai itu, jangan baca store lagi.
-      router.push(`${supportBasePath(isMitra ? 'partner' : undefined)}/${id}`);
+      // `from` = halaman asal (detail pesanan) agar tombol kembali di ruang CS
+      // balik ke sini, bukan mendarat di kotak masuk (bug: back ke tempat salah).
+      const base = supportBasePath(isMitra ? 'partner' : undefined);
+      const from = pathname ? `?from=${encodeURIComponent(pathname)}` : '';
+      router.push(`${base}/${id}${from}`);
     } else {
       setError('Gagal memulai percakapan. Coba lagi.');
     }

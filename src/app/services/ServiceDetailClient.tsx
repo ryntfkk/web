@@ -22,11 +22,11 @@ import {
   MapPin,
   MessageSquare,
   BadgeCheck,
+  ArrowLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Modal } from '@/components/ui/modal';
-import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { fetchAPI } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
 import { useServiceDetail, usePartnerWorkingHours, useServiceReviews } from '@/hooks/useServiceDetail';
@@ -45,7 +45,24 @@ import { unitLabel } from '@/lib/order-utils';
 import { formatDistanceMeters } from '@/lib/distance';
 
 
-
+/**
+ * Tombol kembali yang ditempel di atas gambar (bukan header terpisah yang
+ * memakan tinggi). Hanya `< lg`: di `lg+` TopNavbar + breadcrumb sudah jadi
+ * jalan kembali. `/services` menyembunyikan TopNavbar di mobile, jadi overlay
+ * ini satu-satunya jalan kembali di sana.
+ */
+function ImageBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Kembali"
+      className="lg:hidden absolute top-2 left-2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm hover:bg-black/60 active:scale-95 transition-colors"
+    >
+      <ArrowLeft className="h-5 w-5" />
+    </button>
+  );
+}
 
 function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHref }: { serviceId?: string; categorySlug?: string; localLandingHref?: string }) {
   const router = useRouter();
@@ -319,13 +336,14 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
   if (isLoading) {
     return (
       <div className="page-h bg-brand-gray-50">
-        {/* Tombol kembali (mobile). Di /services TopNavbar disembunyikan, jadi
-            tanpa ini halaman detail tak punya jalan kembali sama sekali. */}
-        <MobilePageHeader title="Detail Layanan" titleAs="p" />
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2">
-              <div className="w-full aspect-square bg-brand-gray-100 rounded-md animate-pulse" />
+              {/* Tombol kembali ditempel di gambar (skeleton), bukan header
+                  terpisah. /services menyembunyikan TopNavbar di mobile. */}
+              <div className="relative w-full aspect-square bg-brand-gray-100 rounded-md animate-pulse">
+                <ImageBackButton onClick={() => router.back()} />
+              </div>
             </div>
             <div className="w-full md:w-1/2 space-y-3">
               <div className="h-6 bg-brand-gray-100 rounded-md animate-pulse w-3/4" />
@@ -392,9 +410,6 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
 
   return (
     <div className="page-h bg-brand-gray-60 pb-20 sm:pb-4">
-      {/* Tombol kembali (mobile). /services menyembunyikan TopNavbar di mobile,
-          jadi header ini satu-satunya jalan kembali dari halaman produk. */}
-      <MobilePageHeader title="Detail Layanan" titleAs="p" />
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-3">
         {/* Breadcrumb */}
         <div className="hidden sm:flex items-center gap-2 text-xs text-brand-gray-700 mb-3 px-4 py-2 flex-wrap">
@@ -418,6 +433,9 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
             <div className="w-full md:w-[42%] p-3 sm:p-4">
               {/* Main Image . swipeable carousel (all photos) */}
               <div className="relative w-full aspect-square bg-brand-gray-25 rounded-md overflow-hidden group">
+                {/* Tombol kembali ditempel di gambar (mobile) . menggantikan
+                    header terpisah yang memakan tinggi. */}
+                <ImageBackButton onClick={() => router.back()} />
                 {/* Distance Badge */}
                 {distance && (
                   <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded flex items-center gap-1 z-10">
@@ -735,7 +753,12 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                 <div className="flex py-2">
                   <span className="w-40 flex-shrink-0 text-brand-gray-700">Kategori</span>
                   <span className="text-brand-gray-900">
-                    {service.category_name}
+                    {/* Tampilkan hierarki "Utama › Sub" bila layanan memakai
+                        subkategori; jika tidak, cukup kategorinya. Sebelumnya
+                        hanya kategori daun yang tampil (dan berulang di chip). */}
+                    {service.parent_category_name
+                      ? `${service.parent_category_name} › ${service.category_name}`
+                      : service.category_name}
                     {localLandingHref && service.partner_city && (
                       <>
                         {' · '}

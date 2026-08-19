@@ -64,6 +64,22 @@ export function supportBasePath(activeRole?: string | null): string {
   return activeRole === 'partner' ? '/mitra/bantuan/chat' : '/bantuan';
 }
 
+/**
+ * Validasi target navigasi internal (mis. `?from=` yang jadi tombol kembali).
+ * Hanya path relatif satu-garis-miring yang lolos . cegah open-redirect ke
+ * `//evil.com`, `/\evil`, atau URL absolut yang diselipkan lewat query param.
+ * Mengembalikan path bersih (path+query, tanpa hash) atau `null` bila tidak aman.
+ */
+export function safeInternalPath(value?: string | null): string | null {
+  if (!value) return null;
+  const v = value.trim();
+  // Wajib mulai satu '/', bukan '//' atau '/\' (protocol-relative / backslash trick).
+  if (!v.startsWith('/') || v.startsWith('//') || v.startsWith('/\\')) return null;
+  // Tolak skema/whitespace tersuntik.
+  if (/[\x00-\x1f]/.test(v) || v.includes('://')) return null;
+  return v.split('#')[0];
+}
+
 // Buat thread CS baru (menggantikan tombol WhatsApp). Untuk laporan moderasi
 // yang punya target nyata, kirim targetType/targetId; jika tidak, default SUPPORT.
 export async function createSupportThread(input: {

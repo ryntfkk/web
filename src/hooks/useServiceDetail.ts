@@ -35,6 +35,16 @@ export interface ServiceDetail {
   category_id: string;
   category_name: string;
   category_slug: string;
+  /**
+   * Kategori UTAMA (parent) bila `category_id` menunjuk subkategori. `services.
+   * category_id` menyimpan kategori efektif/daun (subkategori bila mitra memilih,
+   * jika tidak kategori utama). Field ini memungkinkan tampil "Utama › Sub".
+   * `undefined`/kosong = layanan tanpa subkategori (kategorinya sudah utama) atau
+   * payload backend lama.
+   */
+  parent_category_id?: string;
+  parent_category_name?: string;
+  parent_category_slug?: string;
   name: string;
   description: string;
   price: number;
