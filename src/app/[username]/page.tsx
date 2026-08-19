@@ -160,8 +160,9 @@ export default async function PartnerProfilePage({ params }: PageProps) {
   // SE6: LocalBusiness . nama, foto, area layanan, rating agregat.
   // aggregateRating HANYA disertakan bila ada ulasan: reviewCount 0 = schema
   // invalid & bisa kena penalti rich-result.
-  // SE: address lengkap (city/district/province) ditambahkan untuk geotargeting
-  // query "[jasa] di [kota]" . backend sudah ekspos field ini di profil publik.
+  // SE: address untuk geotargeting query "[jasa] di [kota]". Dimodelkan sesuai
+  // schema.org: addressRegion = PROVINSI, addressLocality = kota, addressCountry
+  // = ID. (District/kecamatan tak punya field baku PostalAddress → dilepas.)
   const partnerSchema = profile
     ? {
       '@context': 'https://schema.org',
@@ -171,13 +172,13 @@ export default async function PartnerProfilePage({ params }: PageProps) {
       ...(profile.bio ? { description: profile.bio.slice(0, 300) } : {}),
       ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
       ...(profile.service_area ? { areaServed: profile.service_area } : {}),
-      ...(profile.city || profile.district || profile.province
+      ...(profile.province || profile.city
         ? {
           address: {
             '@type': 'PostalAddress',
+            addressCountry: 'ID',
+            ...(profile.province ? { addressRegion: profile.province } : {}),
             ...(profile.city ? { addressLocality: profile.city } : {}),
-            ...(profile.district ? { addressRegion: profile.district } : {}),
-            ...(profile.province ? { addressCountry: 'ID', name: profile.province } : {}),
           },
         }
         : {}),

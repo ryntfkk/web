@@ -127,37 +127,50 @@ export default async function Home() {
           <TopPartnersSection />
           <AllServicesSection />
 
-          {/* Blok teks SEO . ditaruh di bawah agar tidak mengganggu hero/nav.
+          {/* Layanan populer per kota . jangkar SEO lokal, bukan section
+              belanja utama. */}
+          <PopularCitiesSection />
+
+          {/* Blok teks SEO . blok penutup paling bawah, tepat di atas footer.
               sr-only di mobile (tak memakan tempat), tampil normal di desktop.
               Ini pemegang <h1> halaman, jadi teksnya wajib memuat kata kunci
               utama . tetapi tampilannya dibuat tenang: tanpa kotak abu-abu,
-              cukup garis pemisah + prosa dua kolom. */}
-          <section className="mt-12 mb-8 border-t border-brand-gray-100 pt-8 sr-only md:not-sr-only">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-red mb-2">
-              Tentang Posko Jasa
-            </p>
-            <h1 className="text-[20px] lg:text-[24px] font-semibold leading-[1.35] text-brand-gray-900 max-w-2xl mb-4">
-              Marketplace jasa terpercaya untuk memesan jasa profesional di dekat Anda
-            </h1>
-            <div className="lg:columns-2 lg:gap-10 max-w-4xl">
-              <p className="text-[14px] leading-[1.8] text-brand-gray-700 mb-4 break-inside-avoid">
-                Posko Jasa menghubungkan Anda dengan penyedia jasa profesional yang sudah
-                terverifikasi: mulai dari kebersihan rumah, perbaikan elektronik, tukang
-                bangunan, hingga layanan kecantikan dan otomotif. Harga tampil di awal,
-                jadwal Anda yang tentukan, dan pembayaran ditahan sampai pekerjaan beres.
+              cukup garis pemisah + prosa dua kolom.
+
+              PENTING . jarak (`mt`/`mb`/`pt`) WAJIB ada di <div> dalam, BUKAN
+              di <section> ini. Tailwind v4 menulis `not-sr-only` sebagai
+              `margin: 0; padding: 0` (shorthand) dan aturan varian `md:`
+              terbit SETELAH `.mt-12`/`.pt-8` di stylesheet . jadi menaruh
+              jarak di section yang sama membuatnya hilang total di >=md dan
+              blok ini menempel pada section di atas & bawahnya. */}
+          <section className="sr-only md:not-sr-only">
+            <div className="mt-12 mb-4 border-t border-brand-gray-100 pt-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-red mb-3">
+                Tentang Posko Jasa
               </p>
-              <p className="text-[14px] leading-[1.8] text-brand-gray-700 break-inside-avoid">
-                Setiap mitra melewati kurasi identitas dan dokumen sebelum bisa menerima
-                pesanan, lalu dinilai langsung oleh pelanggan sesudahnya. Cari yang terdekat
-                dari lokasi Anda, bandingkan rating dan ulasannya, lalu pesan dalam hitungan
-                menit.
-              </p>
+              {/* Editorial 5/7: judul kiri, prosa kanan . mengisi penuh lebar
+                  kontainer 1200px alih-alih menumpuk di tepi kiri. */}
+              <div className="grid lg:grid-cols-12 gap-x-10 gap-y-4">
+                <h1 className="lg:col-span-5 text-[20px] lg:text-[26px] font-semibold leading-[1.35] text-brand-gray-900">
+                  Marketplace jasa terpercaya untuk memesan jasa profesional di dekat Anda
+                </h1>
+                <div className="lg:col-span-7 columns-2 gap-8">
+                  <p className="text-[14px] leading-[1.8] text-brand-gray-700 mb-4 break-inside-avoid">
+                    Posko Jasa menghubungkan Anda dengan penyedia jasa profesional yang sudah
+                    terverifikasi: mulai dari kebersihan rumah, perbaikan elektronik, tukang
+                    bangunan, hingga layanan kecantikan dan otomotif. Harga tampil di awal,
+                    jadwal Anda yang tentukan, dan pembayaran ditahan sampai pekerjaan beres.
+                  </p>
+                  <p className="text-[14px] leading-[1.8] text-brand-gray-700 break-inside-avoid">
+                    Setiap mitra melewati kurasi identitas dan dokumen sebelum bisa menerima
+                    pesanan, lalu dinilai langsung oleh pelanggan sesudahnya. Cari yang terdekat
+                    dari lokasi Anda, bandingkan rating dan ulasannya, lalu pesan dalam hitungan
+                    menit.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
-
-          {/* Layanan populer per kota . sengaja paling bawah (jangkar SEO lokal,
-              bukan section belanja utama). */}
-          <PopularCitiesSection />
         </div>
       </div>
     </HydrationBoundary>

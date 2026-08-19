@@ -151,10 +151,12 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
   // SE7: Product . melengkapi Service agar layanan ELIGIBLE tampil sebagai
   // "produk" di Google (gambar + harga, gaya kartu belanja). aggregateRating
-  // dilekatkan di sini (bila ada ulasan) karena di marketplace ini mitra =
-  // penjual langsung penawaran ini; rating mencerminkan pengalaman pembeli atas
-  // jasa mitra. Kota mitra ikut disematkan (areaServed via Offer) agar Google
-  // mengaitkan produk dengan lokasi basecamp (mendukung query "[jasa] [kota]").
+  // SENGAJA TIDAK dilekatkan di level Product: ulasan yang ada milik MITRA,
+  // bukan layanan spesifik ini . rating "tidak spesifik" pada tiap produk rawan
+  // ditolak/penalti rich-result Google. Rating tetap hidup di tempat yang sah:
+  // Service.provider (LocalBusiness) & halaman profil mitra. Kota mitra tetap
+  // disematkan (areaServed via Offer) agar Google mengaitkan produk dengan
+  // lokasi basecamp (mendukung query "[jasa] [kota]").
   const productSchema = service
     ? {
       '@context': 'https://schema.org',
@@ -164,17 +166,6 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       ...(service.photo_url ? { image: service.photo_url } : {}),
       ...(service.category_name ? { category: service.category_name } : {}),
       brand: { '@type': 'Brand', name: service.partner_name },
-      ...(service.partner_total_reviews > 0
-        ? {
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: service.partner_avg_rating,
-            reviewCount: service.partner_total_reviews,
-            bestRating: 5,
-            worstRating: 1,
-          },
-        }
-        : {}),
       offers: {
         '@type': 'Offer',
         price: service.price,

@@ -28,15 +28,18 @@ async function getCategories(): Promise<Category[]> {
   }
 }
 
-// SE: metadata dinamis + canonical strategy. Bila query cocok dengan nama/slug
-// kategori yang ada, set canonical ke /kategori/[slug] (hindari duplikasi konten
-// dengan halaman kategori yang lebih SEO-optimized). Bila tidak cocok, canonical
-// ke /search?q=[query] sendiri (tangkap long-tail). TIDAK set noindex . biarkan
-// indexable untuk kata kunci long-tail yang tidak punya halaman kategori sendiri.
+// SE: metadata dinamis. SEMUA /search di-noindex,follow (praktik terbaik Google
+// untuk hasil pencarian internal: thin/duplikat, boros crawl budget, mudah jadi
+// halaman "0 hasil" tak bernilai). `follow` tetap true agar tautan ke
+// layanan/kategori tetap mengalir. Long-tail bernilai sudah punya landing yang
+// lebih kuat: /kategori/[slug] & /jasa/[kategori]/[kota]. canonical tetap
+// diarahkan (bila query cocok kategori → /kategori/[slug]; selain itu → diri
+// sendiri) sebagai sinyal sekunder; noindex yang menentukan.
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const params = await searchParams;
   const query = typeof params.q === 'string' ? params.q.trim() : undefined;
-  if (!query) return {};
+  const robots = { index: false, follow: true };
+  if (!query) return { robots };
 
   const categories = await getCategories();
   const qLower = query.toLowerCase();
@@ -53,6 +56,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     return {
       title,
       description,
+      robots,
       alternates: { canonical: `${SITE}/kategori/${matchedCat.slug}` },
       openGraph: { title, description, url: `${SITE}/search?q=${encodeURIComponent(query)}` },
     };
@@ -61,6 +65,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   return {
     title,
     description,
+    robots,
     alternates: { canonical: `${SITE}/search?q=${encodeURIComponent(query)}` },
     openGraph: { title, description, url: `${SITE}/search?q=${encodeURIComponent(query)}` },
   };
