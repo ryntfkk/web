@@ -120,11 +120,13 @@ export default async function Home() {
 
           </div>
 
+          {/* Mitra Terpopuler naik ke atas Layanan Terdekat — langsung di bawah
+              kategori (keputusan user 2026-08-21), sama dengan aplikasi Android. */}
+          <TopPartnersSection />
           <ProductsSection />
           <div className="my-8">
             <SecondaryBannerCarousel />
           </div>
-          <TopPartnersSection />
           <AllServicesSection />
 
           {/* Layanan populer per kota . jangkar SEO lokal, bukan section
