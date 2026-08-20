@@ -14,6 +14,13 @@ interface ReviewSectionProps {
   emptyText?: string;
   /** Aksi di kaki blok, mis. tautan ke seluruh ulasan mitra. */
   footer?: React.ReactNode;
+  /**
+   * Tanpa kartu pembungkus & judul . dipakai saat blok ini SUDAH berada di dalam
+   * kartu berjudul, mis. panel tab "Ulasan" di profil mitra. Tanpa ini hasilnya
+   * kartu putih di dalam kartu putih plus judul ganda. Pola yang sama dengan
+   * `bare` pada `ScheduleView`.
+   */
+  bare?: boolean;
 }
 
 const ASPECT_LABELS: { key: keyof PartnerReview; label: string }[] = [
@@ -80,7 +87,9 @@ export default function ReviewSection({
   title = 'Ulasan Pelanggan',
   emptyText = 'Belum ada ulasan untuk mitra ini.',
   footer,
+  bare = false,
 }: ReviewSectionProps) {
+  const wrapperClass = bare ? '' : 'bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6';
   // Ensure summary has valid numbers
   const validSummary = {
     total_reviews: typeof summary?.total_reviews === 'number' ? summary.total_reviews : 0,
@@ -94,8 +103,8 @@ export default function ReviewSection({
 
   if (validSummary.total_reviews === 0) {
     return (
-      <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-brand-gray-900 mb-3">{title}</h2>
+      <div className={wrapperClass}>
+        {!bare && <h2 className="text-lg sm:text-xl font-semibold text-brand-gray-900 mb-3">{title}</h2>}
         <div className="text-center py-8 text-brand-gray-450">{emptyText}</div>
         {footer && <div className="pt-2 text-center">{footer}</div>}
       </div>
@@ -108,8 +117,8 @@ export default function ReviewSection({
     : [];
 
   return (
-    <div className="bg-white rounded p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
-      <h2 className="text-lg sm:text-xl font-semibold text-brand-gray-900 mb-4">{title}</h2>
+    <div className={wrapperClass}>
+      {!bare && <h2 className="text-lg sm:text-xl font-semibold text-brand-gray-900 mb-4">{title}</h2>}
 
       <div className="flex flex-col md:flex-row gap-6 mb-8 border-b border-brand-gray-100 pb-6">
         <div className="flex flex-col items-center justify-center min-w-[150px]">

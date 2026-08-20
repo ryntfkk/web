@@ -13,6 +13,14 @@ export interface PartnerProfileData {
   avg_rating: number;
   total_reviews: number;
   total_orders: number;
+  /**
+   * Jumlah pelanggan yang mengikuti (memfavoritkan) mitra . sumbernya tabel
+   * `favorites`, BUKAN tabel followers tersendiri: tombol "Ikuti" di
+   * `ProfileHeader` memang menulis ke sana. Backend selalu mengirimnya (tanpa
+   * `omitempty`), tapi tetap opsional di sini supaya halaman tidak pecah bila
+   * menemui respons lama yang belum membawanya.
+   */
+  total_followers?: number;
   // SE: wilayah untuk LocalBusiness schema (geotargeting query "[jasa] di [kota]").
   // Koordinat basecamp & address_detail SENGAJA tidak ada di sini: endpoint publik
   // tidak lagi mengirimnya (P0-07) karena itu tempat tinggal mitra perorangan.

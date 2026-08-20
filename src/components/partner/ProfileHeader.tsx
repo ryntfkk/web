@@ -36,6 +36,7 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
   const { addPartner, removePartner } = useFavoritesActions();
   const [favBusy, setFavBusy] = useState(false);
   const isFav = !!favPartners?.some((f) => f.partner_id === profile.id);
+  const [bioExpanded, setBioExpanded] = useState(false);
 
   const handleFavToggle = async () => {
     if (!isAuthenticated) {
@@ -119,24 +120,17 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
             className="object-cover rounded-full border-2 sm:border-4 border-white shadow-md ring-1 ring-brand-gray-100"
             sizes="(max-width: 640px) 72px, 96px"
           />
-          {profile.is_online && (
-            <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-brand-success rounded-full border-2 border-white" />
-          )}
+          {/* Titik hijau di avatar DIHAPUS: status kehadiran sekarang punya
+              badge eksplisit di sebelah nama, dan dua penanda untuk satu fakta
+              yang sama hanya menambah bunyi. */}
         </div>
 
+        {/* Trio statistik = Rating · Pengikut · Pesanan (keputusan user
+            2026-08-20, disamakan dengan aplikasi Android). "Ulasan" keluar dari
+            sini karena jumlahnya sudah tampil sebagai konteks di sebelah handle
+            dan sebagai angka di tab Ulasan . rating yang tidak punya tempat lain
+            sepenting ini. */}
         <div className="flex-1 grid grid-cols-3 text-center">
-          <div>
-            <div className="text-[17px] sm:text-xl font-bold text-brand-gray-900 leading-none tabular-nums">
-              {formatCompactNumber(profile.total_orders)}
-            </div>
-            <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Pesanan</div>
-          </div>
-          <div>
-            <div className="text-[17px] sm:text-xl font-bold text-brand-gray-900 leading-none tabular-nums">
-              {formatCompactNumber(profile.total_reviews)}
-            </div>
-            <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Ulasan</div>
-          </div>
           <div>
             {/* "0.0" berbintang emas terbaca "dinilai buruk", bukan "belum
                 dinilai" (audit E6) . mitra tanpa rating tampil "–". */}
@@ -145,6 +139,18 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
               {hasRating ? ratingValue.toFixed(1) : '–'}
             </div>
             <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Rating</div>
+          </div>
+          <div>
+            <div className="text-[17px] sm:text-xl font-bold text-brand-gray-900 leading-none tabular-nums">
+              {formatCompactNumber(profile.total_followers ?? 0)}
+            </div>
+            <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Pengikut</div>
+          </div>
+          <div>
+            <div className="text-[17px] sm:text-xl font-bold text-brand-gray-900 leading-none tabular-nums">
+              {formatCompactNumber(profile.total_orders)}
+            </div>
+            <div className="mt-1 text-[11px] sm:text-xs text-brand-gray-450">Pesanan</div>
           </div>
         </div>
       </div>
@@ -164,6 +170,20 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
               <span className="hidden sm:inline text-[12px] font-medium text-brand-info-dark">Terverifikasi</span>
             </span>
           )}
+          {/* Status kehadiran = badge tersendiri di sebelah nama. DULU ia item
+              ketiga di baris meta bersama lokasi & "Sejak …" . berdampingan
+              dengan kota, "Online" terbaca seperti bagian dari keterangan
+              lokasi, bukan status mitranya. */}
+          <span
+            className={`inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
+              profile.is_online
+                ? 'bg-brand-success-soft text-brand-success-dark'
+                : 'bg-brand-gray-60 text-brand-gray-450'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${profile.is_online ? 'bg-brand-success' : 'bg-brand-gray-400'}`} />
+            {profile.is_online ? 'Online' : 'Offline'}
+          </span>
         </div>
 
         {/* Handle publik mitra. URL profil = /{username}, jadi handle ini yang
@@ -171,6 +191,9 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
         {profile.username && (
           <p className="text-[12px] sm:text-[13px] text-brand-gray-450 mt-0.5 truncate">
             @{profile.username}
+            {/* Jumlah ulasan ikut di sini setelah keluar dari trio statistik .
+                konteks yang membedakan "5,0 dari 1 ulasan" dengan "4,8 dari 500". */}
+            {profile.total_reviews > 0 && ` · ${formatCompactNumber(profile.total_reviews)} ulasan`}
           </p>
         )}
 
@@ -181,11 +204,28 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
           </p>
         )}
 
-        {/* Bio . lebar penuh (ala caption profil IG). */}
+        {/* Bio . lebar penuh (ala caption profil IG), dipotong 3 baris sampai
+            dibuka. Tanpa potongan, bio panjang mendorong tab & daftar layanan
+            jauh ke bawah lipatan . justru bagian yang dicari pengunjung. */}
         {typeof profile.bio === 'string' && profile.bio.trim().length > 0 && (
-          <p className="text-[13px] sm:text-sm text-brand-gray-700 leading-relaxed whitespace-pre-line mt-2">
-            {profile.bio}
-          </p>
+          <div className="mt-2">
+            <p
+              className={`text-[13px] sm:text-sm text-brand-gray-700 leading-relaxed whitespace-pre-line ${
+                bioExpanded ? '' : 'line-clamp-3'
+              }`}
+            >
+              {profile.bio}
+            </p>
+            {!bioExpanded && profile.bio.trim().length > 120 && (
+              <button
+                type="button"
+                onClick={() => setBioExpanded(true)}
+                className="mt-0.5 text-[12px] font-semibold text-brand-blue hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red rounded"
+              >
+                Selengkapnya
+              </button>
+            )}
+          </div>
         )}
 
         {/* Spesialisasi diturunkan dari kategori layanan aktif . bukan klaim
@@ -202,7 +242,7 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
 
         {/* Meta sekunder: lokasi · bergabung · status (rating/pesanan sudah di
             baris statistik atas, jadi tak diulang di sini). */}
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-brand-gray-450">
+        <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-brand-gray-450 ${locationLabel || memberSince ? 'mt-2.5' : ''}`}>
           {locationLabel && (
             <span className="flex items-center gap-1 min-w-0">
               <MapPin className="w-3.5 h-3.5 shrink-0" />
@@ -215,10 +255,6 @@ export default function ProfileHeader({ profile, onOpenSchedule }: ProfileHeader
               Sejak {memberSince}
             </span>
           )}
-          <span className="flex items-center gap-1">
-            <span className={`w-1.5 h-1.5 rounded-full ${profile.is_online ? 'bg-brand-success' : 'bg-brand-gray-400'}`} />
-            {profile.is_online ? 'Online' : 'Offline'}
-          </span>
         </div>
       </div>
 

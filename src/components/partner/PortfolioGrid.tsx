@@ -8,12 +8,17 @@ interface PortfolioGridProps {
   isLoading?: boolean;
 }
 
+/**
+ * Galeri portofolio. Mobile = mozaik 3 kolom rapat tanpa sudut membulat (pola
+ * galeri profil sosial, disamakan dengan aplikasi Android 2026-08-20); sejak
+ * `sm` kembali ber-gap dan bersudut karena ubinnya jadi jauh lebih besar.
+ */
 export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-3 gap-0.5 sm:gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="aspect-square bg-brand-gray-100 animate-pulse rounded" />
         ))}
@@ -46,11 +51,11 @@ export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridPr
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-3 gap-0.5 sm:gap-4">
         {validPortfolios.map((item, index) => (
           <div 
             key={item.id} 
-            className="relative group rounded overflow-hidden aspect-square bg-brand-gray-100 cursor-pointer"
+            className="relative group rounded-none sm:rounded overflow-hidden aspect-square bg-brand-gray-100 cursor-pointer"
             onClick={() => setSelectedIndex(index)}
           >
             <Image
@@ -58,7 +63,7 @@ export default function PortfolioGrid({ portfolios, isLoading }: PortfolioGridPr
               alt={typeof item.caption === 'string' ? item.caption : 'Portofolio'}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-110"
-              sizes="(max-width: 768px) 50vw, 33vw"
+              sizes="33vw"
             />
             {item.caption && typeof item.caption === 'string' && (
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">

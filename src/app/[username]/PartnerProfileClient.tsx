@@ -18,7 +18,7 @@ import { ProfileSkeleton } from '@/components/ui/skeleton';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { StickyActionBar } from '@/components/ui/sticky-action-bar';
 import { Modal } from '@/components/ui/modal';
-import { WifiOff, RefreshCw, ShieldCheck, AlertTriangle, Zap, MessageCircle } from 'lucide-react';
+import { WifiOff, RefreshCw, ShieldCheck, AlertTriangle, Zap, MessageCircle, LayoutGrid, Images, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { track } from '@/lib/analytics';
 import { fetchAPI } from '@/lib/api';
@@ -26,9 +26,11 @@ import { useAuthStore } from '@/lib/store/authStore';
 import { useChatUiStore } from '@/lib/store/chatUiStore';
 import { useToast } from '@/components/ui/toast';
 
+type PartnerTabKey = 'services' | 'portfolio' | 'reviews';
+
 export default function PartnerProfileClient({ username }: { username: string }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'services' | 'portfolio'>('services');
+  const [activeTab, setActiveTab] = useState<PartnerTabKey>('services');
   const { showToast } = useToast();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const currentUser = useAuthStore((s) => s.user);
@@ -142,6 +144,38 @@ export default function PartnerProfileClient({ username }: { username: string })
     }
   };
 
+  // Tab hanya dirender bila isinya ada . tab buntu (portofolio kosong, mitra
+  // tanpa ulasan) lebih membingungkan daripada tidak ada tabnya sama sekali.
+  // Portofolio tetap tampil SELAMA masih dimuat supaya tidak berkedip
+  // muncul-hilang begitu datanya tiba.
+  const reviewCount = reviewData?.summary?.total_reviews ?? 0;
+  const portfolioCount = portfolios?.length ?? 0;
+  const visibleTabs = [
+    {
+      key: 'services' as const,
+      label: 'Layanan',
+      icon: LayoutGrid,
+      count: isServicesLoading ? null : (services?.length ?? 0),
+    },
+    ...(isPortfoliosLoading || portfolioCount > 0
+      ? [{
+          key: 'portfolio' as const,
+          label: 'Portofolio',
+          icon: Images,
+          count: isPortfoliosLoading ? null : portfolioCount,
+        }]
+      : []),
+    ...(reviewCount > 0
+      ? [{ key: 'reviews' as const, label: 'Ulasan', icon: Star, count: reviewCount }]
+      : []),
+  ];
+  // Tab aktif bisa LENYAP setelah datanya tiba (mis. portofolio ternyata
+  // kosong). Jatuhkan ke tab pertama alih-alih merender panel kosong tanpa tab
+  // yang menyala.
+  const activeTabKey: PartnerTabKey = visibleTabs.some((t) => t.key === activeTab)
+    ? activeTab
+    : 'services';
+
   return (
     // pb-28 di bawah lg = ruang untuk bilah aksi sticky (FEATURE #11);
     // StickyActionBar default lg:hidden, jadi lg kembali ke padding biasa.
@@ -177,58 +211,78 @@ export default function PartnerProfileClient({ username }: { username: string })
         <div className="mt-3 sm:mt-6">
           {/* Main Content (Full Width) */}
           <div className="space-y-3 sm:space-y-6">
-            {/* Tabs: Layanan / Portofolio . kontrol segmented ringkas dengan
-                jumlah item, menggantikan tab garis-bawah polos yang terasa
-                mentah di mobile. Semantik tab dipertahankan (audit D8):
-                role/aria-selected supaya pembaca layar tahu keduanya satu grup
-                dan mana yang aktif. */}
+            {/* Tabs: Layanan / Portofolio / Ulasan . tab garis-bawah berikon +
+                jumlah item, disamakan dengan aplikasi Android (keputusan user
+                2026-08-20). Ulasan kini SALAH SATU tab, bukan section terpisah
+                jauh di bawah halaman.
+
+                Tab hanya dirender bila isinya ada: portofolio kosong dan mitra
+                tanpa ulasan tidak menampilkan tab buntu. Selama portofolio masih
+                dimuat tabnya tetap tampil supaya tidak berkedip muncul-hilang.
+
+                Semantik tab dipertahankan (audit D8): role/aria-selected supaya
+                pembaca layar tahu ketiganya satu grup dan mana yang aktif. */}
             <div id="services-tabs" className="bg-white rounded-md shadow-sm">
-              <div className="p-2.5 sm:p-3 border-b border-brand-gray-100">
-                <div
-                  className="grid grid-cols-2 gap-1 rounded-lg bg-brand-gray-60 p-1"
-                  role="tablist"
-                  aria-label="Konten mitra"
-                >
-                  {([
-                    { key: 'services' as const, label: 'Layanan', count: isServicesLoading ? null : (services?.length ?? 0) },
-                    { key: 'portfolio' as const, label: 'Portofolio', count: isPortfoliosLoading ? null : (portfolios?.length ?? 0) },
-                  ]).map((tab) => {
-                    const active = activeTab === tab.key;
-                    return (
-                      <button
-                        key={tab.key}
-                        type="button"
-                        role="tab"
-                        id={`tab-${tab.key}`}
-                        aria-selected={active}
-                        aria-controls="partner-tabpanel"
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`flex items-center justify-center gap-1.5 rounded-md py-2 text-[13px] sm:text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red ${active
-                          ? 'bg-white text-brand-gray-900 shadow-sm'
-                          : 'text-brand-gray-450 hover:text-brand-gray-900'
-                          }`}
-                      >
-                        {tab.label}
-                        {tab.count !== null && tab.count > 0 && (
-                          <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold ${active ? 'bg-brand-red-light text-brand-red' : 'bg-brand-gray-100 text-brand-gray-450'}`}>
-                            {tab.count}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+              <div
+                className="flex border-b border-brand-gray-100"
+                role="tablist"
+                aria-label="Konten mitra"
+              >
+                {visibleTabs.map((tab) => {
+                  const active = activeTabKey === tab.key;
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      role="tab"
+                      id={`tab-${tab.key}`}
+                      aria-selected={active}
+                      aria-controls="partner-tabpanel"
+                      onClick={() => setActiveTab(tab.key)}
+                      className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 py-3 text-[13px] sm:text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-red ${active
+                        ? 'border-brand-red text-brand-red'
+                        : 'border-transparent text-brand-gray-450 hover:text-brand-gray-900'
+                        }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      {tab.label}
+                      {tab.count !== null && tab.count > 0 && (
+                        <span className="tabular-nums">{tab.count}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
               <div
                 className="p-3 sm:p-6"
                 role="tabpanel"
                 id="partner-tabpanel"
-                aria-labelledby={`tab-${activeTab}`}
+                aria-labelledby={`tab-${activeTabKey}`}
               >
-                {activeTab === 'services' ? (
+                {activeTabKey === 'services' && (
                   <ServicesList services={services || []} profile={profile} isLoading={isServicesLoading} />
-                ) : (
+                )}
+                {activeTabKey === 'portfolio' && (
                   <PortfolioGrid portfolios={portfolios || []} isLoading={isPortfoliosLoading} />
+                )}
+                {activeTabKey === 'reviews' && (
+                  <ReviewSection
+                    reviews={reviewData?.reviews || []}
+                    summary={reviewData?.summary || { total_reviews: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 }}
+                    bare
+                    footer={
+                      (reviewData?.reviews?.length ?? 0) < (reviewData?.summary?.total_reviews ?? 0) ? (
+                        <Button
+                          variant="outline"
+                          isLoading={isReviewsFetching}
+                          onClick={() => setReviewLimit((n) => n + 10)}
+                        >
+                          Muat ulasan lain
+                        </Button>
+                      ) : null
+                    }
+                  />
                 )}
               </div>
             </div>
@@ -276,21 +330,9 @@ export default function PartnerProfileClient({ username }: { username: string })
               </div>
             </div>
 
-            <ReviewSection
-              reviews={reviewData?.reviews || []}
-              summary={reviewData?.summary || { total_reviews: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 }}
-              footer={
-                (reviewData?.reviews?.length ?? 0) < (reviewData?.summary?.total_reviews ?? 0) ? (
-                  <Button
-                    variant="outline"
-                    isLoading={isReviewsFetching}
-                    onClick={() => setReviewLimit((n) => n + 10)}
-                  >
-                    Muat ulasan lain
-                  </Button>
-                ) : null
-              }
-            />
+            {/* Ulasan TIDAK lagi berdiri sebagai section terpisah di sini . ia
+                sudah jadi salah satu tab di atas. Mitra tanpa ulasan pun tak
+                menyisakan blok "Belum ada ulasan" yang memanjangkan halaman. */}
           </div>
         </div>
       </div>
