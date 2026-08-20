@@ -27,35 +27,59 @@ import { formatRupiah } from '@/lib/format';
 /* ─────────── Kontak ─────────── */
 
 /**
- * Tujuan SELURUH surat yang lahir dari /build . lamaran peran, percakapan
- * investor, maupun permintaan deck.
+ * Halaman ini punya DUA jalur surat, dan pembedanya bukan kerapian . melainkan
+ * siapa yang boleh membaca.
  *
- * SENGAJA alamat pribadi founder, BUKAN `profile.support_email` dari `/config`
- * yang dipakai sisa situs. Surat dari halaman ini tidak boleh masuk ke antrean
- * yang sama dengan keluhan pesanan: kotak masuk dukungan dibaca dengan mata
- * "selesaikan tiket", dan perkenalan calon tim atau investor yang masuk ke
- * sana akan diperlakukan sebagai tiket lalu ditutup.
+ * - **Jalur tim (publik).** Lamaran peran datang dari undangan terbuka: siapa
+ *   pun boleh mengirim, jumlahnya bisa banyak, dan suatu saat orang lain perlu
+ *   ikut memilahnya. Alamatnya diambil dari `profile.support_email` di
+ *   `/config` . alamat perusahaan yang sama dengan yang tercetak di footer,
+ *   dan bisa diganti dari panel admin tanpa redeploy.
+ * - **Jalur founder (privat).** Percakapan investor dan permintaan deck TIDAK
+ *   boleh lewat kotak masuk dukungan. Tombolnya berbunyi "Talk With The
+ *   Founder"; menyalurkannya ke antrean tiket membatalkan janji tombol itu,
+ *   dan deck yang dimaksudkan eksklusif jadi melewati tangan yang tidak
+ *   seharusnya. Alamatnya konstanta di bawah, bukan `/config`.
  *
- * Konsekuensi yang disadari: (1) alamat ini terbit di halaman publik, jadi
- * akan dipanen pemanen alamat . itu harga yang diterima demi surat yang
- * sampai ke orang yang tepat; (2) berbeda dari angka bisnis di berkas ini,
- * alamat ini TIDAK bisa diubah dari panel admin . menggantinya berarti
- * menyunting baris ini lalu redeploy Amplify.
- *
- * SEMENTARA (2026-08-20). Begitu ada alamat perusahaan yang benar-benar
- * dibaca untuk keperluan ini, ganti konstanta ini . jangan menambah alamat
- * kedua di tempat pemakaian.
+ * Keduanya sama-sama terbit di HTML halaman publik . "privat" di sini berarti
+ * SIAPA yang membacanya, bukan bahwa alamatnya tersembunyi. Alamat founder
+ * tetap akan dipanen pemanen alamat seperti alamat mana pun di web.
  */
-export const BUILD_CONTACT_EMAIL = 'ryntfk@gmail.com';
 
 /**
- * `mailto:` dengan subjek terisi sesuai konteks CTA-nya.
- *
- * Subjeknya bukan hiasan: ia yang membedakan lamaran Growth dari permintaan
- * deck investor di satu kotak masuk yang sama, tanpa perlu membuka isinya.
+ * Jalur langsung ke founder. SEMENTARA (2026-08-20) . tidak ada di `/config`,
+ * jadi menggantinya berarti menyunting baris ini lalu redeploy Amplify.
  */
-export function contactHref(subject: string): string {
-  return `mailto:${BUILD_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;
+export const FOUNDER_EMAIL = 'ryntfk@gmail.com';
+
+/**
+ * Subjek `mailto:` bukan hiasan: ia yang membedakan lamaran Growth dari
+ * permintaan deck investor di satu kotak masuk, tanpa perlu membuka isinya.
+ */
+function mailto(email: string, subject: string): string {
+  return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+}
+
+/**
+ * Jalur tim . alamat perusahaan dari `/config`.
+ *
+ * Bila profil tidak terbaca (`/config` gagal; `FALLBACK_PLATFORM_CONFIG` memang
+ * tidak memuat profil), jatuh ke Pusat Bantuan alih-alih merender `mailto:`
+ * kosong yang membuka klien surat tanpa tujuan.
+ *
+ * SENGAJA tidak jatuh ke `FOUNDER_EMAIL` sebagai cadangan: kegagalan membaca
+ * config akan membelokkan seluruh lamaran publik ke kotak masuk pribadi tanpa
+ * ada yang menyadarinya.
+ */
+export function teamContactHref(cfg: PlatformConfig, subject: string): string {
+  const email = cfg.profile?.support_email?.trim();
+  if (!email) return '/help';
+  return mailto(email, subject);
+}
+
+/** Jalur founder . konstanta, tidak bergantung `/config`. */
+export function founderContactHref(subject: string): string {
+  return mailto(FOUNDER_EMAIL, subject);
 }
 
 /* ─────────── Traksi ─────────── */

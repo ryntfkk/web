@@ -14,8 +14,9 @@ import {
   TODAY_METRICS,
   TRACTION_AS_OF,
   WHY_NOW,
-  contactHref,
+  founderContactHref,
   revenueSplit,
+  teamContactHref,
 } from '@/lib/build-page';
 import { BuildCta, TrackBuildView } from './BuildCta';
 
@@ -104,11 +105,12 @@ export default async function BuildPage() {
   const cfg = await getPlatformConfig();
   const split = revenueSplit(cfg);
 
-  // Subjek dibedakan per CTA . itu yang memisahkan tiga jenis surat di satu
-  // kotak masuk tanpa perlu membuka isinya.
-  const emailTim = contactHref('Gabung Founding Team Posko');
-  const emailInvestor = contactHref('Diskusi Investasi - Posko Jasa');
-  const emailDeck = contactHref('Request Investor Deck - Posko Jasa');
+  // Dua jalur, dan namanya sengaja terbaca di sini: lamaran tim ke alamat
+  // perusahaan (publik, bisa dipilah orang lain nanti), percakapan investor &
+  // deck ke founder langsung . itu yang dijanjikan tombolnya.
+  const emailTim = teamContactHref(cfg, 'Gabung Founding Team Posko');
+  const emailInvestor = founderContactHref('Diskusi Investasi - Posko Jasa');
+  const emailDeck = founderContactHref('Request Investor Deck - Posko Jasa');
 
   return (
     <div className="page-h bg-white">

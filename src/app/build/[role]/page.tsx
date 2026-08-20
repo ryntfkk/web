@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check } from 'lucide-react';
 import AnimateOnScroll from '@/components/ui/animate-on-scroll';
-import { ROLES, TRACTION_AS_OF, contactHref, findRole } from '@/lib/build-page';
+import { getPlatformConfig } from '@/lib/config-server';
+import { ROLES, TRACTION_AS_OF, findRole, teamContactHref } from '@/lib/build-page';
 import { BuildCta, TrackRoleView } from '../BuildCta';
 
 /**
@@ -76,9 +77,12 @@ export default async function RolePage({ params }: { params: Promise<{ role: str
   const role = findRole(slug);
   if (!role) notFound();
 
-  // Subjeknya memuat nama peran . itu yang membedakan lamaran Growth dari
-  // lamaran Engineering di kotak masuk yang sama.
-  const emailLamar = contactHref(`${role.title} - Posko Build With Us`);
+  // Lamaran peran = jalur TIM (alamat perusahaan dari /config), bukan jalur
+  // founder: undangannya terbuka, jumlahnya bisa banyak, dan suatu saat perlu
+  // ikut dipilah orang lain. Subjeknya memuat nama peran . itu yang membedakan
+  // lamaran Growth dari lamaran Engineering di kotak masuk yang sama.
+  const cfg = await getPlatformConfig();
+  const emailLamar = teamContactHref(cfg, `${role.title} - Posko Build With Us`);
 
   const lainnya = ROLES.filter((r) => r.slug !== role.slug);
 
