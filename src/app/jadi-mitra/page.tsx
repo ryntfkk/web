@@ -33,7 +33,7 @@ import {
   partnerFaq,
 } from '@/lib/partner-landing';
 import { CtaDaftar, TrackLandingView } from './Cta';
-import AnimateOnScroll from './AnimateOnScroll';
+import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 
 /**
  * Halaman akuisisi mitra.

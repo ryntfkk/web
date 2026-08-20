@@ -48,6 +48,13 @@ export type AnalyticsEvent =
   // dipisah: menyatukannya dengan `partner_withdrawal_submitted` membuat
   // "berapa mitra yang mencairkan penghasilan" tidak bisa dijawab lagi.
   | 'customer_withdrawal_submitted'
+  // ── Halaman /build (Build With Us: founding team, advisor, investor) ──
+  // Dipisah dari event akuisisi mitra: pembacanya berbeda, dan menyatukannya
+  // membuat "berapa orang membuka halaman rekrutmen/investor" tidak bisa
+  // dijawab lagi tanpa memilah properti.
+  | 'build_page_viewed'
+  | 'build_page_cta_clicked'
+  | 'build_role_viewed'
   // ── Sisi publik ──
   | 'public_partner_profile_viewed'
   | 'public_partner_service_clicked'

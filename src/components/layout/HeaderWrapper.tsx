@@ -45,6 +45,13 @@ export const RESERVED_ROOT_SEGMENTS = new Set([
   "about",
   "bantuan",
   "book",
+  // Halaman "Build With Us" (founding team / advisor / investor). Seperti
+  // /jadi-mitra: sengaja TIDAK masuk MOBILE_HIDE_PATHS . pembacanya datang
+  // dari tautan yang dibagikan, tanpa riwayat untuk ditekan "kembali", jadi
+  // TopNavbar adalah satu-satunya jalan masuknya ke sisa situs.
+  // (/careers & /investors tidak perlu didaftarkan: keduanya redirect di
+  // next.config.ts dan tidak pernah sampai ke komponen ini.)
+  "build",
   "cart",
   "categories",
   "chat",

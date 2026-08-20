@@ -4,6 +4,47 @@ Semua perubahan signifikan pada codebase frontend didokumentasikan di sini.
 
 ---
 
+## [2026-08-20] - Halaman "Build With Us" (`/build`)
+
+### Halaman Baru
+- **`/build`** . satu halaman untuk calon founding team, advisor, partner, dan investor.
+  Hero tipografi besar berlatar putih (sengaja berbeda dari marketplace utamanya), angka
+  traksi nyata sebagai social proof, alur marketplace, dasbor "Posko Hari Ini", kartu peran,
+  section investor (market → why now → business model → roadmap → open to conversations),
+  dan penutup. Server Component penuh; JS-nya hanya pulau analytics `app/build/BuildCta.tsx`.
+- **`/build/[role]`** . empat halaman detail peran (SSG lewat `generateStaticParams`):
+  `growth-marketing`, `marketplace-operations`, `product-engineering`, `business-partnership`.
+  Memuat bagian **"Sejujurnya, ini tahap awal"** yang menyebut keadaan kompensasi apa adanya.
+- **Redirect** `/careers` → `/build#roles`, `/investors` → `/build#investors`,
+  `/about/build-with-us` → `/build`. Sengaja `permanent: false` supaya halaman terpisah masih
+  bisa lahir nanti tanpa tertahan cache redirect permanen di peramban orang.
+
+### Aturan yang Melekat
+- Angka komisi & pembagian hasil diturunkan dari `/config` (`revenueSplit()`), tidak diketik.
+- Angka traksi berpasangan dengan `TRACTION_AS_OF` yang ikut tercetak di halaman.
+- CTA percakapan memakai `profile.support_email` dari `/config`, fallback `/help`.
+
+### Refactor
+- `AnimateOnScroll` dipindah dari `app/jadi-mitra/` → `components/ui/animate-on-scroll.tsx`
+  (kini dipakai dua landing; salinan kedua pasti menyimpang, termasuk penanganan
+  `prefers-reduced-motion`).
+
+### Jalan Masuk ke `/build`
+- **Footer**, kolom "Perusahaan" . dengan pil `Hiring` (`FooterLink.badge`, penanda pertama
+  dan satu-satunya di footer). Tanpa penanda, tautannya identik dengan "Kebijakan Privasi"
+  di dinding teks abu 13px dan tidak akan pernah diklik. Footer `hidden md:block` = desktop
+  saja, dan untuk pembaca halaman ini justru pas.
+- **`/about`** . blok "Ikut membangun Posko" di atas baris tautan legal. Ini satu-satunya
+  jalan masuk yang terlihat di MOBILE, karena footer tidak dirender di sana.
+- **TIDAK** di TopNavbar/BottomNav/banner home: keduanya navigasi marketplace, dan slot
+  banner home sudah dipakai `PartnerCtaBanner` yang nilainya lebih langsung.
+
+### Ikut Diperbarui
+- `RESERVED_ROOT_SEGMENTS` (`HeaderWrapper.tsx`) + sitemap (`/build` & keempat halaman peran)
+  + tiga event analytics baru.
+
+---
+
 ## [2026-07-19] - Konsistensi UI/UX & Komponen Bersama
 
 ### Fixes

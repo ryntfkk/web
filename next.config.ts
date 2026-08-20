@@ -87,6 +87,32 @@ const nextConfig: NextConfig = {
         destination: '/services',
         permanent: true,
       },
+      // Alamat yang orang tebak sendiri untuk halaman "Build With Us".
+      // Isinya belum cukup untuk mengisi /careers dan /investors sebagai
+      // halaman terpisah, dan dua halaman tipis lebih buruk daripada satu
+      // halaman padat . keduanya akan saling mengambil bobot pencarian untuk
+      // kata kunci yang sama. Jadi keduanya dialihkan ke jangkar di /build.
+      //
+      // 307/308 SENGAJA TIDAK dipakai (`permanent: false`): begitu /careers
+      // punya isinya sendiri, redirect permanen sudah terlanjur di-cache
+      // peramban orang yang pernah membukanya dan halaman barunya tidak akan
+      // pernah mereka lihat.
+      {
+        source: '/careers',
+        destination: '/build#roles',
+        permanent: false,
+      },
+      {
+        source: '/investors',
+        destination: '/build#investors',
+        permanent: false,
+      },
+      // URL yang sempat beredar sebelum rutenya dipendekkan ke /build.
+      {
+        source: '/about/build-with-us',
+        destination: '/build',
+        permanent: false,
+      },
       // Konsolidasi www → non-www (308 permanen). www.poskojasa.com melayani
       // konten yang sama; tanpa redirect ini Google melihat dua host (duplikat).
       // Canonical sudah non-www, tapi redirect memberi sinyal terkuat & merapikan

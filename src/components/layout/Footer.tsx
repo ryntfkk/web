@@ -12,6 +12,13 @@ import type { Category } from '@/types/category';
 interface FooterLink {
   label: string;
   href: string;
+  /**
+   * Pil kecil di sebelah label. Dipakai SANGAT hemat . footer ini dinding
+   * teks abu 13px, dan tautan yang bentuknya persis sama dengan "Kebijakan
+   * Privasi" tidak akan pernah diklik. Satu penanda membuatnya terbaca sebagai
+   * ajakan; dua penanda membuat keduanya kembali tak terlihat.
+   */
+  badge?: string;
 }
 
 interface FooterColumn {
@@ -28,6 +35,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     title: 'Perusahaan',
     links: [
       { label: 'Tentang Kami', href: '/about' },
+      { label: 'Build With Us', href: '/build', badge: 'Hiring' },
       { label: 'Syarat & Ketentuan', href: '/terms' },
       { label: 'Kebijakan Privasi', href: '/privacy' },
       { label: 'Pembatalan & Refund', href: '/legal/cancellation' },
@@ -236,9 +244,14 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-[13px] text-brand-gray-700 hover:text-brand-red transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[13px] text-brand-gray-700 hover:text-brand-red transition-colors"
                     >
                       {link.label}
+                      {link.badge && (
+                        <span className="rounded-full bg-brand-red-soft px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-red">
+                          {link.badge}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 ))}

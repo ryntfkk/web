@@ -6,6 +6,11 @@ import { useEffect, useRef, type ReactNode } from 'react';
  * Wrapper ringan: menampilkan children dengan animasi fade-in + slide-up
  * saat masuk viewport. Menggunakan IntersectionObserver . tidak ada library
  * animasi tambahan, tidak ada runtime cost sebelum elemen terlihat.
+ *
+ * Dipindahkan dari `app/jadi-mitra/AnimateOnScroll.tsx` ke sini saat halaman
+ * /build lahir: dua landing memakai efek yang sama, dan salinan kedua pasti
+ * menyimpang dari yang pertama (termasuk penanganan prefers-reduced-motion,
+ * yang paling mudah terlupakan justru di salinan).
  */
 export default function AnimateOnScroll({
   children,

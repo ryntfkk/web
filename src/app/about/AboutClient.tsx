@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Mail, MapPin, Building2, MessageCircle } from 'lucide-react';
+import { ArrowRight, Mail, MapPin, Building2, MessageCircle } from 'lucide-react';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 
 // Identitas & kontak platform (Fase 3, menutup temuan B3).
@@ -96,6 +96,29 @@ export default function AboutClient() {
               Kontak resmi sedang dilengkapi.
             </p>
           )}
+        </section>
+
+        {/* Jalan masuk ke /build.
+            Ditaruh DI SINI, bukan di navigasi utama: pembaca "Tentang Kami"
+            sudah penasaran pada perusahaannya, bukan pada jasanya . itulah
+            pembaca paling dekat dengan halaman "Build With Us" yang ada di
+            situs ini. Footer memuat tautan yang sama tapi `hidden md:block`,
+            jadi di mobile blok inilah satu-satunya jalannya. */}
+        <section className="rounded-lg border border-brand-gray-100 bg-brand-gray-60 p-5">
+          <h2 className="text-base font-bold text-brand-gray-900">
+            Ikut membangun Posko
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-brand-gray-700">
+            Posko masih di tahap awal. Kami terbuka untuk berkenalan dengan calon tim,
+            advisor, partner, dan early-stage investor.
+          </p>
+          <Link
+            href="/build"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-red hover:underline"
+          >
+            Build With Us
+            <ArrowRight className="w-4 h-4 shrink-0" aria-hidden />
+          </Link>
         </section>
 
         <div className="pt-2 border-t border-brand-gray-100 flex flex-wrap gap-4 text-sm">

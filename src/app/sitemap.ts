@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { slugify } from '@/lib/slug';
+import { ROLES } from '@/lib/build-page';
 
 // SE1: sitemap dinamis. Statis + kategori + landing lokal /jasa/[kat]/[kota]
 // (HANYA kombinasi yang punya layanan → hindari soft-404) + detail layanan.
@@ -38,6 +39,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Landing akuisisi mitra . justru halaman yang paling perlu ditemukan lewat
     // pencarian ("cara jadi mitra", "pasang jasa online").
     '/jadi-mitra',
+    // "Build With Us" . halaman untuk calon founding team, advisor, partner,
+    // dan investor. Beserta empat halaman detail perannya, yang justru itulah
+    // yang dicari orang lewat pencarian ("lowongan startup Semarang").
+    '/build',
+    ...ROLES.map((r) => `/build/${r.slug}`),
     '/privacy',
     '/terms',
     // Dokumen legal yang dilayani rute generik /legal/[slug]. `partner-terms`
