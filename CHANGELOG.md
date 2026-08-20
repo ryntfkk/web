@@ -22,7 +22,9 @@ Semua perubahan signifikan pada codebase frontend didokumentasikan di sini.
 ### Aturan yang Melekat
 - Angka komisi & pembagian hasil diturunkan dari `/config` (`revenueSplit()`), tidak diketik.
 - Angka traksi berpasangan dengan `TRACTION_AS_OF` yang ikut tercetak di halaman.
-- CTA percakapan memakai `profile.support_email` dari `/config`, fallback `/help`.
+- CTA percakapan memakai konstanta `BUILD_CONTACT_EMAIL` (`ryntfk@gmail.com`), **bukan**
+  `profile.support_email` . surat dari halaman ini tidak boleh masuk antrean tiket dukungan.
+  Sementara; alamatnya tidak bisa diubah dari panel admin, harus lewat redeploy.
 
 ### Refactor
 - `AnimateOnScroll` dipindah dari `app/jadi-mitra/` → `components/ui/animate-on-scroll.tsx`

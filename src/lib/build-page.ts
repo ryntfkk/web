@@ -27,21 +27,35 @@ import { formatRupiah } from '@/lib/format';
 /* ─────────── Kontak ─────────── */
 
 /**
- * Tujuan seluruh CTA percakapan di /build (founding team maupun investor).
+ * Tujuan SELURUH surat yang lahir dari /build . lamaran peran, percakapan
+ * investor, maupun permintaan deck.
  *
- * Alamatnya diambil dari `profile.support_email` di `/config`, BUKAN literal:
- * alamat yang diketik di sini akan tetap tercetak lama setelah kotak masuknya
- * ditutup, dan kegagalannya senyap . pengirimnya tidak pernah tahu suratnya
- * tidak sampai, kita tidak pernah tahu ada yang mengirim.
+ * SENGAJA alamat pribadi founder, BUKAN `profile.support_email` dari `/config`
+ * yang dipakai sisa situs. Surat dari halaman ini tidak boleh masuk ke antrean
+ * yang sama dengan keluhan pesanan: kotak masuk dukungan dibaca dengan mata
+ * "selesaikan tiket", dan perkenalan calon tim atau investor yang masuk ke
+ * sana akan diperlakukan sebagai tiket lalu ditutup.
  *
- * Bila profil tidak terbaca (`/config` gagal . `FALLBACK_PLATFORM_CONFIG`
- * memang tidak memuat profil), CTA-nya jatuh ke Pusat Bantuan alih-alih
- * merender `mailto:` kosong yang membuka klien surat tanpa tujuan.
+ * Konsekuensi yang disadari: (1) alamat ini terbit di halaman publik, jadi
+ * akan dipanen pemanen alamat . itu harga yang diterima demi surat yang
+ * sampai ke orang yang tepat; (2) berbeda dari angka bisnis di berkas ini,
+ * alamat ini TIDAK bisa diubah dari panel admin . menggantinya berarti
+ * menyunting baris ini lalu redeploy Amplify.
+ *
+ * SEMENTARA (2026-08-20). Begitu ada alamat perusahaan yang benar-benar
+ * dibaca untuk keperluan ini, ganti konstanta ini . jangan menambah alamat
+ * kedua di tempat pemakaian.
  */
-export function contactHref(cfg: PlatformConfig, subject: string): string {
-  const email = cfg.profile?.support_email?.trim();
-  if (!email) return '/help';
-  return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+export const BUILD_CONTACT_EMAIL = 'ryntfk@gmail.com';
+
+/**
+ * `mailto:` dengan subjek terisi sesuai konteks CTA-nya.
+ *
+ * Subjeknya bukan hiasan: ia yang membedakan lamaran Growth dari permintaan
+ * deck investor di satu kotak masuk yang sama, tanpa perlu membuka isinya.
+ */
+export function contactHref(subject: string): string {
+  return `mailto:${BUILD_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;
 }
 
 /* ─────────── Traksi ─────────── */

@@ -104,9 +104,11 @@ export default async function BuildPage() {
   const cfg = await getPlatformConfig();
   const split = revenueSplit(cfg);
 
-  const emailTim = contactHref(cfg, 'Gabung Founding Team Posko');
-  const emailInvestor = contactHref(cfg, 'Diskusi Investasi - Posko Jasa');
-  const emailDeck = contactHref(cfg, 'Request Investor Deck - Posko Jasa');
+  // Subjek dibedakan per CTA . itu yang memisahkan tiga jenis surat di satu
+  // kotak masuk tanpa perlu membuka isinya.
+  const emailTim = contactHref('Gabung Founding Team Posko');
+  const emailInvestor = contactHref('Diskusi Investasi - Posko Jasa');
+  const emailDeck = contactHref('Request Investor Deck - Posko Jasa');
 
   return (
     <div className="page-h bg-white">
