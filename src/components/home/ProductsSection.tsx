@@ -21,10 +21,14 @@ import { FeedbackCard } from '@/components/home/FeedbackCard';
 const FETCH_LIMIT = 8;   // ambil cukup untuk mengisi 2 baris desktop
 const MOBILE_CARDS = 6;  // mobile sengaja lebih padat/pendek
 const DESKTOP_CARDS = 8; // 8 + Masukan + banner = 10 ubin = 2 baris x 5
-// Tinggi kedua filler (Masukan & banner) di mobile. Disamakan agar dua kolom
-// masonry berakhir di ketinggian yang sama; sengaja < tinggi kartu (~280) supaya
-// efek staggered tetap ada.
-const FILLER_H = 'h-[216px]';
+// Tinggi kedua filler (Masukan & banner) di mobile. WAJIB sama supaya dua kolom
+// masonry berakhir sejajar, dan wajib < tinggi kartu supaya efek staggered tetap
+// ada. Kartu = foto 1:1 selebar kolom + blok teks, jadi tingginya ikut lebar
+// layar . karena itu filler diikat ke lebar viewport (`44vw` ~ 95% lebar kolom
+// pada gutter 12px + gap 12px) dengan batas bawah 160px supaya isinya tetap muat
+// di layar 320px. Angka mati `h-[216px]` yang lama membuat rasio staggered-nya
+// berubah-ubah antara ponsel sempit dan lebar.
+const FILLER_H = 'h-[44vw] min-h-[160px]';
 
 export default function ProductsSection() {
   // Lokasi (bukan kota) = acuan jarak & urutan terdekat. Filter kota dihapus
@@ -70,7 +74,15 @@ export default function ProductsSection() {
 
 function ServiceFeed({ services, banner }: { services: PublicService[]; banner?: Banner }) {
   // Mobile masonry: maks 6 kartu, berselang (kiri = indeks genap, kanan = ganjil).
-  const mobileCards = services.slice(0, MOBILE_CARDS);
+  //
+  // Jumlahnya dibulatkan ke bawah ke bilangan GENAP. Tiap kolom sudah kebagian
+  // satu filler, jadi kolom hanya berakhir sejajar bila jumlah kartunya sama:
+  // dengan 3 layanan, pembagian genap/ganjil menghasilkan (2 kartu + filler) vs
+  // (filler + 1 kartu) . lubang setinggi satu kartu penuh di kolom kanan, yang
+  // terbaca rusak alih-alih staggered. Paling banyak satu kartu dilepas dari
+  // teaser yang memang sudah dibatasi, dan "Lihat Semua" ada di judul section.
+  const capped = services.slice(0, MOBILE_CARDS);
+  const mobileCards = capped.slice(0, capped.length - (capped.length % 2));
   const left = mobileCards.filter((_, i) => i % 2 === 0);   // c0, c2, c4
   const right = mobileCards.filter((_, i) => i % 2 === 1);   // c1, c3, c5
 
@@ -166,10 +178,10 @@ function FeedSkeleton() {
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
           ))}
-          <div className="h-[216px] bg-brand-gray-100 animate-pulse rounded-lg" />
+          <div className={`${FILLER_H} bg-brand-gray-100 animate-pulse rounded-lg`} />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <div className="h-[216px] bg-brand-gray-100 animate-pulse rounded-lg" />
+          <div className={`${FILLER_H} bg-brand-gray-100 animate-pulse rounded-lg`} />
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-[280px] bg-brand-gray-100 animate-pulse rounded-lg" />
           ))}

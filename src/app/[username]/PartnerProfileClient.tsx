@@ -211,6 +211,49 @@ export default function PartnerProfileClient({ username }: { username: string })
         <div className="mt-3 sm:mt-6">
           {/* Main Content (Full Width) */}
           <div className="space-y-3 sm:space-y-6">
+            {/* Responsivitas + jaminan transaksi, DI ATAS kartu tab.
+
+                Dulu keduanya kartu terpisah di BAWAH panel tab. Panel itu bisa
+                sangat panjang (grid portofolio puluhan foto, daftar ulasan yang
+                bisa dimuat terus) . jadi peringatan "jangan bayar di luar
+                platform" praktis tak pernah terbaca, dan sejak Ulasan jadi tab
+                (2026-08-20) posisinya makin jauh. Digabung jadi SATU kartu supaya
+                naiknya ke atas tidak mendorong tab terlalu jauh dari lipatan.
+
+                Blok responsivitas (E9) tetap hanya muncul bila backend mengirim
+                response_stats (sampel cukup) . mitra baru tidak ditampilkan "0%". */}
+            <div className="bg-white rounded-md shadow-sm p-4 sm:p-5 space-y-3">
+              {profile.response_stats && (
+                <div className="flex flex-wrap gap-2 pb-3 border-b border-brand-gray-100">
+                  {profile.response_stats.response_time_label && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-success-soft px-3 py-1.5 text-xs font-semibold text-brand-success-dark">
+                      <Zap className="w-3.5 h-3.5" />
+                      {profile.response_stats.response_time_label}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-info-soft px-3 py-1.5 text-xs font-semibold text-brand-info-dark">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    {profile.response_stats.response_rate}% chat dibalas
+                  </span>
+                </div>
+              )}
+              <div className="flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-brand-info mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-semibold text-brand-info-dark mb-0.5">Harga Transparan</p>
+                  <p className="text-xs text-brand-gray-700 leading-snug">
+                    Harga yang tertera adalah biaya layanan dasar. Biaya material atau peralatan tambahan, jika dibutuhkan, akan diajukan secara terpisah oleh mitra dan <strong>harus kamu setujui sebelum dibayar</strong>.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5 pt-3 border-t border-brand-gray-100">
+                <AlertTriangle className="w-4 h-4 text-brand-warning mt-0.5 shrink-0" />
+                <p className="text-xs text-brand-warning-dark leading-snug">
+                  <strong>Jangan bayar di luar platform.</strong> Semua transaksi harus melalui Posko Jasa agar dananya dilindungi Posko dan bergaransi layanan.
+                </p>
+              </div>
+            </div>
+
             {/* Tabs: Layanan / Portofolio / Ulasan . tab garis-bawah berikon +
                 jumlah item, disamakan dengan aplikasi Android (keputusan user
                 2026-08-20). Ulasan kini SALAH SATU tab, bukan section terpisah
@@ -284,49 +327,6 @@ export default function PartnerProfileClient({ username }: { username: string })
                     }
                   />
                 )}
-              </div>
-            </div>
-
-            {/* Responsivitas (E9) . badge dari data chat. Seluruh blok muncul
-                HANYA bila backend mengirim response_stats (sampel cukup); mitra
-                baru tidak ditampilkan "0%". */}
-            {profile.response_stats && (
-              <div className="bg-white rounded-md shadow-sm p-4 sm:p-5">
-                <h2 className="text-base sm:text-lg font-semibold text-brand-gray-900 mb-3">Responsivitas</h2>
-                <div className="flex flex-wrap gap-2">
-                  {profile.response_stats.response_time_label && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-success-soft px-3 py-1.5 text-xs font-semibold text-brand-success-dark">
-                      <Zap className="w-3.5 h-3.5" />
-                      {profile.response_stats.response_time_label}
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-info-soft px-3 py-1.5 text-xs font-semibold text-brand-info-dark">
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    {profile.response_stats.response_rate}% chat dibalas
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Trust signals . transparansi harga + peringatan bayar di luar
-                platform. Jadwal DIPINDAH ke tombol "Jam Operasional" di header
-                (modal), jadi tak ada lagi kartu jadwal 7-baris yang memenuhi
-                halaman. */}
-            <div className="bg-white rounded-md shadow-sm p-4 sm:p-5 space-y-3">
-              <div className="flex items-start gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-brand-info mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-xs font-semibold text-brand-info-dark mb-0.5">Harga Transparan</p>
-                  <p className="text-xs text-brand-gray-700 leading-snug">
-                    Harga yang tertera adalah biaya layanan dasar. Biaya material atau peralatan tambahan, jika dibutuhkan, akan diajukan secara terpisah oleh mitra dan <strong>harus kamu setujui sebelum dibayar</strong>.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5 pt-3 border-t border-brand-gray-100">
-                <AlertTriangle className="w-4 h-4 text-brand-warning mt-0.5 shrink-0" />
-                <p className="text-xs text-brand-warning-dark leading-snug">
-                  <strong>Jangan bayar di luar platform.</strong> Semua transaksi harus melalui Posko Jasa agar dananya dilindungi Posko dan bergaransi layanan.
-                </p>
               </div>
             </div>
 

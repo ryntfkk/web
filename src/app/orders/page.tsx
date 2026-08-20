@@ -76,6 +76,9 @@ interface Order {
 
 const VALID_FILTERS: FilterStatus[] = ['all', 'pending', 'processing', 'completed', 'cancelled'];
 
+/** Ambang munculnya kolom pencarian pesanan (sama dengan aturan >= 6 di daftar chat). */
+const SEARCH_MIN_ORDERS = 6;
+
 // useSearchParams wajib berada di bawah <Suspense> (aturan Next App Router
 // saat prerender) . karena itu isi halaman dipisah ke komponen dalam.
 export default function OrdersPage() {
@@ -259,27 +262,33 @@ function OrdersPageInner() {
           <div className="flex-1 space-y-4 min-w-0">
 
 
-            {/* Search */}
-            <div className="relative">
-              <Search className="w-4 h-4 text-brand-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari no. pesanan, mitra, atau layanan…"
-                className="w-full pl-9 pr-9 py-2.5 rounded-md text-sm bg-white border border-brand-gray-100 text-brand-gray-900 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red"
-              />
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  aria-label="Hapus pencarian"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-brand-gray-450 hover:text-brand-gray-700 rounded transition-colors"
-                >
-                  <XCircle className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+            {/* Search . baru muncul saat daftarnya cukup panjang untuk perlu
+                dicari (ambang sama dengan daftar chat). Dengan dua-tiga pesanan
+                kolom ini hanya memakan ruang di atas layar tanpa pernah dipakai.
+                Tetap dirender selama masih ada kata kunci supaya tidak lenyap di
+                tengah pengetikan begitu hasilnya menyusut. */}
+            {(orders.length >= SEARCH_MIN_ORDERS || search.trim().length > 0) && (
+              <div className="relative">
+                <Search className="w-4 h-4 text-brand-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari no. pesanan, mitra, atau layanan…"
+                  className="w-full pl-9 pr-9 py-2.5 rounded-md text-sm bg-white border border-brand-gray-100 text-brand-gray-900 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    aria-label="Hapus pencarian"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-brand-gray-450 hover:text-brand-gray-700 rounded transition-colors"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
 
             {loading ? (
               <>
