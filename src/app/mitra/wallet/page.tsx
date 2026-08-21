@@ -8,6 +8,7 @@ import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/format';
+import { toDateParam } from '@/lib/date';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import MitraSection from '@/components/mitra/MitraSection';
@@ -43,20 +44,6 @@ interface BalanceResponse {
 /** Sama dengan default per_page backend (wallet/handler.go). */
 const PAGE_SIZE = 20;
 
-/**
- * `YYYY-MM-DD` dari komponen tanggal LOKAL.
- *
- * JANGAN memakai `toISOString().split('T')[0]` untuk ini. Tengah malam lokal di
- * WIB (UTC+7) adalah pukul 17:00 UTC pada tanggal SEBELUMNYA, jadi cara itu
- * menggeser seluruh rentang satu hari: pada 31 Agustus, "Bulan Ini" mengirim
- * `end_date=2026-08-30` dan pendapatan hari itu lenyap dari daftar . sementara
- * mutasi sore 31 Juli justru ikut tertarik masuk.
- */
-function toDateParam(d: Date): string {
-  const bulan = String(d.getMonth() + 1).padStart(2, '0');
-  const tanggal = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${bulan}-${tanggal}`;
-}
 
 export default function MitraWalletPage() {
   const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
@@ -238,13 +225,20 @@ export default function MitraWalletPage() {
           </MitraInfoBanner>
 
           <div className="grid grid-cols-2 gap-3">
+            {/* Kedua angka ini SEPANJANG MASA . `GetWalletTransactionSummary`
+                hanya menerima userID, tanpa filter periode maupun tipe. Ia
+                dipajang berdampingan dengan pemilih "Bulan Ini / 3 Bulan
+                Terakhir", jadi tanpa keterangan periodenya pembaca wajar
+                mengira angkanya ikut tersaring. */}
             <div className="bg-white rounded-lg border border-brand-gray-100 p-3 shadow-sm flex flex-col items-center text-center">
               <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Pemasukan</p>
               <p className="font-bold text-brand-success text-lg">{formatPrice(summary.total_earnings)}</p>
+              <p className="mt-0.5 text-[11px] text-brand-gray-450">Sepanjang masa</p>
             </div>
             <div className="bg-white rounded-lg border border-brand-gray-100 p-3 shadow-sm flex flex-col items-center text-center">
               <p className="text-xs text-brand-gray-700 mb-1 font-medium">Total Penarikan</p>
               <p className="font-bold text-brand-gray-900 text-lg">{formatPrice(summary.total_withdrawals)}</p>
+              <p className="mt-0.5 text-[11px] text-brand-gray-450">Sepanjang masa</p>
             </div>
           </div>
         </div>

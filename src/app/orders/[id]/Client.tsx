@@ -113,6 +113,8 @@ interface OrderDetail {
     quantity: number;
     total: number;
     status: string;
+    /** Diisi bila MITRA menarik kembali tagihan ini (M6b) . statusnya tetap REJECTED. */
+    withdrawn_at?: string;
   }[];
   review?: {
     id: string;
@@ -877,7 +879,15 @@ export default function OrderDetailClient() {
                             : fee.status === 'REJECTED' ? 'text-brand-gray-450 bg-brand-gray-60'
                               : 'text-brand-orange bg-brand-orange/10'
                           }`}>
-                          {fee.status === 'PAID' ? 'Dibayar' : fee.status === 'REJECTED' ? 'Ditolak' : 'Menunggu persetujuan'}
+                          {fee.status === 'PAID'
+                            ? 'Dibayar'
+                            : fee.status === 'REJECTED'
+                              // M6b: tagihan yang DITARIK MITRA juga berstatus
+                              // REJECTED. Tanpa membedakannya, layar pelanggan
+                              // berbunyi "Ditolak" untuk tagihan yang tak pernah
+                              // ia sentuh.
+                              ? (fee.withdrawn_at ? 'Dibatalkan mitra' : 'Ditolak')
+                              : 'Menunggu persetujuan'}
                         </span>
                       </div>
                     </div>

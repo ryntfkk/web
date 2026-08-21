@@ -101,6 +101,8 @@ interface MitraOrderDetail {
     quantity: number;
     total: number;
     status: 'PENDING' | 'PAID' | 'REJECTED';
+    /** Diisi bila KAMU yang menarik tagihan ini kembali (M6b). */
+    withdrawn_at?: string;
     // Batas pelanggan menjawab (created_at + 24 jam), diisi backend hanya untuk
     // fee PENDING dan sinkron dengan worker.HandleAdditionalPayTimeout. Mitra
     // wajib melihatnya: selama tagihan menggantung, pekerjaannya ikut tertahan.
@@ -131,6 +133,13 @@ const ADDITIONAL_FEE_LABEL: Record<string, string> = {
   PAID: 'Sudah dibayar',
   REJECTED: 'Ditolak pelanggan',
 };
+
+/** M6b: tagihan yang KAMU tarik juga berstatus REJECTED . jangan sebut
+ *  "ditolak pelanggan" untuk sesuatu yang kamu batalkan sendiri. */
+function labelFee(fee: { status: string; withdrawn_at?: string }): string {
+  if (fee.status === 'REJECTED' && fee.withdrawn_at) return 'Kamu tarik kembali';
+  return ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status;
+}
 
 /** Hero per status, ditulis dari sudut pandang MITRA . apa yang terjadi dan
  *  apa yang harus mitra lakukan sekarang. */
@@ -265,6 +274,9 @@ export default function MitraOrderDetailClient() {
   const [completeAttestation, setCompleteAttestation] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  // M6b: tagihan tambahan yang sedang ditarik kembali (null = tidak ada dialog).
+  const [feeDitarik, setFeeDitarik] = useState<{ id: string; item_name: string; total: number } | null>(null);
+  const [feeLoading, setFeeLoading] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
@@ -324,6 +336,21 @@ export default function MitraOrderDetailClient() {
       showToast(pesanGalatPesanan(res, GAGAL_AKSI[action] ?? 'Aksi gagal. Coba lagi.'), 'error');
     }
     setActionLoading(false);
+  };
+
+  /** M6b . tarik kembali tagihan tambahan yang masih menunggu pelanggan. */
+  const tarikTagihan = async () => {
+    if (!feeDitarik) return;
+    setFeeLoading(true);
+    const res = await fetchAPI(`/orders/${orderId}/additional-fees/${feeDitarik.id}`, { method: 'DELETE' });
+    setFeeLoading(false);
+    if (res.success) {
+      setFeeDitarik(null);
+      showToast('Tagihan ditarik kembali. Pekerjaan bisa dilanjutkan.');
+      await refetch();
+    } else {
+      showToast(pesanGalatPesanan(res, 'Gagal menarik tagihan. Coba lagi.'), 'error');
+    }
   };
 
   const copyOrderNumber = async () => {
@@ -928,14 +955,29 @@ export default function MitraOrderDetailClient() {
                           <span className="ml-1 text-xs font-normal">({fee.quantity}× {formatPrice(fee.price)})</span>
                         </p>
                         <p className="text-xs text-brand-gray-450">
-                          {fee.type === 'material' ? 'Material' : 'Layanan'} · {ADDITIONAL_FEE_LABEL[fee.status] ?? fee.status}
+                          {fee.type === 'material' ? 'Material' : 'Layanan'} · {labelFee(fee)}
                         </p>
                       </div>
-                      <span className={`font-medium shrink-0 ${fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
-                          : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
-                        }`}>
-                        + {formatPrice(fee.total)}
-                      </span>
+                      <div className="shrink-0 text-right">
+                        <span className={`font-medium ${fee.status === 'REJECTED' ? 'text-brand-gray-450 line-through'
+                            : fee.status === 'PENDING' ? 'text-brand-orange' : 'text-brand-gray-900'
+                          }`}>
+                          + {formatPrice(fee.total)}
+                        </span>
+                        {/* M6b: salah ketik harga dulu berarti pekerjaan tertahan
+                            sampai auto-reject 24 jam . satu-satunya "jalan keluar"
+                            adalah meminta pelanggan menolak tagihan yang kamu
+                            sendiri tahu salah. */}
+                        {fee.status === 'PENDING' && (
+                          <button
+                            type="button"
+                            onClick={() => setFeeDitarik({ id: fee.id, item_name: fee.item_name, total: fee.total })}
+                            className="block ml-auto mt-0.5 text-[11px] font-semibold text-brand-error hover:underline"
+                          >
+                            Tarik kembali
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1075,6 +1117,48 @@ export default function MitraOrderDetailClient() {
           <div className="flex flex-col gap-2">{actions}</div>
         </div>
       )}
+
+      {/* M6b . konfirmasi tarik tagihan. Menyebut AKIBATNYA: pelanggan sudah
+          menerima notifikasi tagihan ini, jadi pembatalannya juga diberitahukan
+          (bukan tagihan yang diam-diam lenyap dari layarnya). */}
+      <MitraModal
+        open={Boolean(feeDitarik)}
+        onClose={() => setFeeDitarik(null)}
+        title="Tarik kembali tagihan ini?"
+        description={
+          feeDitarik
+            ? `${feeDitarik.item_name} . ${formatPrice(feeDitarik.total)}`
+            : undefined
+        }
+        footer={
+          <>
+            <Button
+              variant="outline"
+              className="flex-1 rounded-md border-brand-gray-100 text-brand-gray-700"
+              onClick={() => setFeeDitarik(null)}
+              disabled={feeLoading}
+            >
+              Batal
+            </Button>
+            <Button
+              className="flex-1 rounded-md bg-brand-error hover:bg-brand-error-dark"
+              onClick={tarikTagihan}
+              disabled={feeLoading}
+            >
+              {feeLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ya, Tarik'}
+            </Button>
+          </>
+        }
+      >
+        <p className="mt-4 text-sm text-brand-gray-700">
+          Tagihan ini tidak jadi ditagihkan dan pelanggan diberi tahu. Bila tidak ada
+          tagihan lain yang menunggu, pesanan kembali ke <strong>Sedang Dikerjakan</strong>
+          sehingga kamu bisa langsung melanjutkan pekerjaan.
+        </p>
+        <p className="mt-2 text-xs text-brand-gray-450">
+          Tagihan yang sudah dibayar atau ditolak pelanggan tidak bisa ditarik.
+        </p>
+      </MitraModal>
 
       {/* Konfirmasi Hubungi Admin (tak lagi langsung kirim laporan) */}
       <OrderHelpModal
