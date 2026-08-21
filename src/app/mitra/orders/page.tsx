@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Package, Search, SlidersHorizontal, X } from 'lucide-react';
@@ -84,7 +83,6 @@ function dedupeById<T extends { id: string }>(items: T[]): T[] {
 
 export default function MitraOrdersPage() {
   const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
-  const router = useRouter();
 
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
@@ -354,14 +352,29 @@ export default function MitraOrdersPage() {
                   <Calendar className="w-4 h-4 text-brand-gray-450" />
                   <span>{formatTime(order.scheduled_at)}</span>
                 </div>
+                {/* Pesanan batal TIDAK menghasilkan apa pun bagi mitra
+                    (utils.CalculateRefund: kompensasi mitra 0). Backend tetap
+                    mengirim `partner_amount` hasil ESTIMASI karena kolomnya di
+                    DB hanya terisi saat pesanan selesai . mencetaknya apa adanya
+                    membuat tab "Dibatalkan" berisi deretan rupiah yang tidak
+                    pernah datang. */}
                 <div className="text-right">
-                  <p className="font-bold text-brand-red">
-                    {formatPrice(order.partner_amount ?? 0)}
-                    {order.partner_amount_estimated && (
-                      <span className="ml-1 text-[10px] font-normal text-brand-gray-450">est.</span>
-                    )}
-                  </p>
-                  <p className="text-[10px] text-brand-gray-450 mt-0.5">Pendapatan mitra</p>
+                  {order.status === 'CANCELLED' ? (
+                    <>
+                      <p className="font-bold text-brand-gray-450">{formatPrice(0)}</p>
+                      <p className="text-[10px] text-brand-gray-450 mt-0.5">Pesanan dibatalkan</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-bold text-brand-red">
+                        {formatPrice(order.partner_amount ?? 0)}
+                        {order.partner_amount_estimated && (
+                          <span className="ml-1 text-[10px] font-normal text-brand-gray-450">est.</span>
+                        )}
+                      </p>
+                      <p className="text-[10px] text-brand-gray-450 mt-0.5">Pendapatan mitra</p>
+                    </>
+                  )}
                 </div>
               </div>
             </Link>

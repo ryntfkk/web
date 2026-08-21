@@ -22,7 +22,7 @@ import OrderHelpModal from '@/components/order/OrderHelpModal';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
 import MitraModal from '@/components/mitra/MitraModal';
-import { getErrorMessage } from '@/types/api';
+import { pesanGalatPesanan, kodeGalat } from '@/lib/order-error';
 import { usePlatformConfig, formatFeeRate } from '@/hooks/usePlatformConfig';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -101,6 +101,10 @@ interface MitraOrderDetail {
     quantity: number;
     total: number;
     status: 'PENDING' | 'PAID' | 'REJECTED';
+    // Batas pelanggan menjawab (created_at + 24 jam), diisi backend hanya untuk
+    // fee PENDING dan sinkron dengan worker.HandleAdditionalPayTimeout. Mitra
+    // wajib melihatnya: selama tagihan menggantung, pekerjaannya ikut tertahan.
+    expired_at?: string;
   }[];
   review?: {
     id: string;
@@ -110,6 +114,17 @@ interface MitraOrderDetail {
     created_at: string;
   };
 }
+
+/** Kalimat terakhir per aksi bila server tidak mengirim apa pun yang layak tampil. */
+const GAGAL_AKSI: Record<string, string> = {
+  confirm: 'Gagal menerima pesanan. Coba lagi.',
+  accept: 'Gagal menerima pesanan. Coba lagi.',
+  reject: 'Gagal menolak pesanan. Coba lagi.',
+  start: 'Gagal memulai pengerjaan. Coba lagi.',
+  complete: 'Gagal menandai pesanan selesai. Coba lagi.',
+  cancel: 'Gagal membatalkan pesanan. Coba lagi.',
+  dispute: 'Gagal mengirim laporan masalah. Coba lagi.',
+};
 
 const ADDITIONAL_FEE_LABEL: Record<string, string> = {
   PENDING: 'Menunggu pembayaran pelanggan',
@@ -303,8 +318,10 @@ export default function MitraOrderDetailClient() {
     } else {
       // `code` dari backend, BUKAN pesan yang sudah diterjemahkan . pesan
       // berubah kapan saja, kode tidak, dan hanya kode yang bisa dikelompokkan.
-      track('partner_order_action_failed', { action, order_id: orderId, code: res.code ?? null });
-      showToast(getErrorMessage(res), 'error');
+      // Kodenya ada di `error.code`; `res.code` tidak pernah diisi oleh
+      // pembungkus fetch, jadi versi lama selalu mencatat null.
+      track('partner_order_action_failed', { action, order_id: orderId, code: kodeGalat(res) ?? null });
+      showToast(pesanGalatPesanan(res, GAGAL_AKSI[action] ?? 'Aksi gagal. Coba lagi.'), 'error');
     }
     setActionLoading(false);
   };
@@ -400,6 +417,13 @@ export default function MitraOrderDetailClient() {
   );
 
   const pendingFees = (order.additional_fees ?? []).filter(f => f.status === 'PENDING');
+  // Batas terjauh di antara tagihan yang menggantung . itulah saat pesanan
+  // paling lambat lepas dari WAITING_ADDITIONAL_PAY bila pelanggan diam saja.
+  const feeDeadline = pendingFees
+    .map(f => f.expired_at)
+    .filter((d): d is string => Boolean(d))
+    .sort()
+    .pop();
 
   const timeline = [
     { label: 'Pesanan masuk', at: order.created_at },
@@ -522,8 +546,26 @@ export default function MitraOrderDetailClient() {
   );
 
   /* Rincian pendapatan . kartu terpenting bagi mitra, jadi ia yang sticky
-     di kolom kanan pada desktop. */
-  const earningsCard = (
+     di kolom kanan pada desktop.
+
+     Pesanan BATAL tidak pernah membayar mitra (utils.CalculateRefund
+     mengembalikan kompensasi mitra 0), tetapi backend tetap mengirim
+     `partner_amount` hasil estimasi . kolom aslinya di DB hanya terisi saat
+     pesanan selesai. Menampilkan rincian estimasi di sini berarti menjanjikan
+     uang yang tidak akan pernah masuk, jadi statusnya diputus lebih dulu. */
+  const earningsCard = status === 'CANCELLED' ? (
+    <Section title="Rincian Pendapatan" icon={Wallet}>
+      <div className="flex justify-between font-bold text-base">
+        <span className="text-brand-gray-900">Pendapatan</span>
+        <span className="text-brand-gray-450">{formatPrice(0)}</span>
+      </div>
+      <p className="mt-1.5 text-xs text-brand-gray-450">
+        Pesanan dibatalkan, jadi tidak ada pendapatan dari pesanan ini.
+        {order.refunded_amount !== undefined && order.refunded_amount > 0 &&
+          ` Dana pelanggan sebesar ${formatPrice(order.refunded_amount)} dikembalikan.`}
+      </p>
+    </Section>
+  ) : (
     <Section title="Rincian Pendapatan" icon={Wallet}>
       {order.total_service_price !== undefined && (
         <div className="flex justify-between text-sm text-brand-gray-700">
@@ -705,7 +747,27 @@ export default function MitraOrderDetailClient() {
                     {order.customer_info.username && (
                       <p className="text-xs text-brand-gray-450 truncate">@{order.customer_info.username}</p>
                     )}
-
+                    {/* Nomor pelanggan SELALU dikirim backend, tetapi dulu tak
+                        pernah ditampilkan . jadi datanya menganggur di payload
+                        sementara mitra yang sudah sampai di lokasi tak punya
+                        cara menelepon. Nomor penuh hanya dikirim pada status
+                        yang kontaknya memang bagian dari pekerjaan (backend:
+                        kontakLangsungDiizinkan); di luar itu yang ada hanya
+                        versi tersamarkan, dan itu ditampilkan apa adanya supaya
+                        mitra tahu nomornya memang ada. */}
+                    {(order.customer_info.phone || order.customer_info.phone_masked) && (
+                      <p className="mt-0.5 text-xs text-brand-gray-700 truncate">
+                        {order.customer_info.phone ? (
+                          <a href={`tel:${order.customer_info.phone}`} className="font-medium text-brand-red hover:underline">
+                            {order.customer_info.phone}
+                          </a>
+                        ) : (
+                          <span title="Nomor dibuka setelah pesanan dibayar">
+                            {order.customer_info.phone_masked}
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </div>
                   <Button
                     size="sm"
@@ -878,9 +940,32 @@ export default function MitraOrderDetailClient() {
                   ))}
                 </div>
                 {pendingFees.length > 0 && (
-                  <p className="mt-3 pt-3 border-t border-brand-gray-100 text-xs text-brand-orange">
-                    {pendingFees.length} tagihan menunggu keputusan pelanggan. Biaya layanan tambahan kena komisi {formatFeeRate(platformConfig.platform_fee_rate)}; material dibayar penuh ke kamu.
-                  </p>
+                  <div className="mt-3 pt-3 border-t border-brand-gray-100 space-y-2">
+                    <p className="text-xs text-brand-orange">
+                      {pendingFees.length} tagihan menunggu keputusan pelanggan. Biaya layanan tambahan kena komisi {formatFeeRate(platformConfig.platform_fee_rate)}; material dibayar penuh ke kamu.
+                    </p>
+                    {/* Sisa waktu bukan hiasan: lewat batas ini tagihan
+                        di-auto-reject (worker.HandleAdditionalPayTimeout) dan
+                        pesanan kembali ke IN_PROGRESS. Tanpa angka ini mitra
+                        hanya tahu pekerjaannya tertahan, tidak tahu sampai kapan.
+                        Fee terlama yang dipakai . itu yang menentukan kapan
+                        pesanan bebas. */}
+                    {feeDeadline && (
+                      <p className="flex flex-wrap items-center gap-1.5 text-xs text-brand-gray-700">
+                        <Clock className="w-3.5 h-3.5 shrink-0 text-brand-orange" aria-hidden />
+                        Pelanggan punya waktu
+                        <CountdownTimer
+                          targetDate={feeDeadline}
+                          format="hh:mm:ss"
+                          criticalThresholdSeconds={3600}
+                          warningThresholdSeconds={10800}
+                          onExpire={() => { void refetch(); }}
+                          className="font-semibold"
+                        />
+                        lagi. Lewat itu tagihan otomatis ditolak dan pekerjaan bisa dilanjutkan.
+                      </p>
+                    )}
+                  </div>
                 )}
               </Section>
             )}
@@ -1141,9 +1226,18 @@ export default function MitraOrderDetailClient() {
           </>
         }
       >
+        {/* Tidak ada jalur unggah bukti kerja . baik di halaman ini maupun di
+            backend. Kalimat lama ("Upload di bagian foto pesanan") menyuruh
+            mitra melakukan sesuatu yang mustahil, dan mitra yang menurutinya
+            justru merasa sudah punya bukti padahal tidak. Sampai jalurnya ada,
+            arahkan ke tempat yang MEMANG menyimpan bukti: ruang obrolan. */}
         <div className="mt-4 p-3 bg-brand-warning-soft border border-brand-warning-border rounded-md">
           <p className="text-xs text-brand-warning-dark font-medium mb-1">💡 Tips:</p>
-          <p className="text-xs text-brand-gray-700">Pastikan kamu sudah mengambil foto hasil pekerjaan sebagai bukti. Upload di bagian foto pesanan jika diperlukan.</p>
+          <p className="text-xs text-brand-gray-700">
+            Foto hasil pekerjaan adalah pembelaanmu bila muncul sengketa. Kirimkan lewat
+            obrolan dengan pelanggan sebelum menandai selesai . pesan di ruang obrolan
+            tersimpan dan bisa dibuka lagi oleh Tim CS.
+          </p>
         </div>
 
         <label className="mt-4 flex items-start gap-2.5 cursor-pointer">

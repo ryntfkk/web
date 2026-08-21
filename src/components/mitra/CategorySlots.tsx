@@ -39,21 +39,19 @@ export default function CategorySlots() {
   const cancelRequest = useCancelCategoryRequest();
   const { showToast } = useToast();
   const [formMode, setFormMode] = useState<null | { replaces?: PartnerCategory }>(null);
+  // Konfirmasi lepas kategori lewat `MitraModal`, BUKAN `window.confirm`.
+  // Dialog native tidak punya focus trap, tidak mengembalikan fokus ke tombol
+  // pemicu, dan muncul sebagai bilah sistem yang refleks di-Enter tanpa dibaca .
+  // padahal aksinya menonaktifkan SELURUH layanan mitra di kategori itu.
+  // Aturannya sudah tertulis: "MitraModal wajib, bukan opsional" (§7a).
+  const [releaseTarget, setReleaseTarget] = useState<PartnerCategory | null>(null);
 
   const pending = data?.pending_request ?? null;
 
   const handleRelease = async (cat: PartnerCategory) => {
-    // Konfirmasi WAJIB menyebut akibatnya pada layanan. "Yakin?" tidak memberi
-    // mitra informasi apa pun untuk memutuskan.
-    const ok = window.confirm(
-      `Lepas kategori ${cat.category_name}?\n\n` +
-        'Semua layananmu di kategori ini akan dinonaktifkan dan tidak lagi tampil untuk pelanggan. ' +
-        'Pesanan yang sedang berjalan tidak terpengaruh.\n\n' +
-        'Untuk memilikinya lagi kamu harus mengajukan permintaan ke admin.',
-    );
-    if (!ok) return;
     try {
       const n = await release.mutateAsync(cat.category_id);
+      setReleaseTarget(null);
       showToast(
         n > 0 ? `Kategori dilepas. ${n} layanan dinonaktifkan.` : 'Kategori dilepas.',
         'success',
@@ -127,7 +125,7 @@ export default function CategorySlots() {
               {data.can_release && (
                 <button
                   type="button"
-                  onClick={() => handleRelease(cat)}
+                  onClick={() => setReleaseTarget(cat)}
                   disabled={release.isPending}
                   className="rounded-md p-2 text-brand-gray-450 hover:bg-brand-error-soft hover:text-brand-error disabled:opacity-40"
                   aria-label={`Lepas kategori ${cat.category_name}`}
@@ -185,6 +183,50 @@ export default function CategorySlots() {
           onClose={() => setFormMode(null)}
         />
       )}
+
+      {/* Konfirmasi menyebut AKIBATNYA, bukan "Yakin?" . mitra tidak punya
+          bahan untuk memutuskan dari pertanyaan kosong. */}
+      <MitraModal
+        open={Boolean(releaseTarget)}
+        onClose={() => setReleaseTarget(null)}
+        title={releaseTarget ? `Lepas kategori ${releaseTarget.category_name}?` : 'Lepas kategori?'}
+        size="lg"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              className="flex-1 rounded-md border-brand-gray-100 text-brand-gray-700"
+              onClick={() => setReleaseTarget(null)}
+              disabled={release.isPending}
+            >
+              Batal
+            </Button>
+            <Button
+              className="flex-1 rounded-md bg-brand-error hover:bg-brand-error-dark"
+              onClick={() => { if (releaseTarget) void handleRelease(releaseTarget); }}
+              disabled={release.isPending}
+            >
+              {release.isPending ? 'Melepas…' : 'Ya, Lepas'}
+            </Button>
+          </>
+        }
+      >
+        <ul className="mt-4 space-y-2 text-sm text-brand-gray-700">
+          <li className="flex gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-brand-warning" aria-hidden />
+            Semua layananmu di kategori ini <strong>dinonaktifkan</strong> dan tidak lagi
+            tampil untuk pelanggan.
+          </li>
+          <li className="flex gap-2">
+            <Layers className="mt-0.5 h-4 w-4 shrink-0 text-brand-gray-450" aria-hidden />
+            Pesanan yang sedang berjalan tidak terpengaruh.
+          </li>
+          <li className="flex gap-2">
+            <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-brand-gray-450" aria-hidden />
+            Untuk memilikinya lagi kamu harus mengajukan permintaan ke admin beserta foto alat.
+          </li>
+        </ul>
+      </MitraModal>
     </section>
   );
 }

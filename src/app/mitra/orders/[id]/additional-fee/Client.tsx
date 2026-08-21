@@ -6,7 +6,8 @@ import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAPI } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { getErrorMessage } from '@/types/api';
+import { useOrderDetail } from '@/hooks/useOrders';
+import { pesanGalatPesanan } from '@/lib/order-error';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
 import MitraPageHeader from '@/components/mitra/MitraPageHeader';
@@ -31,6 +32,18 @@ export default function AdditionalFeeFormClient() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  // Tagihan yang SUDAH menempel di pesanan ini. Plafonnya berlaku untuk
+  // PESANAN, bukan per baris (backend: validateAdditionalFeeCap menjumlahkan
+  // semua fee kecuali yang ditolak pelanggan), jadi memeriksa baris ini saja
+  // membuat pengajuan kedua lolos di layar lalu ditolak server.
+  const { data: order } = useOrderDetail<{
+    additional_fees?: { total: number; status: 'PENDING' | 'PAID' | 'REJECTED' }[];
+  }>(orderId);
+  const feeSudahAda = (order?.additional_fees ?? [])
+    .filter(f => f.status !== 'REJECTED')
+    .reduce((sum, f) => sum + f.total, 0);
+  const sisaPlafon = Math.max(0, platformConfig.max_additional_fee - feeSudahAda);
+
   if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
@@ -49,8 +62,13 @@ export default function AdditionalFeeFormClient() {
     }
     // Batas dari platform_settings . sumber yang sama dengan yang ditegakkan
     // backend di AddAdditionalFees, jadi tidak bisa lagi berbeda diam-diam.
-    if (unitPrice * qty > platformConfig.max_additional_fee) {
-      setError(`Total tagihan tidak boleh melebihi ${formatPrice(platformConfig.max_additional_fee)}`);
+    // Dijumlahkan dengan tagihan yang sudah menempel, persis seperti server.
+    if (unitPrice * qty > sisaPlafon) {
+      setError(
+        feeSudahAda > 0
+          ? `Sisa plafon pesanan ini tinggal ${formatPrice(sisaPlafon)} (batas ${formatPrice(platformConfig.max_additional_fee)}, sudah diajukan ${formatPrice(feeSudahAda)}).`
+          : `Total tagihan tidak boleh melebihi ${formatPrice(platformConfig.max_additional_fee)}`,
+      );
       return;
     }
 
@@ -77,7 +95,7 @@ export default function AdditionalFeeFormClient() {
       setSuccess(true);
       setTimeout(() => router.replace(`/mitra/orders/${orderId}`), 2000);
     } else {
-      setError(getErrorMessage(res));
+      setError(pesanGalatPesanan(res, 'Gagal mengajukan biaya tambahan. Coba lagi.'));
     }
 
     setLoading(false);
@@ -199,6 +217,15 @@ export default function AdditionalFeeFormClient() {
             <span className="font-semibold text-brand-gray-900">Total Tagihan:</span>
             <span className="text-xl font-bold text-brand-orange">{formatPrice(totalAmount)}</span>
           </div>
+
+          {/* Sisa plafon disebut di muka, bukan sebagai penolakan setelah
+              tombol ditekan . mitra baru tahu batasnya justru saat sudah
+              terlanjur menghitung harga bersama pelanggan. */}
+          {feeSudahAda > 0 && (
+            <p className="text-xs text-brand-gray-450">
+              Sudah diajukan pada pesanan ini: {formatPrice(feeSudahAda)}. Sisa plafon {formatPrice(sisaPlafon)}.
+            </p>
+          )}
 
           {error && <MitraInfoBanner variant="error" role="alert">{error}</MitraInfoBanner>}
 

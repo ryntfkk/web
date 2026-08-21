@@ -75,7 +75,11 @@ export default function ProfileCompleteness() {
           label: 'Foto profil',
           consequence:
             'Profil tanpa foto lebih jarang dipilih pelanggan. Lengkapi di pengaturan akun.',
-          href: '/profile/account',
+          // Rute MITRA, bukan `/profile/account`. Isinya komponen yang sama
+          // (`AccountPageContent`), tetapi versi mitra memakai kerangka mitra .
+          // versi pelanggan melempar mitra keluar dari shell-nya dan tombol
+          // kembalinya menuju `/profile`, bukan `/mitra/profile`.
+          href: '/mitra/account',
           done: Boolean(me.avatar_url),
         },
         {
@@ -117,7 +121,9 @@ export default function ProfileCompleteness() {
           key: 'phone',
           label: 'Nomor HP terverifikasi',
           consequence: 'Nomor terverifikasi wajib sebelum penarikan dana bisa diajukan.',
-          href: '/profile/security',
+          // Sama seperti avatar: `/mitra/security` memuat `SecurityPageContent`
+          // yang sama di dalam kerangka mitra.
+          href: '/mitra/security',
           done: Boolean(user?.phone_verified),
         },
       ]);

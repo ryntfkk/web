@@ -1,21 +1,19 @@
 "use client";
 
 import { getInitial } from '@/lib/utils';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   User, ShieldCheck, CreditCard, LogOut, FileText, CheckCircle,
-  RefreshCw, Image as ImageIcon, MapPin, Camera, Bell, SlidersHorizontal, Phone, Loader2, ExternalLink,
-  CalendarDays, Building2,
+  RefreshCw, Image as ImageIcon, MapPin, Bell, SlidersHorizontal, Phone, ExternalLink,
+  CalendarDays, Building2, Trash2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { SwitchRoleModal } from '@/components/ui/switch-role-modal';
-import { useAuthStore } from '@/lib/store/authStore';
 import { MenuCard, MenuListItem } from '@/components/ui/menu-list-item';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/toast';
 import ProfileCompleteness from '@/components/mitra/ProfileCompleteness';
 import CategorySlots from '@/components/mitra/CategorySlots';
 import MitraPageContainer from '@/components/mitra/MitraPageContainer';
@@ -24,7 +22,6 @@ import Image from 'next/image';
 export default function MitraProfilePage() {
   const { isLoading: authLoading, isAuthorized, user, isAuthenticated } = useRequireAuth();
   const { logout } = useAuth();
-  const { showToast } = useToast();
 
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [showSwitchModal, setShowSwitchModal] = useState(false);
@@ -83,7 +80,11 @@ export default function MitraProfilePage() {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
 
         <MitraPageContainer variant="profile" className="py-0 relative z-10 flex items-center gap-4 md:gap-6">
-          <div className="relative shrink-0" id="foto-profil">
+          {/* Foto profil hanya DITAMPILKAN di sini. Jalur ubahnya ada di
+              /mitra/account (PATCH /users/me . avatar milik `users`, bukan
+              `partners`). Dulu ada jangkar `#foto-profil` di sini yang tidak
+              menuju kontrol apa pun. */}
+          <div className="relative shrink-0">
             <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl md:text-4xl font-extrabold text-white overflow-hidden border border-white/30 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
               {user?.avatar_url
                 ? <Image src={user.avatar_url} alt="Foto profil" fill sizes="(max-width: 768px) 64px, 96px" className="object-cover" />
@@ -205,6 +206,21 @@ export default function MitraProfilePage() {
               draf . labelnya dulu menjanjikan dokumen yang tidak pernah dibuka. */}
           <MenuListItem icon={FileText} label="Syarat & Ketentuan" href="/terms" />
           <MenuListItem icon={ShieldCheck} label="Kebijakan Privasi" href="/privacy" />
+        </MenuCard>
+
+        {/* Mode pelanggan punya baris ini (`/profile`), mode mitra tidak .
+            padahal rutenya sama-sama ada. Jalan keluar dari sebuah akun tidak
+            boleh cuma bisa ditemukan dengan berpindah mode dulu.
+            Subtitle menyebut retensi: data pesanan & dokumen mitra memang
+            DIPERTAHANKAN setelah akun dihapus (§7d), dan mitra berhak tahu itu
+            SEBELUM menekan, bukan sesudahnya. */}
+        <MenuCard title="Zona Berbahaya">
+          <MenuListItem
+            icon={Trash2}
+            label="Hapus Akun"
+            subtitle="Ajukan penghapusan akun permanen"
+            href="/hapus-akun"
+          />
         </MenuCard>
 
 

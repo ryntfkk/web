@@ -29,8 +29,6 @@ export default function MitraLayoutClient({ children }: { children: React.ReactN
     mounted && isAuthenticated,
   );
   const isPartnerMode = canEnterMitraShell(user?.active_role, verification);
-  // Pelamar (belum/ tidak lagi approved) . dipakai untuk menyesuaikan navigasi.
-  const isApplicant = isPartnerMode && user?.active_role !== 'partner';
   const accessLevel = accessLevelFor(pathname);
   const allowed = canAccess(pathname, verification);
 

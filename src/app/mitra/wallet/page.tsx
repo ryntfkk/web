@@ -43,6 +43,21 @@ interface BalanceResponse {
 /** Sama dengan default per_page backend (wallet/handler.go). */
 const PAGE_SIZE = 20;
 
+/**
+ * `YYYY-MM-DD` dari komponen tanggal LOKAL.
+ *
+ * JANGAN memakai `toISOString().split('T')[0]` untuk ini. Tengah malam lokal di
+ * WIB (UTC+7) adalah pukul 17:00 UTC pada tanggal SEBELUMNYA, jadi cara itu
+ * menggeser seluruh rentang satu hari: pada 31 Agustus, "Bulan Ini" mengirim
+ * `end_date=2026-08-30` dan pendapatan hari itu lenyap dari daftar . sementara
+ * mutasi sore 31 Juli justru ikut tertarik masuk.
+ */
+function toDateParam(d: Date): string {
+  const bulan = String(d.getMonth() + 1).padStart(2, '0');
+  const tanggal = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${bulan}-${tanggal}`;
+}
+
 export default function MitraWalletPage() {
   const { isLoading: authLoading, isAuthorized, isAuthenticated } = useRequireAuth();
   const router = useRouter();
@@ -72,14 +87,21 @@ export default function MitraWalletPage() {
     else setLoading(true);
 
     const params = new URLSearchParams({ page: String(pageToLoad), per_page: String(PAGE_SIZE) });
+    // Pemasukan/Penarikan disaring SERVER (`type` di wallet/handler.go), bukan
+    // di klien. Menyaring array yang dipaginasi server membuat "Penarikan"
+    // tampil kosong hanya karena 20 baris pertama kebetulan semuanya EARNING .
+    // dan tombol "Muat lebih banyak" ikut hilang bersama keadaan kosong itu,
+    // jadi halaman berikutnya tak pernah bisa dijangkau.
+    if (filterType === 'IN') params.set('type', 'CREDIT');
+    else if (filterType === 'OUT') params.set('type', 'DEBIT');
     if (timeFilter === 'THIS_MONTH') {
       const d = new Date();
-      params.set('start_date', new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]);
-      params.set('end_date', new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0]);
+      params.set('start_date', toDateParam(new Date(d.getFullYear(), d.getMonth(), 1)));
+      params.set('end_date', toDateParam(new Date(d.getFullYear(), d.getMonth() + 1, 0)));
     } else if (timeFilter === 'LAST_3_MONTHS') {
       const d = new Date();
-      params.set('start_date', new Date(d.getFullYear(), d.getMonth() - 2, 1).toISOString().split('T')[0]);
-      params.set('end_date', new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0]);
+      params.set('start_date', toDateParam(new Date(d.getFullYear(), d.getMonth() - 2, 1)));
+      params.set('end_date', toDateParam(new Date(d.getFullYear(), d.getMonth() + 1, 0)));
     }
 
     try {
@@ -125,7 +147,7 @@ export default function MitraWalletPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [timeFilter]);
+  }, [timeFilter, filterType]);
 
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -143,9 +165,9 @@ export default function MitraWalletPage() {
   if (authLoading) return <PageSkeleton />;
   if (!isAuthorized) return null;
 
-  const filtered = transactions.filter(t =>
-    filterType === 'ALL' ? true : filterType === 'IN' ? t.type === 'CREDIT' : t.type === 'DEBIT',
-  );
+  // Tak ada penyaringan di klien lagi . `transactions` sudah berisi tepat apa
+  // yang diminta (lihat parameter `type` di fetchData).
+  const isFiltered = filterType !== 'ALL' || timeFilter !== 'ALL';
 
   return (
     <>
@@ -273,9 +295,11 @@ export default function MitraWalletPage() {
           isLoading={loading}
           error={error}
           onRetry={fetchData}
-          isEmpty={filtered.length === 0}
+          isEmpty={transactions.length === 0}
           emptyIcon={<History className="w-12 h-12 text-brand-gray-100 mx-auto mb-3" />}
-          emptyTitle="Belum ada transaksi."
+          // Kosong karena filter ≠ belum punya transaksi sama sekali. Kalimat
+          // yang sama untuk keduanya membuat mitra mengira mutasinya hilang.
+          emptyTitle={isFiltered ? 'Tidak ada transaksi pada filter ini.' : 'Belum ada transaksi.'}
           skeleton={
             <div className="space-y-3">
               {[1, 2, 3].map(i => (
@@ -291,7 +315,7 @@ export default function MitraWalletPage() {
           }
         >
           <div className="space-y-3">
-            {filtered.map(t => (
+            {transactions.map(t => (
               <div key={t.id} className="bg-white rounded-lg border border-brand-gray-100 p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${t.type === 'CREDIT' ? 'bg-brand-success-soft' : 'bg-brand-error-soft'}`}>

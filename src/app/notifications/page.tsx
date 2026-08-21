@@ -122,19 +122,29 @@ export default function NotificationsPage() {
     // `withdrawal_rejected` . perbandingannya tidak pernah cocok, dan
     // notifikasi penarikan yang ditolak tidak membawa pengguna ke mana pun.
     const { target } = notificationSpec(n.type);
+    const isPartner = user?.active_role === 'partner';
 
     switch (target.kind) {
       case 'wallet':
-        router.push(user?.active_role === 'partner' ? '/mitra/wallet' : '/profile/wallet');
+        router.push(isPartner ? '/mitra/wallet' : '/profile/wallet');
         return;
       case 'support':
-        router.push(user?.active_role === 'partner' ? '/mitra/bantuan/chat' : ref ? `/bantuan/${ref}` : '/bantuan');
+        router.push(isPartner ? '/mitra/bantuan/chat' : ref ? `/bantuan/${ref}` : '/bantuan');
         return;
+      // Pesanan & pembayaran punya DUA halaman: sisi pelanggan (`/orders/:id`,
+      // `/payment/:id`) dan sisi mitra (`/mitra/orders/:id`). Tanpa cabang peran
+      // ini, mitra yang menekan "Pesanan Baru Masuk" mendarat di layar pelanggan
+      // . lengkap dengan tombol "Bayar Sekarang" / "Konfirmasi Selesai" yang
+      // bukan miliknya dan pasti ditolak backend. Mitra tidak pernah membayar
+      // pesanan, jadi notifikasi bertarget `payment` pun diarahkan ke detail
+      // pesanan versi mitra, bukan ke halaman pembayaran.
       case 'payment':
-        if (ref) router.push(`/payment/${ref}`);
+        if (!ref) return;
+        router.push(isPartner ? `/mitra/orders/${ref}` : `/payment/${ref}`);
         return;
       case 'order':
-        if (ref) router.push(`/orders/${ref}`);
+        if (!ref) return;
+        router.push(isPartner ? `/mitra/orders/${ref}` : `/orders/${ref}`);
         return;
       case 'none':
         return;
