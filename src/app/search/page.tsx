@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import SearchContent from '@/components/search/SearchContent';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { permanentRedirect } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 import { slugify } from '@/lib/slug';
@@ -93,19 +92,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <div className="flex flex-col min-h-[calc(100dvh-4rem)] bg-brand-gray-60">
-      {/* Sticky Page Header */}
-      <div className="bg-white border-b border-brand-gray-100 sticky top-0 z-10 lg:relative lg:z-auto">
-        <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6">
-          <div className="flex items-center gap-3 py-4">
-            <Link href="/" aria-label="Kembali ke beranda" className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-md transition-colors">
-              <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-            </Link>
-            <h1 className="text-base font-bold text-brand-gray-900 truncate">
-              Hasil untuk &quot;{query}&quot;
-            </h1>
-          </div>
-        </div>
-      </div>
+      {/* A5: header dari komponen bersama. `alwaysShow` dipertahankan karena
+          halaman hasil pencarian memang menampilkan judulnya di semua ukuran
+          layar . tanpa itu, di desktop tidak ada satu pun keterangan tentang
+          apa yang sedang dicari. Lebarnya disamakan dengan kontainer konten di
+          bawahnya, kalau tidak judul tak sejajar dengan hasilnya. */}
+      <MobilePageHeader
+        title={`Hasil untuk "${query}"`}
+        backHref="/"
+        alwaysShow
+        maxWidthClass="container mx-auto max-w-[1200px]"
+        gutterClass="px-3 sm:px-4 md:px-6 lg:px-6"
+      />
 
       {/* Main Content Area */}
       <div className="container mx-auto max-w-[1200px] px-3 sm:px-4 md:px-6 lg:px-6 py-4 md:py-6 flex-1 pb-20 md:pb-10">

@@ -115,7 +115,10 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
       partner_avg_rating: service.partner_avg_rating,
       partner_city: service.partner_city,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Riwayat dilihat dicatat sekali per LAYANAN, bukan tiap kali objeknya
+    // berganti identitas. Isi `service` sengaja di luar deps: ia datang dari query
+    // yang refetch, dan mencatat ulang tiap refetch akan menggandakan entri.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
   }, [service?.id]);
 
   // Favorit
@@ -878,7 +881,7 @@ function DetailContent({ serviceId: serviceIdProp, categorySlug, localLandingHre
                       className="flex items-start gap-2 rounded-md border border-brand-gray-100 p-2.5"
                     >
                       <span
-                        className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
+                        className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${r.is_mandatory
                           ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                           : 'bg-brand-gray-50 text-brand-gray-450'
                           }`}

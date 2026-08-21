@@ -57,7 +57,7 @@ export default function SortBar({
         <SlidersHorizontal className="w-3 h-3 md:w-4 md:h-4" />
         Filter
         {activeFilterCount > 0 && (
-          <span className="ml-0.5 min-w-4 h-4 px-1 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center justify-center leading-none">
+          <span className="ml-0.5 min-w-4 h-4 px-1 rounded-full bg-brand-red text-white text-[11px] font-bold flex items-center justify-center leading-none">
             {activeFilterCount}
           </span>
         )}

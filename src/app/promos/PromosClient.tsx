@@ -102,7 +102,7 @@ export default function PromosClient() {
                     <div className="w-24 sm:w-28 bg-brand-red flex flex-col items-center justify-center text-white p-3 shrink-0">
                       <TrendingUp className="w-5 h-5 mb-1" />
                       <span className="text-2xl font-bold leading-none">{formatDiscount(promo)}</span>
-                      <span className="text-[10px] uppercase tracking-wide mt-1 opacity-90">
+                      <span className="text-[11px] uppercase tracking-wide mt-1 opacity-90">
                         {promo.discount_type === 'percentage' ? 'Diskon' : 'Potongan'}
                       </span>
                     </div>
@@ -114,11 +114,11 @@ export default function PromosClient() {
                           {promo.name || promo.code}
                         </h3>
                         {promo.sponsor === 'platform' ? (
-                          <span className="bg-brand-red-light text-brand-red text-[10px] font-medium px-2 py-0.5 rounded shrink-0">
+                          <span className="bg-brand-red-light text-brand-red text-[11px] font-medium px-2 py-0.5 rounded shrink-0">
                             Platform
                           </span>
                         ) : (
-                          <span className="bg-brand-blue-light text-brand-blue text-[10px] font-medium px-2 py-0.5 rounded shrink-0">
+                          <span className="bg-brand-blue-light text-brand-blue text-[11px] font-medium px-2 py-0.5 rounded shrink-0">
                             Mitra
                           </span>
                         )}

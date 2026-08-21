@@ -154,7 +154,7 @@ export default function TopNavbar() {
                       >
                         <ShoppingCart className="h-[20px] w-[19.98px]" />
                         {itemCount > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[11px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {itemCount > 99 ? '99+' : itemCount}
                           </span>
                         )}
@@ -171,7 +171,7 @@ export default function TopNavbar() {
                       >
                         <MessageSquare className="h-5 w-5" />
                         {unreadChats > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[11px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {unreadChats > 99 ? '99+' : unreadChats}
                           </span>
                         )}
@@ -185,7 +185,7 @@ export default function TopNavbar() {
                       >
                         <Bell className="h-5 w-5" />
                         {unreadNotifications > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[11px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {unreadNotifications > 99 ? '99+' : unreadNotifications}
                           </span>
                         )}
@@ -193,11 +193,16 @@ export default function TopNavbar() {
 
                       {/* User Avatar with Dropdown */}
                       <div className="relative" ref={dropdownRef}>
+                        {/* Nama tombol TIDAK boleh bergantung pada avatar: saat
+                            foto profil kosong isinya cuma ikon <User> + chevron,
+                            dan pembaca layar mengumumkan "tombol" tanpa
+                            keterangan apa pun. */}
                         <button
                           className="flex items-center gap-2"
                           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                           aria-expanded={isDropdownOpen}
                           aria-haspopup="true"
+                          aria-label={`Menu akun ${userName}`}
                         >
                           <div className="w-8 h-8 rounded-xl border border-brand-gray-100 bg-brand-gray-100 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-brand-red transition-all">
                             {userAvatar ? (
@@ -222,7 +227,7 @@ export default function TopNavbar() {
                             <div className="px-4 py-2 mb-1">
                               <p className="text-sm font-bold text-brand-gray-900 truncate">{userName}</p>
                               {user?.active_role === 'partner' && (
-                                <span className="inline-block mt-0.5 px-2 py-0.5 bg-brand-red/10 text-brand-red text-[10px] font-bold rounded-full">Mode Mitra</span>
+                                <span className="inline-block mt-0.5 px-2 py-0.5 bg-brand-red/10 text-brand-red text-[11px] font-bold rounded-full">Mode Mitra</span>
                               )}
                             </div>
                             <hr className="my-1 border-brand-gray-100" />
@@ -239,7 +244,7 @@ export default function TopNavbar() {
                               <MessageSquare className="w-4 h-4" />
                               Chat
                               {unreadChats > 0 && (
-                                <span className="ml-auto min-w-[18px] h-[18px] rounded-full bg-brand-red px-1 text-[10px] font-bold leading-none text-white flex items-center justify-center">
+                                <span className="ml-auto min-w-[18px] h-[18px] rounded-full bg-brand-red px-1 text-[11px] font-bold leading-none text-white flex items-center justify-center">
                                   {unreadChats > 99 ? '99+' : unreadChats}
                                 </span>
                               )}
@@ -287,7 +292,7 @@ export default function TopNavbar() {
                       >
                         <ShoppingCart className="h-[22px] w-[22px]" />
                         {itemCount > 0 && (
-                          <span className="absolute top-0 right-0 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute top-0 right-0 bg-brand-red text-white text-[11px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {itemCount > 99 ? '99+' : itemCount}
                           </span>
                         )}
@@ -301,7 +306,7 @@ export default function TopNavbar() {
                       >
                         <Bell className="h-[22px] w-[22px]" />
                         {unreadNotifications > 0 && (
-                          <span className="absolute top-0 right-0 bg-brand-red text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                          <span className="absolute top-0 right-0 bg-brand-red text-white text-[11px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
                             {unreadNotifications > 99 ? '99+' : unreadNotifications}
                           </span>
                         )}

@@ -1,6 +1,9 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// Google Maps JS API dimuat lewat <script> global tanpa paket tipe di proyek
+// ini, jadi objek `google.maps.*` memang `any`. Menghapus baris ini menuntut
+// menambah @types/google.maps . keputusan dependensi, bukan kerapian.
+/* eslint-disable @typescript-eslint/no-explicit-any -- Google Maps JS API tanpa paket tipe */
 import { useEffect, useRef, useState } from 'react';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';

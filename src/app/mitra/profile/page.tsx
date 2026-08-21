@@ -50,7 +50,10 @@ export default function MitraProfilePage() {
     }
   }, []);
 
-  /* eslint-disable react-hooks/set-state-in-effect */
+  // Sinkronisasi dari sistem LUAR (API) saat mount . state di sini memang
+  // berasal dari server, bukan turunan props, jadi aturan ini tidak berlaku.
+  // Pola yang sama & alasannya ada di components/wallet/WithdrawForm.tsx.
+  /* eslint-disable react-hooks/set-state-in-effect -- sinkronisasi dari API, bukan state turunan props */
   useEffect(() => {
     if (!isAuthenticated) return;
     fetchProfile();
@@ -102,14 +105,14 @@ export default function MitraProfilePage() {
             )}
             <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user?.phone || 'Nomor HP belum diisi'}</p>
             <div className="mt-2 md:mt-3 flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
+              <span className="inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[11px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Mode Mitra
               </span>
               {verificationStatus !== null && (
                 <span
                   title={isVerified ? 'Terverifikasi' : undefined}
                   aria-label={isVerified ? 'Terverifikasi' : undefined}
-                  className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${isVerified ? 'bg-brand-success-soft/90 backdrop-blur-sm text-brand-success-dark border-brand-success-light' :
+                  className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[11px] md:text-[11px] font-bold uppercase inline-flex items-center gap-1.5 shadow-sm border ${isVerified ? 'bg-brand-success-soft/90 backdrop-blur-sm text-brand-success-dark border-brand-success-light' :
                     isPending ? 'bg-brand-orange-soft/90 backdrop-blur-sm text-brand-amber-dark border-brand-orange-light' :
                       'bg-white/90 backdrop-blur-sm text-brand-error-dark border-brand-error-light'
                   }`}>

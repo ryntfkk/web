@@ -138,6 +138,8 @@ function LoginContent() {
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-brand-gray-400 hover:text-brand-gray-700"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-brand-gray-400" />

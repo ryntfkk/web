@@ -50,7 +50,11 @@ export default function WalletPage() {
 
   useEffect(() => {
     if (isAuthenticated) fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Fungsi fetch-nya dideklarasikan DI BAWAH effect ini (function declaration,
+    // terangkat) sehingga identitasnya berubah tiap render; memasukkannya ke deps
+    // membuat effect berjalan tanpa henti. Yang menentukan kapan ia harus jalan
+    // sudah ada di deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
   }, [isAuthenticated, timeFilter]);
 
   async function fetchData() {
@@ -259,7 +263,7 @@ export default function WalletPage() {
                         {new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                       </span>
                       {t.status === 'PENDING' && (
-                        <span className="bg-brand-warning-light text-brand-amber-dark text-[10px] font-bold px-1.5 py-0.5 rounded uppercase flex items-center gap-1">
+                        <span className="bg-brand-warning-light text-brand-amber-dark text-[11px] font-bold px-1.5 py-0.5 rounded uppercase flex items-center gap-1">
                           <Clock className="w-2.5 h-2.5" /> Menunggu
                         </span>
                       )}
@@ -267,7 +271,7 @@ export default function WalletPage() {
                           hanya PENDING yang punya lencana . sehingga baris yang
                           gagal terbaca seperti berhasil. */}
                       {t.status === 'FAILED' && (
-                        <span className="bg-brand-error-soft text-brand-error text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
+                        <span className="bg-brand-error-soft text-brand-error text-[11px] font-bold px-1.5 py-0.5 rounded uppercase">
                           Gagal
                         </span>
                       )}

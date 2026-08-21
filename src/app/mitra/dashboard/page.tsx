@@ -87,7 +87,10 @@ export default function MitraDashboardPage() {
       }
     }, 45000);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Interval dipasang SEKALI per sesi login. `fetchData` adalah function
+    // declaration yang terangkat (identitasnya berubah tiap render), jadi
+    // memasukkannya ke deps akan memasang-copot interval terus-menerus.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
   }, [isAuthenticated]);
 
   async function fetchData(silent = false) {
@@ -286,15 +289,15 @@ export default function MitraDashboardPage() {
         <div className="grid grid-cols-3 gap-3 lg:gap-4">
           <Link href="/mitra/services" className="bg-white rounded-md border border-brand-gray-100 p-3 flex flex-col items-center justify-center gap-2 hover:bg-brand-gray-60 transition-colors">
             <Wrench className="w-6 h-6 text-brand-red" />
-            <span className="text-[10px] font-bold text-brand-gray-700 text-center">Kelola Layanan</span>
+            <span className="text-[11px] font-bold text-brand-gray-700 text-center">Kelola Layanan</span>
           </Link>
           <Link href="/mitra/schedule" className="bg-white rounded-md border border-brand-gray-100 p-3 flex flex-col items-center justify-center gap-2 hover:bg-brand-gray-60 transition-colors">
             <Calendar className="w-6 h-6 text-brand-red" />
-            <span className="text-[10px] font-bold text-brand-gray-700 text-center">Atur Jadwal</span>
+            <span className="text-[11px] font-bold text-brand-gray-700 text-center">Atur Jadwal</span>
           </Link>
           <Link href="/mitra/wallet" className="bg-white rounded-md border border-brand-gray-100 p-3 flex flex-col items-center justify-center gap-2 hover:bg-brand-gray-60 transition-colors">
             <Wallet className="w-6 h-6 text-brand-red" />
-            <span className="text-[10px] font-bold text-brand-gray-700 text-center">Dompet</span>
+            <span className="text-[11px] font-bold text-brand-gray-700 text-center">Dompet</span>
           </Link>
         </div>
 
@@ -371,7 +374,7 @@ export default function MitraDashboardPage() {
                     <p className="font-bold text-brand-red">
                       {formatPrice(order.partner_amount ?? 0)}
                       {order.partner_amount_estimated && (
-                        <span className="ml-1 text-[10px] font-normal text-brand-gray-450">est.</span>
+                        <span className="ml-1 text-[11px] font-normal text-brand-gray-450">est.</span>
                       )}
                     </p>
                   </div>

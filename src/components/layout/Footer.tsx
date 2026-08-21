@@ -248,7 +248,7 @@ export default function Footer() {
                     >
                       {link.label}
                       {link.badge && (
-                        <span className="rounded-full bg-brand-red-soft px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-red">
+                        <span className="rounded-full bg-brand-red-soft px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-brand-red">
                           {link.badge}
                         </span>
                       )}

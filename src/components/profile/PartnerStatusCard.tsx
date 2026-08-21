@@ -50,7 +50,7 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
             </div>
 
             <div className="text-right">
-              <p className="text-[10px] text-brand-gray-400 font-medium uppercase tracking-wider mb-0.5">Role Aktif</p>
+              <p className="text-[11px] text-brand-gray-400 font-medium uppercase tracking-wider mb-0.5">Role Aktif</p>
               <p className="text-xs font-bold text-brand-red bg-brand-red-soft px-2 py-1 rounded-md">
                 {user.active_role === 'partner' ? 'Mitra' : 'Pelanggan'}
               </p>
@@ -65,7 +65,7 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
               <p className="text-base md:text-lg font-extrabold text-brand-gray-900 leading-tight">
                 {partnerStatus && 'rating' in partnerStatus ? (partnerStatus as any).rating?.toFixed(1) ?? '.' : '.'}
               </p>
-              <p className="text-[9px] md:text-[10px] text-brand-gray-700 font-medium mt-0.5">Rating</p>
+              <p className="text-[11px] md:text-[11px] text-brand-gray-700 font-medium mt-0.5">Rating</p>
             </div>
 
             <div className="bg-brand-gray-55 hover:bg-white rounded-lg md:rounded-xl p-2.5 md:p-3 flex flex-col items-center justify-center border border-transparent hover:border-brand-gray-80 hover:shadow-sm transition-all duration-300 cursor-default">
@@ -75,7 +75,7 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
               <p className="text-base md:text-lg font-extrabold text-brand-gray-900 leading-tight">
                 {partnerStatus && 'total_orders' in partnerStatus ? (partnerStatus as any).total_orders ?? 0 : 0}
               </p>
-              <p className="text-[9px] md:text-[10px] text-brand-gray-700 font-medium mt-0.5">Order</p>
+              <p className="text-[11px] md:text-[11px] text-brand-gray-700 font-medium mt-0.5">Order</p>
             </div>
 
             <div className="bg-brand-gray-55 hover:bg-white rounded-lg md:rounded-xl p-2.5 md:p-3 flex flex-col items-center justify-center border border-transparent hover:border-brand-gray-80 hover:shadow-sm transition-all duration-300 cursor-default">
@@ -85,7 +85,7 @@ export default function PartnerStatusCard({ user, partnerStatus, statusLoading, 
               <p className="text-base md:text-lg font-extrabold text-brand-gray-900 leading-tight">
                 {partnerStatus && 'acceptance_rate' in partnerStatus ? `${(partnerStatus as any).acceptance_rate ?? 0}%` : '.'}
               </p>
-              <p className="text-[9px] md:text-[10px] text-brand-gray-700 font-medium mt-0.5">Acc Rate</p>
+              <p className="text-[11px] md:text-[11px] text-brand-gray-700 font-medium mt-0.5">Acc Rate</p>
             </div>
           </div>
 

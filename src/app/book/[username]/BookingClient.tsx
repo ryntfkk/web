@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, MapPin, Calendar, Tag, AlertTriangle, ShieldAlert, ShieldCheck, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { MapPin, Calendar, Tag, AlertTriangle, ShieldAlert, ShieldCheck, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhotoUploader } from '@/components/ui/photo-uploader';
 import { ServiceItemCard } from '@/components/ui/service-item-card';
@@ -11,6 +11,7 @@ import { PLACEHOLDER_AVATAR } from '@/lib/images';
 import { fetchAPI } from '@/lib/api';
 import { track } from '@/lib/analytics';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { useCartStore } from '@/lib/store/cartStore';
 import { unitLabel } from '@/lib/order-utils';
 import { formatRupiah as formatPrice } from '@/lib/format';
@@ -200,7 +201,10 @@ export default function BookingClient() {
 
   const subtotal = useMemo(
     () => activeKeys().reduce((sum, k) => sum + unitPriceOfKey(k) * qtyOfKey(k), 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Helper penghitung (activeKeys/unitPriceOfKey/qtyOfKey) dibuat ulang tiap
+    // render; memasukkannya ke deps membatalkan memo di SETIAP render . nilainya
+    // hanya bergantung pada tiga state di bawah.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
     [services, selectedLines, quantities],
   );
   const totalPayment = Math.max(0, subtotal - promoDiscount);
@@ -274,7 +278,10 @@ export default function BookingClient() {
 
   const totalDuration = useMemo(
     () => activeKeys().reduce((sum, k) => sum + durationOfKey(k) * qtyOfKey(k), 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Sengaja hanya bereaksi pada preselect & daftar layanan. `step` ikut ditulis
+    // di dalam, jadi memasukkannya ke deps akan mengunci langkah pengguna kembali
+    // ke awal.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
     [services, selectedLines, quantities],
   );
 
@@ -588,7 +595,10 @@ export default function BookingClient() {
       fetchPreview(promoDiscount > 0 ? promoCode : undefined);
     }, 400);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Debounce pratinjau harga: hanya PERUBAHAN PESANAN yang boleh memicunya.
+    // `fetchPreview` & `promoCode` sengaja di luar deps . keduanya berubah sebagai
+    // AKIBAT pratinjau, jadi memasukkannya membuat loop tembak-balas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
   }, [step, addressId, date, time, selectedLines, quantities]);
 
   async function validatePromo() {
@@ -745,7 +755,7 @@ export default function BookingClient() {
         {previewRequirements.map((r, i) => (
           <li key={r.code || `custom-${i}`} className="flex items-start gap-2">
             <span
-              className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
+              className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${r.is_mandatory
                   ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                   : 'bg-brand-gray-60 text-brand-gray-450'
                 }`}
@@ -883,22 +893,35 @@ export default function BookingClient() {
 
   return (
     <div className={`page-h bg-brand-gray-60 ${step === 2 ? 'pb-28 lg:pb-10' : 'pb-28'}`}>
-      {/* Header */}
-      <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:relative lg:z-auto">
-        <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto flex items-center gap-3`}>
-          <button onClick={() => step === 2 ? handlePrev() : router.back()} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded" aria-label="Kembali">
-            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-          </button>
-          <div>
-            <h1 className="text-base font-bold text-brand-gray-900">{step === 2 ? 'Lengkapi Pesanan' : 'Pilih Layanan'}</h1>
-            <p className="text-xs text-brand-gray-450">Langkah {step} dari 2</p>
+      {/* A5: komponen bersama, bukan bilah tulis tangan. Tiga hal yang KHAS
+          halaman ini tetap dipertahankan apa adanya:
+          . judul & tombol kembali mengikuti LANGKAH (mundur = kembali ke
+            langkah 1, bukan keluar dari halaman),
+          . header tampil di desktop juga (`alwaysShow`) . form ini punya
+            kerangkanya sendiri, bukan halaman drill-down biasa,
+          . progress bar ikut menempel di dalam bilah sticky lewat slot
+            `below`, jadi ia tidak tergulir hilang seperti kalau ditaruh di
+            badan halaman. */}
+      <MobilePageHeader
+        title={step === 2 ? 'Lengkapi Pesanan' : 'Pilih Layanan'}
+        subtitle={`Langkah ${step} dari 2`}
+        onBack={() => (step === 2 ? handlePrev() : router.back())}
+        alwaysShow
+        maxWidthClass={step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'}
+        below={
+          <div className="bg-brand-gray-100 h-1.5 rounded-full overflow-hidden">
+            <div
+              className="bg-brand-red h-full transition-all duration-300"
+              style={{ width: `${(step / 2) * 100}%` }}
+              role="progressbar"
+              aria-valuenow={step}
+              aria-valuemin={1}
+              aria-valuemax={2}
+              aria-label={`Langkah ${step} dari 2`}
+            />
           </div>
-        </div>
-        {/* Progress bar */}
-        <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto mt-4 bg-brand-gray-100 h-1.5 rounded-full overflow-hidden`}>
-          <div className="bg-brand-red h-full transition-all duration-300" style={{ width: `${(step / 2) * 100}%` }} />
-        </div>
-      </div>
+        }
+      />
 
       <div className={`${step === 2 ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg'} mx-auto px-4 py-6`}>
         {step === 1 && (
@@ -1044,7 +1067,7 @@ export default function BookingClient() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 mb-0.5">
                               <span className="font-semibold text-brand-gray-900 text-sm">{selectedAddress.label}</span>
-                              {selectedAddress.is_default && <span className="text-[10px] bg-brand-gray-100 text-brand-gray-700 px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                              {selectedAddress.is_default && <span className="text-[11px] bg-brand-gray-100 text-brand-gray-700 px-1.5 py-0.5 rounded font-medium">Utama</span>}
                             </div>
                             <p className="text-xs text-brand-gray-700 leading-snug">{selectedAddress.address}</p>
                           </div>
@@ -1099,7 +1122,7 @@ export default function BookingClient() {
                             <div className="min-w-0">
                               <div className="flex items-center gap-2 mb-0.5">
                                 <span className="font-semibold text-brand-gray-900 text-sm">{a.label}</span>
-                                {a.is_default && <span className="text-[10px] bg-brand-gray-100 text-brand-gray-700 px-1.5 py-0.5 rounded font-medium">Utama</span>}
+                                {a.is_default && <span className="text-[11px] bg-brand-gray-100 text-brand-gray-700 px-1.5 py-0.5 rounded font-medium">Utama</span>}
                               </div>
                               <p className="text-xs text-brand-gray-700 leading-snug">{a.address}</p>
                             </div>
@@ -1193,7 +1216,7 @@ export default function BookingClient() {
                             <span className="text-xs font-semibold text-brand-gray-900 min-w-[3.5rem] text-center">{qty} {unitLabel(s.unit)}</span>
                             <button type="button" aria-label="Tambah" onClick={() => setQtyKey(k, qty + 1)} disabled={qty >= 100}
                               className="w-6 h-6 rounded border border-brand-gray-100 flex items-center justify-center text-brand-gray-700 hover:border-brand-red/50 disabled:opacity-40 disabled:cursor-not-allowed">+</button>
-                            {minOrderOfKey(k) > 1 && <span className="text-[10px] text-brand-gray-450">min {minOrderOfKey(k)}</span>}
+                            {minOrderOfKey(k) > 1 && <span className="text-[11px] text-brand-gray-450">min {minOrderOfKey(k)}</span>}
                           </div>
                         </div>
                         <p className="text-sm font-bold text-brand-gray-900 shrink-0">{formatPrice(unitPriceOfKey(k) * qty)}</p>
@@ -1254,7 +1277,7 @@ export default function BookingClient() {
           {step === 1 ? (
             <>
               <div className="flex-1">
-                <p className="text-xs text-brand-gray-450">Subtotal <span className="text-[10px] italic">(belum term. ongkos & admin)</span></p>
+                <p className="text-xs text-brand-gray-450">Subtotal <span className="text-[11px] italic">(belum term. ongkos & admin)</span></p>
                 <p className="text-lg font-bold text-brand-red">{formatPrice(subtotal)}</p>
               </div>
               <Button

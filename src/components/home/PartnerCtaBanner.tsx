@@ -41,7 +41,7 @@ export default function PartnerCtaBanner() {
 
         <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           <div className="min-w-0 flex-1">
-            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] sm:text-[10px] lg:text-[11px] font-semibold uppercase tracking-widest text-brand-red-light backdrop-blur-sm shadow-sm">
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] sm:text-[11px] lg:text-[11px] font-semibold uppercase tracking-widest text-brand-red-light backdrop-blur-sm shadow-sm">
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Peluang Terbuka
             </div>
 
@@ -52,7 +52,7 @@ export default function PartnerCtaBanner() {
 
             <ul className="mt-3.5 flex flex-wrap gap-1.5 sm:mt-3 lg:mt-4 sm:gap-2">
               {POIN.map(({ Icon, teks }) => (
-                <li key={teks} className="flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-2 py-1.5 sm:rounded-xl sm:px-2.5 sm:py-2 lg:px-3 lg:py-2 text-[10px] sm:text-[11px] lg:text-[12px] font-medium text-white/90 backdrop-blur-sm transition-colors group-hover:border-white/10 group-hover:bg-white/10">
+                <li key={teks} className="flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-2 py-1.5 sm:rounded-xl sm:px-2.5 sm:py-2 lg:px-3 lg:py-2 text-[11px] sm:text-[11px] lg:text-[12px] font-medium text-white/90 backdrop-blur-sm transition-colors group-hover:border-white/10 group-hover:bg-white/10">
                   <div className="flex h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 shrink-0 items-center justify-center rounded-full bg-brand-red/20 text-brand-red-light">
                     <Icon className="h-2.5 w-2.5 sm:h-3 sm:w-3 lg:h-3.5 lg:w-3.5" aria-hidden />
                   </div>

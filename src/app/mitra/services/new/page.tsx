@@ -186,7 +186,7 @@ export default function NewMitraServicePage() {
                       <X className="h-4 w-4" />
                     </button>
                     {idx === 0 && (
-                      <span className="absolute bottom-1 left-1 rounded-md bg-brand-red px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                      <span className="absolute bottom-1 left-1 rounded-md bg-brand-red px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
                         UTAMA
                       </span>
                     )}

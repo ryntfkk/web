@@ -184,7 +184,7 @@ export default function SupportChat({
                 key={m.id}
                 className={`flex flex-col max-w-[80%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}
               >
-                {!isMe && <span className="text-[10px] text-brand-gray-450 mb-0.5 px-1">{m.sender_name || 'CS'}</span>}
+                {!isMe && <span className="text-[11px] text-brand-gray-450 mb-0.5 px-1">{m.sender_name || 'CS'}</span>}
                 <div
                   className={`px-3.5 py-2.5 rounded-2xl shadow-sm ${
                     isMe
@@ -206,7 +206,7 @@ export default function SupportChat({
                     <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{m.content}</p>
                   )}
                 </div>
-                <span className="text-[10px] text-brand-gray-450 mt-1 px-1">
+                <span className="text-[11px] text-brand-gray-450 mt-1 px-1">
                   {new Date(m.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>

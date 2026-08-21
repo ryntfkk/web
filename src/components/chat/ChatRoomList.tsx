@@ -63,7 +63,10 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
       firstRoomNotified.current = true;
       onFirstRoom?.(chats[0].room_id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Hanya jumlah ruang yang relevan . `onFirstRoom` datang dari induk sebagai
+    // closure baru tiap render, dan penjaga `firstRoomNotified` memastikan
+    // callback-nya sekali saja.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
   }, [chats.length]);
 
   const isMitra = user?.active_role === ROLE_PARTNER;
@@ -180,7 +183,7 @@ export default function ChatRoomList({ onSelect, selectedRoomId, compact = false
                     <div className="flex justify-between items-center gap-2">
                       <div className="min-w-0 flex-1">
                         {chat.is_active === false && (
-                          <span className="inline-block text-[10px] text-brand-gray-450 bg-brand-red-light rounded px-1.5 py-0.5 mr-1.5 font-medium align-middle">
+                          <span className="inline-block text-[11px] text-brand-gray-450 bg-brand-red-light rounded px-1.5 py-0.5 mr-1.5 font-medium align-middle">
                             Selesai
                           </span>
                         )}

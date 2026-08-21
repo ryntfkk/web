@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ServiceGridSkeleton } from '@/components/ui/skeleton';
 import { ServiceProductCard } from '@/components/ui/service-product-card';
 import FilterPanel from '@/components/search/FilterPanel';
+import type { Category } from '@/types/category';
 import SortBar from '@/components/search/SortBar';
 import type { PublicService } from '@/hooks/usePublicServices';
 
@@ -37,6 +38,13 @@ interface ServiceListLayoutProps {
   onMinPriceChange: (v: number) => void;
   maxPrice: number;
   onMaxPriceChange: (v: number) => void;
+  /**
+   * Kategori (E5) . dioper apa adanya ke FilterPanel. Sumber kebenarannya URL,
+   * sama dengan deretan chip kategori di halaman `/services`.
+   */
+  categories?: Category[];
+  category?: string;
+  onCategoryChange?: (id: string) => void;
   /** Konteks tampilan. */
   isSearch: boolean;
   /** Query pencarian (untuk teks empty state). */
@@ -73,6 +81,9 @@ export default function ServiceListLayout({
   isSearch,
   query,
   isInitialLoading,
+  categories,
+  category,
+  onCategoryChange,
 }: ServiceListLayoutProps) {
   const router = useRouter();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -84,6 +95,10 @@ export default function ServiceListLayout({
     minRating > 0,
     Boolean(partnerType),
     minPrice > 0 || maxPrice > 0,
+    // Kategori ikut dihitung (E5). Sebelumnya badge "Filter (n)" mengabaikannya,
+    // jadi pengguna yang menyaring per kategori melihat "Filter" polos . dan
+    // menyimpulkan tidak ada filter yang aktif.
+    Boolean(categories?.length && category),
   ].filter(Boolean).length;
 
   const emptyTitle = isSearch && query
@@ -109,6 +124,9 @@ export default function ServiceListLayout({
         onMinPriceChange={onMinPriceChange}
         maxPrice={maxPrice}
         onMaxPriceChange={onMaxPriceChange}
+        categories={categories}
+        category={category}
+        onCategoryChange={onCategoryChange}
       />
 
       {/* Main Results Area */}

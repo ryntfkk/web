@@ -150,7 +150,10 @@ export default function MitraWalletPage() {
   }, [timeFilter, filterType]);
 
 
-  /* eslint-disable react-hooks/set-state-in-effect */
+  // Sinkronisasi dari sistem LUAR (API) saat mount . state di sini memang
+  // berasal dari server, bukan turunan props, jadi aturan ini tidak berlaku.
+  // Pola yang sama & alasannya ada di components/wallet/WithdrawForm.tsx.
+  /* eslint-disable react-hooks/set-state-in-effect -- sinkronisasi dari API, bukan state turunan props */
   useEffect(() => {
     if (isAuthenticated) fetchData();
   }, [isAuthenticated, fetchData]);
@@ -324,9 +327,9 @@ export default function MitraWalletPage() {
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-brand-gray-900">{t.description}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-brand-gray-450">{new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-[11px] text-brand-gray-450">{new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                       {t.status === 'PENDING' && (
-                        <span className="bg-brand-warning-light text-brand-amber-dark text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1">
+                        <span className="bg-brand-warning-light text-brand-amber-dark text-[11px] font-bold px-1.5 py-0.5 rounded-md uppercase flex items-center gap-1">
                           <Clock className="w-2.5 h-2.5" /> Pending
                         </span>
                       )}

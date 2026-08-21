@@ -245,7 +245,7 @@ export default function NotificationsPage() {
         <span className={`block text-sm mb-2 leading-snug ${!n.is_read ? 'text-brand-gray-800' : 'text-brand-gray-450'}`}>
           {n.body}
         </span>
-        <span className="block text-[10px] text-brand-gray-450 font-medium uppercase tracking-wide">
+        <span className="block text-[11px] text-brand-gray-450 font-medium uppercase tracking-wide">
           {formatTime(n.created_at)}
         </span>
       </span>

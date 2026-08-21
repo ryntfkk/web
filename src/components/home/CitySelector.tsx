@@ -65,7 +65,7 @@ export default function CitySelector() {
         </div>
 
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-gray-400 shrink-0 hidden xs:inline">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-gray-400 shrink-0 hidden xs:inline">
             Lokasi:
           </span>
           <span className="text-[12px] sm:text-[13px] font-bold text-brand-gray-900 truncate max-w-[110px] xs:max-w-[140px] sm:max-w-[180px] leading-tight">
@@ -177,7 +177,7 @@ export default function CitySelector() {
               </button>
 
               {/* List Header */}
-              <div className="pt-2 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-brand-gray-400">
+              <div className="pt-2 pb-1 px-1 text-[11px] font-bold uppercase tracking-wider text-brand-gray-400">
                 Kota Tersedia ({filteredCities.length})
               </div>
 

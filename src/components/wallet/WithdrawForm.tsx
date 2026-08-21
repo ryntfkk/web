@@ -329,7 +329,7 @@ export default function WithdrawForm({
                   <p className="text-sm text-brand-gray-700 font-mono mt-1">{accountNumber}</p>
                   <p className="text-sm text-brand-gray-450 uppercase mt-0.5">{accountName}</p>
                 </div>
-                <div className="bg-brand-success-soft text-brand-success text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+                <div className="bg-brand-success-soft text-brand-success text-[11px] font-bold px-2 py-1 rounded-md uppercase">
                   Tersimpan
                 </div>
               </div>

@@ -149,7 +149,7 @@ export default function ProfilePage() {
               <h1 className="text-xl md:text-3xl font-extrabold tracking-tight drop-shadow-sm truncate">{user.name}</h1>
               {user.username && <p className="text-white/80 text-xs md:text-sm font-medium mt-0.5 drop-shadow-sm truncate">@{user.username}</p>}
               <p className="text-white/90 text-[13px] md:text-sm font-medium mt-0.5 md:mt-1 drop-shadow-sm">{user.phone || 'Nomor HP belum diisi'}</p>
-              <div className="mt-2 md:mt-3 inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
+              <div className="mt-2 md:mt-3 inline-flex items-center px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[11px] md:text-xs font-bold text-white bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
                 {user.active_role === 'partner' ? 'Mode Mitra' : 'Mode Pelanggan'}
               </div>
@@ -316,7 +316,7 @@ export default function ProfilePage() {
                       <span className="text-xs text-brand-gray-400">{user.phone || 'Belum diisi'}</span>
                     </div>
                     {!user.phone_verified && (
-                      <span className="text-[10px] font-bold text-brand-warning-dark bg-brand-warning-soft border border-brand-warning-border px-2 py-0.5 rounded-full">
+                      <span className="text-[11px] font-bold text-brand-warning-dark bg-brand-warning-soft border border-brand-warning-border px-2 py-0.5 rounded-full">
                         Belum terverifikasi
                       </span>
                     )}

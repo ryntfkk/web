@@ -160,7 +160,7 @@ export default function LocationPicker() {
 
         {/* Alamat tersimpan */}
         <div className="mt-3">
-          <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-brand-gray-400">
+          <p className="mb-1.5 px-1 text-[11px] font-bold uppercase tracking-wider text-brand-gray-400">
             Alamat tersimpan
           </p>
           {loadingAddr ? (
@@ -191,7 +191,7 @@ export default function LocationPicker() {
                       <p className="truncate text-[14px] font-semibold text-brand-gray-900">
                         {a.label || 'Alamat'}
                         {a.is_default && (
-                          <span className="ml-2 rounded bg-brand-gray-70 px-1.5 py-0.5 text-[10px] font-medium text-brand-gray-400">
+                          <span className="ml-2 rounded bg-brand-gray-70 px-1.5 py-0.5 text-[11px] font-medium text-brand-gray-400">
                             Utama
                           </span>
                         )}

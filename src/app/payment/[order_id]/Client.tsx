@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Wallet, CreditCard, QrCode } from 'lucide-react';
+import { Wallet, CreditCard, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountdownTimer } from '@/components/ui/countdown-timer';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { fetchAPI } from '@/lib/api';
 import { payOrderWithWallet, payOrderWithSnap } from '@/lib/payment';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -137,26 +138,28 @@ export default function PaymentClient() {
   return (
     <>
       <div className="page-h bg-brand-gray-60 pb-24">
-        {/* Header */}
-        {/* Header khusus mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
-        <div className="bg-white border-b border-brand-gray-100 px-4 py-4 sticky top-0 z-10 lg:hidden">
-          <div className="max-w-2xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => router.push(`/orders/${orderId}`)} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded">
-                <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-              </button>
-              <h1 className="text-base font-bold text-brand-gray-900">Pembayaran Pesanan</h1>
-            </div>
-            {order?.payment_expired_at && !isNaN(Date.parse(order.payment_expired_at)) && (
+        {/* A5: bilah tulis tangan diganti komponen bersama. Hitung mundurnya
+            TIDAK hilang . ia pindah ke slot `right`, tempat aksi/atribut kanan
+            memang dirender. Tanggal tak terbaca tetap disaring sebelum
+            dirender: `CountdownTimer` dengan target NaN menampilkan waktu
+            kacau, bukan tidak menampilkan apa pun. */}
+        <MobilePageHeader
+          title="Pembayaran Pesanan"
+          // Judul h1 halaman ada di badan konten (versi desktop).
+          titleAs="p"
+          backHref={`/orders/${orderId}`}
+          maxWidthClass="max-w-2xl"
+          right={
+            order?.payment_expired_at && !isNaN(Date.parse(order.payment_expired_at)) ? (
               <CountdownTimer
                 targetDate={order.payment_expired_at}
                 format="mm:ss"
                 criticalThresholdSeconds={300}
                 onExpire={() => router.replace(`/payment/${orderId}/status?status=timeout`)}
               />
-            )}
-          </div>
-        </div>
+            ) : undefined
+          }
+        />
 
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
           {/* Judul desktop . countdown ikut dipindah agar tidak hilang saat header mobile disembunyikan. */}

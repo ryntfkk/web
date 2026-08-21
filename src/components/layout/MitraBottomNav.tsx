@@ -39,7 +39,7 @@ export default function MitraBottomNav() {
               <span className="relative">
                 <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                 {item.href === '/mitra/chat' && unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-4 h-4 px-1 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                  <span className="absolute -top-1.5 -right-2.5 min-w-4 h-4 px-1 rounded-full bg-brand-red text-white text-[11px] font-bold flex items-center justify-center leading-none">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}

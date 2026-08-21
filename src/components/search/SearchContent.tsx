@@ -14,7 +14,10 @@ export default function SearchContent({ query }: SearchContentProps) {
   const recordSearch = useRecentSearchesStore((s) => s.record);
   useEffect(() => {
     if (query) recordSearch(query);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // `recordSearch` adalah aksi Zustand yang identitasnya stabil; memasukkannya
+    // ke deps hanya menambah kebisingan. Yang harus memicu pencatatan cuma kata
+    // kuncinya.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
   }, [query]);
 
   const listing = useServiceListing({ query });

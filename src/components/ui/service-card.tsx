@@ -74,7 +74,7 @@ export function ServiceCard({
         {distance && (
           <div className="absolute top-1.5 right-1.5 bg-white text-brand-gray-900 px-1.5 py-1 sm:px-2 rounded border border-brand-gray-100 shadow-sm flex items-center gap-0.5 sm:gap-1">
             <MapPin className="w-3 h-3 text-brand-red shrink-0" />
-            <span className="text-[10px] sm:text-[11px] font-bold leading-none">{distance}</span>
+            <span className="text-[11px] sm:text-[11px] font-bold leading-none">{distance}</span>
           </div>
         )}
       </div>
@@ -98,7 +98,7 @@ export function ServiceCard({
                 className="object-cover"
               />
             ) : (
-              <span className="text-[8px] sm:text-[10px] font-medium text-brand-gray-700">
+              <span className="text-[11px] font-medium text-brand-gray-700">
                 {getInitial(vendorName)}
               </span>
             )}
@@ -111,7 +111,7 @@ export function ServiceCard({
         {hasMandatoryRequirements && (
           <div className="mt-0.5 flex items-center gap-1 text-brand-warning-dark">
             <ClipboardCheck className="w-3 h-3 flex-shrink-0" />
-            <span className="text-[10px] sm:text-[11px] font-medium truncate">Ada yang perlu disiapkan</span>
+            <span className="text-[11px] sm:text-[11px] font-medium truncate">Ada yang perlu disiapkan</span>
           </div>
         )}
 
@@ -130,7 +130,7 @@ export function ServiceCard({
               <span className="text-[11px] font-medium text-brand-gray-450">Mitra baru</span>
             )}
             {typeof orderCount === 'number' && orderCount > 0 && (
-              <span className="text-[10px] sm:text-[11px] text-brand-gray-400 truncate">
+              <span className="text-[11px] sm:text-[11px] text-brand-gray-400 truncate">
                 · {formatCompactNumber(orderCount)} pesanan
               </span>
             )}

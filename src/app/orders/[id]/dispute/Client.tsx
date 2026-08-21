@@ -58,7 +58,11 @@ export default function DisputeClient() {
   useEffect(() => {
     if (!isAuthorized || !orderId) return;
     fetchOrder();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Fungsi fetch-nya dideklarasikan DI BAWAH effect ini (function declaration,
+    // terangkat) sehingga identitasnya berubah tiap render; memasukkannya ke deps
+    // membuat effect berjalan tanpa henti. Yang menentukan kapan ia harus jalan
+    // sudah ada di deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps sengaja dipersempit, lihat catatan di atas
   }, [isAuthorized, orderId]);
 
   async function fetchOrder() {

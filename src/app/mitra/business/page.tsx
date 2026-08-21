@@ -94,7 +94,10 @@ export default function MitraBusinessPage() {
     setLoading(false);
   }, []);
 
-  /* eslint-disable react-hooks/set-state-in-effect */
+  // Sinkronisasi dari sistem LUAR (API) saat mount . state di sini memang
+  // berasal dari server, bukan turunan props, jadi aturan ini tidak berlaku.
+  // Pola yang sama & alasannya ada di components/wallet/WithdrawForm.tsx.
+  /* eslint-disable react-hooks/set-state-in-effect -- sinkronisasi dari API, bukan state turunan props */
   useEffect(() => {
     if (!isAuthenticated) return;
     load();

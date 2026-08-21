@@ -59,7 +59,7 @@ export const ServiceProductCard = memo(function ServiceProductCard({ service }: 
           {distance && (
             <div className="absolute bottom-1.5 right-1.5 bg-white text-brand-gray-900 px-1.5 py-1 sm:px-2 rounded border border-brand-gray-100 shadow-sm flex items-center gap-0.5 sm:gap-1">
               <MapPin className="w-3 h-3 text-brand-red shrink-0" />
-              <span className="text-[10px] sm:text-[11px] font-bold leading-none">{distance}</span>
+              <span className="text-[11px] sm:text-[11px] font-bold leading-none">{distance}</span>
             </div>
           )}
         </div>
@@ -83,7 +83,7 @@ export const ServiceProductCard = memo(function ServiceProductCard({ service }: 
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[8px] sm:text-[10px] font-medium text-brand-gray-700">
+                <div className="w-full h-full flex items-center justify-center text-[11px] font-medium text-brand-gray-700">
                   {getInitial(service.partner_name || '')}
                 </div>
               )}
@@ -150,7 +150,7 @@ export const ServiceProductCard = memo(function ServiceProductCard({ service }: 
           <div className="mt-auto flex items-baseline justify-between gap-2">
             <Price price={service.price || 0} size="sm" className="text-[14px] sm:text-[16px] font-semibold" />
             {orderCount > 0 && (
-              <span className="text-[10px] sm:text-[11px] text-brand-gray-400 shrink-0">
+              <span className="text-[11px] sm:text-[11px] text-brand-gray-400 shrink-0">
                 {formatCompactNumber(orderCount)} pesanan
               </span>
             )}

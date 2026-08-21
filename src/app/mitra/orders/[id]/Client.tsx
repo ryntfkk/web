@@ -721,7 +721,7 @@ export default function MitraOrderDetailClient() {
                       }`}>
                       {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-brand-red animate-pulse' : 'bg-brand-gray-100'}`} />}
                     </div>
-                    <span className={`mt-1.5 text-[10px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-brand-gray-900' : done ? 'text-brand-gray-700' : 'text-brand-gray-450'}`}>
+                    <span className={`mt-1.5 text-[11px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-brand-gray-900' : done ? 'text-brand-gray-700' : 'text-brand-gray-450'}`}>
                       {label}
                     </span>
                   </div>
@@ -779,7 +779,7 @@ export default function MitraOrderDetailClient() {
                     {isChatLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MessageSquare className="w-3.5 h-3.5" />}
                     Chat
                     {chatUnread > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center justify-center leading-none border-2 border-white">
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-red text-white text-[11px] font-bold flex items-center justify-center leading-none border-2 border-white">
                         {chatUnread > 99 ? '99+' : chatUnread}
                       </span>
                     )}
@@ -835,7 +835,7 @@ export default function MitraOrderDetailClient() {
                     {order.requirements!.map((r, i) => (
                       <li key={r.code || `req-${i}`} className="flex items-start gap-2">
                         <span
-                          className={`mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
+                          className={`mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${r.is_mandatory
                               ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                               : 'bg-brand-gray-60 text-brand-gray-450'
                             }`}

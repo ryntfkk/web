@@ -280,7 +280,7 @@ export default function MitraPortfolioPage() {
                         dulu . katakan begitu, jangan biarkan mitra menebak
                         kenapa urutan penting. */}
                     {index === 0 && (
-                      <span className="absolute left-1.5 top-1.5 rounded-md bg-brand-red px-1.5 py-0.5 text-[9px] font-bold text-white">
+                      <span className="absolute left-1.5 top-1.5 rounded-md bg-brand-red px-1.5 py-0.5 text-[11px] font-bold text-white">
                         UTAMA
                       </span>
                     )}

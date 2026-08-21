@@ -69,12 +69,40 @@ interface Order {
   agreed_price?: number;
   /** Batas bayar . dipakai hitung mundur pada kartu WAITING_PAYMENT. */
   payment_expired_at?: string;
+  /**
+   * Cara pembayaran (E7). Nilainya apa adanya dari gateway . di produksi
+   * terlihat `bank_transfer`, `wallet_balance`, dan `snap`. Yang terakhir itu
+   * PLACEHOLDER Midtrans (nama widget-nya, bukan cara bayar), jadi tidak boleh
+   * ditampilkan sebagai informasi . lihat PAYMENT_METHOD_LABEL.
+   */
+  payment_method?: string;
   /** Alasan & pelaku pembatalan; sudah dirender halaman detail, dulu tidak di daftar. */
   cancellation_reason?: string;
   cancelled_by?: string;
 }
 
 const VALID_FILTERS: FilterStatus[] = ['all', 'pending', 'processing', 'completed', 'cancelled'];
+
+/**
+ * Cara bayar → label yang berarti bagi pelanggan (E7).
+ *
+ * Sengaja daftar TERTUTUP: nilai yang tak dikenal . termasuk `snap`, yang cuma
+ * nama widget Midtrans . tidak ditampilkan sama sekali. Mencetak nilai mentah
+ * membuat sebagian pelanggan melihat "snap" dan tidak ada yang bisa
+ * menjelaskannya; lebih baik diam daripada mengisi baris dengan kata yang tak
+ * bermakna.
+ */
+const PAYMENT_METHOD_LABEL: Record<string, string> = {
+  bank_transfer: 'Transfer Bank / VA',
+  wallet_balance: 'Saldo Dompet',
+  credit_card: 'Kartu Kredit',
+  gopay: 'GoPay',
+  shopeepay: 'ShopeePay',
+  qris: 'QRIS',
+  echannel: 'Mandiri Bill',
+  permata: 'Permata VA',
+  cstore: 'Gerai Retail',
+};
 
 /** Ambang munculnya kolom pencarian pesanan (sama dengan aturan >= 6 di daftar chat). */
 const SEARCH_MIN_ORDERS = 6;
@@ -454,8 +482,14 @@ function OrdersPageInner() {
                         </span>
                       </div>
 
-                      {/* Total . rata kanan ala Shopee */}
+                      {/* Total . rata kanan ala Shopee. Cara bayar ikut di baris
+                          yang sama (E7): ia konteks harga, bukan baris sendiri. */}
                       <div className="px-4 py-2.5 bg-brand-gray-55 border-t border-brand-red-light flex items-center justify-end gap-1.5">
+                        {order.payment_method && PAYMENT_METHOD_LABEL[order.payment_method] && (
+                          <span className="mr-auto text-xs text-brand-gray-450">
+                            {PAYMENT_METHOD_LABEL[order.payment_method]}
+                          </span>
+                        )}
                         <span className="text-xs text-brand-gray-700">Total Pesanan:</span>
                         <span className="text-base font-bold text-brand-red">
                           {formatPrice(order.total_amount || order.agreed_price || 0)}

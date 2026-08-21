@@ -7,7 +7,8 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowLeft, MapPin, Calendar, MessageSquare, Star, AlertTriangle,
+  ArrowLeft,
+  MapPin, Calendar, MessageSquare, Star, AlertTriangle,
   Phone, CheckCircle2, X, Copy, Check, ChevronRight, Clock,
   ClipboardList, Wallet, ShieldCheck, Loader2, HelpCircle, Scale, Printer,
 } from 'lucide-react';
@@ -23,6 +24,7 @@ import { printOrderReceipt } from '@/lib/receipt';
 import OrderHelpModal from '@/components/order/OrderHelpModal';
 import { getErrorMessage } from '@/types/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import { useChatRooms } from '@/hooks/useChatRooms';
 import { useOrderDetail } from '@/hooks/useOrders';
 import { useChatUiStore } from '@/lib/store/chatUiStore';
@@ -575,29 +577,34 @@ export default function OrderDetailClient() {
 
   return (
     <div className="page-h bg-brand-gray-60 pb-28 lg:pb-10">
-      {/* Header mobile . di desktop TopNavbar sudah jadi satu-satunya header. */}
-      <div className="bg-white border-b border-brand-gray-100 px-4 py-3 sticky top-0 z-30 lg:hidden">
-        <div className="flex items-center gap-3">
-          {/* Tujuan tetap (bukan router.back): pengguna bisa tiba di sini dari
-              halaman transien (status pembayaran sukses, form booking) . back
-              berbasis history akan memantulkan mereka ke halaman itu lagi. */}
-          <button onClick={() => router.push('/orders')} className="p-2 -ml-2 hover:bg-brand-gray-60 rounded-lg" aria-label="Kembali">
-            <ArrowLeft className="w-5 h-5 text-brand-gray-700" />
-          </button>
-          <div className="min-w-0">
-            <h1 className="text-base font-bold text-brand-gray-900 leading-tight">Detail Pesanan</h1>
-            <p className="text-xs text-brand-gray-450 truncate">{order.order_number}</p>
-          </div>
+      {/* A5: header dari komponen bersama, bukan bilah tulis tangan. Yang
+          hilang di versi lama bukan gayanya . melainkan perilaku yang sudah
+          diperbaiki sekali di MobilePageHeader dan tidak ikut ke sini (tinggi
+          & offset yang konsisten, tombol back sebagai <Link> yang bisa
+          dibuka di tab baru, satu aturan gutter).
+
+          `backHref` (bukan router.back): pengguna bisa tiba di sini dari
+          halaman transien . status pembayaran sukses, form booking . dan back
+          berbasis history akan memantulkan mereka ke sana lagi. */}
+      <MobilePageHeader
+        title="Detail Pesanan"
+        // H1 halaman ada di badan konten (judul desktop); dua h1 berarti
+        // dokumen punya dua judul yang bersaing.
+        titleAs="p"
+        subtitle={order.order_number}
+        backHref="/orders"
+        maxWidthClass="max-w-5xl"
+        right={
           <button
             onClick={() => setHelpOpen(true)}
-            className="ml-auto flex items-center gap-1 p-2 -mr-2 rounded-lg text-brand-gray-700 hover:bg-brand-gray-60"
+            className="flex items-center gap-1 p-2 -mr-2 rounded-lg text-brand-gray-700 hover:bg-brand-gray-60"
             aria-label="Bantuan"
           >
             <HelpCircle className="w-5 h-5" />
             <span className="text-xs font-medium">Bantuan</span>
           </button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6">
         <div className="hidden lg:flex items-center justify-between mb-5">
@@ -633,7 +640,7 @@ export default function OrderDetailClient() {
 
             {status === 'WAITING_PAYMENT' && order.payment_expired_at && (
               <div className="bg-white/15 rounded-md sm:rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-center shrink-0">
-                <p className="text-[10px] sm:text-[11px] text-white/80 mb-0.5">Bayar sebelum</p>
+                <p className="text-[11px] sm:text-[11px] text-white/80 mb-0.5">Bayar sebelum</p>
                 <CountdownTimer
                   targetDate={order.payment_expired_at}
                   format="mm:ss"
@@ -645,7 +652,7 @@ export default function OrderDetailClient() {
             )}
             {status === 'WAITING_CONFIRMATION' && order.confirmation_expired_at && (
               <div className="bg-white/15 rounded-md sm:rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-center shrink-0">
-                <p className="text-[10px] sm:text-[11px] text-white/80 mb-0.5">Batas konfirmasi</p>
+                <p className="text-[11px] sm:text-[11px] text-white/80 mb-0.5">Batas konfirmasi</p>
                 <CountdownTimer
                   targetDate={order.confirmation_expired_at}
                   format="mm:ss"
@@ -657,7 +664,7 @@ export default function OrderDetailClient() {
             )}
             {status === 'WAITING_CUSTOMER_CONFIRM' && order.confirmation_expired_at && (
               <div className="bg-white/15 rounded-md sm:rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-center shrink-0">
-                <p className="text-[10px] sm:text-[11px] text-white/80 mb-0.5">Dana cair otomatis dalam</p>
+                <p className="text-[11px] sm:text-[11px] text-white/80 mb-0.5">Dana cair otomatis dalam</p>
                 <CountdownTimer
                   targetDate={order.confirmation_expired_at}
                   format="hh:mm:ss"
@@ -708,7 +715,7 @@ export default function OrderDetailClient() {
                     >
                       {done ? <Check className="w-3.5 h-3.5" /> : <span className={`w-2 h-2 rounded-full ${active ? 'bg-brand-red animate-pulse' : 'bg-brand-gray-100'}`} />}
                     </div>
-                    <span className={`mt-1.5 text-[10px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-brand-gray-900' : done ? 'text-brand-gray-700' : 'text-brand-gray-450'}`}>
+                    <span className={`mt-1.5 text-[11px] sm:text-xs text-center leading-tight ${active ? 'font-semibold text-brand-gray-900' : done ? 'text-brand-gray-700' : 'text-brand-gray-450'}`}>
                       {label}
                     </span>
                   </div>
@@ -743,10 +750,10 @@ export default function OrderDetailClient() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-brand-gray-900 truncate">{order.partner.name}</p>
                       {order.partner.is_online && (
-                        <span className="text-[10px] font-medium text-brand-success bg-brand-success/10 px-1.5 py-0.5 rounded">Online</span>
+                        <span className="text-[11px] font-medium text-brand-success bg-brand-success/10 px-1.5 py-0.5 rounded">Online</span>
                       )}
                       {order.partner.partner_type === 'vendor' && (
-                        <span className="text-[10px] font-medium text-brand-gray-700 bg-brand-gray-60 px-1.5 py-0.5 rounded">Badan Usaha</span>
+                        <span className="text-[11px] font-medium text-brand-gray-700 bg-brand-gray-60 px-1.5 py-0.5 rounded">Badan Usaha</span>
                       )}
                     </div>
 
@@ -778,12 +785,12 @@ export default function OrderDetailClient() {
                     {order.partner.service_area && order.partner.service_area.length > 0 && (
                       <div className="flex gap-1 flex-wrap mt-2">
                         {order.partner.service_area.slice(0, 3).map(area => (
-                          <span key={area} className="text-[10px] text-brand-gray-700 bg-brand-gray-60 border border-brand-gray-100 px-1.5 py-0.5 rounded">
+                          <span key={area} className="text-[11px] text-brand-gray-700 bg-brand-gray-60 border border-brand-gray-100 px-1.5 py-0.5 rounded">
                             {area}
                           </span>
                         ))}
                         {order.partner.service_area.length > 3 && (
-                          <span className="text-[10px] text-brand-gray-450 px-1">+{order.partner.service_area.length - 3}</span>
+                          <span className="text-[11px] text-brand-gray-450 px-1">+{order.partner.service_area.length - 3}</span>
                         )}
                       </div>
                     )}
@@ -799,7 +806,7 @@ export default function OrderDetailClient() {
                     {isChatLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MessageSquare className="w-3.5 h-3.5" />}
                     Chat
                     {chatUnread > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center justify-center leading-none border-2 border-white">
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-red text-white text-[11px] font-bold flex items-center justify-center leading-none border-2 border-white">
                         {chatUnread > 99 ? '99+' : chatUnread}
                       </span>
                     )}
@@ -866,7 +873,7 @@ export default function OrderDetailClient() {
                       </div>
                       <div className="text-right shrink-0">
                         <p className="font-semibold text-brand-gray-900">{formatPrice(fee.total)}</p>
-                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${fee.status === 'PAID' ? 'text-brand-success bg-brand-success/10'
+                        <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${fee.status === 'PAID' ? 'text-brand-success bg-brand-success/10'
                             : fee.status === 'REJECTED' ? 'text-brand-gray-450 bg-brand-gray-60'
                               : 'text-brand-orange bg-brand-orange/10'
                           }`}>
@@ -934,7 +941,7 @@ export default function OrderDetailClient() {
                     {order.requirements!.map((r, i) => (
                       <li key={r.code || `req-${i}`} className="flex items-start gap-2">
                         <span
-                          className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${r.is_mandatory
+                          className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${r.is_mandatory
                               ? 'bg-brand-warning-soft text-brand-warning-dark border border-brand-warning-border'
                               : 'bg-brand-gray-60 text-brand-gray-450'
                             }`}

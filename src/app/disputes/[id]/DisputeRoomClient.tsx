@@ -154,7 +154,7 @@ export default function DisputeRoomClient() {
             const isAdmin = m.sender_role === 'admin';
             return (
               <div key={m.id} className={`flex flex-col max-w-[85%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}>
-                <span className={`text-[10px] font-semibold mb-0.5 px-1 ${isAdmin ? 'text-brand-warning' : 'text-brand-gray-450'}`}>
+                <span className={`text-[11px] font-semibold mb-0.5 px-1 ${isAdmin ? 'text-brand-warning' : 'text-brand-gray-450'}`}>
                   {isMe ? 'Anda' : ROLE_LABEL[m.sender_role] || m.sender_name}
                   {isAdmin && ' • Resmi'}
                 </span>
@@ -168,7 +168,7 @@ export default function DisputeRoomClient() {
                 >
                   {m.content}
                 </div>
-                <span className="text-[10px] text-brand-gray-450 mt-0.5">{formatTime(m.created_at)}</span>
+                <span className="text-[11px] text-brand-gray-450 mt-0.5">{formatTime(m.created_at)}</span>
               </div>
             );
           })

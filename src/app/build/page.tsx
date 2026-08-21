@@ -145,7 +145,7 @@ export default async function BuildPage() {
                 <p className="text-[24px] font-black leading-none tracking-tight text-brand-gray-900 sm:text-[32px]">
                   {m.value}
                 </p>
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-gray-450 sm:text-[11px]">
+                <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gray-450 sm:text-[11px]">
                   {m.label}
                 </p>
               </div>
@@ -569,7 +569,7 @@ export default async function BuildPage() {
               {ROADMAP.map((s, i) => (
                 <div key={s.tag} className="bg-white px-6 py-7">
                   <span
-                    className={`inline-block rounded-sm px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${
+                    className={`inline-block rounded-sm px-2 py-1 text-[11px] font-black uppercase tracking-[0.16em] ${
                       i === 0 ? 'bg-brand-red text-white' : 'bg-brand-gray-60 text-brand-gray-450'
                     }`}
                   >

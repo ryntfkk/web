@@ -55,7 +55,7 @@ export default function CategorySection() {
                   sizes="(max-width: 640px) 52px, 64px"
                 />
               </div>
-              <span className="text-[10px] sm:text-[11px] lg:text-[11px] font-medium text-brand-gray-900 text-center leading-[1.1] line-clamp-2 px-1">
+              <span className="text-[11px] sm:text-[11px] lg:text-[11px] font-medium text-brand-gray-900 text-center leading-[1.1] line-clamp-2 px-1">
                 {cat.name}
               </span>
             </button>
@@ -69,7 +69,7 @@ export default function CategorySection() {
             <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] lg:w-[48px] lg:h-[48px] mb-2 lg:mb-1.5 flex items-center justify-center bg-brand-red-light border border-dashed border-brand-gray-100 rounded-2xl lg:rounded-xl group-hover:border-brand-red group-hover:bg-brand-gray-50 transition-all">
               <span className="text-brand-red font-bold text-[20px] sm:text-[24px] lg:text-[20px]">+</span>
             </div>
-            <span className="text-[10px] sm:text-[11px] lg:text-[11px] font-medium text-brand-red text-center leading-[1.1] px-1">
+            <span className="text-[11px] sm:text-[11px] lg:text-[11px] font-medium text-brand-red text-center leading-[1.1] px-1">
               Lainnya
             </span>
           </Link>

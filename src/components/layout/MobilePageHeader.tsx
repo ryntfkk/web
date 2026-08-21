@@ -38,6 +38,16 @@ interface MobilePageHeaderProps {
    * Google mendapat dua judul yang bersaing pada satu halaman.
    */
   titleAs?: 'h1' | 'p';
+  /**
+   * Konten yang menempel DI BAWAH baris judul, di dalam bilah sticky yang sama
+   * (mis. progress bar wizard).
+   *
+   * Ada karena halaman booking dulu menulis bilahnya sendiri semata-mata untuk
+   * ini . dan bersamanya ikut hilang seluruh perilaku yang sudah dibereskan di
+   * komponen ini. Slot yang jujur lebih baik daripada satu halaman yang
+   * menyalin ulang headernya (A5).
+   */
+  below?: ReactNode;
 }
 
 // Header untuk halaman drill-down. Default lg:hidden (mobile saja); pakai
@@ -53,6 +63,7 @@ export default function MobilePageHeader({
   maxWidthClass = 'max-w-lg',
   gutterClass = 'px-4',
   titleAs = 'h1',
+  below,
 }: MobilePageHeaderProps) {
   const router = useRouter();
   const backClass = 'p-2 -ml-2 hover:bg-brand-gray-60 rounded';
@@ -82,6 +93,9 @@ export default function MobilePageHeader({
         )}
         {right && <div className="ml-auto">{right}</div>}
       </div>
+      {below && (
+        <div className={`${maxWidthClass} mx-auto ${gutterClass} pb-4 -mt-1`}>{below}</div>
+      )}
     </div>
   );
 }

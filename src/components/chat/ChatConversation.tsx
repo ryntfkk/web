@@ -360,7 +360,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
             });
             if (id) router.push(`${supportBasePath(user?.active_role)}/${id}`);
           }}
-          className="text-[10px] font-semibold text-brand-red hover:underline shrink-0 whitespace-nowrap"
+          className="text-[11px] font-semibold text-brand-red hover:underline shrink-0 whitespace-nowrap"
         >
           Laporkan
         </button>
@@ -371,7 +371,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
         <div className={`shrink-0 border-b border-brand-gray-100 bg-white p-3 shadow-sm z-10 ${embedded ? '' : 'max-w-lg mx-auto w-full'}`}>
           <div className="flex items-center justify-between">
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] font-semibold text-brand-gray-400 uppercase tracking-wider mb-0.5">Pesanan Aktif</span>
+              <span className="text-[11px] font-semibold text-brand-gray-400 uppercase tracking-wider mb-0.5">Pesanan Aktif</span>
               <span className="text-sm font-bold text-brand-gray-900 truncate">
                 {activeOrder.order_number}
               </span>
@@ -414,7 +414,7 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
               <div key={msg.id}>
                 {showDate && (
                   <div className="flex justify-center my-4">
-                    <span className="bg-brand-gray-100 text-brand-gray-700 text-[10px] font-medium px-3 py-1 rounded-full shadow-sm">
+                    <span className="bg-brand-gray-100 text-brand-gray-700 text-[11px] font-medium px-3 py-1 rounded-full shadow-sm">
                       {new Date(msg.created_at).toLocaleDateString('id-ID', {
                         weekday: 'long',
                         day: 'numeric',
@@ -455,12 +455,12 @@ export default function ChatConversation({ roomId, embedded = false, onBack }: C
                     {msg.message_type === 'text' && <p className="text-[14px] leading-relaxed">{msg.content}</p>}
                   </div>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="text-[10px] text-brand-gray-450">{formatTime(msg.created_at)}</span>
+                    <span className="text-[11px] text-brand-gray-450">{formatTime(msg.created_at)}</span>
                     {isMe && msg.status === 'pending' && (
-                      <span className="text-[10px] text-brand-gray-450">...</span>
+                      <span className="text-[11px] text-brand-gray-450">...</span>
                     )}
                     {isMe && msg.status !== 'pending' && (
-                      <span className={`text-[10px] font-medium ${msg.is_read ? 'text-brand-success' : 'text-brand-gray-450'}`}>
+                      <span className={`text-[11px] font-medium ${msg.is_read ? 'text-brand-success' : 'text-brand-gray-450'}`}>
                         {msg.is_read ? '✓✓' : '✓'}
                       </span>
                     )}

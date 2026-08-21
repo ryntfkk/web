@@ -42,7 +42,7 @@ export default function MitraStatStrip({ items, className = '' }: MitraStatStrip
           <>
             <p className="truncate text-[11px] text-brand-gray-700">{item.label}</p>
             <p className={cn('text-sm font-bold text-brand-gray-900', item.valueClassName)}>{item.value}</p>
-            {item.sub != null && <p className="truncate text-[10px] text-brand-gray-450">{item.sub}</p>}
+            {item.sub != null && <p className="truncate text-[11px] text-brand-gray-450">{item.sub}</p>}
           </>
         );
 

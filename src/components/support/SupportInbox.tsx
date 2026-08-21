@@ -96,11 +96,11 @@ export default function SupportInbox({ basePath }: { basePath: string }) {
                         `reports` yang sama: chat CS, tiket dari halaman pesanan,
                         dan laporan moderasi. Tanpa penanda jenis, laporan
                         "mitra ini menipu" tampil sebagai percakapan CS biasa. */}
-                    <span className="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-gray-60 text-brand-gray-700">
+                    <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-gray-60 text-brand-gray-700">
                       {SUPPORT_TARGET_LABEL[t.target_type] || 'Laporan'}
                     </span>
                     <span
-                      className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                         SUPPORT_STATUS_COLOR[t.status] || 'bg-brand-red-light text-brand-gray-700'
                       }`}
                     >
@@ -120,7 +120,7 @@ export default function SupportInbox({ basePath }: { basePath: string }) {
                     {t.last_message || t.description || 'Percakapan CS'}
                   </p>
                   {hasUnread && (
-                    <span className="shrink-0 min-w-[18px] h-[18px] bg-brand-red text-white text-[10px] font-bold flex items-center justify-center rounded-full px-1">
+                    <span className="shrink-0 min-w-[18px] h-[18px] bg-brand-red text-white text-[11px] font-bold flex items-center justify-center rounded-full px-1">
                       {t.unread_count}
                     </span>
                   )}

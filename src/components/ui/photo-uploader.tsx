@@ -71,7 +71,7 @@ export function PhotoUploader({
           >
             <Camera className="h-6 w-6" />
             <span className="text-[11px] font-medium leading-none">Tambah</span>
-            <span className="text-[10px] font-medium leading-none opacity-70">{value.length}/{maxPhotos}</span>
+            <span className="text-[11px] font-medium leading-none opacity-70">{value.length}/{maxPhotos}</span>
           </button>
         )}
       </div>

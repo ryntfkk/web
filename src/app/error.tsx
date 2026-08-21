@@ -51,7 +51,7 @@ export default function GlobalError({
           <div className="mt-8 text-left bg-brand-gray-50 p-4 rounded-lg overflow-auto max-h-48 border border-brand-gray-200">
             <p className="text-xs font-mono text-brand-error break-all">{error.message}</p>
             {error.stack && (
-              <pre className="text-[10px] font-mono text-brand-gray-450 mt-2 whitespace-pre-wrap">
+              <pre className="text-[11px] font-mono text-brand-gray-450 mt-2 whitespace-pre-wrap">
                 {error.stack}
               </pre>
             )}

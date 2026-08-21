@@ -89,3 +89,34 @@ describe('token warna brand . definisi vs pemakaian', () => {
     expect(hantu).toEqual([]);
   });
 });
+
+/**
+ * Ambang bawah ukuran teks: 11px (D7, audit 2026-08-21).
+ *
+ * `DESIGN_GUIDELINES.md` §7.3 hanya mendefinisikan sampai `text-xs` (12px),
+ * tetapi kode sempat memuat 97 kemunculan `text-[10px]` DAN 7 `text-[9px]`
+ * plus 2 `text-[8px]` . seluruhnya di layar yang dipakai dari ponsel. Ukuran
+ * sekecil itu bukan "padat", ia tidak terbaca.
+ *
+ * 11px dipilih, bukan 12px, karena 11px SUDAH dipakai luas di badge & caption
+ * sini . menaikkan semuanya ke 12px berarti mengubah tata letak 39 berkas
+ * tanpa seorang pun melihat layarnya. Yang dijaga di sini batas bawahnya;
+ * menaikkan lagi ke skala resmi boleh dilakukan bertahap.
+ */
+describe('ambang ukuran teks', () => {
+  const TEKS_TERLALU_KECIL = /text-\[(?:[0-9]|10)px\]/;
+
+  it('tidak ada teks di bawah 11px', () => {
+    const offenders = FILES.filter((f) => TEKS_TERLALU_KECIL.test(readFileSync(f, 'utf8'))).map(
+      (f) => path.relative(SRC_DIR, f).split(path.sep).join('/'),
+    );
+    expect(offenders).toEqual([]);
+  });
+
+  it('regex ambangnya sendiri benar', () => {
+    expect(TEKS_TERLALU_KECIL.test('text-[10px]')).toBe(true);
+    expect(TEKS_TERLALU_KECIL.test('text-[9px]')).toBe(true);
+    expect(TEKS_TERLALU_KECIL.test('text-[11px]')).toBe(false);
+    expect(TEKS_TERLALU_KECIL.test('text-[13px]')).toBe(false);
+  });
+});

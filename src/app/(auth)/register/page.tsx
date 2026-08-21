@@ -2,6 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useResendCooldown } from '@/hooks/useResendCooldown';
+import { normalizePhone, formatPhoneDisplay } from '@/lib/phone';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
@@ -23,6 +25,8 @@ function RegisterContent() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const cooldown = useResendCooldown(60);
 
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
@@ -46,12 +50,35 @@ function RegisterContent() {
     return null;
   }
 
+  // F3: nomor dikanonkan SEBELUM dikirim, dan yang disimpan di state adalah
+  // bentuk kanonik itu . supaya nomor yang tampil di layar verifikasi sama
+  // dengan nomor yang benar-benar dikirimi OTP (server mengkanonkan juga, jadi
+  // ini soal umpan balik, bukan kebenaran data).
+  //
+  // F4: setiap pengiriman memulai jeda 60 detik. Tanpa itu pengguna yang
+  // menunggu WhatsApp menekan berulang kali sampai kena limiter `otp-send`
+  // (10 per 15 menit) . terkunci oleh alurnya sendiri.
+  const kirimOTP = async (nomor: string) => {
+    const kanonik = normalizePhone(nomor);
+    if (kanonik.length < 10) {
+      setPhoneError('Nomor HP tidak lengkap. Contoh: 081234567890');
+      return false;
+    }
+    setPhoneError('');
+    setPhone(kanonik);
+    const res = await sendOTP(kanonik);
+    if (res.success) cooldown.mulai();
+    return res.success;
+  };
+
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await sendOTP(phone);
-    if (res.success) {
-      setStep(2);
-    }
+    if (await kirimOTP(phone)) setStep(2);
+  };
+
+  const handleResendOTP = async () => {
+    if (cooldown.aktif) return;
+    await kirimOTP(phone);
   };
 
   const handleVerifyOTPLocal = (e: React.FormEvent) => {
@@ -102,7 +129,7 @@ function RegisterContent() {
         )}
         {step === 2 && (
           <p className="mt-2 text-center text-sm text-brand-gray-700">
-            Masukkan kode 6 digit yang dikirim ke {phone}
+            Masukkan kode 6 digit yang dikirim ke {formatPhoneDisplay(phone)}
           </p>
         )}
       </div>
@@ -133,11 +160,18 @@ function RegisterContent() {
                     placeholder="081234567890"
                   />
                 </div>
+                {phoneError && <p className="mt-1 text-xs text-brand-error">{phoneError}</p>}
               </div>
 
               <div>
-                <Button type="submit" size="lg" isLoading={loading} className="w-full rounded-full shadow-brand-red">
-                  Kirim OTP
+                <Button
+                  type="submit"
+                  size="lg"
+                  isLoading={loading}
+                  disabled={cooldown.aktif}
+                  className="w-full rounded-full shadow-brand-red"
+                >
+                  {cooldown.aktif ? `Kirim ulang dalam ${cooldown.sisa}s` : 'Kirim OTP'}
                 </Button>
               </div>
 
@@ -198,6 +232,17 @@ function RegisterContent() {
                 <Button type="submit" size="lg" disabled={otp.length < 6} className="w-full rounded-full shadow-brand-red">
                   Selanjutnya
                 </Button>
+
+                {/* Kirim ulang TANPA harus kembali ke langkah 1 . jalur lama
+                    (bolak-balik step 1↔2) menembak limiter tiap kali. */}
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={cooldown.aktif || loading}
+                  className="text-sm font-semibold text-brand-red hover:underline disabled:text-brand-gray-400 disabled:no-underline"
+                >
+                  {cooldown.aktif ? `Kirim ulang kode dalam ${cooldown.sisa}s` : 'Kirim ulang kode'}
+                </button>
 
                 <Button
                   type="button"
@@ -271,6 +316,8 @@ function RegisterContent() {
                     type="button"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                    aria-pressed={showPassword}
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5 text-brand-gray-400" />

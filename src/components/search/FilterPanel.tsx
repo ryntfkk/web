@@ -3,6 +3,7 @@
 import { Filter, Star, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCities } from '@/hooks/useCities';
+import type { Category } from '@/types/category';
 
 interface FilterPanelProps {
   isOpen?: boolean;
@@ -19,6 +20,18 @@ interface FilterPanelProps {
   onMinPriceChange: (v: number) => void;
   maxPrice: number;
   onMaxPriceChange: (v: number) => void;
+  /**
+   * Kategori (E5). Opsional: panel ini juga dipakai konteks yang tidak punya
+   * daftar kategori.
+   *
+   * Sumber kebenarannya URL (`/services?category=<id>`), SAMA dengan deretan
+   * chip di atas daftar . itulah sebabnya `onCategoryChange` menavigasi alih-alih
+   * menyimpan state sendiri. Dua kontrol untuk satu filter boleh, dua STATE
+   * untuk satu filter tidak: yang kedua pasti menyimpang.
+   */
+  categories?: Category[];
+  category?: string;
+  onCategoryChange?: (id: string) => void;
 }
 
 /**
@@ -53,10 +66,15 @@ export default function FilterPanel({
   onMinPriceChange,
   maxPrice,
   onMaxPriceChange,
+  categories,
+  category = '',
+  onCategoryChange,
 }: FilterPanelProps) {
   const { data: cities } = useCities();
+  const punyaKategori = Boolean(categories?.length && onCategoryChange);
   const hasActiveFilter =
-    Boolean(city) || minRating > 0 || Boolean(partnerType) || minPrice > 0 || maxPrice > 0;
+    Boolean(city) || minRating > 0 || Boolean(partnerType) || minPrice > 0 || maxPrice > 0 ||
+    (punyaKategori && Boolean(category));
 
   // Input harga: 0 di state = kosong di UI. Angka saja; string non-angka → 0.
   const priceValue = (v: number) => (v > 0 ? String(v) : '');
@@ -89,6 +107,29 @@ export default function FilterPanel({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Kategori (E5) . ditaruh PALING ATAS: ia menyaring paling banyak, dan
+            di ponsel panel ini adalah drawer, jadi yang paling menentukan harus
+            terlihat tanpa menggulir. Navigasi, bukan state . lihat catatan pada
+            props `categories`. */}
+        {punyaKategori && (
+          <div className="flex flex-col gap-2">
+            <h4 className="text-[16px] font-semibold text-brand-gray-900 mb-1">Kategori</h4>
+            <select
+              value={category}
+              onChange={(e) => onCategoryChange?.(e.target.value)}
+              className="w-full p-2.5 border border-brand-gray-100 rounded-xs text-[14px] text-brand-gray-900 bg-white focus:outline-none focus:border-brand-red"
+              aria-label="Kategori layanan"
+            >
+              <option value="">Semua Kategori</option>
+              {categories?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* City Filter */}
         <div className="flex flex-col gap-2">
@@ -208,6 +249,7 @@ export default function FilterPanel({
             onPartnerTypeChange('');
             onMinPriceChange(0);
             onMaxPriceChange(0);
+            if (punyaKategori) onCategoryChange?.('');
           }}
         >
           Reset Filter

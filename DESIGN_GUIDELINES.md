@@ -372,6 +372,7 @@ tanpa menghitung ulang rasionya.**
 ### 7.3 Font Sizes
 | Class | Size | Usage |
 |-------|------|-------|
+| `text-[11px]` | 11px | **Ambang bawah** . badge, pill, caption padat |
 | `text-xs` | 12px | Captions, timestamps |
 | `text-sm` | 14px | Body text, labels |
 | `text-base` | 16px | Default |
@@ -379,6 +380,17 @@ tanpa menghitung ulang rasionya.**
 | `text-xl` | 20px | Section titles |
 | `text-2xl` | 24px | Page titles |
 | `text-3xl` | 30px | Hero titles |
+
+> **Tidak ada teks di bawah 11px** (D7, audit 2026-08-21). Sampai tanggal itu
+> kode memuat 97 `text-[10px]`, 7 `text-[9px]`, dan 2 `text-[8px]` . seluruhnya
+> di layar yang dipakai dari ponsel. Semuanya dinaikkan ke `text-[11px]` dan
+> ambangnya kini dijaga `src/app/design-tokens.test.ts` ("ambang ukuran teks"),
+> jadi pelanggaran berikutnya membuat test merah, bukan lolos diam-diam.
+>
+> 11px, bukan 12px, adalah kompromi sadar: menaikkan seluruhnya ke skala resmi
+> berarti menggeser tata letak 39 berkas tanpa seorang pun melihat layarnya.
+> Menaikkan bertahap ke `text-xs` tetap dianjurkan . penjaga hanya melarang
+> turun lagi.
 
 ---
 

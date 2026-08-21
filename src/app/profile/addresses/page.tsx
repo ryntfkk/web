@@ -125,7 +125,7 @@ export default function AddressesPage() {
                     {a.label}
                   </h3>
                   {a.is_default && (
-                    <span className="bg-brand-red text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
+                    <span className="bg-brand-red text-white text-[11px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
                       Utama
                     </span>
                   )}

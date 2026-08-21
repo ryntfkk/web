@@ -164,7 +164,7 @@ export default async function JadiMitraPage() {
                   <span className="text-xl sm:text-2xl font-black leading-none text-white">
                     {s.angka}
                   </span>
-                  <span className="mt-1 sm:mt-0 text-[10px] sm:text-[12px] font-medium leading-tight text-white/70">
+                  <span className="mt-1 sm:mt-0 text-[11px] sm:text-[12px] font-medium leading-tight text-white/70">
                     {s.label}
                   </span>
                 </div>
@@ -209,7 +209,7 @@ export default async function JadiMitraPage() {
                         <X className="h-3 w-3 text-brand-gray-700" aria-hidden />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gray-450 mb-1">Cara Lama</p>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-brand-gray-450 mb-1">Cara Lama</p>
                         <p className="text-[13px] leading-relaxed text-brand-gray-700 relative z-10">
                           {row.lama}
                         </p>
@@ -224,7 +224,7 @@ export default async function JadiMitraPage() {
                         <Check className="h-3 w-3" aria-hidden />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-success-dark mb-1">Di Posko</p>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-brand-success-dark mb-1">Di Posko</p>
                         <p className="text-[13px] font-semibold leading-relaxed text-brand-gray-900 relative z-10">
                           {row.posko}
                         </p>

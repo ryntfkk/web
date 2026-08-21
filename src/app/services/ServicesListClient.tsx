@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import ServiceListLayout from '@/components/services/ServiceListLayout';
@@ -26,7 +27,15 @@ export default function ServicesListClient({
     initialServices,
   });
 
+  const router = useRouter();
   const activeCat = categories.find((c) => c.id === activeCategory);
+
+  // Panel filter memilih kategori lewat NAVIGASI, sama seperti chip di atas
+  // daftar . satu sumber kebenaran (URL), sehingga chip dan panel tidak mungkin
+  // menampilkan kategori berbeda.
+  const pilihKategori = (id: string) => {
+    router.push(id ? `/services?category=${id}` : '/services');
+  };
 
   return (
     <div className="min-h-screen bg-brand-gray-60 flex flex-col">
@@ -92,6 +101,9 @@ export default function ServicesListClient({
           onPartnerTypeChange={listing.setPartnerType}
           minPrice={listing.minPrice}
           onMinPriceChange={listing.setMinPrice}
+          categories={categories}
+          category={activeCategory ?? ''}
+          onCategoryChange={pilihKategori}
           maxPrice={listing.maxPrice}
           onMaxPriceChange={listing.setMaxPrice}
           isSearch={false}

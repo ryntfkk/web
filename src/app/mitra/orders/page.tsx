@@ -209,7 +209,7 @@ export default function MitraOrdersPage() {
               <SlidersHorizontal className="w-4 h-4" aria-hidden />
               Filter
               {activeExtraCount > 0 && (
-                <span className="rounded-full bg-brand-red px-1.5 text-[10px] text-white">{activeExtraCount}</span>
+                <span className="rounded-full bg-brand-red px-1.5 text-[11px] text-white">{activeExtraCount}</span>
               )}
             </button>
           </div>
@@ -274,7 +274,7 @@ export default function MitraOrdersPage() {
               >
                 {f.label}
                 {showCounts && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeFilter === f.key ? 'bg-white/25 text-white' : 'bg-brand-gray-100 text-brand-gray-700'}`}>
+                  <span className={`px-1.5 py-0.5 rounded-full text-[11px] ${activeFilter === f.key ? 'bg-white/25 text-white' : 'bg-brand-gray-100 text-brand-gray-700'}`}>
                     {filterCounts[f.key]}
                   </span>
                 )}
@@ -362,17 +362,17 @@ export default function MitraOrdersPage() {
                   {order.status === 'CANCELLED' ? (
                     <>
                       <p className="font-bold text-brand-gray-450">{formatPrice(0)}</p>
-                      <p className="text-[10px] text-brand-gray-450 mt-0.5">Pesanan dibatalkan</p>
+                      <p className="text-[11px] text-brand-gray-450 mt-0.5">Pesanan dibatalkan</p>
                     </>
                   ) : (
                     <>
                       <p className="font-bold text-brand-red">
                         {formatPrice(order.partner_amount ?? 0)}
                         {order.partner_amount_estimated && (
-                          <span className="ml-1 text-[10px] font-normal text-brand-gray-450">est.</span>
+                          <span className="ml-1 text-[11px] font-normal text-brand-gray-450">est.</span>
                         )}
                       </p>
-                      <p className="text-[10px] text-brand-gray-450 mt-0.5">Pendapatan mitra</p>
+                      <p className="text-[11px] text-brand-gray-450 mt-0.5">Pendapatan mitra</p>
                     </>
                   )}
                 </div>

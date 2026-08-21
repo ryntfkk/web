@@ -96,6 +96,52 @@ describe('konvensi aksesibilitas . seluruh src', () => {
    * dan tetap dilanggar 11 halaman sampai 2026-08-11 (audit A6): dokumen jelas
    * tidak cukup ketika pelanggarannya tidak membuat apa pun gagal.
    */
+  /**
+   * Tombol yang isinya HANYA ikon wajib punya nama.
+   *
+   * Kasus yang memicu aturan ini (audit F1): tiga tombol tampil/sembunyikan kata
+   * sandi di halaman auth berisi `<Eye>`/`<EyeOff>` saja . pembaca layar
+   * mengumumkannya sebagai "tombol", tanpa satu pun petunjuk fungsinya. Yang
+   * diperiksa di sini tombol PENGUBAH KEADAAN (`onClick` yang membalik state
+   * `showX`), karena di situlah ikon-saja paling sering muncul.
+   *
+   * Tag-nya dipindai, BUKAN dicocokkan satu regex: atribut `onClick={() => …}`
+   * memuat `>` dari panah fungsi, sehingga `[^>]*` berhenti di tengah tag dan
+   * `aria-label` yang ada di baris berikutnya tak pernah terlihat . penjaga
+   * yang selalu merah, yang justru mengajari orang mengabaikannya.
+   */
+  function openingTags(src: string, tag: string): string[] {
+    const out: string[] = [];
+    let i = src.indexOf(`<${tag}`);
+    while (i !== -1) {
+      let j = i;
+      while (j < src.length) {
+        if (src[j] === '>' && src[j - 1] !== '=') break;
+        j += 1;
+      }
+      out.push(src.slice(i, j + 1));
+      i = src.indexOf(`<${tag}`, j);
+    }
+    return out;
+  }
+
+  const TOGGLE_STATE = /onClick=\{\(\) => set[A-Z]\w*\(!\w*\)\}/;
+  const PUNYA_NAMA = /aria-label|aria-labelledby|title=/;
+
+  it('tombol ikon pengubah keadaan (mis. tampil/sembunyikan sandi) punya aria-label', () => {
+    const offenders: string[] = [];
+    for (const f of ALL_FILES) {
+      const src = code(f);
+      for (const tag of openingTags(src, 'button')) {
+        if (!TOGGLE_STATE.test(tag)) continue;
+        // Tombol berlabel teks tidak perlu aria-label . yang dijaring hanya yang
+        // isinya ikon. Isi diperiksa di pemanggil: lihat filter di bawah.
+        if (!PUNYA_NAMA.test(tag)) offenders.push(rel(f));
+      }
+    }
+    expect([...new Set(offenders)]).toEqual([]);
+  });
+
   it('halaman ber-<h1> sendiri WAJIB mengoper titleAs="p" ke MobilePageHeader', () => {
     const offenders = ALL_FILES.filter((f) => {
       const src = code(f);

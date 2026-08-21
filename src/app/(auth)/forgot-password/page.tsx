@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
+import { useResendCooldown } from '@/hooks/useResendCooldown';
 import { getErrorMessage } from '@/types/api';
 import { Button } from '@/components/ui/button';
 import { INPUT_CLASS } from '@/components/ui/form';
@@ -21,9 +22,13 @@ export default function ForgotPasswordPage() {
   const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  // F4: jeda kirim-ulang. Jalur ini menembak limiter yang sama dengan
+  // registrasi (`forgot-password`, 20 per 15 menit) . tanpa jeda, pengguna yang
+  // menunggu kode mengunci dirinya sendiri.
+  const cooldown = useResendCooldown(60);
 
-  const handleRequestOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRequestOTP = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setLoading(true);
     setError('');
     
@@ -36,6 +41,7 @@ export default function ForgotPasswordPage() {
         throw new Error(getErrorMessage(res));
       }
       setSuccess('Kode pemulihan telah dikirim ke perangkat/email Anda');
+      cooldown.mulai();
       setStep(2);
     } catch (err: any) {
       setError(err.message || 'Gagal mengirim permintaan pemulihan. Pastikan akun terdaftar.');
@@ -164,6 +170,17 @@ export default function ForgotPasswordPage() {
                     placeholder="Masukkan kode 6 digit dari email/SMS"
                   />
                 </div>
+                {/* Kirim ulang tanpa keluar dari langkah 2 (F4). Jedanya sama
+                    dengan alur registrasi supaya pengguna tidak menembak
+                    limiter `forgot-password` berkali-kali. */}
+                <button
+                  type="button"
+                  onClick={handleRequestOTP}
+                  disabled={cooldown.aktif || loading}
+                  className="mt-2 text-sm font-semibold text-brand-red hover:underline disabled:text-brand-gray-400 disabled:no-underline"
+                >
+                  {cooldown.aktif ? `Kirim ulang kode dalam ${cooldown.sisa}s` : 'Kirim ulang kode'}
+                </button>
               </div>
 
               <div>
@@ -186,6 +203,8 @@ export default function ForgotPasswordPage() {
                     type="button"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                    aria-pressed={showPassword}
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5 text-brand-gray-400" />
